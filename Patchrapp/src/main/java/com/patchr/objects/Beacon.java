@@ -1,10 +1,7 @@
 package com.patchr.objects;
 
-import android.support.annotation.NonNull;
-
 import com.patchr.Constants;
 import com.patchr.components.LocationManager;
-import com.patchr.service.Expose;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -18,18 +15,13 @@ import java.util.Map;
 public class Beacon extends Entity implements Cloneable, Serializable {
 
 	private static final long   serialVersionUID = 694133954499515095L;
-	public static final  String collectionId     = "beacons";
-	public static final  String schemaName       = "beacon";
-	public static final  String schemaId         = "be";
 
 	/*--------------------------------------------------------------------------------------------
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
-	@Expose
+
 	public String ssid;
-	@Expose
 	public String bssid;
-	@Expose
 	public Number signal;                                    // Used to evaluate location accuracy
 
 	/*--------------------------------------------------------------------------------------------
@@ -53,9 +45,7 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	@Override
-	public Float getDistance(Boolean refresh) {
+	@Override public Float getDistance(Boolean refresh) {
 
 		if (refresh || this.distance == null) {
 
@@ -102,19 +92,14 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		return distance * LocationManager.FeetToMetersConversion;
 	}
 
-	@Override
-	public String getCollection() {
-		return collectionId;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Beacon setPropertiesFromMap(Beacon entity, Map map, Boolean nameMapping) {
+	public static Beacon setPropertiesFromMap(Beacon entity, Map map) {
 
 		synchronized (entity) {
-			entity = (Beacon) Entity.setPropertiesFromMap(entity, map, nameMapping);
+			entity = (Beacon) Entity.setPropertiesFromMap(entity, map);
 			entity.ssid = (String) map.get("ssid");
 			entity.bssid = (String) map.get("bssid");
 			entity.signal = (Number) map.get("signal");
@@ -122,8 +107,7 @@ public class Beacon extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@Override
-	public Beacon clone() {
+	@Override public Beacon clone() {
 		final Beacon entity = (Beacon) super.clone();
 		return entity;
 	}

@@ -62,7 +62,7 @@ public class AboutScreen extends BaseScreen {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void initialize(Bundle savedInstanceState) {
+	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		this.actionBarTitle.setText(R.string.screen_title_about_form);
 		version = (TextView) findViewById(R.id.version);
@@ -77,7 +77,7 @@ public class AboutScreen extends BaseScreen {
 
 		versionName = Patchr.getVersionName(this, MainScreen.class);
 		final String version = StringManager.getString(R.string.label_about_version) + ": " + versionName
-				+ " (" + String.valueOf(Patchr.getVersionCode(this, MainScreen.class)) + ")";
+			+ " (" + String.valueOf(Patchr.getVersionCode(this, MainScreen.class)) + ")";
 
 		final String copyright = copyrightSymbol + " " + year + " " + company;
 

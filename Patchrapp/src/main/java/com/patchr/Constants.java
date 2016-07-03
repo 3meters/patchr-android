@@ -158,6 +158,12 @@ public class Constants {
 	public static final String SCHEMA_LINK                = "link";
 	public static final String SCHEMA_INTENT              = "intent";
 
+	public static final String COLLECTION_ENTITY_BEACON        = "beacons";
+	public static final String COLLECTION_ENTITY_MESSAGE       = "messages";
+	public static final String COLLECTION_ENTITY_NOTIFICATIONS = "notifications";
+	public static final String COLLECTION_ENTITY_PATCHES       = "patches";
+	public static final String COLLECTION_ENTITY_USERS         = "users";
+
 	public static final String ACTION_VIEW = "view";
 
 	public static final String TYPE_ANY             = "any";

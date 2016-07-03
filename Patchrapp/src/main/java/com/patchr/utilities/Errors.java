@@ -15,10 +15,9 @@ import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.Command;
+import com.patchr.objects.ProxibaseError;
 import com.patchr.service.ServiceResponse;
 
-//import org.apache.http.NoHttpResponseException;
-//import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.EOFException;
@@ -32,60 +31,57 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
+//import org.apache.http.NoHttpResponseException;
+//import org.apache.http.client.ClientProtocolException;
+
 public final class Errors {
 
-	public static void handleError(final Activity activity, ServiceResponse serviceResponse) {
-		if (serviceResponse != null) {
-			ErrorResponse errorResponse = serviceResponse.errorResponse;
-			if (errorResponse != null && errorResponse.errorResponseType != null) {
-				handleError(activity, errorResponse);
-				if (errorResponse.report) {
-					Reporting.logException(serviceResponse.exception);
-				}
-			}
-		}
+	public static void handleError(final Activity activity, ServiceResponse response) {
+		/* Stub that does nothing. */
 	}
 
-	public static void handleError(final Activity activity, ErrorResponse errorResponse) {
-		/*
-		 * First show any required UI
-		 */
-		if (errorResponse.errorResponseType == ResponseType.AUTO || errorResponse.errorResponseType == ResponseType.DIALOG) {
-			if (activity != null) {
-				final String errorMessage = errorResponse.errorMessage;
-				Patchr.mainThreadHandler.post(new Runnable() {
+	public static void handleError(final Activity activity, ProxibaseError error) {
+		handleError(activity, error, ErrorActionType.TOAST, ErrorAction.NONE);
+	}
 
-					@Override
-					public void run() {
-						Dialogs.alertDialog(R.drawable.ic_launcher
-								, null
-								, errorMessage
-								, null
-								, activity
-								, android.R.string.ok
-								, null
-								, null
-								, null
-								, null);
-					}
-				});
-			}
-			else {
-				UI.toast(errorResponse.errorMessage);
+	public static void handleThrowable(final Activity activity, Throwable t) {
+		ProxibaseError error = new ProxibaseError();
+		error.message = t.getMessage();
+		error.description = t.getLocalizedMessage();
+		handleError(activity, error, ErrorActionType.TOAST, ErrorAction.NONE);
+	}
+
+	public static void handleError(final Activity activity, ProxibaseError error, ErrorActionType errorActionType, ErrorAction errorAction) {
+
+		/* First show any required UI */
+		final String alertMessage = error.description != null ? error.description : error.message;
+
+		ErrorAction errAction = errorAction;
+
+		if (errorActionType == ErrorActionType.AUTO || errorActionType == ErrorActionType.TOAST) {
+			UI.toast(alertMessage);
+			if (error.code.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED
+					|| error.code.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+				errAction = ErrorAction.LOGOUT;
 			}
 		}
-		else if (errorResponse.errorResponseType == ResponseType.TOAST) {
-			UI.toast(errorResponse.errorMessage);
+		else if (errorActionType == ErrorActionType.ALERT) {
+			if (activity != null) {
+				Dialogs.alertDialogSimple(activity, null, alertMessage);
+			}
+			else {
+				UI.toast(alertMessage);
+			}
 		}
 
 		/* Perform any follow-up actions. */
-		if (errorResponse.signout && activity != null && UserManager.shared().authenticated()) {
-			UserManager.shared().setCurrentUser(null, false);
+		if (errAction == ErrorAction.LOGOUT) {
+			UserManager.shared().setCurrentUser(null, null, false);
 			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
-		else if (errorResponse.splash) {
+		else if (errAction == ErrorAction.LOBBY) {
 			/* Mostly because a more current client version is required. */
-			if (activity != null && !activity.getClass().getSimpleName().equals("SplashForm")) {
+			if (activity != null && !activity.getClass().getSimpleName().equals("LobbyScreen")) {
 				Patchr.router.route(activity, Command.LOBBY, null, null);
 			}
 		}
@@ -108,9 +104,9 @@ public final class Errors {
 				 */
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
 					if (serviceResponse.statusCode == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_gateway_timeout));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_gateway_timeout));
 					}
-					return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unknown_status));
+					return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_unknown_status));
 				}
 			}
 
@@ -144,7 +140,7 @@ public final class Errors {
 					}
 					ServiceException exception = new ServiceException(description);
 					Reporting.logException(exception);
-					return new ErrorResponse(Constants.ERROR_LEVEL == Log.VERBOSE ? ResponseType.TOAST : ResponseType.NONE, description);
+					return new ErrorResponse(Constants.ERROR_LEVEL == Log.VERBOSE ? ErrorActionType.TOAST : ErrorActionType.SILENT, description);
 				}
 
 				/* 401 */
@@ -162,7 +158,7 @@ public final class Errors {
 					if (serviceResponse.statusCodeService != null) {
 
 						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED) {
-							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG
+							ErrorResponse errorResponse = new ErrorResponse(ErrorActionType.ALERT
 									, StringManager.getString(R.string.error_session_expired)
 									, StringManager.getString(R.string.error_session_expired_title));
 							errorResponse.signout = true;
@@ -172,11 +168,11 @@ public final class Errors {
 						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("PasswordEdit"))
-									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_change_password_unauthorized));
+									return new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_change_password_unauthorized));
 								else if (serviceResponse.activityName.equals("SignInEdit"))
-									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_password_incorrect));
+									return new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_signin_password_incorrect));
 							}
-							ErrorResponse errorResponse = new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_session_invalid));
+							ErrorResponse errorResponse = new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_session_invalid));
 							errorResponse.signout = true;
 							return errorResponse;
 						}
@@ -184,7 +180,7 @@ public final class Errors {
 						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND) {
 							if (serviceResponse.activityName != null) {
 								if (serviceResponse.activityName.equals("SignInEdit"))
-									return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signin_failed));
+									return new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_signin_failed));
 							}
 						}
 					}
@@ -206,11 +202,11 @@ public final class Errors {
 					 */
 					if (serviceResponse.statusCodeService != null) {
 						if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK)
-							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_password_weak));
+							return new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_signup_password_weak));
 						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE)
-							return new ErrorResponse(ResponseType.DIALOG, StringManager.getString(R.string.error_signup_email_taken));
+							return new ErrorResponse(ErrorActionType.ALERT, StringManager.getString(R.string.error_signup_email_taken));
 						else if (serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_FORBIDDEN)
-							return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_forbidden));
+							return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_forbidden));
 					}
 				}
 
@@ -218,14 +214,14 @@ public final class Errors {
 
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
 					if (serviceResponse.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_not_found));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_client_request_not_found));
 					}
 				}
 
 				/* Unhandled 4XX */
 
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-					return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unhandled_request_error));
+					return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_unhandled_request_error));
 				}
 			}
 		}
@@ -239,7 +235,7 @@ public final class Errors {
 				/*
 				 * The current client version is not allowed to access the service api.
 				 */
-				ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.dialog_update_message));
+				ErrorResponse errorResponse = new ErrorResponse(ErrorActionType.SILENT, StringManager.getString(R.string.dialog_update_message));
 				Patchr.applicationUpdateRequired = true;
 				errorResponse.report = true;
 				errorResponse.splash = true;
@@ -247,7 +243,7 @@ public final class Errors {
 			}
 
 			if (exception instanceof GcmRegistrationIOException) {
-				ErrorResponse errorResponse = new ErrorResponse(ResponseType.NONE, StringManager.getString(R.string.error_gcm_registration_failed));
+				ErrorResponse errorResponse = new ErrorResponse(ErrorActionType.SILENT, StringManager.getString(R.string.error_gcm_registration_failed));
 				errorResponse.report = true;
 				return errorResponse;
 			}
@@ -261,9 +257,9 @@ public final class Errors {
 				 */
 				if (!NetworkManager.getInstance().isConnected()) {
 					if (NetworkManager.isAirplaneMode(context))
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_airplane_mode));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_connection_airplane_mode));
 					else
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_none));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_connection_none));
 				}
 
 				/*
@@ -285,32 +281,32 @@ public final class Errors {
 				if (Constants.ERROR_LEVEL == Log.VERBOSE) {
 					//noinspection deprecation
 					if (exception instanceof ConnectTimeoutException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_unavailable));
 
 					if (exception instanceof SocketTimeoutException ||
 							exception instanceof InterruptedIOException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_connection_poor));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_connection_poor));
 
 					//noinspection deprecation
 					if (exception instanceof ConnectException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_unavailable));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_unavailable));
 
 					if (exception instanceof SocketException) {
 						Integer messageResId = R.string.error_service_unavailable;
 						if (exception.getMessage().toLowerCase(Locale.US).contains("econnreset")) {
 							messageResId = R.string.error_connection_reset;
 						}
-						return new ErrorResponse(ResponseType.AUTO, StringManager.getString(messageResId));
+						return new ErrorResponse(ErrorActionType.AUTO, StringManager.getString(messageResId));
 					}
 
 					if (exception instanceof UnknownHostException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_unknown_host));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_client_unknown_host));
 
 					if (exception instanceof FileNotFoundException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_service_file_not_found));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_service_file_not_found));
 
 					if (exception instanceof EOFException)
-						return new ErrorResponse(ResponseType.TOAST, StringManager.getString(R.string.error_client_request_stream_error));
+						return new ErrorResponse(ErrorActionType.TOAST, StringManager.getString(R.string.error_client_request_stream_error));
 				}
 				else {
 					//noinspection deprecation
@@ -319,7 +315,7 @@ public final class Errors {
 							|| exception instanceof InterruptedIOException
 							|| exception instanceof SocketTimeoutException
 							|| exception instanceof SocketException) {
-						return new ErrorResponse(ResponseType.AUTO, StringManager.getString(R.string.error_connection_poor));
+						return new ErrorResponse(ErrorActionType.AUTO, StringManager.getString(R.string.error_connection_poor));
 					}
 				}
 
@@ -328,7 +324,7 @@ public final class Errors {
 					if (!NetworkManager.getInstance().isMobileNetwork()) {
 						/* This can trigger another call to getErrorResponse and recurse until a stack overflow. */
 						if (NetworkManager.getInstance().isWalledGardenConnection()) {
-							return new ErrorResponse(ResponseType.AUTO, StringManager.getString(R.string.error_connection_walled_garden));
+							return new ErrorResponse(ErrorActionType.AUTO, StringManager.getString(R.string.error_connection_walled_garden));
 						}
 					}
 				}
@@ -336,11 +332,11 @@ public final class Errors {
 
 			/* Unhandled exception */
 			if (Constants.ERROR_LEVEL == Log.VERBOSE) {
-				return new ErrorResponse(ResponseType.TOAST, exception.getMessage());
+				return new ErrorResponse(ErrorActionType.TOAST, exception.getMessage());
 			}
 		}
 
-		return new ErrorResponse(ResponseType.NONE, null);
+		return new ErrorResponse(ErrorActionType.SILENT, null);
 	}
 
 	public static Boolean isNetworkError(@NonNull ServiceResponse serviceResponse) {
@@ -351,33 +347,39 @@ public final class Errors {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public enum ResponseType {
+	public enum ErrorActionType {
 		AUTO,
-		DIALOG,
+		ALERT,
 		TOAST,
-		NONE
+		SILENT
+	}
+
+	public enum ErrorAction {
+		NONE,
+		LOGOUT,
+		LOBBY
 	}
 
 	@SuppressWarnings("ucd")
 	public static class ErrorResponse {
-		public String       errorMessage;
-		public String       errorTitle;
-		public ResponseType errorResponseType;
+		public String          errorMessage;
+		public String          errorTitle;
+		public ErrorActionType errorResponseType;
 
 		public Boolean signout    = false;
 		public Boolean splash     = false;
 		public Boolean report     = false;
 		public Boolean clearPhoto = false;
 
-		public ErrorResponse(ResponseType responseType) {
+		public ErrorResponse(ErrorActionType responseType) {
 			this(responseType, null);
 		}
 
-		public ErrorResponse(ResponseType responseType, String errorMessage) {
+		public ErrorResponse(ErrorActionType responseType, String errorMessage) {
 			this(responseType, errorMessage, null);
 		}
 
-		public ErrorResponse(ResponseType responseType, String errorMessage, String errorTitle) {
+		public ErrorResponse(ErrorActionType responseType, String errorMessage, String errorTitle) {
 			this.errorMessage = errorMessage;
 			this.errorTitle = errorTitle;
 			this.errorResponseType = responseType;

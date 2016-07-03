@@ -6,17 +6,14 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.Patch;
+import com.patchr.model.RealmEntity;
+import com.patchr.objects.MemberStatus;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
@@ -24,13 +21,12 @@ import com.patchr.utilities.UI;
 import java.util.Locale;
 
 @SuppressWarnings("ucd")
-public class PatchBannerView extends FrameLayout {
+public class PatchBannerView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity   entity;
-	protected BaseView base;
-	protected Integer  layoutResId;
+	public    RealmEntity entity;
+	protected Integer     layoutResId;
 
 	protected ViewGroup    layout;
 	public    ImageWidget  photoView;
@@ -64,7 +60,6 @@ public class PatchBannerView extends FrameLayout {
 
 	protected void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.photoView = (ImageWidget) layout.findViewById(R.id.patch_photo);
@@ -85,32 +80,28 @@ public class PatchBannerView extends FrameLayout {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(Entity entity) {
+	public void databind(RealmEntity entity) {
 
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.photoView.setImageWithEntity(entity);
+			this.photoView.setImageWithRealmEntity(entity);
 
-			base.setOrGone(this.name, entity.name);
-			base.setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+			setOrGone(this.name, entity.name);
+			setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
 
-			privacyGroup.setVisibility((((Patch) entity).privacy != null
-					&& ((Patch) entity).privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+			privacyGroup.setVisibility((entity.visibility != null
+				&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 
 			this.tuneButton.setVisibility(entity.isOwnedByCurrentUser() ? VISIBLE : GONE);
 
 			/* Members count */
-			Count count = entity.getCount(Constants.TYPE_LINK_MEMBER, null, true, Link.Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-			}
-			if (count.count.intValue() > 0) {
+			if (entity.countMembers > 0) {
 				TextView watchingCount = (TextView) this.membersButton.findViewById(R.id.members_count);
 				TextView watchingLabel = (TextView) this.membersButton.findViewById(R.id.members_label);
 				if (watchingCount != null) {
-					String label = getResources().getQuantityString(R.plurals.label_watching, count.count.intValue(), count.count.intValue());
-					watchingCount.setText(String.valueOf(count.count.intValue()));
+					String label = getResources().getQuantityString(R.plurals.label_watching, entity.countMembers, entity.countMembers);
+					watchingCount.setText(String.valueOf(entity.countMembers));
 					watchingLabel.setText(label);
 					UI.setVisibility(this.membersButton, View.VISIBLE);
 				}
@@ -121,13 +112,12 @@ public class PatchBannerView extends FrameLayout {
 
 			/* Mute button */
 			this.muteButton.setDisplayedChild(0);
-			Link link = entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
-			if (link == null || !link.enabled) {
+			if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
 				UI.setVisibility(this.muteButton, View.GONE);
 			}
 			else {
 				ImageView image = (ImageView) this.muteButton.findViewById(R.id.mute_image);
-				if (link.mute != null && link.mute) {
+				if (entity.userMemberMuted) {
 					/* Sound is off */
 					image.setImageResource(R.drawable.ic_img_mute_off_dark);
 					image.setColorFilter(null);

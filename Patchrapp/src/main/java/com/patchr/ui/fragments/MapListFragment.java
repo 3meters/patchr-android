@@ -35,9 +35,8 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
 import com.patchr.components.StringManager;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmLocation;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
 
@@ -45,12 +44,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MapListFragment extends SupportMapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
-		, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
-		, ClusterManager.OnClusterItemClickListener<MapListFragment.EntityItem>
-		, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
-		, GoogleMap.OnMyLocationButtonClickListener {
+	, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
+	, ClusterManager.OnClusterItemClickListener<MapListFragment.EntityItem>
+	, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
+	, GoogleMap.OnMyLocationButtonClickListener {
 
-	public    List<Entity>               entities;
+	public    List<RealmEntity>          entities;
 	public    Integer                    titleResId;
 	public    String                     relatedListFragment;
 	public    Integer                    zoomLevel;
@@ -64,7 +63,8 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
 
 		/*
@@ -163,7 +163,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	}
 
 	@Override public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patchr.router.browse(getActivity(), entityItem.mEntity.id, null, true);
+		Patchr.router.browse(getActivity(), entityItem.entity.id, null, true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -178,10 +178,10 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			map.clear();
 			clusterManager.clearItems();
 			if (entities != null) {
-				for (Entity entity : entities) {
+				for (RealmEntity entity : entities) {
 					if (entity.getLocation() != null) {
 						entity.index = entities.indexOf(entity) + 1;
-						AirLocation location = entity.getLocation();
+						RealmLocation location = entity.getLocation();
 						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
 						clusterManager.addItem(entityItem);
 					}
@@ -199,8 +199,8 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			 * One only one entity then center on it.
 			 */
 			if (entities.size() == 1 && zoomLevel != null) {
-				Patch patch = (Patch) entities.get(0);
-				AirLocation location = patch.getLocation();
+				RealmEntity entity = entities.get(0);
+				RealmLocation location = entity.getLocation();
 				if (location != null && location.lat != null && location.lng != null) {
 					map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), zoomLevel));
 				}
@@ -236,11 +236,11 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		}
 	}
 
-	public LatLngBounds getBounds(List<Entity> entities) {
+	public LatLngBounds getBounds(List<RealmEntity> entities) {
 		LatLngBounds bounds = null;
 		if (entities != null) {
 			LatLngBounds.Builder builder = LatLngBounds.builder();
-			for (Entity entity : entities) {
+			for (RealmEntity entity : entities) {
 				if (entity.location != null) {
 					builder.include(new LatLng(entity.location.lat.doubleValue(), entity.location.lng.doubleValue()));
 				}
@@ -256,17 +256,17 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 	public static class EntityItem implements ClusterItem {
 
-		private final LatLng mPosition;
-		private final Entity mEntity;
+		private final LatLng      position;
+		private final RealmEntity entity;
 
-		public EntityItem(double lat, double lng, Entity entity) {
-			mPosition = new LatLng(lat, lng);
-			mEntity = entity;
+		public EntityItem(double lat, double lng, RealmEntity entity) {
+			this.position = new LatLng(lat, lng);
+			this.entity = entity;
 		}
 
 		@Override
 		public LatLng getPosition() {
-			return mPosition;
+			return position;
 		}
 	}
 
@@ -287,19 +287,19 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			iconGenerator.setContentView(markerView);
 		}
 
-		@Override protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
+		@Override
+		protected void onBeforeClusterItemRendered(final EntityItem entityItem, final MarkerOptions markerOptions) {
 
-			if (entityItem.mEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				final Patch patch = (Patch) entityItem.mEntity;
-				if (showIndex && entityItem.mEntity.index != null) {
-					String label = (entityItem.mEntity.index.intValue() <= 99) ? String.valueOf(entityItem.mEntity.index) : "+";
+			if (entityItem.entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				if (showIndex && entityItem.entity.index != null) {
+					String label = (entityItem.entity.index.intValue() <= 99) ? String.valueOf(entityItem.entity.index) : "+";
 					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(label)));
 				}
 				else {
 					markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker));
 				}
-				markerOptions.title(!(TextUtils.isEmpty(patch.name)) ? patch.name : StringManager.getString(R.string.container_singular));
-				markerOptions.snippet((!TextUtils.isEmpty(patch.type)) ? patch.type : null);
+				markerOptions.title(!(TextUtils.isEmpty(entityItem.entity.name)) ? entityItem.entity.name : StringManager.getString(R.string.container_singular));
+				markerOptions.snippet((!TextUtils.isEmpty(entityItem.entity.type)) ? entityItem.entity.type : null);
 			}
 		}
 

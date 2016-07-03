@@ -3,12 +3,15 @@ buildscript {
 		jcenter()
 		mavenCentral()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo' }
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:2.1.2'
 		classpath 'com.google.gms:google-services:3.0.0'
 		//noinspection NewerVersionAvailable
 		classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+		classpath "io.realm:realm-gradle-plugin:1.1.0"
+		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 	}
 }
 
@@ -19,5 +22,6 @@ allprojects {
 		maven { url 'https://repo.commonsware.com.s3.amazonaws.com' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://repo.adobe.com/nexus/content/repositories/releases/' }
+		maven { url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo' }
 	}
 }

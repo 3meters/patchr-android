@@ -6,36 +6,27 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.components.DataController;
 import com.patchr.components.StringManager;
-import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.Message;
-import com.patchr.objects.Photo;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
-public class MessageView extends FrameLayout {
+public class MessageView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected CacheStamp cacheStamp;
-	protected BaseView   base;
-	protected Integer    layoutResId;
-	public    boolean    hidePatchName;
+	public    RealmEntity entity;
+	protected Integer     layoutResId;
+	public    boolean     hidePatchName;
 
 	protected ViewGroup   layout;
 	protected ImageWidget userPhotoView;
@@ -80,7 +71,6 @@ public class MessageView extends FrameLayout {
 
 	protected void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.userPhotoView = (ImageWidget) layout.findViewById(R.id.user_photo);
@@ -101,12 +91,11 @@ public class MessageView extends FrameLayout {
 		this.patchGroup = layout.findViewById(R.id.patch_group);
 	}
 
-	public void bind(Entity entity, Map options) {
+	public void bind(RealmEntity entity, Map options) {
 
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.cacheStamp = entity.getCacheStamp();
 
 			/* Options */
 			if (options != null) {
@@ -121,30 +110,30 @@ public class MessageView extends FrameLayout {
 			patchGroup.setVisibility(GONE);
 			if (!share) {
 				if (!hidePatchName) {
-					Entity parentEntity = entity.patch;
+					RealmEntity parentEntity = entity.patch;
 					if (parentEntity == null) {
 						if (entity.patchId != null) {
-							parentEntity = DataController.getStoreEntity(entity.patchId);
+							/* TODO */
 						}
 					}
 					if (parentEntity != null) {
-						base.setOrGone(this.patchName, parentEntity.name);
+						setOrGone(this.patchName, parentEntity.name);
 						patchGroup.setVisibility(VISIBLE);
 					}
 				}
 			}
 
 			/* User */
-			this.userPhotoView.setImageWithEntity(entity.creator);
-			base.setOrGone(this.userName, entity.creator.name);
+			this.userPhotoView.setImageWithRealmEntity(entity.creator.photo, entity.creator.name);
+			setOrGone(this.userName, entity.creator.name);
 
 			/* Create date */
 			String dateFormatted = null;
 			if (entity.createdDate != null) {
 				dateFormatted = DateTime.intervalCompact(entity.createdDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
 			}
-			base.setOrGone(this.createdDate, dateFormatted);
-			base.setOrGone(this.description, entity.description);
+			setOrGone(this.createdDate, dateFormatted);
+			setOrGone(this.description, entity.description);
 
 			/* Shared entity */
 
@@ -155,17 +144,12 @@ public class MessageView extends FrameLayout {
 
 			if (share) {
 
-				Entity shareEntity = null;
-
-				Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
-				if (linkEntity != null) {
-					shareEntity = linkEntity.shortcut.getAsEntity();
+				RealmEntity shareEntity = null;
+				if (entity.patch != null) {
+					shareEntity = entity.patch;
 				}
-				if (shareEntity == null) {
-					linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
-					if (linkEntity != null) {
-						shareEntity = linkEntity.shortcut.getAsEntity();
-					}
+				else if (entity.message != null) {
+					shareEntity = entity.message;
 				}
 
 				if (shareEntity != null) {
@@ -180,7 +164,7 @@ public class MessageView extends FrameLayout {
 						cardView.setContentPadding(padding, padding, padding, padding);
 						this.shareView.setTag(shareEntity);
 						this.shareView.addView(patchView);
-						base.setOrGone(this.patchName, StringManager.getString(R.string.label_message_invite));
+						setOrGone(this.patchName, StringManager.getString(R.string.label_message_invite));
 					}
 					else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						MessageView messageView = new MessageView(getContext(), R.layout.view_message_attachment);
@@ -190,38 +174,18 @@ public class MessageView extends FrameLayout {
 						cardView.setContentPadding(padding, padding, padding, padding);
 						this.shareView.setTag(shareEntity);
 						this.shareView.addView(messageView);
-						base.setOrGone(this.patchName, StringManager.getString(R.string.label_message_shared));
+						setOrGone(this.patchName, StringManager.getString(R.string.label_message_shared));
 					}
 
 					UI.setVisibility(this.shareHolder, VISIBLE);
-				}
-				else if (linkEntity != null) {
-
-					/* Message that shares an entity but shortcut was blocked by permissions */
-
-					if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-
-						shareView.removeAllViews();
-						View blockView = LayoutInflater.from(getContext()).inflate(R.layout.view_button_share_message_blocked, null, false);
-
-						Entity message = new Message();
-						message.schema = Constants.SCHEMA_ENTITY_MESSAGE;
-						message.id = linkEntity.toId;
-
-						shareView.setTag(message);
-						shareView.addView(blockView);
-
-						UI.setVisibility(shareHolder, View.VISIBLE);
-					}
 				}
 
 				/* Show share recipients */
 
 				UI.setVisibility(this.shareRecipientsHolder, View.VISIBLE);
 				StringBuilder recipientsString = new StringBuilder();
-				List<Link> links = entity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Link.Direction.out);
-				for (Link link : links) {
-					recipientsString.append(link.shortcut.name);
+				for (RealmEntity recipient : entity.recipients) {
+					recipientsString.append(recipient.name);
 				}
 				this.shareRecipients.setText(recipientsString);
 			}
@@ -229,8 +193,8 @@ public class MessageView extends FrameLayout {
 
 		        /* Photo */
 				if (entity.photo != null) {
-					final Photo photo = entity.photo;
-					this.photoView.setImageWithPhoto(photo, null);
+					final RealmPhoto photo = entity.photo;
+					this.photoView.setImageWithRealmEntity(photo, null);
 					this.photoView.setTag(photo);
 					UI.setVisibility(this.photoView, VISIBLE);
 				}
@@ -239,15 +203,9 @@ public class MessageView extends FrameLayout {
 				UI.setVisibility(this.footerGroup, VISIBLE);
 				UI.setVisibility(this.likesButton, GONE);
 
-				Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, null, Link.Direction.in);
-
-				if (count == null) {
-					count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-				}
-
-				if (count.count.intValue() > 0) {
-					String label = getContext().getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
-					this.likesCount.setText(String.valueOf(count.count.intValue()));
+				if (entity.countLikes != null && entity.countLikes > 0) {
+					String label = getContext().getResources().getQuantityString(R.plurals.label_likes, entity.countLikes, entity.countLikes);
+					this.likesCount.setText(String.valueOf(entity.countLikes));
 					this.likesLabel.setText(label);
 					UI.setVisibility(this.likesButton, VISIBLE);
 				}

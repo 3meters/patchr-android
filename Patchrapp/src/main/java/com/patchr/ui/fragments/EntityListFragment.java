@@ -3,6 +3,7 @@ package com.patchr.ui.fragments;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,19 +15,19 @@ import android.view.ViewGroup;
 
 import com.patchr.R;
 import com.patchr.components.Dispatcher;
-import com.patchr.events.AbsEntitiesQueryEvent;
-import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.FetchMode;
+import com.patchr.objects.Query;
+import com.patchr.ui.components.BusyController;
+import com.patchr.ui.components.EmptyController;
+import com.patchr.ui.components.ListController;
 import com.patchr.ui.components.ListScrollListener;
-import com.patchr.ui.components.RecyclePresenter;
-import com.patchr.utilities.Utils;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import com.patchr.ui.widgets.AirProgressBar;
+import com.patchr.utilities.Colors;
+import com.patchr.utilities.UI;
 
 /**
  * Fragment lifecycle
- * <p/>
+ * <p>
  * - onAttach (activity may not be fully initialized but fragment has been associated with it)
  * - onCreate
  * - onCreateView
@@ -35,7 +36,7 @@ import org.greenrobot.eventbus.ThreadMode;
  * - onViewStateRestored
  * - onStart (fragment becomes visible)
  * - onResume
- * <p/>
+ * <p>
  * - onPause
  * - onStop
  * - onSaveInstanceState
@@ -45,19 +46,24 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 public class EntityListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-	public RecyclePresenter                         listPresenter;
-	public AbsEntitiesQueryEvent                    query;
-	public RecyclePresenter.OnInjectEntitiesHandler injectEntitiesHandler;
-	public View                                     headerView;
+	public    RecyclerView       recyclerView;
+	protected SwipeRefreshLayout swipeRefresh;
+	protected View               emptyMessageView;
+	protected AirProgressBar     progressBar;
 
-	public Integer layoutResId;
-	public Integer listItemResId;
-	public Integer titleResId;
-	public Integer emptyMessageResId;
+	public    ListController listController;
+	protected BusyController busyController;
 
+	/* Inject required */
+	public Query query;
+
+	/* Inject optional */
+	public View    header;
+	public Integer listTitleResId;
+	public Integer layoutResId = R.layout.fragment_entity_list;
+	public boolean pagingDisabled;
 	public boolean entityCacheDisabled;            // true == always call service
 	public boolean fetchOnResumeDisabled;
-	public boolean pagingDisabled;
 	public boolean restartAtTop;
 
 	@Override public void onAttach(Context context) {
@@ -67,25 +73,15 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		this.layoutResId = R.layout.fragment_entity_list;
-
 		/* Force complete initialization if being recreated by the system */
-		boolean recreated = (this.listPresenter == null || this.listItemResId == null || (savedInstanceState != null && !savedInstanceState.isEmpty()));
+		boolean recreated = (this.listController == null || this.query == null || (savedInstanceState != null && !savedInstanceState.isEmpty()));
 		if (recreated) {
 			getActivity().finish();
 		}
-
-		if (this.listPresenter != null) {
-			this.listPresenter.listItemResId = this.listItemResId;
-			this.listPresenter.emptyMessageResId = this.emptyMessageResId;
-			this.listPresenter.query = this.query;
-			this.listPresenter.headerView = this.headerView;
-			this.listPresenter.entityCacheDisabled = this.entityCacheDisabled;
-			this.listPresenter.pagingDisabled = this.pagingDisabled;
-		}
 	}
 
-	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		/* Called every time the fragment is used/reused */
 		super.onCreateView(inflater, container, savedInstanceState);
 		return inflater.inflate(layoutResId, container, false);
@@ -94,7 +90,10 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		/* Called every time the fragment is used/reused */
 		super.onActivityCreated(savedInstanceState);
-		initialize(getView());
+		View view = getView();
+		if (view != null) {
+			initialize(view);
+		}
 	}
 
 	@Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
@@ -102,7 +101,7 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 		/* Restart at top of list */
 		if (this.restartAtTop) {
-			RecyclerView.LayoutManager layoutManager = this.listPresenter.recycleView.getLayoutManager();
+			RecyclerView.LayoutManager layoutManager = this.listController.recyclerView.getLayoutManager();
 			if (layoutManager instanceof LinearLayoutManager) {
 				((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(0, 0);
 			}
@@ -116,16 +115,15 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 
 	@Override public void onResume() {
 		super.onResume();
-
-		bind();                             // Shows any data we already have
 		if (!fetchOnResumeDisabled) {
-			fetch(FetchMode.AUTO);              // Checks for data changes and binds again if needed
+			listController.onResume();
 		}
 	}
 
 	@Override public void onStop() {
-		Dispatcher.getInstance().unregister(this);
 		super.onStop();
+		listController.onStop();
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -133,60 +131,54 @@ public class EntityListFragment extends Fragment implements SwipeRefreshLayout.O
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void onRefresh() {
-		fetch(FetchMode.MANUAL);
+		listController.fetch(FetchMode.MANUAL);
 	}
 
 	@Override public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		listPresenter.adapter.notifyDataSetChanged();
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Notifications
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe(threadMode = ThreadMode.MAIN) public void onNotificationReceived(final NotificationReceivedEvent event) {
-		/*
-		 * If list is showing notifications and contains notification entity then replace it.
-		 */
-		if (listPresenter.entities.contains(event.notification)) {
-			listPresenter.entities.remove(event.notification);
-		}
-		listPresenter.emptyPresenter.hide(true);
-		listPresenter.entities.add(0, event.notification);
-		listPresenter.adapter.notifyDataSetChanged();
+		listController.adapter.notifyDataSetChanged();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void initialize(View view) {
+	public void initialize(@NonNull View view) {
 
-		Utils.guard(view != null, "View cannot be null");
+		if (this.listController == null) {
 
-		if (this.listPresenter != null && view != null) {
-			this.listPresenter.recycleView = (RecyclerView) view.findViewById(R.id.entity_list);
-			this.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
+			this.emptyMessageView = view.findViewById(R.id.list_message);
+			this.progressBar = (AirProgressBar) view.findViewById(R.id.list_progress);
+			this.recyclerView = (RecyclerView) view.findViewById(R.id.entity_list);
+			this.swipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe);
+
+			if (this.swipeRefresh != null) {
+				this.swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
+				this.swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
+				this.swipeRefresh.setOnRefreshListener(this);
+				this.swipeRefresh.setRefreshing(false);
+				this.swipeRefresh.setEnabled(true);
+				this.busyController = new BusyController(this.progressBar, this.swipeRefresh);
+			}
+
+			this.listController = new ListController(getContext());
+			this.listController.emptyController = new EmptyController(this.emptyMessageView);
+			this.listController.busyController = this.busyController;
+			this.listController.recyclerView = this.recyclerView;
+			this.listController.query = this.query;
+			this.listController.entityCacheDisabled = this.entityCacheDisabled;
+
+			this.listController.initialize();
+
+			this.listController.recyclerView.addOnScrollListener(new ListScrollListener() {
 				@Override public void onMoved(int distance) {
-					if (listPresenter.busyPresenter.swipeRefreshLayout != null) {
-						listPresenter.busyPresenter.swipeRefreshLayout.setEnabled(distance == 0);
+					if (busyController.swipeRefreshLayout != null) {
+						busyController.swipeRefreshLayout.setEnabled(distance == 0);
 					}
 				}
 			});
-			this.listPresenter.initialize(getContext(), view);        // We init after everything is setup
-		}
-	}
 
-	public void fetch(FetchMode fetchMode) {
-		if (listPresenter != null) {
-			listPresenter.fetch(fetchMode);
-		}
-	}
-
-	public void bind() {
-		if (listPresenter != null) {
-			listPresenter.bind();
+			this.listController.adapter.header = this.header;
 		}
 	}
 }

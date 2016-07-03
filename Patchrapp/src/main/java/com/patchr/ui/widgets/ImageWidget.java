@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
@@ -171,6 +173,24 @@ public class ImageWidget extends FrameLayout {
 		}
 	}
 
+	public void setImageWithRealmEntity(RealmEntity entity) {
+		if (entity.photo != null) {
+			setImageWithPhoto(entity.photo.asPhoto(), null);
+		}
+		else {
+			setImageWithText(entity.name, (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)));
+		}
+	}
+
+	public void setImageWithRealmEntity(RealmPhoto photo, String name) {
+		if (photo != null) {
+			setImageWithPhoto(photo.asPhoto(), null);
+		}
+		else {
+			setImageWithText(name, true);
+		}
+	}
+
 	public void setImageWithPhoto(Photo photo, Callback callback) {
 
 		/* Optimize if we already have the image */
@@ -226,8 +246,8 @@ public class ImageWidget extends FrameLayout {
 
 	public void setImageWithResource(Integer resId, Transformation transform) {
 		RequestCreator creator = Picasso
-				.with(getContext())
-				.load(resId);
+			.with(getContext())
+			.load(resId);
 
 		if (transform != null) {
 			creator.transform(transform);
@@ -268,11 +288,11 @@ public class ImageWidget extends FrameLayout {
 			Integer drawableId = photo.getResId();
 			if (drawableId != null) {
 				RequestCreator creator = Picasso
-						.with(Patchr.applicationContext)
-						.load(drawableId)
-						.centerCrop()   // Needed so resize() keeps aspect ratio
-						.resize(getWidth(), getHeight())
-						.config(this.bitmapConfig);
+					.with(Patchr.applicationContext)
+					.load(drawableId)
+					.centerCrop()   // Needed so resize() keeps aspect ratio
+					.resize(getWidth(), getHeight())
+					.config(this.bitmapConfig);
 
 				if (transform != null) {
 					creator.transform(transform);
@@ -287,11 +307,11 @@ public class ImageWidget extends FrameLayout {
 		else if (photo.isFile()) {
 
 			RequestCreator creator = Picasso
-					.with(Patchr.applicationContext)
-					.load(photo.uriNative())
-					.centerCrop()   // Needed so resize() keeps aspect ratio
-					.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-					.config(this.bitmapConfig);
+				.with(Patchr.applicationContext)
+				.load(photo.uriNative())
+				.centerCrop()   // Needed so resize() keeps aspect ratio
+				.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+				.config(this.bitmapConfig);
 
 			if (transform != null) {
 				creator.transform(transform);
@@ -306,9 +326,9 @@ public class ImageWidget extends FrameLayout {
 
 			String uri = UI.uri(photo.prefix, photo.source, this.category);
 			RequestCreator creator = Picasso
-					.with(Patchr.applicationContext)
-					.load(uri)
-					.config(this.bitmapConfig);
+				.with(Patchr.applicationContext)
+				.load(uri)
+				.config(this.bitmapConfig);
 
 			if (transform != null) {
 				creator.transform(transform);
@@ -327,13 +347,13 @@ public class ImageWidget extends FrameLayout {
 
 	private static final String      androidNamespace = "http://schemas.android.com/apk/res/android";
 	private static final ScaleType[] sScaleTypeArray  = {
-			ScaleType.MATRIX,
-			ScaleType.FIT_XY,
-			ScaleType.FIT_START,
-			ScaleType.FIT_CENTER,
-			ScaleType.FIT_END,
-			ScaleType.CENTER,
-			ScaleType.CENTER_CROP,
-			ScaleType.CENTER_INSIDE
+		ScaleType.MATRIX,
+		ScaleType.FIT_XY,
+		ScaleType.FIT_START,
+		ScaleType.FIT_CENTER,
+		ScaleType.FIT_END,
+		ScaleType.CENTER,
+		ScaleType.CENTER_CROP,
+		ScaleType.CENTER_INSIDE
 	};
 }

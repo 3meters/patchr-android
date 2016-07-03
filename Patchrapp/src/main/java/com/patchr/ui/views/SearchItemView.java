@@ -4,24 +4,22 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class SearchItemView extends FrameLayout {
+public class SearchItemView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity   entity;
-	protected BaseView base;
-	protected Integer  layoutResId;
+	public    RealmEntity entity;
+	protected Integer     layoutResId;
 
 	protected ViewGroup   layout;
 	private   ImageWidget userPhoto;
@@ -56,7 +54,6 @@ public class SearchItemView extends FrameLayout {
 
 	private void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -69,7 +66,7 @@ public class SearchItemView extends FrameLayout {
 		this.subtitle = (TextView) layout.findViewById(R.id.subtitle);
 	}
 
-	public void bind(Entity entity) {
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
 
@@ -79,17 +76,17 @@ public class SearchItemView extends FrameLayout {
 			UI.setVisibility(this.patchPhoto, GONE);
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				this.patchPhoto.setImageWithEntity(entity);
+				this.patchPhoto.setImageWithRealmEntity(entity);
 				UI.setVisibility(this.patchPhoto, VISIBLE);
 			}
 			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				this.userPhoto.setImageWithEntity(entity);
+				this.userPhoto.setImageWithRealmEntity(entity);
 				UI.setVisibility(this.userPhoto, VISIBLE);
 			}
 
-			base.setOrGone(this.name, entity.name);
-			base.setOrGone(this.type, entity.type);
-			base.setOrGone(this.subtitle, entity.subtitle);
+			setOrGone(this.name, entity.name);
+			setOrGone(this.type, entity.type);
+			setOrGone(this.subtitle, entity.subtitle);
 		}
 	}
 }

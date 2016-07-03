@@ -14,11 +14,11 @@ import android.widget.TextView;
 
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.adobe.creativesdk.aviary.internal.headless.utils.MegaPixels;
+import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
@@ -27,23 +27,21 @@ import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
-import com.patchr.objects.Message;
-import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
-import com.patchr.objects.User;
 import com.patchr.ui.BaseScreen;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
@@ -112,7 +110,8 @@ public abstract class BaseEdit extends BaseScreen {
 					final Bundle extras = intent.getExtras();
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
-						final Photo photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+						Gson gson = new Gson();
+						final RealmPhoto photo = gson.fromJson(jsonPhoto, RealmPhoto.class);
 						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entity.schema)));
 						onPhotoSelected(photo);
 					}
@@ -127,10 +126,11 @@ public abstract class BaseEdit extends BaseScreen {
 					}
 					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo()
-							.setPrefix(photoUri.toString())
-							.setStore(true)
-							.setSource(Photo.PhotoSource.file);
+
+					RealmPhoto photo = new RealmPhoto();
+					photo.prefix = photoUri.toString();
+					photo.store = true;
+					photo.source = Photo.PhotoSource.file;
 					onPhotoSelected(photo);
 				}
 			}
@@ -150,16 +150,16 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	public void onPhotoSelected(Photo photo) {
+	public void onPhotoSelected(RealmPhoto photo) {
 		/*
 		 * All photo selection sources and types end up here
 		 */
-		dirty = !Photo.same(entity.photo, photo);
+		dirty = !RealmPhoto.same(entity.photo, photo);
 		if (dirty) {
 
 			entity.photo = photo;
 			if (entity.photo != null) {
-				entity.photo.setStore(true);
+				entity.photo.store = true;
 			}
 
 			bindPhoto();
@@ -190,11 +190,6 @@ public abstract class BaseEdit extends BaseScreen {
 		 */
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
-			if (jsonEntity != null) {
-				this.entity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
-			}
-
 			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
 			this.entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);    // Used by support like reporting
 			this.parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
@@ -239,20 +234,12 @@ public abstract class BaseEdit extends BaseScreen {
 
 		/* Make new entity if we are not editing */
 		if (!editing && this.entity == null && getEntitySchema() != null) {
-
-			if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-				this.entity = Message.build();
-			}
-			else if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				this.entity = Patch.build();
-			}
-			else if (getEntitySchema().equals(Constants.SCHEMA_ENTITY_USER)) {
-				this.entity = User.build();
-			}
+			this.entity = new RealmEntity();
+			this.entity.schema = getEntitySchema();
 
 			if (UserManager.shared().authenticated()) {
-				entity.creator = UserManager.currentUser;
-				entity.creatorId = UserManager.currentUser.id;
+				entity.creator = UserManager.currentRealmUser;
+				entity.creatorId = UserManager.currentRealmUser.id;
 			}
 		}
 	}
@@ -338,7 +325,7 @@ public abstract class BaseEdit extends BaseScreen {
 		bindPhoto();
 	}
 
-	protected void beforeInsert(Entity entity, List<Link> links) {
+	protected void beforeInsert(RealmEntity entity, List<Link> links) {
 		if (parentId != null) {
 			if (links == null) {
 				links = new ArrayList<>();
@@ -365,10 +352,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showHorizontalProgressBar(BaseEdit.this);
+					busyController.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
-					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
+					busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
 				}
 			}
 
@@ -376,17 +363,6 @@ public abstract class BaseEdit extends BaseScreen {
 				Thread.currentThread().setName("AsyncInsertUpdateEntity");
 
 				List<Beacon> beacons = null;
-
-				/* If parent id then this is a child */
-				if (entity.linksIn != null) {
-					entity.linksIn.clear();
-				}
-
-				if (entity.linksOut != null) {
-					entity.linksOut.clear();
-				}
-
-				entity.toId = parentId;
 
 				/* We only send beacons if a patch is being inserted */
 				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !proximityDisabled) {
@@ -443,9 +419,9 @@ public abstract class BaseEdit extends BaseScreen {
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
 						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyPresenter.hide(true);
+						busyController.hide(true);
 						return result;
 					}
 				}
@@ -455,11 +431,12 @@ public abstract class BaseEdit extends BaseScreen {
 				beforeInsert(entity, links);
 				if (isCancelled()) return null;
 
-				ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				//ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = new ModelResult();
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				return result;
 			}
@@ -477,7 +454,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				UI.toast(StringManager.getString(R.string.alert_cancelled));
 			}
 
@@ -525,10 +502,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showHorizontalProgressBar(BaseEdit.this);
+					busyController.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
-					busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
+					busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
 				}
 			}
 
@@ -580,18 +557,19 @@ public abstract class BaseEdit extends BaseScreen {
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
 						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyPresenter.hide(true);
+						busyController.hide(true);
 						return result;
 					}
 				}
 
-				ModelResult result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				//ModelResult result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = new ModelResult();
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				return result;
 			}
@@ -604,7 +582,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				UI.toast(StringManager.getString(R.string.alert_cancelled));
 			}
 

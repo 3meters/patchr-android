@@ -44,8 +44,8 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	private List<Entity>         entities;
 	private RecyclerView.Adapter adapter;
 	private Context              context;
-	public  RecyclerView         listView;
-	public  BusyPresenter        busyPresenter;
+	public  RecyclerView         recyclerView;
+	public  BusyController       busyPresenter;
 
 	public  EditText   searchInput;
 	public  SearchView searchView;
@@ -99,13 +99,13 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 			recipientsField.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Select);
 		}
 
-		if (searchInput instanceof EditText && listView != null) {
-			listView.setLayoutManager(new LinearLayoutManager(context));
-			listView.setAdapter(adapter);
+		if (searchInput instanceof EditText && recyclerView != null) {
+			recyclerView.setLayoutManager(new LinearLayoutManager(context));
+			recyclerView.setAdapter(adapter);
 
-			final ViewGroup.LayoutParams params = listView.getLayoutParams();
+			final ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
 			params.height = 0;
-			listView.setLayoutParams(params);
+			recyclerView.setLayoutParams(params);
 
 			searchInput.addTextChangedListener(new SimpleTextWatcher() {
 				@Override public void afterTextChanged(@NonNull Editable s) {
@@ -113,18 +113,18 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 				}
 			});
 		}
-		else if (searchView != null && listView != null) {
-			listView.setLayoutManager(new LinearLayoutManager(context));
-			listView.setAdapter(adapter);
+		else if (searchView != null && recyclerView != null) {
+			recyclerView.setLayoutManager(new LinearLayoutManager(context));
+			recyclerView.setAdapter(adapter);
 			searchView.setOnQueryTextListener(this);
 		}
 	}
 
 	public void bindDropdown() {
-		final ViewGroup.LayoutParams params = listView.getLayoutParams();
+		final ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
 		params.height = (int) adapter.getItemCount() * UI.getRawPixelsForDisplayPixels(56f);
-		listView.setLayoutParams(params);
-		listView.setVisibility(adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE);
+		recyclerView.setLayoutParams(params);
+		recyclerView.setVisibility(adapter.getItemCount() > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	public void textChanged(@NonNull String input) {
@@ -146,7 +146,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 
 				@Override protected void onPreExecute() {
 					if (busyPresenter != null) {
-						busyPresenter.show(BusyPresenter.BusyAction.Scanning_Empty);
+						busyPresenter.show(BusyController.BusyAction.Scanning_Empty);
 					}
 
 					if (searchProgress != null) {
@@ -203,7 +203,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	private class SuggestArrayAdapter extends RecyclerView.Adapter<ViewHolder> {
+	private class SuggestArrayAdapter extends RecyclerView.Adapter<RecyclerViewHolder> {
 
 		private List<Entity>   entities;
 		private LayoutInflater inflater;
@@ -213,14 +213,14 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 			this.inflater = LayoutInflater.from(context);
 		}
 
-		@Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		@Override public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.listitem_search, parent, false);
-			return new ViewHolder(view);
+			return new RecyclerViewHolder(view);
 		}
 
-		@Override public void onBindViewHolder(ViewHolder holder, int position) {
+		@Override public void onBindViewHolder(RecyclerViewHolder holder, int position) {
 			Entity entity = this.entities.get(position);
-			holder.bind(entity);
+			//holder.bind(entity);
 		}
 
 		@Override public int getItemCount() {

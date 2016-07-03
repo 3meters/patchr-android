@@ -2,7 +2,6 @@ package com.patchr.objects;
 
 import android.support.annotation.NonNull;
 
-import com.patchr.service.Expose;
 import com.patchr.utilities.Reporting;
 
 import net.minidev.json.JSONValue;
@@ -16,17 +15,11 @@ import java.util.Map;
 public class CacheStamp extends ServiceObject {
 
 	private static final long serialVersionUID = 706592482666845156L;
-	@Expose
 	public Number activityDate;
-	@Expose
 	public Number modifiedDate;
-	@Expose
 	public Boolean activity = false;
-	@Expose
 	public Boolean modified = false;
-	@Expose
 	public Boolean override = false;
-	@Expose
 	public String source;
 
 	public CacheStamp() {}
@@ -36,7 +29,7 @@ public class CacheStamp extends ServiceObject {
 		this.modifiedDate = modifiedDate;
 	}
 
-	public static CacheStamp setPropertiesFromMap(CacheStamp cacheStamp, Map map, Boolean nameMapping) {
+	public static CacheStamp setPropertiesFromMap(CacheStamp cacheStamp, Map map) {
 		cacheStamp.activityDate = (Number) map.get("activityDate");
 		cacheStamp.modifiedDate = (Number) map.get("modifiedDate");
 		cacheStamp.activity = (Boolean) map.get("activity");
@@ -44,8 +37,7 @@ public class CacheStamp extends ServiceObject {
 		return cacheStamp;
 	}
 
-	@Override
-	public boolean equals(Object o) {
+	@Override public boolean equals(Object o) {
 		if (o == null) return false;
 		if (o == this) return true;
 		if (!(o instanceof CacheStamp)) return false;
@@ -56,8 +48,7 @@ public class CacheStamp extends ServiceObject {
 		return (activityEqual && modifiedEqual);
 	}
 
-	@Override
-	public int hashCode() {
+	@Override public int hashCode() {
 		int result = 17;
 		long activity = (this.activityDate != null) ? activityDate.longValue() : 0;
 		long modified = (this.modifiedDate != null) ? modifiedDate.longValue() : 0;
@@ -66,14 +57,12 @@ public class CacheStamp extends ServiceObject {
 		return result;
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		String json = JSONValue.toJSONString(this);
 		return json;
 	}
 
-	@Override
-	public CacheStamp clone() {
+	@Override public CacheStamp clone() {
 		CacheStamp cacheStamp;
 		try {
 			cacheStamp = (CacheStamp) super.clone();

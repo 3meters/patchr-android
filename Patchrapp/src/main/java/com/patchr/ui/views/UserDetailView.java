@@ -1,43 +1,33 @@
 package com.patchr.ui.views;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.patchr.BuildConfig;
-import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
 import com.patchr.objects.PhoneNumber;
-import com.patchr.objects.User;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class UserDetailView extends FrameLayout {
+public class UserDetailView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected CacheStamp cacheStamp;
-	protected ViewGroup  layout;
+	public    RealmEntity user;
+	protected CacheStamp  cacheStamp;
+	protected ViewGroup   layout;
 
-	protected BaseView base          = new BaseView();
 	protected Integer  layoutResId   = R.layout.view_profile_header;
 	private   Boolean  isCurrentUser = false;
 
@@ -73,13 +63,18 @@ public class UserDetailView extends FrameLayout {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public void invalidate() {
+		super.invalidate();
+		draw();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
 	private void initialize() {
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
+		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 		ListView.LayoutParams params = new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT);
 		this.setLayoutParams(params);
 
@@ -93,61 +88,53 @@ public class UserDetailView extends FrameLayout {
 		this.fab = (FloatingActionButton) layout.findViewById(R.id.fab);
 	}
 
-	public void bind(Entity entity) {
+	public void draw() {
 
-		synchronized (lock) {
+		if (this.user == null) return;
 
-			this.entity = entity;
-			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentUser.id.equals(entity.id));
+		this.userPhoto.setImageWithRealmEntity(user.photo, user.name);
+		setOrGone(this.userName, user.name);
+		setOrGone(this.userArea, user.area);
 
-			if (entity == null) {
-				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
-				final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-				UI.showDrawableInImageView(bitmapDrawable, userPhoto.imageView, Constants.ANIMATE_IMAGES);
-				this.userName.setText("Guest");
-				this.userArea.setText(null);
-				return;
-			}
+		UI.setVisibility(this.authIdentifierLabel, GONE);
+		if (this.isCurrentUser) {
+			UI.setVisibility(this.authIdentifierLabel, VISIBLE);
 
-			this.cacheStamp = entity.getCacheStamp();
-			User user = (User) entity;
-
-			this.userPhoto.setImageWithEntity(user);
-			base.setOrGone(this.userName, user.name);
-			base.setOrGone(this.userArea, user.area);
-
-			UI.setVisibility(this.authIdentifierLabel, GONE);
-			if (this.isCurrentUser) {
-				UI.setVisibility(this.authIdentifierLabel, VISIBLE);
-
-				if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-					if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-						base.setOrGone(this.authIdentifier, ((PhoneNumber)UserManager.authIdentifierHint).number);
-					}
-					else {
-						base.setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
-					}
+			if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
+					setOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
 				}
 				else {
-					base.setOrGone(this.authIdentifier, user.email);
+					setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
 				}
 			}
+			else {
+				setOrGone(this.authIdentifier, user.email);
+			}
+		}
 
-			this.fab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
+		this.fab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
 
-			/* Button state */
+		/* Button state */
 
-			Count watching = entity.getCount(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-			Count created = entity.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
+		Integer watching = user.patchesMember.intValue();
+		Integer created = user.patchesOwned.intValue();
 
-			this.buttonMember.setText(StringManager.getString(R.string.label_user_watching)
-					+ ": " + ((watching != null)
-					          ? String.valueOf(watching.count.intValue())
-					          : StringManager.getString(R.string.label_profile_member_of_empty)));
-			this.buttonOwner.setText(StringManager.getString(R.string.label_user_created)
-					+ ": " + ((created != null)
-					          ? String.valueOf(created.count.intValue())
-					          : StringManager.getString(R.string.label_profile_owner_of_empty)));
+		this.buttonMember.setText(StringManager.getString(R.string.label_user_watching)
+			+ ": " + ((watching > 0)
+			          ? String.valueOf(watching)
+			          : StringManager.getString(R.string.label_profile_member_of_empty)));
+		this.buttonOwner.setText(StringManager.getString(R.string.label_user_created)
+			+ ": " + ((created > 0)
+			          ? String.valueOf(created)
+			          : StringManager.getString(R.string.label_profile_owner_of_empty)));
+	}
+
+	public void bind(RealmEntity user) {
+		synchronized (lock) {
+			this.user = user;
+			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentRealmUser.id.equals(this.user.id));
+			draw();
 		}
 	}
 }

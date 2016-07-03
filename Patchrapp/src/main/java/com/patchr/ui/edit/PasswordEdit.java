@@ -17,7 +17,7 @@ import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -90,7 +90,7 @@ public class PasswordEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -106,7 +106,7 @@ public class PasswordEdit extends BaseEdit {
 
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Reporting.track(AnalyticsCategory.EDIT, "Changed Password");

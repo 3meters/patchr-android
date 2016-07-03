@@ -6,17 +6,15 @@ import com.patchr.Constants;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.CacheStamp.StampSource;
 import com.patchr.objects.Link.Direction;
-import com.patchr.service.Expose;
-import com.patchr.service.SerializedName;
 import com.patchr.utilities.Type;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,99 +37,115 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	/* Database fields */
 
-	@Expose
-	public String subtitle;
-
-	@Expose
-	public String description;
-
-	@Expose
+	public String      subtitle;
+	public String      description;
 	public Photo       photo;
-	@Expose
 	public AirLocation location;
-	@Expose(serialize = false, deserialize = true)
-	@SerializedName(name = "_acl")
 	public String      patchId;
 
 	/* Synthetic fields */
 
-	@Expose(serialize = false, deserialize = true)
 	public List<Link>  linksIn;
-	@Expose(serialize = false, deserialize = true)
 	public List<Link>  linksOut;
-	@Expose(serialize = false, deserialize = true)
 	public List<Count> linksInCounts;
-	@Expose(serialize = false, deserialize = true)
 	public List<Count> linksOutCounts;
 
-	@Expose(serialize = false, deserialize = true)
 	public String  toId;                                         // Used to find entities this entity is linked to
-	@Expose(serialize = false, deserialize = true)
 	public String  fromId;                                       // Used to find entities this entity is linked from
-	@Expose(serialize = false, deserialize = true)
 	public String  linkId;                                       // Used to update the link used to include this entity in a set
-	@Expose(serialize = false, deserialize = true)
 	public Boolean linkEnabled;                                  // Used to update the link used to include this entity in a set
 
-	/* Patch (synthesized for the client) */
+	/* Service synthesized fields */
 
-	@Expose(serialize = false, deserialize = true)
-	public Patch patch;
-
-	/* Stat fields (synthesized for the client) */
-
-	@Expose(serialize = false, deserialize = true)
-	public String reason;
-	@Expose(serialize = false, deserialize = true)
+	public Patch  patch;
 	public Number score;
-	@Expose(serialize = false, deserialize = true)
-	public Number count;
-	@Expose(serialize = false, deserialize = true)
 	public Number rank;
 
-	/*--------------------------------------------------------------------------------------------
-	 * Client fields (NONE are transferred)
-	 *--------------------------------------------------------------------------------------------*/
-
-	@NonNull
-	public Boolean hidden           = false;                   // Flag entities not currently visible because of fencing.
-	@NonNull
-	public Boolean fuzzy            = false;                   // Flag places with inaccurate locations.
-	@NonNull
-	public Boolean checked          = false;                   // Used to track selection in lists.
-	@NonNull
-	public Boolean shortcuts        = false;                   // Do links have shortcuts?
-	@NonNull
-	public Boolean foundByProximity = false;                   // Was this found based on proximity
-	@NonNull
-	public Boolean editing          = false;                   // Used to flag when we can't use id to match up.
-	@NonNull
-	public Boolean highlighted      = false;                   // Used to track one shot highlighting
-	@NonNull
-	public Boolean read             = true;                    // Used to track if the user has browsed.
+	/* Local convenience fields */
 
 	public Float distance;                                     // Used to cache most recent distance calculation.
-	public Number index = 0;                                   // Used to cross reference list position for mapping.
-
-    /* Entity is not persisted with service, only seeing this for suggested places that
-       come from provider. We also use this when injecting a fake beacon or applink. */
-
-	@NonNull
-	public Boolean synthetic = false;
+	public Number  index = 0;                                   // Used to cross reference list position for mapping.
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
+	public static Entity setPropertiesFromMap(Entity entity, Map map) {
+
+		synchronized (entity) {
+		    /*
+			 * Need to include any properties that need to survive encode/decoded between activities.
+			 */
+			entity = (Entity) ServiceBase.setPropertiesFromMap(entity, map);
+
+			entity.subtitle = (String) map.get("subtitle");
+			entity.description = (String) map.get("description");
+
+			entity.patchId = (String) (map.get("_acl") != null ? map.get("_acl") : map.get("patchId"));
+
+			entity.toId = (String) (map.get("_to") != null ? map.get("_to") : map.get("toId"));
+			entity.fromId = (String) (map.get("_from") != null ? map.get("_from") : map.get("fromId"));
+			entity.linkId = (String) (map.get("_link") != null ? map.get("_link") : map.get("linkId"));
+			entity.linkEnabled = (Boolean) ((map.get("linkEnabled") != null) ? map.get("linkEnabled") : true);
+
+			entity.score = (Number) map.get("score");
+			entity.rank = (Number) map.get("rank");
+
+			if (map.get("photo") != null) {
+				entity.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
+			}
+
+			if (map.get("location") != null) {
+				entity.location = AirLocation.setPropertiesFromMap(new AirLocation(), (Map<String, Object>) map.get("location"));
+			}
+
+			if (map.get("patch") != null) {
+				entity.patch = Patch.setPropertiesFromMap(new Patch(), (Map<String, Object>) map.get("patch"));
+			}
+
+			if (map.get("linksIn") != null) {
+				entity.linksIn = new ArrayList<Link>();
+				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksIn");
+				for (Map<String, Object> linkMap : linkMaps) {
+					entity.linksIn.add(Link.setPropertiesFromMap(new Link(), linkMap));
+				}
+			}
+
+			if (map.get("linksOut") != null) {
+				entity.linksOut = new ArrayList<Link>();
+				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOut");
+				for (Map<String, Object> linkMap : linkMaps) {
+					entity.linksOut.add(Link.setPropertiesFromMap(new Link(), linkMap));
+				}
+			}
+
+			if (map.get("linksInCounts") != null) {
+				entity.linksInCounts = new ArrayList<Count>();
+				final List<LinkedHashMap<String, Object>> countMaps = (List<LinkedHashMap<String, Object>>) map.get("linksInCounts");
+				for (Map<String, Object> countMap : countMaps) {
+					entity.linksInCounts.add(Count.setPropertiesFromMap(new Count(), countMap));
+				}
+			}
+
+			if (map.get("linksOutCounts") != null) {
+				entity.linksOutCounts = new ArrayList<Count>();
+				final List<LinkedHashMap<String, Object>> countMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOutCounts");
+				for (Map<String, Object> countMap : countMaps) {
+					entity.linksOutCounts.add(Count.setPropertiesFromMap(new Count(), countMap));
+				}
+			}
+		}
+		return entity;
+	}
+
 	public Shortcut getAsShortcut() {
 		Shortcut shortcut = new Shortcut()
-				.setAppId(id)
-				.setId(id)
-				.setName((name != null) ? name : null)
-				.setPhoto(getPhoto())
-				.setSchema((schema != null) ? schema : null)
-				.setApp((schema != null) ? schema : null)
-				.setPosition(position);
+			.setAppId(id)
+			.setId(id)
+			.setName((name != null) ? name : null)
+			.setPhoto(getPhoto())
+			.setSchema((schema != null) ? schema : null)
+			.setPosition(position);
 
 		shortcut.sortDate = (sortDate != null) ? sortDate : modifiedDate;
 		shortcut.content = true;
@@ -151,8 +165,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Boolean isOwnedByCurrentUser() {
 		Boolean owned = (ownerId != null
-				&& UserManager.shared().authenticated()
-				&& ownerId.equals(UserManager.currentUser.id));
+			&& UserManager.shared().authenticated()
+			&& ownerId.equals(UserManager.currentUser.id));
 		return owned;
 	}
 
@@ -163,11 +177,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		final Entity other = (Entity) obj;
 
 		return Type.equal(this.id, other.id)
-				&& Type.equal(this.name, other.name)
-				&& Type.equal(this.description, other.description)
-				&& this.photo.uri(PhotoCategory.NONE).equals(other.photo.uri(PhotoCategory.NONE))
-				&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
-				&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
+			&& Type.equal(this.name, other.name)
+			&& Type.equal(this.description, other.description)
+			&& this.photo.uri(PhotoCategory.NONE).equals(other.photo.uri(PhotoCategory.NONE))
+			&& !(this.linksIn != null && other.linksIn != null && this.linksIn.size() != other.linksIn.size())
+			&& !(this.linksOut != null && other.linksOut != null && this.linksOut.size() != other.linksOut.size());
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -182,28 +196,28 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return this.photo;
 	}
 
-	public AirLocation getLocation() {
-		/*
-		 * We do n
-		 */
-		AirLocation _location = null;
+	public RealmLocation getLocation() {
+//		/*
+//		 * We do n
+//		 */
+//		RealmLocation _location = null;
+//
+//		if (this.location != null
+//			&& this.location.lat != null
+//			&& this.location.lng != null) {
+//			_location = new AirLocation(this.location.lat.doubleValue(), this.location.lng.doubleValue());
+//			_location.accuracy = this.location.accuracy;
+//			_location.provider = this.location.provider;
+//		}
+//
+//		if (_location == null) {
+//			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
+//			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
+//				_location = beacon.location;
+//			}
+//		}
 
-		if (this.location != null
-				&& this.location.lat != null
-				&& this.location.lng != null) {
-			_location = new AirLocation(this.location.lat.doubleValue(), this.location.lng.doubleValue());
-			_location.accuracy = this.location.accuracy;
-			_location.provider = this.location.provider;
-		}
-
-		if (_location == null) {
-			final Beacon beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
-				_location = beacon.location;
-			}
-		}
-
-		return _location;
+		return null;
 	}
 
 	public Float getDistance(Boolean refresh) {
@@ -220,13 +234,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				distance = beacon.getDistance(refresh);  // Estimate based on signal strength
 			}
 			else {
-				final AirLocation entityLocation = getLocation();
-				final AirLocation deviceLocation = LocationManager.getInstance().getAirLocationLocked();
+				final RealmLocation entityLocation = getLocation();
+				final RealmLocation deviceLocation = LocationManager.getInstance().getAirLocationLocked();
 
 				if (entityLocation != null && deviceLocation != null) {
 					distance = deviceLocation.distanceTo(entityLocation);
-					fuzzy = (entityLocation.accuracy != null
-							&& entityLocation.accuracy.intValue() > LocationManager.FUZZY_THRESHOLD);
 				}
 			}
 		}
@@ -326,7 +338,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linksOut != null) {
 			for (Link link : linksOut) {
 				if ((type == null || (link.type != null && link.type.equals(type)))
-						&& (targetSchema == null || link.targetSchema.equals(targetSchema)))
+					&& (targetSchema == null || link.targetSchema.equals(targetSchema)))
 					return link;
 			}
 		}
@@ -354,8 +366,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (linkCounts != null) {
 			for (Count linkCount : linkCounts) {
 				if ((type == null || (linkCount.type != null && linkCount.type.equals(type)))
-						&& (schema == null || (linkCount.schema != null && linkCount.schema.equals(schema)))
-						&& (enabled == null || (linkCount.enabled != null && linkCount.enabled.equals(enabled))))
+					&& (schema == null || (linkCount.schema != null && linkCount.schema.equals(schema)))
+					&& (enabled == null || (linkCount.enabled != null && linkCount.enabled.equals(enabled))))
 					return linkCount;
 			}
 		}
@@ -430,17 +442,15 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (Link link : links) {
 				if ((settings.linkType == null || (link.type != null && link.type.equals(settings.linkType))) && link.shortcut != null) {
 					if (settings.linkTargetSchema == null || (link.targetSchema.equals(settings.linkTargetSchema))) {
-						if (settings.synthetic == null || link.shortcut.isSynthetic().equals(settings.synthetic)) {
-							if (settings.linkBroken
-									|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
+						if (settings.linkBroken
+							|| (!settings.linkBroken && (link.shortcut.validatedDate == null || link.shortcut.validatedDate.longValue() != -1))) {
 								/*
 								 * Must clone or the groups added below will cause circular references
 								 * that choke serializing to json.
 								 */
-								Shortcut shortcut = link.shortcut.clone();
-								shortcut.linkType = settings.linkType;
-								shortcuts.add(shortcut);
-							}
+							Shortcut shortcut = link.shortcut.clone();
+							shortcut.linkType = settings.linkType;
+							shortcuts.add(shortcut);
 						}
 					}
 				}
@@ -448,42 +458,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 			if (shortcutSorter != null) {
 				Collections.sort(shortcuts, shortcutSorter);
-			}
-
-			if (shortcuts.size() > 0 && settings.groupedByApp) {
-
-				final Map<String, List<Shortcut>> shortcutLists = new HashMap<String, List<Shortcut>>();
-				for (Shortcut shortcut : shortcuts) {
-					if (shortcut.app.equals(Constants.TYPE_APP_WEBSITE)) {
-						List<Shortcut> list = new ArrayList<Shortcut>();
-						list.add(shortcut);
-						shortcutLists.put(shortcut.appUrl, list);
-					}
-					else {
-						if (shortcutLists.containsKey(shortcut.app)) {
-							shortcutLists.get(shortcut.app).add(shortcut);
-						}
-						else {
-							List<Shortcut> list = new ArrayList<Shortcut>();
-							list.add(shortcut);
-							shortcutLists.put(shortcut.app, list);
-						}
-					}
-				}
-
-				shortcuts.clear();
-				final Iterator iter = shortcutLists.keySet().iterator();
-				while (iter.hasNext()) {
-					List<Shortcut> list = shortcutLists.get((String) iter.next());
-					Shortcut shortcut = list.get(0);
-					shortcut.setCount(0);
-					Count count = getCount(shortcut.linkType, shortcut.app, null, settings.direction);
-					if (count != null) {
-						shortcut.setCount(count.count.intValue());
-					}
-					shortcut.group = list;
-					shortcuts.add(shortcut);
-				}
 			}
 		}
 
@@ -495,8 +469,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
-							&& link.type.equals(linkType)
-							&& link.fromId.equals(UserManager.currentUser.id))
+						&& link.type.equals(linkType)
+						&& link.fromId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -509,18 +483,18 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			if (linksIn != null) {
 				for (Link link : linksIn) {
 					if (link.type != null
-							&& link.type.equals(linkType)
-							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.currentUser.id))
+						&& link.type.equals(linkType)
+						&& link.targetSchema.equals(schema)
+						&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
 			if (linksOut != null) {
 				for (Link link : linksOut) {
 					if (link.type != null
-							&& link.type.equals(linkType)
-							&& link.targetSchema.equals(schema)
-							&& link.creatorId.equals(UserManager.currentUser.id))
+						&& link.type.equals(linkType)
+						&& link.targetSchema.equals(schema)
+						&& link.creatorId.equals(UserManager.currentUser.id))
 						return link;
 				}
 			}
@@ -530,7 +504,6 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public void removeLink() {}
 
-	@NonNull
 	public static String getLabelForSchema(@NonNull String schema) {
 		String label = schema;
 		return label;
@@ -564,85 +537,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Entity setPropertiesFromMap(Entity entity, @NonNull Map map, Boolean nameMapping) {
-
-		synchronized (entity) {
-		    /*
-			 * Need to include any properties that need to survive encode/decoded between activities.
-			 */
-			entity = (Entity) ServiceBase.setPropertiesFromMap(entity, map, nameMapping);
-
-			entity.subtitle = (String) map.get("subtitle");
-			entity.description = (String) map.get("description");
-
-			entity.hidden = (Boolean) ((map.get("hidden") != null) ? map.get("hidden") : false);
-			entity.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);
-			entity.shortcuts = (Boolean) ((map.get("shortcuts") != null) ? map.get("shortcuts") : false);
-			entity.checked = (Boolean) ((map.get("checked") != null) ? map.get("checked") : false);
-			entity.patchId = (String) (nameMapping ? map.get("_acl") : map.get("patchId"));
-			entity.editing = (Boolean) ((map.get("editing") != null) ? map.get("checked") : false);
-			entity.highlighted = (Boolean) ((map.get("highlighted") != null) ? map.get("highlighted") : false);
-			entity.read = (Boolean) ((map.get("read") != null) ? map.get("read") : false);
-
-			entity.toId = (String) (nameMapping ? map.get("_to") : map.get("toId"));
-			entity.fromId = (String) (nameMapping ? map.get("_from") : map.get("fromId"));
-			entity.linkId = (String) (nameMapping ? map.get("_link") : map.get("linkId"));
-			entity.linkEnabled = (Boolean) ((map.get("linkEnabled") != null) ? map.get("linkEnabled") : true);
-
-			entity.reason = (String) map.get("reason");
-			entity.score = (Number) map.get("score");
-			entity.count = (Number) map.get("count");
-			entity.rank = (Number) map.get("rank");
-
-			if (map.get("photo") != null) {
-				entity.photo = Photo.setPropertiesFromMap(new Photo(), (HashMap<String, Object>) map.get("photo"), nameMapping);
-			}
-
-			if (map.get("location") != null) {
-				entity.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"), nameMapping);
-			}
-
-			if (map.get("patch") != null) {
-				entity.patch = Patch.setPropertiesFromMap(new Patch(), (HashMap<String, Object>) map.get("patch"), nameMapping);
-			}
-
-			if (map.get("linksIn") != null) {
-				entity.linksIn = new ArrayList<Link>();
-				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksIn");
-				for (Map<String, Object> linkMap : linkMaps) {
-					entity.linksIn.add(Link.setPropertiesFromMap(new Link(), linkMap, nameMapping));
-				}
-			}
-
-			if (map.get("linksOut") != null) {
-				entity.linksOut = new ArrayList<Link>();
-				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOut");
-				for (Map<String, Object> linkMap : linkMaps) {
-					entity.linksOut.add(Link.setPropertiesFromMap(new Link(), linkMap, nameMapping));
-				}
-			}
-
-			if (map.get("linksInCounts") != null) {
-				entity.linksInCounts = new ArrayList<Count>();
-				final List<LinkedHashMap<String, Object>> countMaps = (List<LinkedHashMap<String, Object>>) map.get("linksInCounts");
-				for (Map<String, Object> countMap : countMaps) {
-					entity.linksInCounts.add(Count.setPropertiesFromMap(new Count(), countMap, nameMapping));
-				}
-			}
-
-			if (map.get("linksOutCounts") != null) {
-				entity.linksOutCounts = new ArrayList<Count>();
-				final List<LinkedHashMap<String, Object>> countMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOutCounts");
-				for (Map<String, Object> countMap : countMaps) {
-					entity.linksOutCounts.add(Count.setPropertiesFromMap(new Count(), countMap, nameMapping));
-				}
-			}
-		}
-		return entity;
-	}
-
-	@Override
-	public Entity clone() {
+	@Override public Entity clone() {
 
 		final Entity entity = (Entity) super.clone();
 		if (entity != null) {
@@ -672,8 +567,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return entity;
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return this.id;
 	}
 
@@ -681,16 +575,15 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return this.id.hashCode();
 	}
 
-	@Override
-	public boolean equals(Object object) {
+	@Override public boolean equals(Object object) {
 	    /*
-         * Object class implementation of equals uses reference but we want to compare
+	     * Object class implementation of equals uses reference but we want to compare
          * using semantic equality.
          */
 		return object != null
-				&& object instanceof Entity
-				&& !((this.id == null) || (((Entity) object).id == null))
-				&& (this == object || this.id.equals(((Entity) object).id));
+			&& object instanceof Entity
+			&& !((this.id == null) || (((Entity) object).id == null))
+			&& (this == object || this.id.equals(((Entity) object).id));
 	}
 
 	/*--------------------------------------------------------------------------------------------

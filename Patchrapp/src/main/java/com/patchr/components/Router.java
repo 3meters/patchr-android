@@ -11,25 +11,22 @@ import android.support.v4.app.Fragment;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.Command;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.AboutScreen;
 import com.patchr.ui.BaseScreen;
-import com.patchr.ui.ListScreen;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.MainScreen;
 import com.patchr.ui.MapScreen;
-import com.patchr.ui.MemberListScreen;
 import com.patchr.ui.MessageScreen;
-import com.patchr.ui.PatchScreen;
 import com.patchr.ui.PhotoScreen;
-import com.patchr.ui.PhotoSearchScreen;
 import com.patchr.ui.PhotoSwitchboardScreen;
-import com.patchr.ui.ProfileScreen;
-import com.patchr.ui.SearchScreen;
 import com.patchr.ui.SettingsScreen;
+import com.patchr.ui.collections.BaseListScreen;
+import com.patchr.ui.collections.MemberListScreen;
+import com.patchr.ui.collections.PhotoSearchScreen;
+import com.patchr.ui.collections.SearchScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
@@ -43,6 +40,8 @@ import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
+import com.patchr.ui.listforms.PatchScreen;
+import com.patchr.ui.listforms.ProfileScreen;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Utils;
 
@@ -76,7 +75,7 @@ public class Router {
 
 	public Intent browse(Context context, String entityId, Bundle extras, Boolean start) {
 
-		String schema = Entity.getSchemaForId(entityId);
+		String schema = RealmEntity.getSchemaForId(entityId);
 		Class<?> browseClass = MessageScreen.class;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
 			browseClass = PatchScreen.class;
@@ -97,7 +96,7 @@ public class Router {
 		return intent;
 	}
 
-	public Intent edit(Context context, Entity entity, Bundle extras, Boolean start) {
+	public Intent edit(Context context, RealmEntity entity, Bundle extras, Boolean start) {
 
 		Class<?> editClass = MessageEdit.class;
 		if (Constants.SCHEMA_ENTITY_PATCH.equals(entity.schema)) {
@@ -111,7 +110,7 @@ public class Router {
 		}
 
 		IntentBuilder intentBuilder = new IntentBuilder(context, editClass);
-		intentBuilder.setEntity(entity).addExtras(extras);
+		intentBuilder.setEntityId(entity.id).addExtras(extras);
 		Intent intent = intentBuilder.build();
 
 		if (start) {
@@ -122,7 +121,7 @@ public class Router {
 		return intent;
 	}
 
-	public void route(final Context activity, Integer route, Entity entity, Bundle extras) {
+	public void route(final Context activity, Integer route, RealmEntity entity, Bundle extras) {
 
 		if (route == Command.HOME) {
 
@@ -161,7 +160,7 @@ public class Router {
 				extras = new Bundle();
 			}
 
-			intentBuilder.setEntity(entity).addExtras(extras);
+			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.build());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
@@ -292,7 +291,7 @@ public class Router {
 			}
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, PrivacyEdit.class);
 			final Intent intent = intentBuilder.build();
-			intent.putExtra(Constants.EXTRA_PRIVACY, ((Patch) entity).privacy);
+			intent.putExtra(Constants.EXTRA_PRIVACY, entity.visibility);
 
 			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.BUILDER_TO);
@@ -306,8 +305,8 @@ public class Router {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationEdit.class);
 			final Intent intent = intentBuilder.build();
 
-			if (((Patch) entity).location != null) {
-				final String json = Json.objectToJson(((Patch) entity).location);
+			if (entity.location != null) {
+				final String json = Json.objectToJson(entity.location);
 				intent.putExtra(Constants.EXTRA_LOCATION, json);
 				intent.putExtra(Constants.EXTRA_TITLE, entity.name);
 			}
@@ -383,7 +382,7 @@ public class Router {
 				throw new IllegalArgumentException("Dispatching entity list requires entity");
 			}
 
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, ListScreen.class);
+			final IntentBuilder intentBuilder = new IntentBuilder(activity, BaseListScreen.class);
 			intentBuilder.setEntityId(entity.id).addExtras(extras);
 			activity.startActivity(intentBuilder.build());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);

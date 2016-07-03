@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.objects.AirLocation;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
@@ -13,7 +13,7 @@ import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
-import com.patchr.objects.LinkSpec;
+import com.patchr.objects.LinkSpecs;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
@@ -39,7 +39,7 @@ public class EntityStore {
 	 * Store loading from service
 	 *--------------------------------------------------------------------------------------------*/
 
-	ServiceResponse loadEntities(List<String> entityIds, LinkSpec links, CacheStamp cacheStamp, Object tag) {
+	ServiceResponse loadEntities(List<String> entityIds, LinkSpecs links, CacheStamp cacheStamp, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("entityIds", (ArrayList<String>) entityIds);
@@ -49,9 +49,9 @@ public class EntityStore {
 			StringBuilder builder = new StringBuilder("object:");
 			if (cacheStamp.activityDate != null && cacheStamp.modifiedDate != null) {
 				builder.append("{\"$or\":["
-						+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}},"
-						+ "{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}"
-						+ "]}");
+					+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}},"
+					+ "{\"modifiedDate\":{\"$gt\":" + cacheStamp.modifiedDate.longValue() + "}}"
+					+ "]}");
 				parameters.putString("where", builder.toString());
 			}
 			else if (cacheStamp.activityDate != null) {
@@ -69,11 +69,11 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntities")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -98,8 +98,8 @@ public class EntityStore {
 							 * to call activateCurrentUser because we don't need to refetch link data
 							 * or change notification registration.
 							 */
-							((User) entity).session = UserManager.currentUser.session;
-							UserManager.shared().setCurrentUser((User) entity, false);  // Updates persisted user too
+							((User) entity).session = UserManager.currentSession;
+							UserManager.shared().setCurrentUser((User) entity, UserManager.currentSession, false);  // Updates persisted user too
 						}
 					}
 				}
@@ -111,14 +111,14 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpec links, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
+	ServiceResponse loadEntitiesForEntity(String forEntityId, LinkSpecs links, Cursor cursor, CacheStamp cacheStamp, Stopwatch stopwatch, Object tag) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putString("entityId", forEntityId);
 
 		if (cacheStamp != null && cacheStamp.activityDate != null) {
 			parameters.putString("where", "object:"
-					+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
+				+ "{\"activityDate\":{\"$gt\":" + cacheStamp.activityDate.longValue() + "}}");
 		}
 
 		if (links != null) {
@@ -130,12 +130,12 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON)
-				.setStopwatch(stopwatch);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesForEntity")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON)
+			.setStopwatch(stopwatch);
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -163,7 +163,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpec links, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
+	ServiceResponse loadEntitiesByProximity(List<String> beaconIds, LinkSpecs links, Cursor cursor, String installId, Object tag, Stopwatch stopwatch) {
 
 		final Bundle parameters = new Bundle();
 		parameters.putStringArrayList("beaconIds", (ArrayList<String>) beaconIds);
@@ -181,12 +181,12 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON)
-				.setStopwatch(stopwatch);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getEntitiesByProximity")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON)
+			.setStopwatch(stopwatch);
 
 		if (stopwatch != null) {
 			stopwatch.segmentTime("Load entities: service call started");
@@ -210,10 +210,6 @@ public class EntityStore {
 			}
 
 			if (loadedEntities != null && loadedEntities.size() > 0) {
-				for (Entity entity : loadedEntities) {
-					entity.foundByProximity = true;
-				}
-
 				synchronized (this) {
 
 					/* Clean out all patches found via proximity before shoving in the latest */
@@ -229,11 +225,11 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesNearLocation(AirLocation location, LinkSpec links, String installId, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(RealmLocation location, LinkSpecs links, String installId, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
-		parameters.putString("location", "object:" + Json.objectToJson(location));
+		//parameters.putString("location", "object:" + Json.objectToJson(location));
 		parameters.putInt("limit", Constants.PAGE_SIZE);
 		parameters.putBoolean("rest", false);
 		parameters.putInt("radius", Constants.PATCH_NEAR_RADIUS);
@@ -247,11 +243,11 @@ public class EntityStore {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "near")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "near")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -263,9 +259,6 @@ public class EntityStore {
 			/* Do a bit of fixup */
 			final List<Entity> entities = (List<Entity>) serviceData.data;
 			serviceResponse.data = serviceData;
-			for (Entity entity : entities) {
-				entity.foundByProximity = false;
-			}
 
 			synchronized (this) {
 
@@ -569,10 +562,8 @@ public class EntityStore {
 			entity = mCacheMap.get(iterEntities.next());
 			if (schema.equals(Constants.SCHEMA_ANY) || (entity.schema != null && entity.schema.equals(schema))) {
 				if (type.equals(Constants.TYPE_ANY) || (entity.type != null && entity.type.equals(type))) {
-					if (foundByProximity == null || entity.foundByProximity.equals(foundByProximity)) {
-						iterEntities.remove();
-						removeCount++;
-					}
+					iterEntities.remove();
+					removeCount++;
 				}
 			}
 		}

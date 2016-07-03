@@ -4,11 +4,9 @@ import android.content.Intent;
 
 import com.patchr.Constants;
 import com.patchr.objects.Photo.PhotoSource;
-import com.patchr.service.Expose;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,57 +16,40 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 
-	private static final long                      serialVersionUID = 4979315562693226461L;
+	private static final long serialVersionUID = 4979315562693226461L;
 
-	@Expose
 	public String      id;
-	@Expose
 	public String      name;
-	@Expose
 	public String      subtitle;
-	@Expose
 	public String      description;
-	@Expose
 	public String      schema;
-	@Expose
 	public String      app;                                                                                    // usually maps to type property (if exists) on polymorphic entity like applinks
-	@Expose
 	public String      appId;
-	@Expose
 	public String      appUrl;
-	@Expose
 	public Number      validatedDate;
-	@Expose
 	public Number      position;
-	@Expose
 	public Photo       photo;
-	@Expose
 	public AirLocation location;
-	@Expose
 	public Boolean     content;
-	@Expose
 	public String      action;
-	@Expose
 	public Number      sortDate;
 
 	/* Users (synthesized for the client) */
 
-	@Expose(serialize = false, deserialize = true)
 	public User creator;
 
 	/* client only properties */
 
 	public Integer        count;
 	public List<Shortcut> group;
-	public Boolean synthetic = false;
-	public String linkType;                // so we know if entity shortcut represents is targeted via like/watch/content etc.
-	public Intent intent;
+	public String         linkType;                // so we know if entity shortcut represents is targeted via like/watch/content etc.
+	public Intent         intent;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Shortcut setPropertiesFromMap(Shortcut shortcut, Map map, Boolean nameMapping) {
+	public static Shortcut setPropertiesFromMap(Shortcut shortcut, Map map) {
 		/*
 		 * Need to include any properties that need to survive encode/decoded between activities.
 		 */
@@ -85,18 +66,17 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		shortcut.position = (Number) map.get("position");
 		shortcut.content = (Boolean) map.get("content");
 		shortcut.action = (String) map.get("action");
-		shortcut.synthetic = (Boolean) ((map.get("synthetic") != null) ? map.get("synthetic") : false);
 
 		if (map.get("photo") != null) {
-			shortcut.photo = Photo.setPropertiesFromMap(new Photo(), (HashMap<String, Object>) map.get("photo"), nameMapping);
+			shortcut.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
 		}
 
 		if (map.get("location") != null) {
-			shortcut.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"), nameMapping);
+			shortcut.location = AirLocation.setPropertiesFromMap(new AirLocation(), (Map<String, Object>) map.get("location"));
 		}
 
 		if (map.get("creator") != null) {
-			shortcut.creator = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("creator"), nameMapping);
+			shortcut.creator = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("creator"));
 		}
 
 		return shortcut;
@@ -121,15 +101,13 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 				.setSubtitle(subtitle)
 				.setPhoto(new Photo(image, null, null, null, PhotoSource.resource))
 				.setPosition(position)
-				.setSynthetic(synthetic)
 				.setContent(content)
 				.setAction(action);
 
 		return shortcut;
 	}
 
-	@Override
-	public Shortcut clone() {
+	@Override public Shortcut clone() {
 		try {
 			final Shortcut shortcut = (Shortcut) super.clone();
 
@@ -178,6 +156,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
+
 	public String getName() {
 		return name;
 	}
@@ -252,15 +231,6 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 
 	public void setCount(Integer count) {
 		this.count = count;
-	}
-
-	public Boolean isSynthetic() {
-		return synthetic;
-	}
-
-	public Shortcut setSynthetic(Boolean synthetic) {
-		this.synthetic = synthetic;
-		return this;
 	}
 
 	public Boolean isContent() {

@@ -18,6 +18,7 @@ import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.EntitiesByProximityCompleteEvent;
 import com.patchr.events.EntitiesUpdatedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Cursor;
@@ -213,7 +214,6 @@ public class ProximityController {
 						, scanResult.level
 						, scanResult.test);
 
-				beacon.synthetic = true;
 				beacon.schema = Constants.SCHEMA_ENTITY_BEACON;
 				mEntityStore.upsertEntity(beacon);
 			}
@@ -306,7 +306,7 @@ public class ProximityController {
 		return serviceResponse;
 	}
 
-	public synchronized ServiceResponse getEntitiesNearLocation(AirLocation location) {
+	public synchronized ServiceResponse getEntitiesNearLocation(RealmLocation location) {
 
 		String installId = Patchr.getInstance().getinstallId();
 
@@ -335,7 +335,7 @@ public class ProximityController {
 			}
 		}
 
-		AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+		RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 		String installId = Patchr.getInstance().getinstallId();
 
 		result = DataController.getInstance().updateProximity(beaconIds, location, installId, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);

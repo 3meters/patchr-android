@@ -1,9 +1,7 @@
 package com.patchr.components;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.accountkit.AccountKit;
+import com.google.gson.Gson;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnBackPressListener;
 import com.orhanobut.dialogplus.OnClickListener;
@@ -19,23 +18,30 @@ import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.LinkSpecs;
 import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
+import com.patchr.service.ProxibaseResponse;
+import com.patchr.service.RestClient;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
+import rx.Observable;
+
 public class UserManager {
 
-	public static User   currentUser;
+	public static User        currentUser;
+	public static RealmEntity currentRealmUser;
+	public static Session     currentSession;
 
 	public static String sessionKey;        // promoted for convenience
 	public static String userId;            // promoted for convenience
@@ -44,7 +50,7 @@ public class UserManager {
 
 	public static String authTypeHint;          // convenience
 	public static Object authIdentifierHint;    // convenience
-	public static User   authUserHint;          // convenience
+	public static Object authUserHint;          // convenience
 
 	static class UserManagerHolder {
 		public static final UserManager instance = new UserManager();
@@ -89,7 +95,17 @@ public class UserManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Boolean setCurrentUser(User user, Boolean refreshUser) {
+	public void setCurrentRealmUser(RealmEntity user, Session session, Boolean refreshUser) {
+		if (user == null) {
+			discardCredentials();
+		}
+		else {
+			captureRealmCredentials(user, session);
+			captureRealmAuthHints(user, LobbyScreen.AuthType.Password);
+		}
+	}
+
+	public Boolean setCurrentUser(User user, Session session, Boolean refreshUser) {
 
 		ModelResult result = new ModelResult();
 
@@ -102,10 +118,10 @@ public class UserManager {
 			 * data fetch to get a complete user.
 			 */
 			if (refreshUser) {
-				LinkSpec options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+				LinkSpecs options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
 				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
-			captureCredentials(user);
+			captureCredentials(user, session);
 			captureAuthHints(user);
 		}
 
@@ -118,53 +134,48 @@ public class UserManager {
 		 */
 		String jsonUser = Patchr.settings.getString(StringManager.getString(R.string.setting_user), null);
 		String jsonSession = Patchr.settings.getString(StringManager.getString(R.string.setting_user_session), null);
+
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto log in using cached user...");
-
-			final User user = (User) Json.jsonToObject(jsonUser, Json.ObjectType.ENTITY);
-			user.session = (Session) Json.jsonToObject(jsonSession, Json.ObjectType.SESSION);
-
-			setCurrentUser(user, false);  // Does not block because of 'false', also updates persisted user
+			Gson gson = new Gson();
+			final RealmEntity user = gson.fromJson(jsonUser, RealmEntity.class);
+			final Session session = gson.fromJson(jsonSession, Session.class);
+			setCurrentRealmUser(user, session, false);  // Does not block because of 'false', also updates persisted user
 		}
 	}
 
 	public Boolean authenticated() {
-		return (userId != null && sessionKey != null);
+		return (userId != null && currentSession != null);
 	}
 
 	public Boolean provisional() {
-		return (userId != null && sessionKey != null && userRole != null && userRole.equals("provisional"));
+		return (userId != null && currentSession != null && userRole != null && userRole.equals("provisional"));
+	}
+
+	public Observable<ProxibaseResponse> login(String email, String password) {
+		return RestClient.getInstance().login(email, password);
 	}
 
 	public void logout() {
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			AccountKit.logOut();
-			UserManager.shared().setCurrentUser(null, false);
+			setCurrentUser(null, null, false);
 			Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
 			return;
 		}
 
-		new AsyncTask() {
+		RestClient.getInstance().logout(userId, sessionKey).subscribe(
+			response -> {
+				Logger.i(this, "Logout from service successful");
+			},
+			throwable -> {
+				Logger.w(this, "Logout from service failed");
+			});
 
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncSignOut");
-				return DataController.getInstance().signoutComplete(NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@SuppressLint("NewApi")
-			@Override protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-
-				/* Set to anonymous user even if service call fails */
-				if (result.serviceResponse.responseCode != NetworkManager.ResponseCode.SUCCESS) {
-					Logger.w(this, "User sign out but service call failed: " + UserManager.currentUser.id);
-				}
-
-				Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
-				Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		Logger.i(this, "User logged out: " + UserManager.currentUser.id);
+		setCurrentUser(null, null, false);
+		Reporting.track(AnalyticsCategory.ACTION, "Logged out");
 	}
 
 	public void showGuestGuard(final Context context, Integer resId) {
@@ -181,48 +192,49 @@ public class UserManager {
 		((TextView) view.findViewById(R.id.message)).setText(message);
 
 		DialogPlus dialog = DialogPlus.newDialog(context)
-				.setOnClickListener(new OnClickListener() {
-					@Override public void onClick(DialogPlus dialog, View view) {
-						if (view.getId() == R.id.button_login) {
-							Bundle extras = new Bundle();
-							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
-							Patchr.router.route(context, Command.LOGIN, null, extras);
-						}
-						else if (view.getId() == R.id.submit_button) {
-							Bundle extras = new Bundle();
-							extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
-							Patchr.router.route(context, Command.LOGIN, null, extras);
-						}
-						dialog.dismiss();
+			.setOnClickListener(new OnClickListener() {
+				@Override public void onClick(DialogPlus dialog, View view) {
+					if (view.getId() == R.id.button_login) {
+						Bundle extras = new Bundle();
+						extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+						Patchr.router.route(context, Command.LOGIN, null, extras);
 					}
-				})
-				.setOnBackPressListener(new OnBackPressListener() {
-					@Override public void onBackPressed(DialogPlus dialog) {
-						dialog.dismiss();
+					else if (view.getId() == R.id.submit_button) {
+						Bundle extras = new Bundle();
+						extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+						Patchr.router.route(context, Command.LOGIN, null, extras);
 					}
-				})
-				.setContentHolder(new ViewHolder(view))
-				.setContentWidth((int) UI.getScreenWidthRawPixels(context))
-				.setContentHeight((int) UI.getScreenHeightRawPixels(context))
-				.setContentBackgroundResource(R.color.transparent)
-				.setOverlayBackgroundResource(R.color.scrim_70_pcnt)
-				.setCancelable(false)
-				.create();
+					dialog.dismiss();
+				}
+			})
+			.setOnBackPressListener(new OnBackPressListener() {
+				@Override public void onBackPressed(DialogPlus dialog) {
+					dialog.dismiss();
+				}
+			})
+			.setContentHolder(new ViewHolder(view))
+			.setContentWidth((int) UI.getScreenWidthRawPixels(context))
+			.setContentHeight((int) UI.getScreenHeightRawPixels(context))
+			.setContentBackgroundResource(R.color.transparent)
+			.setOverlayBackgroundResource(R.color.scrim_70_pcnt)
+			.setCancelable(false)
+			.create();
 
 		dialog.show();
 	}
 
-	private void captureCredentials(User user) {
+	private void captureCredentials(User user, Session session) {
 
 		/* Update settings */
+		currentSession = session;
 		currentUser = user;
-		sessionKey = user.session.key;
+		sessionKey = session.key;
 		userId = user.id;
 		userName = user.name;
 		userRole = user.role;
 
 		String jsonUser = Json.objectToJson(user);
-		String jsonSession = Json.objectToJson(user.session);
+		String jsonSession = Json.objectToJson(session);
 
 		Reporting.updateUser(user);  // Handles all frameworks
 
@@ -246,13 +258,65 @@ public class UserManager {
 			editor.putString(StringManager.getString(R.string.setting_last_auth_type), authTypeHint);
 			editor.putString(StringManager.getString(R.string.setting_last_auth_user), jsonUser);
 			if (user.authType.equals(LobbyScreen.AuthType.Email)
-					|| user.authType.equals(LobbyScreen.AuthType.Password)) {
+				|| user.authType.equals(LobbyScreen.AuthType.Password)) {
 				authIdentifierHint = user.email;
 				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), (String) authIdentifierHint);
 			}
 			else if (user.authType.equals(LobbyScreen.AuthType.PhoneNumber)) {
 				authIdentifierHint = user.phone;
 				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), ((PhoneNumber) authIdentifierHint).toJson());
+			}
+			editor.apply();
+		}
+	}
+
+	private void captureRealmCredentials(RealmEntity user, Session session) {
+
+		/* Update settings */
+		currentSession = session;
+		currentRealmUser = user;
+		sessionKey = session.key;
+		userId = user.id;
+		userName = user.name;
+		userRole = user.role;
+
+		Gson gson = new Gson();
+
+		String jsonUser = gson.toJson(user);
+		String jsonSession = gson.toJson(session);
+
+		//Reporting.updateUser(user);  // Handles all frameworks
+
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
+		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+
+		editor.apply();
+	}
+
+	public void captureRealmAuthHints(RealmEntity user, String authType) {
+
+		if (authType != null) {
+
+			SharedPreferences.Editor editor = Patchr.settings.edit();
+			String jsonUser = Json.objectToJson(user);
+
+			authTypeHint = authType;
+			authUserHint = user;
+
+			editor.putString(StringManager.getString(R.string.setting_last_auth_type), authTypeHint);
+			editor.putString(StringManager.getString(R.string.setting_last_auth_user), jsonUser);
+
+			if (user.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				if (authType.equals(LobbyScreen.AuthType.Email)
+					|| authType.equals(LobbyScreen.AuthType.Password)) {
+					authIdentifierHint = user.email;
+					editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), (String) authIdentifierHint);
+				}
+				else if (authType.equals(LobbyScreen.AuthType.PhoneNumber)) {
+					authIdentifierHint = user.phone;
+					editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), ((PhoneNumber) authIdentifierHint).toJson());
+				}
 			}
 			editor.apply();
 		}
@@ -276,6 +340,7 @@ public class UserManager {
 	private void discardCredentials() {
 
 		currentUser = null;
+		currentSession = null;
 		sessionKey = null;
 		userId = null;
 		userName = null;

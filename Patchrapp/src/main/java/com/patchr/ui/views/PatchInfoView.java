@@ -7,27 +7,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
+import com.patchr.model.RealmEntity;
 import com.patchr.utilities.Integers;
 import com.patchr.utilities.UI;
 
 import java.util.Locale;
 
 @SuppressWarnings("ucd")
-public class PatchInfoView extends FrameLayout implements View.OnClickListener {
+public class PatchInfoView extends BaseView implements View.OnClickListener {
 
 	private static final Object lock = new Object();
 
-	public  Entity   entity;
-	private BaseView base;
-	private Integer  layoutResId;
+	public  RealmEntity entity;
+	private BaseView    base;
+	private Integer     layoutResId;
 
 	private ViewGroup layout;
 	private TextView  name;
@@ -60,7 +58,6 @@ public class PatchInfoView extends FrameLayout implements View.OnClickListener {
 
 	protected void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.name = (TextView) layout.findViewById(R.id.name);
@@ -86,7 +83,7 @@ public class PatchInfoView extends FrameLayout implements View.OnClickListener {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(Entity entity) {
+	public void databind(RealmEntity entity) {
 
 		synchronized (lock) {
 
@@ -97,8 +94,8 @@ public class PatchInfoView extends FrameLayout implements View.OnClickListener {
 			base.setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
 			ownerName.setText(entity.owner.name);
 
-			privacyGroup.setVisibility((((Patch) entity).privacy != null
-					&& ((Patch) entity).privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+			privacyGroup.setVisibility((entity.visibility != null
+				&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 
 			UI.setVisibility(this.expandoButton, View.GONE);
 			if (!TextUtils.isEmpty(entity.description)) {

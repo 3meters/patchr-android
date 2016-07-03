@@ -35,16 +35,13 @@ import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
-import com.patchr.objects.AirLocation;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Count;
 import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Link;
 import com.patchr.objects.ServiceData;
 import com.patchr.service.ServiceResponse;
-import com.patchr.ui.components.BusyPresenter;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -113,8 +110,8 @@ public class NearbyListFragment extends EntityListFragment {
 				Patchr.stopwatch1.segmentTime("Wifi scan received event fired");
 
 				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
-						, "wifi_scan_finished"
-						, NetworkManager.getInstance().getNetworkType());
+					, "wifi_scan_finished"
+					, NetworkManager.getInstance().getNetworkType());
 
 				Logger.d(getActivity(), "Query wifi scan received event: locking beacons");
 
@@ -179,18 +176,18 @@ public class NearbyListFragment extends EntityListFragment {
 				Logger.d(getActivity(), "Entities for beacons finished event: ** done **");
 				Patchr.stopwatch1.segmentTime("Entities by proximity finished event fired");
 				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch1.getTotalTimeMills()
-						, "patches_by_proximity_downloaded"
-						, NetworkManager.getInstance().getNetworkType());
+					, "patches_by_proximity_downloaded"
+					, NetworkManager.getInstance().getNetworkType());
 
 				Patchr.stopwatch1.stop("Search for patches by beacon complete");
 				cacheStamp = DataController.getInstance().getGlobalCacheStamp();
 
 				if (!LocationManager.getInstance().isLocationAccessEnabled()) {
-					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
+					listController.busyController.hide(true);
 				}
 				else {
 
-					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+					final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null) {
 						Reporting.updateCrashKeys();
 						taskPatchesNearLocation = new AsyncTask() {
@@ -225,11 +222,11 @@ public class NearbyListFragment extends EntityListFragment {
 									Logger.d(getActivity(), "Patches near location finished event: ** done **");
 									Patchr.stopwatch2.stop("Location processing: Patches near location complete");
 									Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-											, "patches_near_location_downloaded"
-											, NetworkManager.getInstance().getNetworkType());
+										, "patches_near_location_downloaded"
+										, NetworkManager.getInstance().getNetworkType());
 
 									Dispatcher.getInstance().post(new EntitiesUpdatedEvent(entitiesForEvent, "onLocationChanged"));
-									listPresenter.onFetchComplete(ResponseCode.SUCCESS);
+									listController.busyController.hide(true);
 								}
 								else {
 									Errors.handleError(getActivity(), serviceResponse);
@@ -238,7 +235,7 @@ public class NearbyListFragment extends EntityListFragment {
 						}.executeOnExecutor(Constants.EXECUTOR);
 					}
 					else {
-						listPresenter.onFetchComplete(ResponseCode.SUCCESS);
+						listController.busyController.hide(true);
 					}
 				}
 			}
@@ -254,35 +251,20 @@ public class NearbyListFragment extends EntityListFragment {
 			@Override public void run() {
 				Logger.d(getActivity(), "Entities changed event: updating radar");
 
-				/* Point radar adapter at the updated entities */
-				final int previousCount = listPresenter.entities.size();
-				final List<Entity> entities = event.entities;
-
-				Logger.d(getActivity(), "Entities changed: source = " + event.source + ", count = " + String.valueOf(entities.size()));
-				listPresenter.entities.clear();
-				listPresenter.entities.addAll(entities);
-				listPresenter.bind();
-
-				if (entities.size() >= 2) {
-					listPresenter.onFetchComplete(ResponseCode.SUCCESS);
-				}
-
 				if (event.source.equals("onLocationChanged")) {
 					atLeastOneLocationProcessed = true;
 				}
 
 				/* Add some sparkle */
-				if (previousCount == 0 && entities.size() > 0) {
-					new AsyncTask() {
+				new AsyncTask() {
 
-						@Override
-						protected Object doInBackground(Object... params) {
-							Thread.currentThread().setName("AsyncPlaySound");
-							MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
-							return null;
-						}
-					}.executeOnExecutor(Constants.EXECUTOR);
-				}
+					@Override
+					protected Object doInBackground(Object... params) {
+						Thread.currentThread().setName("AsyncPlaySound");
+						MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
+						return null;
+					}
+				}.executeOnExecutor(Constants.EXECUTOR);
 			}
 		});
 	}
@@ -293,19 +275,19 @@ public class NearbyListFragment extends EntityListFragment {
 
 	@Subscribe public void onLocationAllowed(final LocationAllowedEvent event) {
 		fetch(FetchMode.MANUAL);
-		listPresenter.emptyPresenter.setLabel(StringManager.getString(R.string.empty_nearby));
+		listController.emptyController.setText(StringManager.getString(R.string.empty_nearby));
 	}
 
 	@Subscribe public void onLocationDenied(final LocationDeniedEvent event) {
-		listPresenter.emptyPresenter.setLabel("Location services disabled for Patchr");
-		listPresenter.emptyPresenter.show(true);
+		listController.emptyController.setText("Location services disabled for Patchr");
+		listController.emptyController.show(true);
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void fetch(FetchMode mode) {
+	public void fetch(FetchMode mode) {
 		Logger.d(this, "Fetch called: " + mode.name());
 
 		if (!PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -353,22 +335,19 @@ public class NearbyListFragment extends EntityListFragment {
 
 		/* Location is dead to us so time for pants off */
 		bind();
-		listPresenter.onFetchComplete(ResponseCode.SUCCESS);
+		listController.busyController.hide(true);
 	}
 
-	@Override public void bind() {
-		if (listPresenter != null) {
-			listPresenter.bind();
-		}
+	public void bind() {
 		bindActionButton();
 	}
 
 	public void bindActionButton() {
 
-		TextView alertButton = (TextView) headerView.findViewById(R.id.action_button);
+		TextView alertButton = (TextView) header.findViewById(R.id.action_button);
 		if (alertButton != null) {
 
-			View rule = headerView.findViewById(R.id.action_rule);
+			View rule = header.findViewById(R.id.action_rule);
 			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
 				rule.setVisibility(View.GONE);
 			}
@@ -377,8 +356,8 @@ public class NearbyListFragment extends EntityListFragment {
 				alertButton.setText(R.string.button_alert_radar_anonymous);
 			}
 			else {
-				Count patched = UserManager.currentUser.getCount(Constants.TYPE_LINK_CREATE, Constants.SCHEMA_ENTITY_PATCH, true, Link.Direction.out);
-				alertButton.setText(patched == null ? R.string.button_alert_radar_no_patch : R.string.button_alert_radar);
+				Boolean patched = (UserManager.currentRealmUser.patchesOwned != null && UserManager.currentRealmUser.patchesOwned > 0);
+				alertButton.setText(patched ? R.string.button_alert_radar : R.string.button_alert_radar_no_patch);
 			}
 		}
 	}
@@ -391,10 +370,10 @@ public class NearbyListFragment extends EntityListFragment {
 
 			@Override protected void onPreExecute() {
 				Reporting.updateCrashKeys();
-				if (listPresenter.entities.size() == 0) {
-					listPresenter.busyPresenter.show(BusyPresenter.BusyAction.Scanning_Empty);
-					listPresenter.emptyPresenter.hide(true);
-				}
+//				if (listPresenter.entities.size() == 0) {
+//					listPresenter.busyPresenter.show(BusyController.BusyAction.Scanning_Empty);
+//					listPresenter.emptyPresenter.hide(true);
+//				}
 				if (Patchr.getInstance().prefEnableDev) {
 					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 				}
@@ -407,7 +386,7 @@ public class NearbyListFragment extends EntityListFragment {
 
 				DataController.getInstance().clearEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null);
 				if (NetworkManager.getInstance().isWifiEnabled()
-						&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
+					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 					ProximityController.getInstance().scanForWifi(ScanReason.QUERY);
 				}
 				else {
@@ -423,15 +402,15 @@ public class NearbyListFragment extends EntityListFragment {
 			Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
 			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
 			snackbar.setText(R.string.alert_location_permission_denied)
-					.setAction("Settings", new View.OnClickListener() {
-						@Override public void onClick(View view) {
-							Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-							Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-							intent.setData(uri);
-							startActivityForResult(intent, 100);
-						}
-					})
-					.show();
+				.setAction("Settings", new View.OnClickListener() {
+					@Override public void onClick(View view) {
+						Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+						intent.setData(uri);
+						startActivityForResult(intent, 100);
+					}
+				})
+				.show();
 		}
 	}
 
@@ -443,29 +422,29 @@ public class NearbyListFragment extends EntityListFragment {
 				@Override
 				public void run() {
 					final AlertDialog dialog = Dialogs.alertDialog(null
-							, StringManager.getString(R.string.alert_permission_location_title)
-							, StringManager.getString(R.string.alert_permission_location_message)
-							, null
-							, getActivity()
-							, R.string.alert_permission_location_positive
-							, R.string.alert_permission_location_negative
-							, null
-							, new DialogInterface.OnClickListener() {
+						, StringManager.getString(R.string.alert_permission_location_title)
+						, StringManager.getString(R.string.alert_permission_location_message)
+						, null
+						, getActivity()
+						, R.string.alert_permission_location_positive
+						, R.string.alert_permission_location_negative
+						, null
+						, new DialogInterface.OnClickListener() {
 
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									if (which == DialogInterface.BUTTON_POSITIVE) {
-										ActivityCompat.requestPermissions(getActivity()
-												, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
-												, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-									}
-									else {
-										listPresenter.busyPresenter.hide(true);
-										listPresenter.emptyPresenter.setLabel("Location services disabled for Patchr");
-										listPresenter.emptyPresenter.show(true);
-									}
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									ActivityCompat.requestPermissions(getActivity()
+										, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+										, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 								}
-							}, null);
+								else {
+									listController.busyController.hide(true);
+									listController.emptyController.setText("Location services disabled for Patchr");
+									listController.emptyController.show(true);
+								}
+							}
+						}, null);
 					dialog.setCanceledOnTouchOutside(false);
 				}
 			});
@@ -476,8 +455,8 @@ public class NearbyListFragment extends EntityListFragment {
 			 * Parent activity will broadcast an event when permission request is complete.
 			 */
 			ActivityCompat.requestPermissions(getActivity()
-					, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
-					, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+				, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+				, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 		}
 	}
 
@@ -494,12 +473,12 @@ public class NearbyListFragment extends EntityListFragment {
 			if (isResumed()) {
 				if (event.location != null) {
 					LocationManager.getInstance().setLocationLocked(event.location);
-					final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+					final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 					if (location != null) {
 						searchForPatches();
 					}
 					else {
-						listPresenter.onFetchComplete(ResponseCode.SUCCESS);
+						listController.busyController.hide(true);
 					}
 				}
 			}

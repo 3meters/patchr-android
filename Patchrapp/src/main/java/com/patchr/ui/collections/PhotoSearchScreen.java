@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.collections;
 
 import android.app.Activity;
 import android.content.Context;
@@ -46,8 +46,9 @@ import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
 import com.patchr.service.ServiceRequest;
 import com.patchr.service.ServiceRequest.AuthType;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
+import com.patchr.ui.BaseScreen;
+import com.patchr.ui.components.BusyController;
+import com.patchr.ui.components.EmptyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
 import com.patchr.utilities.Errors;
@@ -78,7 +79,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	private ArrayAdapter<String> searchAdapter;
 	private String               titleOptional;
 	private Integer              photoWidthPixels;
-	private EmptyPresenter       emptyPresenter;
+	private EmptyController      emptyController;
 
 	private static final long   PAGE_SIZE     = 49L;
 	private static final long   LIST_MAX      = 300L;
@@ -93,7 +94,7 @@ public class PhotoSearchScreen extends BaseScreen {
 		super.onCreate(savedInstanceState);
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.form_message));
+		this.emptyController = new EmptyController(findViewById(R.id.form_message));
 		bind();
 	}
 
@@ -258,7 +259,7 @@ public class PhotoSearchScreen extends BaseScreen {
 
 		/* Prep the UI */
 		images.clear();
-		busyPresenter.show(BusyPresenter.BusyAction.Refreshing_Empty);
+		busyController.show(BusyController.BusyAction.Refreshing_Empty);
 
 		/* Hide soft keyboard */
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -435,13 +436,13 @@ public class PhotoSearchScreen extends BaseScreen {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					emptyPresenter.hide(true);
+					emptyController.hide(true);
 				}
 			});
 			ModelResult result = loadSearchImages(queryDecorated, PAGE_SIZE, offset, Constants.BING_IMAGE_BYTES_MAX, Constants.BING_IMAGE_DIMENSION_MAX);
 			ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 
-			busyPresenter.hide(false);
+			busyController.hide(false);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 				mMoreImages = (ArrayList<ImageResult>) result.data;
@@ -452,8 +453,8 @@ public class PhotoSearchScreen extends BaseScreen {
 
 							@Override
 							public void run() {
-								emptyPresenter.setLabel(StringManager.getString(R.string.empty_photo_search) + " " + query);
-								emptyPresenter.show(true);
+								emptyController.setText(StringManager.getString(R.string.empty_photo_search) + " " + query);
+								emptyController.show(true);
 							}
 						});
 					}

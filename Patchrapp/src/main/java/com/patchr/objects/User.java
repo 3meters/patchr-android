@@ -1,12 +1,8 @@
 package com.patchr.objects;
 
 import com.patchr.Constants;
-import com.patchr.service.Expose;
 import com.patchr.utilities.DateTime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,95 +12,70 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class User extends Entity {
 
-	private static final long   serialVersionUID = 127428776257201065L;
-	public static final  String collectionId     = "users";
-	public static final  String schemaName       = "user";
-	public static final  String schemaId         = "us";
+	private static final long serialVersionUID = 127428776257201065L;
 
-	/*--------------------------------------------------------------------------------------------
-	 * service fields
-	 *--------------------------------------------------------------------------------------------*/
-	@Expose
-	public String      email;
-	@Expose
-	public PhoneNumber phone;
-	@Expose
-	public String      role;
-	@Expose
+	/* Persisted fields */
+
 	public String      area;
-	@Expose
 	public Boolean     developer;
-	@Expose(serialize = true, deserialize = false, serializeNull = false)
+	public String      email;
 	public String      password;
+	public PhoneNumber phone;
+	public String      role;
 
-	@Expose(serialize = false, deserialize = true)
-	public Number lastSignedInDate;
-	@Expose(serialize = false, deserialize = true)
-	public Number validationDate;
-	@Expose(serialize = false, deserialize = true)
-	public Number validationNotifyDate;
+	/* Calculated fields */
 
-	/*--------------------------------------------------------------------------------------------
-	 * client fields
-	 *--------------------------------------------------------------------------------------------*/
+	public Number patchesOwned  = 0;
+	public Number patchesMember = 0;
 
-	/* Any field that is going to be persisted in json needs to be added to map deserializer */
-	public List<Count> stats;
-	public String      authType;
-	public Session     session;
+	/* Client convenience fields */
+
+	public String  authType;
+	public Session session;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	@Override
-	public String getCollection() {
-		return collectionId;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Copy and serialization
-	 *--------------------------------------------------------------------------------------------*/
-
 	@SuppressWarnings("unchecked")
-	public static User setPropertiesFromMap(User entity, Map map, Boolean nameMapping) {
+	public static User setPropertiesFromMap(User user, Map map) {
 
-		synchronized (entity) {
-			entity = (User) Entity.setPropertiesFromMap(entity, map, nameMapping);
+		synchronized (user) {
 
-			entity.area = (String) map.get("area");
-			entity.email = (String) map.get("email");
-			entity.role = (String) map.get("role");
-			entity.developer = (Boolean) map.get("developer");
-			//entity.password = (String) map.get("password");
-			entity.lastSignedInDate = (Number) map.get("lastSignedInDate");
-			entity.validationDate = (Number) map.get("validationDate");
-			entity.validationNotifyDate = (Number) map.get("validationNotifyDate");
-			entity.authType = (String) map.get("authType");
+			user = (User) Entity.setPropertiesFromMap(user, map);
+
+			user.area = (String) map.get("area");
+			user.email = (String) map.get("email");
+			user.role = (String) map.get("role");
+			user.developer = (Boolean) map.get("developer");
+			user.authType = (String) map.get("authType");
 
 			if (map.get("session") != null) {
-				entity.session = Session.setPropertiesFromMap(new Session(), (HashMap<String, Object>) map.get("session"), nameMapping);
+				user.session = Session.setPropertiesFromMap(new Session(), (Map<String, Object>) map.get("session"));
 			}
 
 			if (map.get("phone") != null) {
-				entity.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), (HashMap<String, Object>) map.get("phone"), nameMapping);
+				user.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), (Map<String, Object>) map.get("phone"));
 			}
 
-			/* For local serialization */
-			if (map.get("stats") != null) {
-				entity.stats = new ArrayList<>();
-				final List<LinkedHashMap<String, Object>> statMaps = (List<LinkedHashMap<String, Object>>) map.get("stats");
-				for (Map<String, Object> statMap : statMaps) {
-					entity.stats.add(Count.setPropertiesFromMap(new Count(), statMap, nameMapping));
+			user.patchesMember = 0;
+			user.patchesOwned = 0;
+
+			if (map.get("linkCounts") instanceof List) {
+				List<Map<String, Object>> linkCounts = (List<Map<String, Object>>) map.get("linkCounts");
+				for (Map<String, Object> linkMap : linkCounts) {
+					LinkCount linkCount = LinkCount.setPropertiesFromMap(new LinkCount(), linkMap);
+					if (linkCount.to.equals(LinkDestination.Patches) && linkCount.type.equals(LinkType.Create)) {
+						user.patchesOwned = linkCount.count;
+					}
+					if (linkCount.to.equals(LinkDestination.Patches) && linkCount.type.equals(LinkType.Watch)) {
+						user.patchesMember = linkCount.count;
+					}
 				}
 			}
-		}
 
-		return entity;
+			return user;
+		}
 	}
 
 	public static Entity build() {
@@ -117,9 +88,6 @@ public class User extends Entity {
 	@SuppressWarnings("unchecked")
 	@Override public User clone() {
 		final User user = (User) super.clone();
-		if (user != null && stats != null) {
-			user.stats = (List<Count>) ((ArrayList) stats).clone();
-		}
 		return user;
 	}
 

@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.collections;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -9,9 +9,10 @@ import android.view.WindowManager;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.DataController;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.EntitySuggestController;
 
 public class SearchScreen extends BaseScreen {
@@ -34,8 +35,8 @@ public class SearchScreen extends BaseScreen {
 				Photo photo = (Photo) view.getTag();
 				navigateToPhoto(photo);
 			}
-			else if (view.getTag() instanceof Entity) {
-				final Entity entity = (Entity) view.getTag();
+			else if (view.getTag() instanceof RealmEntity) {
+				final RealmEntity entity = (RealmEntity) view.getTag();
 				navigateToEntity(entity);
 			}
 		}
@@ -57,7 +58,7 @@ public class SearchScreen extends BaseScreen {
 
 	@Override public void initialize(Bundle savedInstanceState) {
 
-		RecyclerView listView = (RecyclerView) findViewById(R.id.results_list);
+		RecyclerView recyclerView = (RecyclerView) findViewById(R.id.results_list);
 
 		SearchView searchView = new SearchView(this);
 		searchView.setIconified(false);
@@ -79,8 +80,8 @@ public class SearchScreen extends BaseScreen {
 
 		EntitySuggestController entitySuggest = new EntitySuggestController(this);
 		entitySuggest.searchView = searchView;
-		entitySuggest.busyPresenter = this.busyPresenter;
-		entitySuggest.listView = listView;
+		entitySuggest.busyPresenter = this.busyController;
+		entitySuggest.recyclerView = recyclerView;
 		entitySuggest.suggestScope = this.suggestScope;
 		entitySuggest.initialize();
 

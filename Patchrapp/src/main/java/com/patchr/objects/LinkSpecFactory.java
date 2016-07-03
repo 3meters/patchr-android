@@ -13,13 +13,13 @@ import java.util.ArrayList;
 @SuppressWarnings("ucd")
 public class LinkSpecFactory {
 
-	public static LinkSpec build(Integer linkProfile) {
+	public static LinkSpecs build(Integer linkProfile) {
 
 		if (linkProfile == LinkSpecType.NO_LINKS)
 			return null;
 		else {
 
-			LinkSpec linkSpec = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
+			LinkSpecs linkSpec = new LinkSpecs().setActive(new ArrayList<LinkSpecItem>());
 			linkSpec.shortcuts = true;
 
 			if (linkProfile == LinkSpecType.LINKS_FOR_PATCH || linkProfile == LinkSpecType.LINKS_FOR_BEACONS) {
@@ -30,10 +30,10 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, true, true, 10)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentRealmUser.id) : null)
 						.setDirection(Direction.in));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-						, UserManager.shared().authenticated() ? Maps.asMap("_creator", UserManager.currentUser.id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_creator", UserManager.currentRealmUser.id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_MESSAGE) {
@@ -47,7 +47,7 @@ public class LinkSpecFactory {
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, true, true, 5)
 						.setDirection(Direction.out));
 				linkSpec.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_USER, true, true, 1
-						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentUser.id) : null)
+						, UserManager.shared().authenticated() ? Maps.asMap("_from", UserManager.currentRealmUser.id) : null)
 						.setDirection(Direction.in));
 			}
 			else if (linkProfile == LinkSpecType.LINKS_FOR_USER_CURRENT) {

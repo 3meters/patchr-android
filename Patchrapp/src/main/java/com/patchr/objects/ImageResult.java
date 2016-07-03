@@ -1,6 +1,5 @@
 package com.patchr.objects;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,7 +20,7 @@ public class ImageResult {
 	/* client only */
 	public Photo photo;
 
-	public static ImageResult setPropertiesFromMap(ImageResult imageResult, Map map, Boolean nameMapping) {
+	public static ImageResult setPropertiesFromMap(ImageResult imageResult, Map map) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
@@ -34,7 +33,7 @@ public class ImageResult {
 		imageResult.fileSize = Long.parseLong((String) map.get("FileSize"));
 		imageResult.contentType = (String) map.get("ContentType");
 		if (map.get("Thumbnail") != null) {
-			imageResult.thumbnail = Thumbnail.setPropertiesFromMap(new Thumbnail(), (HashMap<String, Object>) map.get("Thumbnail"));
+			imageResult.thumbnail = Thumbnail.setPropertiesFromMap(new Thumbnail(), (Map<String, Object>) map.get("Thumbnail"));
 		}
 
 		return imageResult;

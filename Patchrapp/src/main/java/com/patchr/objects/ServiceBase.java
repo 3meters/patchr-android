@@ -2,9 +2,6 @@ package com.patchr.objects;
 
 import android.support.annotation.NonNull;
 
-import com.patchr.Constants;
-import com.patchr.service.Expose;
-import com.patchr.service.SerializedName;
 import com.patchr.utilities.Reporting;
 
 import java.util.Comparator;
@@ -28,68 +25,35 @@ import java.util.Map;
 public abstract class ServiceBase extends ServiceObject {
 
 	private static final long serialVersionUID = -3650173415935365107L;
-	/*
-	 * Annotation syntax:
-	 * 
-	 * @Expose (serialize = false, deserialize = false)
-	 * 
-	 * @SerializedName("_nametoserialize")
-	 * 
-	 * These annotations are only used when serializing. Each
-	 * object has a setPropertiesFromMap method that handles how properties
-	 * are deserialized.
-	 */
-	@Expose
-	@SerializedName(name = "_id")
+
 	public String id;
-	@Expose
 	public String schema;
-	@Expose
 	public String type;
-	@Expose
 	public String name;
-	@Expose(serialize = false, deserialize = true)
 	public String namelc;
-	@Expose(serialize = false, deserialize = true)
 	public Number position;
-	@Expose(serialize = false, deserialize = true)
-	public String collection;
 
 	/* PropertyValue bags */
 
-	@Expose
 	public Map<String, Object> data;
 
 	/* user ids */
 
-	@Expose(serialize = false, deserialize = true)
-	@SerializedName(name = "_owner")
 	public String ownerId;
-	@Expose(serialize = false, deserialize = true)
-	@SerializedName(name = "_creator")
 	public String creatorId;
-	@Expose(serialize = false, deserialize = true)
-	@SerializedName(name = "_modifier")
 	public String modifierId;
 
 	/* Dates */
 
-	@Expose(serialize = false, deserialize = true)
 	public Number createdDate;
-	@Expose(serialize = false, deserialize = true)
 	public Number modifiedDate;
-	@Expose(serialize = false, deserialize = true)
 	public Number activityDate;
-	@Expose(serialize = false, deserialize = true)
 	public Number sortDate;
 
 	/* Users (synthesized for the client) */
 
-	@Expose(serialize = false, deserialize = true)
 	public User owner;
-	@Expose(serialize = false, deserialize = true)
 	public User creator;
-	@Expose(serialize = false, deserialize = true)
 	public User modifier;
 
 	protected ServiceBase() {}
@@ -98,44 +62,22 @@ public abstract class ServiceBase extends ServiceObject {
 	 * Set and get
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull
-	public String getEntryUri() {
-		final String root = Constants.URL_PROXIBASE_SERVICE_REST;
-		final String entity = getCollection();
-		final String uri = root + entity + "/" + id;
-		return uri;
-	}
-
-	@NonNull
-	public Boolean isOwnerAccess() {
-		return false;
-	}
-
-	public abstract String getCollection();
-
-	@NonNull
-	public Integer getPosition() {
-		return (position != null) ? position.intValue() : 0;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static ServiceBase setPropertiesFromMap(ServiceBase base, Map map, Boolean nameMapping) {
+	public static ServiceBase setPropertiesFromMap(ServiceBase base, Map map) {
 
-		base.id = (String) (nameMapping ? (map.get("_id") != null) ? map.get("_id") : map.get("id") : map.get("id"));
+		base.id = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
 		base.name = (String) map.get("name");
 		base.namelc = (String) map.get("namelc");
 		base.schema = (String) map.get("schema");
 		base.type = (String) map.get("type");
-		base.collection = (String) map.get("collection");
-		base.position = (Number) map.get("position");
 		base.data = (HashMap<String, Object>) map.get("data");
 
-		base.ownerId = (String) (nameMapping ? (map.get("_owner") != null) ? map.get("_owner") : map.get("ownerId") : map.get("ownerId"));
-		base.creatorId = (String) (nameMapping ? (map.get("_creator") != null) ? map.get("_creator") : map.get("creatorId") : map.get("creatorId"));
-		base.modifierId = (String) (nameMapping ? (map.get("_modifier") != null) ? map.get("_modifier") : map.get("modifierId") : map.get("modifierId"));
+		base.ownerId = (String) (map.get("_owner") != null ? map.get("_owner") : map.get("ownerId"));
+		base.creatorId = (String) (map.get("_creator") != null ? map.get("_creator") : map.get("creatorId"));
+		base.modifierId = (String) (map.get("_modifier") != null ? map.get("_modifier") : map.get("modifierId"));
 
 		base.createdDate = (Number) map.get("createdDate");
 		base.modifiedDate = (Number) map.get("modifiedDate");
@@ -147,13 +89,13 @@ public abstract class ServiceBase extends ServiceObject {
 		}
 
 		if (map.get("creator") != null) {
-			base.creator = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("creator"), nameMapping);
+			base.creator = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("creator"));
 		}
 		if (map.get("owner") != null) {
-			base.owner = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("owner"), nameMapping);
+			base.owner = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("owner"));
 		}
 		if (map.get("modifier") != null) {
-			base.modifier = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("modifier"), nameMapping);
+			base.modifier = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("modifier"));
 		}
 
 		return base;
@@ -187,45 +129,35 @@ public abstract class ServiceBase extends ServiceObject {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static class SortByPositionSortDate implements Comparator<ServiceBase> {
+	public static class SortBySortDate implements Comparator<ServiceBase> {
 
 		@Override
 		public int compare(@NonNull ServiceBase object1, @NonNull ServiceBase object2) {
-			if (object1.getPosition().intValue() < object2.getPosition().intValue())
-				return -1;
-			else if (object1.getPosition().intValue() == object2.getPosition().intValue()) {
-				if (object1.sortDate == null || object2.sortDate == null)
+			if (object1.sortDate == null || object2.sortDate == null)
+				return 0;
+			else {
+				if (object1.sortDate.longValue() < object2.sortDate.longValue())
+					return 1;
+				else if (object1.sortDate.longValue() == object2.sortDate.longValue())
 					return 0;
-				else {
-					if (object1.sortDate.longValue() < object2.sortDate.longValue())
-						return 1;
-					else if (object1.sortDate.longValue() == object2.sortDate.longValue())
-						return 0;
-					return -1;
-				}
+				return -1;
 			}
-			return 1;
 		}
 	}
 
-	public static class SortByPositionSortDateAscending implements Comparator<ServiceBase> {
+	public static class SortBySortDateAscending implements Comparator<ServiceBase> {
 
 		@Override
 		public int compare(@NonNull ServiceBase object1, @NonNull ServiceBase object2) {
-			if (object1.getPosition().intValue() < object2.getPosition().intValue())
-				return -1;
-			else if (object1.getPosition().intValue() == object2.getPosition().intValue()) {
-				if (object1.sortDate == null || object2.sortDate == null)
+			if (object1.sortDate == null || object2.sortDate == null)
+				return 0;
+			else {
+				if (object1.sortDate.longValue() > object2.sortDate.longValue())
+					return 1;
+				else if (object1.sortDate.longValue() == object2.sortDate.longValue())
 					return 0;
-				else {
-					if (object1.sortDate.longValue() > object2.sortDate.longValue())
-						return 1;
-					else if (object1.sortDate.longValue() == object2.sortDate.longValue())
-						return 0;
-					return -1;
-				}
+				return -1;
 			}
-			return 1;
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.patchr.objects;
 
-import android.support.annotation.NonNull;
-
 import com.patchr.Constants;
 import com.patchr.utilities.DateTime;
 
@@ -14,25 +12,18 @@ import java.util.Map;
 @SuppressWarnings("ucd")
 public class Message extends Entity implements Cloneable, Serializable {
 
-	private static final long   serialVersionUID = 4362288672244719348L;
-	public static final  String collectionId     = "messages";
-	public static final  String schemaName       = "message";
-	public static final  String schemaId         = "me";
-
-	/*--------------------------------------------------------------------------------------------
-	 * Service fields
-	 *--------------------------------------------------------------------------------------------*/
+	private static final long serialVersionUID = 4362288672244719348L;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Message setPropertiesFromMap(Message entity, Map map, Boolean nameMapping) {
+	public static Message setPropertiesFromMap(Message entity, Map map) {
 	    /*
 	     * Properties involved with editing are copied from one entity to another.
 		 */
 		synchronized (entity) {
-			entity = (Message) Entity.setPropertiesFromMap(entity, map, nameMapping);
+			entity = (Message) Entity.setPropertiesFromMap(entity, map);
 		}
 		return entity;
 	}
@@ -44,17 +35,9 @@ public class Message extends Entity implements Cloneable, Serializable {
 		return entity;
 	}
 
-	@NonNull public Boolean isOwnerAccess() {
-		return true;
-	}
-
 	@Override public Message clone() {
 		final Message clone = (Message) super.clone();
 		return clone;
-	}
-
-	@Override public String getCollection() {
-		return collectionId;
 	}
 
 	/*--------------------------------------------------------------------------------------------

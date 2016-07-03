@@ -1,7 +1,5 @@
 package com.patchr.objects;
 
-import android.support.annotation.NonNull;
-
 import java.io.Serializable;
 import java.util.Map;
 
@@ -15,19 +13,13 @@ public class SimpleEntity extends Entity implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = 4362288672244729448L;
 
-	public static Entity setPropertiesFromMap(Entity entity, @NonNull Map map, Boolean nameMapping) {
+	public static Entity setPropertiesFromMap(Entity entity, Map map) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
 		synchronized (entity) {
-			entity = (Entity) Entity.setPropertiesFromMap(entity, map, nameMapping);
+			entity = (Entity) Entity.setPropertiesFromMap(entity, map);
 		}
 		return entity;
-	}
-
-
-	@Override
-	public String getCollection() {
-		return null;
 	}
 }

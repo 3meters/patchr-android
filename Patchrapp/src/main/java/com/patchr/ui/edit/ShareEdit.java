@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -22,6 +23,8 @@ import com.patchr.components.DataController;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Link;
@@ -34,7 +37,6 @@ import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
@@ -48,13 +50,13 @@ import java.util.List;
 
 public class ShareEdit extends BaseEdit {
 
-	private String inputShareEntityId;
-	private String inputShareEntitySchema;
-	private String inputShareSource;        // Package name of the sharing host app
-	private String inputShareType;          // Share or invite
-	private Entity inputShareEntity;
+	private String      inputShareEntityId;
+	private String      inputShareEntitySchema;
+	private String      inputShareSource;        // Package name of the sharing host app
+	private String      inputShareType;          // Share or invite
+	private RealmEntity inputShareEntity;
 
-	private Entity shareEntity;
+	private RealmEntity shareEntity;
 	private String descriptionDefault;
 
 	private ImageWidget              userPhoto;
@@ -130,7 +132,8 @@ public class ShareEdit extends BaseEdit {
 		if (extras != null) {
 			String shareJson = extras.getString(Constants.EXTRA_SHARE_PATCH);
 			if (shareJson != null) {
-				this.inputShareEntity = (Entity) Json.jsonToObject(shareJson, Json.ObjectType.ENTITY);
+				Gson gson = new Gson();
+				this.inputShareEntity = gson.fromJson(shareJson, RealmEntity.class);
 			}
 			this.inputShareType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
 			this.inputShareEntityId = extras.getString(Constants.EXTRA_SHARE_ID);
@@ -161,9 +164,9 @@ public class ShareEdit extends BaseEdit {
 
 		this.entitySuggest = new EntitySuggestController(this);
 		this.entitySuggest.searchInput = this.recipientsField;
-		this.entitySuggest.busyPresenter = this.busyPresenter;
+		this.entitySuggest.busyPresenter = this.busyController;
 		this.entitySuggest.suggestScope = DataController.Suggest.Users;
-		this.entitySuggest.listView = this.listView;
+		this.entitySuggest.recyclerView = this.listView;
 		this.entitySuggest.initialize();
 
 		Intent intent = getIntent();
@@ -204,14 +207,14 @@ public class ShareEdit extends BaseEdit {
 						this.shareEntity = this.inputShareEntity;
 					}
 					else {
-						this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
+						//this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
 					}
 					this.descriptionDefault = String.format("%1$s invited you to the \'%2$s\' patch.", UserManager.userName, this.shareEntity.name);
 					UI.setVisibility(shareHolder, View.VISIBLE);
 					break;
 
 				case Constants.SCHEMA_ENTITY_MESSAGE:
-					this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
+					//this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
 					if (this.shareEntity.patch != null) {
 						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to the \'%3$s\' patch.", UserManager.userName, this.shareEntity.creator.name, this.shareEntity.patch.name);
 					}
@@ -236,7 +239,7 @@ public class ShareEdit extends BaseEdit {
 
 									@Override protected Object doInBackground(Object... params) {
 										Thread.currentThread().setName("AsyncShareBitmap");
-										Photo photo = null;
+										RealmPhoto photo = null;
 
 										try {
 											Bitmap bitmap = Picasso.with(Patchr.applicationContext)
@@ -249,10 +252,10 @@ public class ShareEdit extends BaseEdit {
 											Uri uri = MediaManager.getSharePathUri();
 
 											if (file != null && uri != null) {
-												photo = new Photo()
-														.setPrefix(uri.toString())
-														.setStore(true)
-														.setSource(Photo.PhotoSource.file);
+												photo = new RealmPhoto();
+												photo.prefix = uri.toString();
+												photo.store = true;
+												photo.source = Photo.PhotoSource.file;
 											}
 											else {
 												UI.toast(StringManager.getString(R.string.error_storage_unmounted));
@@ -272,7 +275,7 @@ public class ShareEdit extends BaseEdit {
 
 									@Override protected void onPostExecute(Object response) {
 										if (response != null) {
-											Photo photo = (Photo) response;
+											RealmPhoto photo = (RealmPhoto) response;
 											onPhotoSelected(photo); // mDirty gets set in this method
 											dirty = false;
 											bind();
@@ -347,7 +350,7 @@ public class ShareEdit extends BaseEdit {
 
 						@Override protected void onPostExecute(Object response) {
 							if (response != null) {
-								Photo photo = (Photo) response;
+								RealmPhoto photo = (RealmPhoto) response;
 								onPhotoSelected(photo); // mDirty gets set in this method
 								dirty = false;
 								bind();
@@ -393,7 +396,7 @@ public class ShareEdit extends BaseEdit {
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-				messageView.bind(shareEntity, null);
+				//messageView.bind(shareEntity, null);
 				CardView cardView = (CardView) shareEntityView;
 				int padding = UI.getRawPixelsForDisplayPixels(8f);
 				cardView.setContentPadding(padding, padding, padding, padding);
@@ -440,7 +443,7 @@ public class ShareEdit extends BaseEdit {
 		return Constants.TYPE_LINK_SHARE;
 	}
 
-	@Override protected void beforeInsert(Entity entity, List<Link> links) {
+	@Override protected void beforeInsert(RealmEntity entity, List<Link> links) {
 	    /* Called on background thread. */
 		if (inputShareEntityId != null) {
 			links.add(new Link(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message

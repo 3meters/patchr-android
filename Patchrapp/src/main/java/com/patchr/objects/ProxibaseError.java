@@ -1,0 +1,39 @@
+package com.patchr.objects;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author Jayma
+ */
+@SuppressWarnings("ucd")
+public class ProxibaseError {
+
+	public String       name;
+	public Number       code;           // Status code from the service (200, 403, etc.)
+	public Number       status;         // Status code from the network stack (403.11, etc)
+	public String       message;        // Technical error message
+	public String       description;    // Curated message to show user
+	public String       errors;
+	public List<String> stack;
+	public List<String> appStack;       // optional
+
+	public static ProxibaseError setPropertiesFromMap(ProxibaseError error, Map map) {
+		/*
+		 * Properties involved with editing are copied from one entity to another.
+		 */
+		error.name = (String) map.get("name");
+		error.code = (Number) map.get("code");
+		error.status = (Number) map.get("status");
+		error.message = (String) map.get("message");
+
+		if (map.get("stack") != null) {
+			error.stack = (List<String>) map.get("stack");
+		}
+		if (map.get("appStack") != null) {
+			error.appStack = (List<String>) map.get("appStack");
+		}
+
+		return error;
+	}
+}

@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.patchr.Constants;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Category;
 import com.patchr.objects.Count;
 import com.patchr.objects.Document;
 import com.patchr.objects.ImageResult;
@@ -16,7 +15,7 @@ import com.patchr.objects.Notification;
 import com.patchr.objects.Patch;
 import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Photo;
-import com.patchr.objects.ServiceBase.UpdateScope;
+import com.patchr.objects.ServiceBase;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.ServiceEntry;
 import com.patchr.objects.ServiceObject;
@@ -156,7 +155,7 @@ public class Json {
 						maps = (List<LinkedHashMap<String, Object>>) rootMap.get("results");
 						final List<Object> list = new ArrayList<Object>();
 						for (Map<String, Object> map : maps) {
-							list.add(ImageResult.setPropertiesFromMap(new ImageResult(), map, true));
+							list.add(ImageResult.setPropertiesFromMap(new ImageResult(), map));
 						}
 						serviceData.data = list;
 					}
@@ -207,54 +206,51 @@ public class Json {
 					String schema = (String) map.get("schema");
 					if (schema != null) {
 						if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-							list.add(Patch.setPropertiesFromMap(new Patch(), map, nameMapping));
+							list.add(Patch.setPropertiesFromMap(new Patch(), map));
 						}
 						else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-							list.add(Message.setPropertiesFromMap(new Message(), map, nameMapping));
+							list.add(Message.setPropertiesFromMap(new Message(), map));
 						}
 						else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-							list.add(Notification.setPropertiesFromMap(new Notification(), map, nameMapping));
+							list.add(Notification.setPropertiesFromMap(new Notification(), map));
 						}
 						else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-							list.add(User.setPropertiesFromMap(new User(), map, nameMapping));
+							list.add(User.setPropertiesFromMap(new User(), map));
 						}
 					}
 				}
 				else if (objectType == Json.ObjectType.SESSION) {
-					list.add(Session.setPropertiesFromMap(new Session(), map, nameMapping));
+					list.add(Session.setPropertiesFromMap(new Session(), map));
 				}
 				else if (objectType == Json.ObjectType.SHORTCUT) {
-					list.add(Shortcut.setPropertiesFromMap(new Shortcut(), map, nameMapping));
+					list.add(Shortcut.setPropertiesFromMap(new Shortcut(), map));
 				}
 				else if (objectType == Json.ObjectType.RESULT) {
-					list.add(CacheStamp.setPropertiesFromMap(new CacheStamp(), map, nameMapping));
+					list.add(CacheStamp.setPropertiesFromMap(new CacheStamp(), map));
 				}
 				else if (objectType == Json.ObjectType.AIR_LOCATION) {
-					list.add(AirLocation.setPropertiesFromMap(new AirLocation(), map, nameMapping));
+					list.add(AirLocation.setPropertiesFromMap(new AirLocation(), map));
 				}
 				else if (objectType == Json.ObjectType.LINK) {
-					list.add(Link.setPropertiesFromMap(new Link(), map, nameMapping));
+					list.add(Link.setPropertiesFromMap(new Link(), map));
 				}
 				else if (objectType == Json.ObjectType.IMAGE_RESULT) {
-					list.add(ImageResult.setPropertiesFromMap(new ImageResult(), map, nameMapping));
+					list.add(ImageResult.setPropertiesFromMap(new ImageResult(), map));
 				}
 				else if (objectType == Json.ObjectType.PHOTO) {
-					list.add(Photo.setPropertiesFromMap(new Photo(), map, nameMapping));
+					list.add(Photo.setPropertiesFromMap(new Photo(), map));
 				}
 				else if (objectType == ObjectType.PHONE) {
-					list.add(PhoneNumber.setPropertiesFromMap(new PhoneNumber(), map, nameMapping));
+					list.add(PhoneNumber.setPropertiesFromMap(new PhoneNumber(), map));
 				}
 				else if (objectType == Json.ObjectType.COUNT) {
-					list.add(Count.setPropertiesFromMap(new Count(), map, nameMapping));
-				}
-				else if (objectType == Json.ObjectType.CATEGORY) {
-					list.add(Category.setPropertiesFromMap(new Category(), map, nameMapping));
+					list.add(Count.setPropertiesFromMap(new Count(), map));
 				}
 				else if (objectType == Json.ObjectType.INSTALL) {
-					list.add(Install.setPropertiesFromMap(new Install(), map, nameMapping));
+					list.add(Install.setPropertiesFromMap(new Install(), map));
 				}
 				else if (objectType == Json.ObjectType.DOCUMENT) {
-					list.add(Document.setPropertiesFromMap(new Document(), map, nameMapping));
+					list.add(Document.setPropertiesFromMap(new Document(), map));
 				}
 			}
 			return list;
@@ -300,9 +296,11 @@ public class Json {
 		 */
 		Boolean excludeNulls = (excludeNullsProposed == Json.ExcludeNulls.TRUE);
 		try {
-			UpdateScope updateScope = ((ServiceObject) object).updateScope;
-			if (updateScope != null && updateScope == UpdateScope.OBJECT) {
-				excludeNulls = false;
+			if (object instanceof ServiceObject) {
+				ServiceBase.UpdateScope updateScope = ((ServiceObject) object).updateScope;
+				if (updateScope != null && updateScope == ServiceBase.UpdateScope.OBJECT) {
+					excludeNulls = false;
+				}
 			}
 		}
 		catch (Exception ignore) {}

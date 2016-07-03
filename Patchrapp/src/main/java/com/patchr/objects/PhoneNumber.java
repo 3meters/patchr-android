@@ -1,8 +1,5 @@
 package com.patchr.objects;
 
-import android.support.annotation.NonNull;
-
-import com.patchr.service.Expose;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Type;
 
@@ -14,9 +11,7 @@ public class PhoneNumber extends ServiceObject implements Cloneable, Serializabl
 
 	private static final long serialVersionUID = 4979315562693226999L;
 
-	@Expose
 	public String countryCode;
-	@Expose
 	public String number;
 
 	public PhoneNumber() {}
@@ -30,7 +25,7 @@ public class PhoneNumber extends ServiceObject implements Cloneable, Serializabl
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull public static PhoneNumber setPropertiesFromMap(@NonNull PhoneNumber phoneNumber, @NonNull Map map, Boolean nameMapping) {
+	public static PhoneNumber setPropertiesFromMap(PhoneNumber phoneNumber, Map map) {
 
 		if (!map.containsKey("countryCode")) {
 			throw new RuntimeException("PhoneNumber object is missing required countryCode property");
@@ -60,12 +55,11 @@ public class PhoneNumber extends ServiceObject implements Cloneable, Serializabl
 		return jsonPhone;
 	}
 
-	public static PhoneNumber fromJson(@NonNull String json) {
+	public static PhoneNumber fromJson(String json) {
 		PhoneNumber phoneNumber = (PhoneNumber) Json.jsonToObject(json, Json.ObjectType.PHONE);
 		return phoneNumber;
 	}
 
-	@NonNull
 	@Override public PhoneNumber clone() {
 		try {
 			PhoneNumber phoneNumber = (PhoneNumber) super.clone();
@@ -75,12 +69,4 @@ public class PhoneNumber extends ServiceObject implements Cloneable, Serializabl
 			throw new RuntimeException("PhoneNumber not clonable");
 		}
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
 }

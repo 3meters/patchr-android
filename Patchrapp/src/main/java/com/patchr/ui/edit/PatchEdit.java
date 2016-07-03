@@ -25,24 +25,23 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.objects.AirLocation;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.InviteScreen;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
@@ -141,7 +140,7 @@ public class PatchEdit extends BaseEdit {
 					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
 					if (privacy != null) {
 						dirty = true;
-						((Patch) entity).privacy = privacy;
+						entity.visibility = privacy;
 						bind();
 					}
 				}
@@ -151,10 +150,11 @@ public class PatchEdit extends BaseEdit {
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_LOCATION);
 					if (json != null) {
-						final AirLocation location = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
+						Gson gson = new Gson();
+						final RealmLocation location = gson.fromJson(json, RealmLocation.class);
 						dirty = true;
-						((Patch) entity).location = location;
-						((Patch) entity).location.provider = Constants.LOCATION_PROVIDER_USER;
+						entity.location = location;
+						entity.location.provider = Constants.LOCATION_PROVIDER_USER;
 						bind();
 						proximityDisabled = true;
 					}
@@ -196,7 +196,7 @@ public class PatchEdit extends BaseEdit {
 		dirty = true;
 		String type = (String) view.getTag();
 		buttonGroupType.check(view.getId());
-		((Patch) entity).type = type;
+		entity.type = type;
 	}
 
 	public void onPrivacyBuilderClick(View view) {
@@ -219,22 +219,21 @@ public class PatchEdit extends BaseEdit {
 		if (event.location != null) {
 
 			LocationManager.getInstance().setLocationLocked(event.location);
-			final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+			final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 
 			if (location != null) {
 
-				Patch patch = (Patch) entity;
-				if (patch.location == null) {
-					patch.location = new AirLocation();
-					patch.location.lat = location.lat;
-					patch.location.lng = location.lng;
-					patch.location.accuracy = location.accuracy;
-					patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+				if (entity.location == null) {
+					entity.location = new RealmLocation();
+					entity.location.lat = location.lat.doubleValue();
+					entity.location.lng = location.lng.doubleValue();
+					entity.location.accuracy = location.accuracy.floatValue();
+					entity.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
 				}
-				else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
-					patch.location.lat = location.lat;
-					patch.location.lng = location.lng;
-					patch.location.accuracy = location.accuracy;
+				else if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					entity.location.lat = location.lat.doubleValue();
+					entity.location.lng = location.lng.doubleValue();
+					entity.location.accuracy = location.accuracy.floatValue();
 				}
 				bindLocation();
 			}
@@ -254,18 +253,16 @@ public class PatchEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
-		Patch patch = (Patch) this.entity;
-
 		if (!this.editing) {
-			final AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+			final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 			if (location != null) {
-				if (patch.location == null) {
-					patch.location = new AirLocation();
+				if (entity.location == null) {
+					entity.location = new RealmLocation();
 				}
-				patch.location.lat = location.lat;
-				patch.location.lng = location.lng;
-				patch.location.accuracy = location.accuracy;
-				patch.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+				entity.location.lat = location.lat.doubleValue();
+				entity.location.lng = location.lng.doubleValue();
+				entity.location.accuracy = location.accuracy.floatValue();
+				entity.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
 			}
 		}
 
@@ -332,13 +329,11 @@ public class PatchEdit extends BaseEdit {
 
 		/* Only called when the activity is first created. */
 
-		Patch patch = (Patch) entity;
-
 		bindLocation();
 
 		if (buttonPrivacy != null) {
-			buttonPrivacy.setTag(patch.privacy);
-			String value = (patch.privacy.equals(Constants.PRIVACY_PUBLIC))
+			buttonPrivacy.setTag(entity.visibility);
+			String value = (entity.visibility.equals(Constants.PRIVACY_PUBLIC))
 			               ? StringManager.getString(R.string.label_patch_privacy_public)
 			               : StringManager.getString(R.string.label_patch_privacy_private);
 			buttonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
@@ -346,15 +341,15 @@ public class PatchEdit extends BaseEdit {
 
 		/* Type */
 
-		if (buttonGroupType != null && patch.type != null) {
+		if (buttonGroupType != null && entity.type != null) {
 			Integer id = R.id.radio_event;
-			if (patch.type.equals(Patch.Type.GROUP)) {
+			if (entity.type.equals(Patch.Type.GROUP)) {
 				id = R.id.radio_group;
 			}
-			else if (patch.type.equals(Patch.Type.PLACE)) {
+			else if (entity.type.equals(Patch.Type.PLACE)) {
 				id = R.id.radio_place;
 			}
-			else if (patch.type.equals(Patch.Type.PROJECT)) {
+			else if (entity.type.equals(Patch.Type.PROJECT)) {
 				id = R.id.radio_project;
 			}
 			buttonGroupType.check(id);
@@ -393,26 +388,25 @@ public class PatchEdit extends BaseEdit {
 	@Override protected boolean validate() {
 
 		gather();
-		Patch patch = (Patch) entity;
-		if (patch.name == null) {
+		if (entity.name == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_patch_name)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
+				, null
+				, StringManager.getString(R.string.error_missing_patch_name)
+				, null
+				, this
+				, android.R.string.ok
+				, null, null, null, null);
 			return false;
 		}
 
-		if (patch.type == null) {
+		if (entity.type == null) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_patch_type)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
+				, null
+				, StringManager.getString(R.string.error_missing_patch_type)
+				, null
+				, this
+				, android.R.string.ok
+				, null, null, null, null);
 			return false;
 		}
 
@@ -442,20 +436,19 @@ public class PatchEdit extends BaseEdit {
 		 * location. If the place link is later cleared, the patch location stays
 		 * unchanged.
 		 */
-		Patch patch = (Patch) entity;  // Always set by the time we get here
 		locationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
 
 		if (map != null) {
 			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-			if (patch.location != null) {
+			if (entity.location != null) {
 
 				locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-				if (patch.location.provider != null) {
-					if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
+				if (entity.location.provider != null) {
+					if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
 						locationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
 					}
-					else if (patch.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					else if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
 						if (editing) {
 							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
 						}
@@ -467,11 +460,11 @@ public class PatchEdit extends BaseEdit {
 
 				map.clear();
 				map.addMarker(new MarkerOptions()
-						.position(patch.location.asLatLng())
-						.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-						.anchor(0.5f, 0.5f));
+					.position(entity.location.asLatLng())
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+					.anchor(0.5f, 0.5f));
 
-				map.moveCamera(CameraUpdateFactory.newLatLngZoom(((Patch) entity).location.asLatLng(), 17f));
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(entity.location.asLatLng(), 17f));
 				mapView.setVisibility(View.VISIBLE);
 				mapProgressBar.hide();
 				mapView.invalidate();
@@ -484,16 +477,16 @@ public class PatchEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
+				busyController.show(BusyController.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				return DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				return null; //DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				busyPresenter.hide(false);
+				busyController.hide(false);
 				UI.toast(StringManager.getString(updatedResId));
 				setResult(Activity.RESULT_OK);
 				finish();

@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
 import com.patchr.components.MapManager;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmLocation;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.utilities.Json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MapScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		AirLocation location = entity.getLocation();
+		RealmLocation location = entity.getLocation();
 		if (location != null) {
 			getMenuInflater().inflate(R.menu.menu_navigate, menu);
 		}
@@ -39,7 +39,7 @@ public class MapScreen extends BaseScreen {
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
 		if (item.getItemId() == R.id.navigate) {
-			AirLocation location = entity.getLocation();
+			RealmLocation location = entity.getLocation();
 			if (location == null) {
 				throw new IllegalArgumentException("Tried to navigate without a location");
 			}
@@ -65,7 +65,8 @@ public class MapScreen extends BaseScreen {
 		if (extras != null) {
 			final String jsonEntity = extras.getString(Constants.EXTRA_ENTITY);
 			if (jsonEntity != null) {
-				entity = (Entity) Json.jsonToObject(jsonEntity, Json.ObjectType.ENTITY);
+				Gson gson = new Gson();
+				entity = gson.fromJson(jsonEntity, RealmEntity.class);
 			}
 		}
 	}
@@ -73,7 +74,7 @@ public class MapScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		List<Entity> entities = new ArrayList<Entity>();
+		List<RealmEntity> entities = new ArrayList<RealmEntity>();
 		entities.add(entity);
 
 		MapListFragment fragment = new MapListFragment();

@@ -24,6 +24,7 @@ import com.patchr.events.NotificationsQueryEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.TrendQueryEvent;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
@@ -34,10 +35,10 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.Install;
 import com.patchr.objects.Link;
 import com.patchr.objects.Link.Direction;
-import com.patchr.objects.LinkSpec;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecItem;
 import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.LinkSpecs;
 import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceBase.UpdateScope;
@@ -74,16 +75,19 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public class DataController {
 
-	private        Number      activityDate;     // Monitored by nearby
-	private        boolean     registering;
-	private static EntityStore ENTITY_STORE;
+	private        Number       activityDate;     // Monitored by nearby
+	private        boolean      registering;
+	private static EntityStore  ENTITY_STORE;
 
 	private DataController() {
 		try {
 			Dispatcher.getInstance().register(this);
 			ENTITY_STORE = new EntityStore();
 		}
-		catch (IllegalArgumentException ignore) { /* ignore */ }
+		catch (IllegalArgumentException ignore) {
+			/* ignore */
+			Logger.w(this, ignore.getLocalizedMessage());
+		}
 	}
 
 	private static class DataControllerHolder {
@@ -108,7 +112,7 @@ public class DataController {
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetEntity");
 
-				LinkSpec links = LinkSpecFactory.build(event.linkProfile);
+				LinkSpecs links = LinkSpecFactory.build(event.linkProfile);
 				final List<String> loadEntityIds = new ArrayList<>();
 				loadEntityIds.add(event.entityId);
 
@@ -155,7 +159,7 @@ public class DataController {
 				 * when an entity they are watching or created is updated. Our goal is to be self
 				 * consistent so we add in logic based on the local user.
 				 */
-				LinkSpec options = LinkSpecFactory.build(event.linkProfile);
+				LinkSpecs options = LinkSpecFactory.build(event.linkProfile);
 
 				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
@@ -200,10 +204,10 @@ public class DataController {
 				 * By default returns sorted by rank in ascending order.
 				 */
 				ModelResult result = getTrending(event.toSchema
-						, event.fromSchema
-						, event.linkType
-						, event.cursor
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, event.fromSchema
+					, event.linkType
+					, event.cursor
+					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent();
 				data.actionType = event.actionType;
@@ -236,8 +240,8 @@ public class DataController {
 			protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncGetNotifications");
 				ModelResult result = loadNotifications(event.entityId
-						, event.cursor
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, event.cursor
+					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				EntitiesQueryResultEvent data = new EntitiesQueryResultEvent();
 				data.actionType = event.actionType;
@@ -269,11 +273,11 @@ public class DataController {
 				Thread.currentThread().setName("AsyncInsertLink");
 
 				ModelResult result = insertLink(event.linkId
-						, event.fromId
-						, event.toId
-						, event.type
-						, event.enabled
-						, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
+					, event.fromId
+					, event.toId
+					, event.type
+					, event.enabled
+					, event.toShortcut, event.actionEvent, event.skipCache, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, event.fromShortcut
 				);
 
 				DataQueryResultEvent data = new DataQueryResultEvent();
@@ -320,12 +324,12 @@ public class DataController {
 				Thread.currentThread().setName("AsyncDeleteLink");
 
 				ModelResult result = deleteLink(event.fromId
-						, event.toId
-						, event.type
-						, event.enabled
-						, event.schema
-						, event.actionEvent
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, event.toId
+					, event.type
+					, event.enabled
+					, event.schema
+					, event.actionEvent
+					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				DataQueryResultEvent data = new DataQueryResultEvent();
 				data.actionType = event.actionType;
@@ -349,8 +353,8 @@ public class DataController {
 				Thread.currentThread().setName("AsyncShareCheck");
 
 				ModelResult result = checkShare(event.entityId
-						, event.userId
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, event.userId
+					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				DataQueryResultEvent data = new DataQueryResultEvent();
 				data.actionType = event.actionType;
@@ -409,7 +413,7 @@ public class DataController {
 	 * Combo service/cache queries
 	 *--------------------------------------------------------------------------------------------*/
 
-	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpec linkOptions, Object tag) {
+	public synchronized ModelResult getEntity(String entityId, Boolean refresh, LinkSpecs linkOptions, Object tag) {
 		/*
 		 * Retrieves entity from cache if available otherwise downloads the entity from the service. If refresh is true
 		 * then bypasses the cache and downloads from the service.
@@ -454,11 +458,11 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "getNotifications")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -473,7 +477,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult suggest(String input, String suggestScope, String userId, AirLocation location, long limit, Object tag) {
+	public ModelResult suggest(String input, String suggestScope, String userId, RealmLocation location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -508,11 +512,11 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_SUGGEST)
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_SUGGEST)
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -538,18 +542,18 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 		parameters.putBoolean("getEntities", true);
 
-		LinkSpec links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+		LinkSpecs links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
 		if (links != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setActivityName(activityName)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setActivityName(activityName)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -558,7 +562,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, false);
+			UserManager.shared().setCurrentUser(user, user.session, false);
 		}
 		return result;
 	}
@@ -571,18 +575,18 @@ public class DataController {
 		parameters.putString("install", Patchr.getInstance().getinstallId());
 		parameters.putBoolean("getEntities", true);
 
-		LinkSpec links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
+		LinkSpecs links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
 		if (links != null) {
 			parameters.putString("links", "object:" + Json.objectToJson(links));
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "ak")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setActivityName(activityName)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "ak")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setActivityName(activityName)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -592,7 +596,7 @@ public class DataController {
 			User user = serviceData.user;
 			user.authType = authType;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, false);
+			UserManager.shared().setCurrentUser(user, user.session, false);
 		}
 		return result;
 	}
@@ -604,21 +608,21 @@ public class DataController {
 		 * really hurt anything.
 		 */
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signout")
-				.setRequestType(RequestType.GET)
-				.setTag(tag)
-				.setIgnoreResponseData(true)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signout")
+			.setRequestType(RequestType.GET)
+			.setTag(tag)
+			.setIgnoreResponseData(true)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		/* Leave this because we are using GET */
 		if (UserManager.shared().authenticated()) {
-			serviceRequest.setSession(UserManager.currentUser.session);
+			serviceRequest.setSession(UserManager.currentSession);
 		}
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* Set to anonymous user regardless of success */
-		UserManager.shared().setCurrentUser(null, false);
+		UserManager.shared().setCurrentUser(null, null, false);
 
 		return result;
 	}
@@ -633,12 +637,12 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/change")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setActivityName(activityName)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/change")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setActivityName(activityName)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -647,7 +651,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, user.session, true);
 		}
 		return result;
 	}
@@ -659,10 +663,10 @@ public class DataController {
 		String uri = String.format(Constants.URL_PROXIBASE_SERVICE_FIND + "/users?q[email]=%1$s", Utils.encode(email));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(uri)
-				.setRequestType(RequestType.GET)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(uri)
+			.setRequestType(RequestType.GET)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -684,11 +688,11 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reqreset")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reqreset")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -705,11 +709,11 @@ public class DataController {
 		parameters.putString("installId", Patchr.getInstance().getinstallId());
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reset")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "pw/reset")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -720,7 +724,7 @@ public class DataController {
 
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, true);
+			UserManager.shared().setCurrentUser(user, user.session, true);
 		}
 
 		return result;
@@ -741,13 +745,13 @@ public class DataController {
 		 * need to provide any link specs.
 		 */
 		ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
-				.setRequestType(RequestType.INSERT)
-				.setRequestBody(Json.objectToJson(newUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
-				.setParameters(parameters)
-				.setTag(tag)
-				.setUseSecret(true)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_USER + "create")
+			.setRequestType(RequestType.INSERT)
+			.setRequestBody(Json.objectToJson(newUser, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+			.setParameters(parameters)
+			.setTag(tag)
+			.setUseSecret(true)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		/* Insert user */
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -774,11 +778,11 @@ public class DataController {
 					 * call fails, the user photo won't be captured but we still consider the
 					 * registration operation a success.
 					 */
-					serviceRequest = new ServiceRequest()
-							.setUri(user.getEntryUri())
-							.setRequestType(RequestType.UPDATE)
-							.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
-							.setResponseFormat(ResponseFormat.JSON);
+					//					serviceRequest = new ServiceRequest()
+					//							.setUri(user.getEntryUri())
+					//							.setRequestType(RequestType.UPDATE)
+					//							.setRequestBody(Json.objectToJson(user, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE))
+					//							.setResponseFormat(ResponseFormat.JSON);
 
 					if (UserManager.shared().authenticated()) {
 						serviceRequest.setSession(newUser.session);
@@ -795,13 +799,13 @@ public class DataController {
 		ModelResult result = new ModelResult();
 
 		String path = Constants.URL_PROXIBASE_SERVICE_USER + userId;
-		String query = String.format("?erase=true&session=%1$s&user=%2$s", UserManager.sessionKey, UserManager.userId);
+		String query = String.format("?erase=true&session=%1$s&user=%2$s", UserManager.currentSession, UserManager.userId);
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(path + query)
-				.setRequestType(RequestType.DELETE)
-				.setTag(tag)
-				.setIgnoreResponseData(true)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(path + query)
+			.setRequestType(RequestType.DELETE)
+			.setTag(tag)
+			.setIgnoreResponseData(true)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		/* Delete user */
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
@@ -851,7 +855,7 @@ public class DataController {
 				 * Location and beaconIds are used to determine  if installs should receive
 				 * notifications because they are nearby.
 				 */
-				AirLocation location = LocationManager.getInstance().getAirLocationLocked();
+				RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
 				if (location != null) {
 					parameters.putString("location", "object:" + Json.objectToJson(location));
 				}
@@ -908,17 +912,12 @@ public class DataController {
 			/* Entity */
 			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
-            /* Upsizing a suggest patch routes through this routine */
-			if (entity.synthetic) {
-				parameters.putBoolean("skipNotifications", true);
-			}
-
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
-					.setRequestType(RequestType.METHOD)
-					.setParameters(parameters)
-					.setTag(tag)
-					.setResponseFormat(ResponseFormat.JSON);
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertEntity")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
@@ -934,15 +933,13 @@ public class DataController {
 			/*
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
-			if (!entity.synthetic) {
-				if (UserManager.shared().authenticated()) {
-					UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
-					ENTITY_STORE.fixupAddLink(UserManager.currentUser.id
-							, insertedEntity.id
-							, Constants.TYPE_LINK_CREATE
-							, null
-							, UserManager.currentUser.getAsShortcut(), insertedEntity.getAsShortcut());
-				}
+			if (UserManager.shared().authenticated()) {
+				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+				ENTITY_STORE.fixupAddLink(UserManager.currentUser.id
+					, insertedEntity.id
+					, Constants.TYPE_LINK_CREATE
+					, null
+					, UserManager.currentUser.getAsShortcut(), insertedEntity.getAsShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -984,11 +981,11 @@ public class DataController {
 			parameters.putString("entity", "object:" + Json.objectToJson(entity, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
-					.setRequestType(RequestType.METHOD)
-					.setParameters(parameters)
-					.setTag(tag)
-					.setResponseFormat(ResponseFormat.JSON);
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateEntity")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
@@ -1035,11 +1032,11 @@ public class DataController {
 			parameters.putString("entityId", entity.id);
 
 			final ServiceRequest serviceRequest = new ServiceRequest()
-					.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
-					.setRequestType(RequestType.METHOD)
-					.setParameters(parameters)
-					.setTag(tag)
-					.setResponseFormat(ResponseFormat.JSON);
+				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteEntity")
+				.setRequestType(RequestType.METHOD)
+				.setParameters(parameters)
+				.setTag(tag)
+				.setResponseFormat(ResponseFormat.JSON);
 
 			result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		}
@@ -1085,11 +1082,11 @@ public class DataController {
 		String methodName = untuning ? "untrackEntity" : "trackEntity";
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + methodName)
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + methodName)
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1143,11 +1140,11 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertLink")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
@@ -1179,11 +1176,11 @@ public class DataController {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "deleteLink")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
@@ -1204,11 +1201,11 @@ public class DataController {
 		ModelResult result = new ModelResult();
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_REST + "links/" + linkId)
-				.setRequestType(RequestType.UPDATE)
-				.setParameters(new Bundle())
-				.setRequestBody("{ \"mute\": " + String.valueOf(mute) + "}")
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_REST + "links/" + linkId)
+			.setRequestType(RequestType.UPDATE)
+			.setParameters(new Bundle())
+			.setRequestBody("{ \"mute\": " + String.valueOf(mute) + "}")
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1228,11 +1225,11 @@ public class DataController {
 		parameters.putString("actionEvent", actionEvent);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "removeLinks")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		/*
@@ -1257,15 +1254,15 @@ public class DataController {
 
 		final User currentUser = UserManager.currentUser;
 
-		LinkSpec links = new LinkSpec().setActive(new ArrayList<LinkSpecItem>());
+		LinkSpecs links = new LinkSpecs().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
 
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, true, 1
-				, UserManager.shared().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
-				.setDirection(Direction.in));
+			, UserManager.shared().authenticated() ? Maps.asMap("_from", currentUser.id) : null)
+			.setDirection(Direction.in));
 		links.getActive().add(new LinkSpecItem(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, true, true, 1
-				, UserManager.shared().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
-				.setDirection(Direction.in));
+			, UserManager.shared().authenticated() ? Maps.asMap("_creator", currentUser.id) : null)
+			.setDirection(Direction.in));
 
 		final Bundle parameters = new Bundle();
 		parameters.putBoolean("getEntities", true);
@@ -1277,11 +1274,11 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "interesting")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_PATCHES + "interesting")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1308,8 +1305,8 @@ public class DataController {
 		}
 
 		Install install = new Install(UserManager.shared().authenticated() ? UserManager.currentUser.id : null
-				, parseInstallId
-				, Patchr.getInstance().getinstallId());
+			, parseInstallId
+			, Patchr.getInstance().getinstallId());
 
 		install.clientVersionName = Patchr.getVersionName(Patchr.applicationContext, MainScreen.class);
 		install.clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
@@ -1323,11 +1320,11 @@ public class DataController {
 		parameters.putString("install", "object:" + Json.objectToJson(install, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(NetworkManager.SERVICE_GROUP_TAG_DEFAULT)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "registerInstall")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(NetworkManager.SERVICE_GROUP_TAG_DEFAULT)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1338,7 +1335,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult updateProximity(List<String> beaconIds, AirLocation location, String installId, Object tag) {
+	public ModelResult updateProximity(List<String> beaconIds, RealmLocation location, String installId, Object tag) {
 
 		if (installId == null) {
 			throw new IllegalArgumentException("updateProximity requires installId");
@@ -1358,11 +1355,11 @@ public class DataController {
 		}
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "updateProximity")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 		return result;
@@ -1376,11 +1373,11 @@ public class DataController {
 		parameters.putString("document", "object:" + Json.objectToJson(document, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "insertDocument")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1421,11 +1418,11 @@ public class DataController {
 		parameters.putString("userId", userId);
 
 		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
-				.setRequestType(RequestType.METHOD)
-				.setParameters(parameters)
-				.setTag(tag)
-				.setResponseFormat(ResponseFormat.JSON);
+			.setUri(Constants.URL_PROXIBASE_SERVICE_METHOD + "checkShare")
+			.setRequestType(RequestType.METHOD)
+			.setParameters(parameters)
+			.setTag(tag)
+			.setResponseFormat(ResponseFormat.JSON);
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
@@ -1465,10 +1462,10 @@ public class DataController {
 		Integer searchRangeMeters = Constants.PATCH_NEAR_RADIUS;
 
 		List<Patch> patches = (List<Patch>) ENTITY_STORE.getStoreEntities(
-				Constants.SCHEMA_ENTITY_PATCH,
-				Constants.TYPE_ANY,
-				searchRangeMeters,
-				proximity);
+			Constants.SCHEMA_ENTITY_PATCH,
+			Constants.TYPE_ANY,
+			searchRangeMeters,
+			proximity);
 
 		Collections.sort(patches, new Patch.SortByProximityAndDistance());
 		Number limit = Patchr.applicationContext.getResources().getInteger(R.integer.limit_patches_radar);

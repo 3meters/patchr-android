@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,9 +23,9 @@ import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Entity;
+import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.ImageWidget;
@@ -35,15 +34,13 @@ import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class UserView extends FrameLayout implements View.OnClickListener {
+public class UserView extends BaseView implements View.OnClickListener {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected CacheStamp cacheStamp;
-	public    Entity     patch;
-	protected BaseView   base;
-	protected Integer    layoutResId;
+	public    RealmEntity entity;
+	public    RealmEntity patch;
+	protected Integer     layoutResId;
 
 	public Boolean showEmail = false;
 
@@ -91,7 +88,7 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 	public void onApprovedClick(View view) {
 		Boolean approved = ((CompoundButton) view).isChecked();
 		this.enableLabel.setText(approved ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
-		approveMember(this.entity, this.entity.linkId, this.entity.id, this.patch.id, approved);
+		approveMember(this.entity, this.entity.userMemberId, this.entity.id, this.patch.id, approved);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -100,7 +97,6 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 	private void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -120,11 +116,11 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 		}
 	}
 
-	public void bind(Entity entity) {
+	public void bind(RealmEntity entity) {
 		bind(entity, null);
 	}
 
-	public void bind(Entity entity, Entity patch) {
+	public void bind(RealmEntity entity, RealmEntity patch) {
 
 		synchronized (lock) {
 
@@ -143,33 +139,30 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 				return;
 			}
 
-			this.cacheStamp = entity.getCacheStamp();
-			User user = (User) entity;
-
-			this.userPhoto.setImageWithEntity(user);
-			base.setOrGone(this.name, user.name);
-			base.setOrGone(this.area, user.area);
+			this.userPhoto.setImageWithRealmEntity(entity);
+			setOrGone(this.name, entity.name);
+			setOrGone(this.area, entity.area);
 
 			if (this.showEmail) {
-				base.setOrGone(this.email, user.email);
+				setOrGone(this.email, entity.email);
 			}
 
 			if (patch != null) {
 				this.patch = patch;
-				if (user.id.equals(patch.ownerId)) {
-					base.setOrGone(this.role, User.Role.OWNER);
+				if (entity.id.equals(patch.ownerId)) {
+					setOrGone(this.role, User.Role.OWNER);
 				}
-				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)){
+				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)) {
 					this.removeButton.setTag(entity);
-					this.enableSwitch.setChecked(entity.linkEnabled);
-					this.enableLabel.setText(entity.linkEnabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+					this.enableSwitch.setChecked(entity.userMemberStatus.equals(MemberStatus.Member));
+					this.enableLabel.setText(entity.userMemberStatus.equals(MemberStatus.Member) ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
 					UI.setVisibility(this.editGroup, VISIBLE);
 				}
 			}
 		}
 	}
 
-	public void approveMember(final Entity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
+	public void approveMember(final RealmEntity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
 
 		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
 		final Shortcut toShortcut = new Shortcut();
@@ -183,11 +176,11 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncStatusUpdate");
 				return DataController.getInstance().insertLink(linkId
-						, fromId
-						, toId
-						, Constants.TYPE_LINK_MEMBER
-						, enabled
-						, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
+					, fromId
+					, toId
+					, Constants.TYPE_LINK_MEMBER
+					, enabled
+					, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
 				);
 			}
 
@@ -197,7 +190,9 @@ public class UserView extends FrameLayout implements View.OnClickListener {
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
-					entity.linkEnabled = enabled;
+					Patchr.realm.executeTransaction(realmEntity -> {
+						entity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
+					});
 				}
 				else {
 					Errors.handleError((Activity) getContext(), result.serviceResponse);

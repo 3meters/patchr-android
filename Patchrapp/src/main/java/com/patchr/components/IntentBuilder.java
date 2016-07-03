@@ -6,8 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.patchr.Constants;
-import com.patchr.objects.Entity;
-import com.patchr.utilities.Json;
 
 public class IntentBuilder {
 
@@ -61,14 +59,6 @@ public class IntentBuilder {
 
 	public IntentBuilder setData(Uri data) {
 		mData = data;
-		return this;
-	}
-
-	public IntentBuilder setEntity(Entity entity) {
-		if (entity != null) {
-			final String jsonEntity = Json.objectToJson(entity);
-			mExtras.putString(Constants.EXTRA_ENTITY, jsonEntity);
-		}
 		return this;
 	}
 

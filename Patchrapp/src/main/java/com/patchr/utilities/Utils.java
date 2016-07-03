@@ -157,8 +157,8 @@ public class Utils {
 
 	public static Boolean isDev() {
 		return (UserManager.shared().authenticated()
-				&& UserManager.currentUser.developer != null
-				&& UserManager.currentUser.developer);
+				&& UserManager.currentRealmUser.developer != null
+				&& UserManager.currentRealmUser.developer);
 	}
 
 	public static void guard(Boolean condition) {

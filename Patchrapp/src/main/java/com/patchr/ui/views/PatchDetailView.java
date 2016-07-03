@@ -6,23 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ViewAnimator;
 
 import com.patchr.R;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Entity;
 import com.patchr.ui.components.AnimationFactory;
 
 @SuppressWarnings("ucd")
-public class PatchDetailView extends FrameLayout implements View.OnClickListener {
+public class PatchDetailView extends BaseView implements View.OnClickListener {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected CacheStamp cacheStamp;
-	protected BaseView   base;
-	protected Integer    layoutResId;
+	public    RealmEntity entity;
+	protected CacheStamp  cacheStamp;
+	protected Integer     layoutResId;
 
 	protected ViewGroup       layout;
 	public    PatchBannerView bannerView;
@@ -52,9 +50,7 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 
 	protected void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
-
 		this.bannerView = (PatchBannerView) layout.findViewById(R.id.banner_view);
 		this.infoView = (PatchInfoView) layout.findViewById(R.id.info_view);
 		this.actionButton = (Button) layout.findViewById(R.id.action_button);
@@ -81,16 +77,12 @@ public class PatchDetailView extends FrameLayout implements View.OnClickListener
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(Entity entity) {
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
-
 			this.entity = entity;
-			this.cacheStamp = entity.getCacheStamp();
-
 			this.bannerView.databind(entity);
 			this.infoView.databind(entity);
-
 			this.bannerView.setOnClickListener(this);
 			this.infoView.setOnClickListener(this);
 		}

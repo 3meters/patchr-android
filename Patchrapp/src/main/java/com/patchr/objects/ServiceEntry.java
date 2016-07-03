@@ -12,13 +12,7 @@ public class ServiceEntry extends ServiceBase {
 
 	public static ServiceEntry setPropertiesFromMap(ServiceEntry serviceEntry, Map map, Boolean nameMapping) {
 
-		serviceEntry = (ServiceEntry) ServiceBase.setPropertiesFromMap(serviceEntry, map, nameMapping);
+		serviceEntry = (ServiceEntry) ServiceBase.setPropertiesFromMap(serviceEntry, map);
 		return serviceEntry;
 	}
-
-	@Override
-	public String getCollection() {
-		return null;
-	}
-
 }

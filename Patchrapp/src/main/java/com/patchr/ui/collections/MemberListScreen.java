@@ -1,4 +1,4 @@
-package com.patchr.ui;
+package com.patchr.ui.collections;
 
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -12,11 +12,10 @@ import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
-import com.patchr.events.EntitiesQueryEvent;
-import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
-import com.patchr.ui.components.RecyclePresenter;
+import com.patchr.objects.Query;
+import com.patchr.objects.QueryName;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -24,7 +23,7 @@ import com.patchr.utilities.Reporting;
 import static com.patchr.objects.FetchMode.AUTO;
 
 @SuppressWarnings("ucd")
-public class MemberListScreen extends ListScreen {
+public class MemberListScreen extends BaseListScreen {
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -45,15 +44,7 @@ public class MemberListScreen extends ListScreen {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void initialize(Bundle savedInstanceState) {
-
-		this.listPresenter = new RecyclePresenter(this);
-		this.listPresenter.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
-				, null
-				, this.listLinkDirection
-				, this.listLinkType
-				, this.listLinkSchema
-				, this.entityId);
-
+		this.listController.query = Query.Factory(QueryName.MembersForPatch, this.entityId);
 		super.initialize(savedInstanceState);
 	}
 

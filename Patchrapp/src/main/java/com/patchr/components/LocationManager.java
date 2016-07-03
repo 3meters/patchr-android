@@ -20,6 +20,7 @@ import com.google.android.gms.location.LocationServices;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.LocationUpdatedEvent;
+import com.patchr.model.RealmLocation;
 import com.patchr.objects.AirLocation;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Preference;
@@ -55,9 +56,9 @@ public class LocationManager implements
 	protected GoogleApiClient                  mGoogleApiClient;
 	protected LocationRequest                  mLocationRequest;
 
-	private AirLocation mAirLocationLocked;
-	private Location    mLocationLastKnown;
-	private Location    mLocationLocked;
+	private RealmLocation mAirLocationLocked;
+	private Location      mLocationLastKnown;
+	private Location      mLocationLocked;
 	private Boolean mRequestingLocationUpdates = false;
 	private Boolean mFirstAccept               = false;
 	private Boolean mFirstAccepted             = false;
@@ -332,7 +333,7 @@ public class LocationManager implements
 
 		/* We set our version of location at the same time */
 
-		AirLocation location = new AirLocation();
+		RealmLocation location = new RealmLocation();
 		location.lat = mLocationLocked.getLatitude();
 		location.lng = mLocationLocked.getLongitude();
 
@@ -355,7 +356,7 @@ public class LocationManager implements
 		mAirLocationLocked = location;  // Only place this is being set
 	}
 
-	public AirLocation getAirLocationLocked() {
+	public RealmLocation getAirLocationLocked() {
 		return mAirLocationLocked;
 	}
 }

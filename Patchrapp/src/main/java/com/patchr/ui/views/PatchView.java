@@ -5,30 +5,25 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.Patch;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Utils;
 
 import java.util.Locale;
 
 @SuppressWarnings("ucd")
-public class PatchView extends FrameLayout {
+public class PatchView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity     entity;
-	protected CacheStamp cacheStamp;
-	protected BaseView   base;
-	protected Integer    layoutResId;
+	public    RealmEntity entity;
+	protected CacheStamp  cacheStamp;
+	protected Integer     layoutResId;
 
 	protected ViewGroup   layout;
 	protected ImageWidget photoView;
@@ -62,7 +57,6 @@ public class PatchView extends FrameLayout {
 
 	protected void initialize() {
 
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.photoView = (ImageWidget) layout.findViewById(R.id.photo);
@@ -83,36 +77,32 @@ public class PatchView extends FrameLayout {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(Entity entity) {
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.cacheStamp = entity.getCacheStamp();
-			this.photoView.setImageWithEntity(entity);
-			base.setOrGone(this.name, entity.name);
+			this.photoView.setImageWithRealmEntity(entity);
+			setOrGone(this.name, entity.name);
 
-			if (entity instanceof Patch) {
-				Patch patch = (Patch) entity;
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 
-				base.setOrGone(this.index, String.valueOf(patch.index.intValue()));
-				base.setOrGone(this.type, (patch.type + " patch").toUpperCase(Locale.US));
+				setOrGone(this.index, String.valueOf(entity.index.intValue()));
+				setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
 
 				/* Privacy */
-				privacyGroup.setVisibility((patch.privacy != null && patch.privacy.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+				privacyGroup.setVisibility((entity.visibility != null && entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 
 				/* Message count for nearby list */
-				Count messageCount = patch.getCount(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_MESSAGE, null, Link.Direction.in);
-				base.setOrGone(this.messageCount, (messageCount != null) ? String.valueOf(messageCount.count.intValue()) : "0");
+				setOrGone(this.messageCount, String.valueOf(entity.countMessages));
 
 				/* Watch count for nearby list */
-				Count watchCount = patch.getCount(Constants.TYPE_LINK_MEMBER, Constants.SCHEMA_ENTITY_USER, true, Link.Direction.in);
-				base.setOrGone(this.watchCount, (watchCount != null) ? String.valueOf(watchCount.count.intValue()) : "0");
+				setOrGone(this.watchCount, String.valueOf(entity.countMessages));
 
 				/* Distance */
-				final Float distance = patch.getDistance(true); // In meters
+				final Float distance = entity.getDistance(true); // In meters
 				final String distanceFormatted = Utils.distanceFormatted(distance);
-				base.setOrGone(this.distance, distanceFormatted);
+				setOrGone(this.distance, distanceFormatted);
 			}
 		}
 	}

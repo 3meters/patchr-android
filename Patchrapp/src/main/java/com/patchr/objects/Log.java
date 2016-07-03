@@ -31,11 +31,6 @@ public class Log extends ServiceBase implements Cloneable, Serializable {
 		return log;
 	}
 
-	@Override
-	public String getCollection() {
-		return "logs";
-	}
-
 	public static class LogCategory {
 		public static String TIMING = "timing";
 	}

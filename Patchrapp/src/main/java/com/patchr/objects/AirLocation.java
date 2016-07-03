@@ -2,35 +2,23 @@ package com.patchr.objects;
 
 import android.support.annotation.NonNull;
 
-import com.patchr.service.Expose;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.Serializable;
 import java.util.Map;
 
-/**
- * @author Jayma
- */
 @SuppressWarnings("ucd")
-public class AirLocation extends ServiceObject implements Cloneable, Serializable {
+public class AirLocation extends ServiceObject {
 
 	private static final long                      serialVersionUID = 455904759787968585L;
 	private static final android.location.Location fromLocation     = new android.location.Location("from");
 	private static final android.location.Location toLocation       = new android.location.Location("to");
 
-	@Expose
 	public Number lat;
-	@Expose
 	public Number lng;
-	@Expose
 	public Number altitude;
-	@Expose
 	public Number accuracy;
-	@Expose
 	public Number bearing;
-	@Expose
 	public Number speed;
-	@Expose
 	public String provider;
 
 	public AirLocation() {}
@@ -40,18 +28,7 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 		this.lng = lng;
 	}
 
-	@Override
-	public AirLocation clone() {
-		try {
-			final AirLocation clone = (AirLocation) super.clone();
-			return clone;
-		}
-		catch (final CloneNotSupportedException ex) {
-			throw new AssertionError();
-		}
-	}
-
-	public static AirLocation setPropertiesFromMap(AirLocation location, Map map, Boolean nameMapping) {
+	public static AirLocation setPropertiesFromMap(AirLocation location, Map map) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
@@ -85,5 +62,15 @@ public class AirLocation extends ServiceObject implements Cloneable, Serializabl
 
 	public LatLng asLatLng() {
 		return new LatLng(this.lat.doubleValue(), this.lng.doubleValue());
+	}
+
+	@Override public AirLocation clone() {
+		try {
+			final AirLocation clone = (AirLocation) super.clone();
+			return clone;
+		}
+		catch (final CloneNotSupportedException ex) {
+			throw new AssertionError();
+		}
 	}
 }

@@ -19,7 +19,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Document;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
@@ -122,7 +122,7 @@ public class FeedbackEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_sending, FeedbackEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -135,7 +135,7 @@ public class FeedbackEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, "Sent Feedback");
 					UI.toast(StringManager.getString(R.string.alert_feedback_sent));

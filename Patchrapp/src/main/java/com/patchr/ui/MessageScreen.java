@@ -3,7 +3,6 @@ package com.patchr.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
@@ -11,13 +10,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -39,17 +36,15 @@ import com.patchr.events.EntityQueryEvent;
 import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.Count;
-import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
 import com.patchr.objects.Link;
 import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.Message;
 import com.patchr.objects.Message.MessageType;
-import com.patchr.objects.Patch;
 import com.patchr.objects.Photo;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.TransitionType;
@@ -58,7 +53,6 @@ import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
@@ -69,7 +63,6 @@ import com.segment.analytics.Properties;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.List;
 import java.util.Locale;
 
 import io.branch.indexing.BranchUniversalObject;
@@ -139,8 +132,8 @@ public class MessageScreen extends BaseScreen {
 				Photo photo = (Photo) view.getTag();
 				navigateToPhoto(photo);
 			}
-			else if (view.getTag() instanceof Entity) {
-				final Entity entity = (Entity) view.getTag();
+			else if (view.getTag() instanceof RealmEntity) {
+				final RealmEntity entity = (RealmEntity) view.getTag();
 				navigateToEntity(entity);
 			}
 		}
@@ -225,8 +218,8 @@ public class MessageScreen extends BaseScreen {
 			return;
 		}
 
-		Link linkLike = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-		like(linkLike == null);
+//		Link linkLike = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+//		like(linkLike == null);
 	}
 
 	public void likeListAction() {
@@ -267,13 +260,13 @@ public class MessageScreen extends BaseScreen {
 
 					Logger.v(this, "Data result accepted: " + event.actionType.name());
 
-					if (event.entity != null) {
-						entity = event.entity;
-
-						if (parentId != null) {
-							entity.toId = parentId;
-						}
-					}
+//					if (event.entity != null) {
+//						entity = event.entity;
+//
+//						if (parentId != null) {
+//							entity.toId = parentId;
+//						}
+//					}
 
 					/* Ensure this is flagged as read */
 					if (notificationId != null) {
@@ -339,10 +332,10 @@ public class MessageScreen extends BaseScreen {
 
 		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
 		if (entity.type != null && entity.type.equals(MessageType.Post)) {
-			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-			if (linkPlace != null) {
-				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
-			}
+//			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+//			if (linkPlace != null) {
+//				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
+//			}
 		}
 		final AlertDialog dialog = Dialogs.alertDialog(null
 				, StringManager.getString(R.string.alert_delete_message_title)
@@ -380,10 +373,6 @@ public class MessageScreen extends BaseScreen {
 		request.fetchMode = mode;
 		request.entityId = entityId;
 		request.tag = System.identityHashCode(this);
-
-		if (bound && entity != null && mode != FetchMode.MANUAL) {
-			request.cacheStamp = entity.getCacheStamp();
-		}
 
 		Dispatcher.getInstance().post(request);
 	}
@@ -430,27 +419,27 @@ public class MessageScreen extends BaseScreen {
 				UI.setVisibility(patchPhotoView, View.GONE);
 			}
 			else {
-				Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-
-				if (linkPlace != null) {
-					holderPatch.setTag(linkPlace.shortcut.getAsEntity());
-
-					/* Name */
-					patchName.setText(linkPlace.shortcut.name);
-					UI.setVisibility(holderPatch, View.VISIBLE);
-
-					/* Photo */
-					if (linkPlace.shortcut.photo != null) {
-						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo, null);
-					}
-					else {
-						patchPhotoView.setImageWithText(linkPlace.shortcut.name, false);
-					}
-					UI.setVisibility(patchPhotoView, View.VISIBLE);
-				}
-				else {
-					UI.setVisibility(holderPatch, View.GONE);
-				}
+//				Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+//
+//				if (linkPlace != null) {
+//					holderPatch.setTag(linkPlace.shortcut.getAsEntity());
+//
+//					/* Name */
+//					patchName.setText(linkPlace.shortcut.name);
+//					UI.setVisibility(holderPatch, View.VISIBLE);
+//
+//					/* Photo */
+//					if (linkPlace.shortcut.photo != null) {
+//						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo, null);
+//					}
+//					else {
+//						patchPhotoView.setImageWithText(linkPlace.shortcut.name, false);
+//					}
+//					UI.setVisibility(patchPhotoView, View.VISIBLE);
+//				}
+//				else {
+//					UI.setVisibility(holderPatch, View.GONE);
+//				}
 			}
 		}
 
@@ -464,7 +453,7 @@ public class MessageScreen extends BaseScreen {
 
 		if (userPhotoView != null) {
 			if (entity.creator != null) {
-				userPhotoView.setImageWithEntity(entity.creator);
+				userPhotoView.setImageWithRealmEntity(entity.creator);
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
@@ -537,23 +526,23 @@ public class MessageScreen extends BaseScreen {
 
 		if (share) {
 
-			Entity shareEntity = null;
+			RealmEntity shareEntity = null;
 
-			Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
-			if (linkEntity != null) {
-				if (linkEntity.shortcut != null) {
-					shareEntity = linkEntity.shortcut.getAsEntity();
-				}
-			}
-
-			if (shareEntity == null) {
-				linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
-				if (linkEntity != null) {
-					if (linkEntity.shortcut != null) {
-						shareEntity = linkEntity.shortcut.getAsEntity();
-					}
-				}
-			}
+//			Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
+//			if (linkEntity != null) {
+//				if (linkEntity.shortcut != null) {
+//					shareEntity = linkEntity.shortcut.getAsEntity();
+//				}
+//			}
+//
+//			if (shareEntity == null) {
+//				linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
+//				if (linkEntity != null) {
+//					if (linkEntity.shortcut != null) {
+//						shareEntity = linkEntity.shortcut.getAsEntity();
+//					}
+//				}
+//			}
 
 			if (shareEntity != null) {
 
@@ -572,7 +561,7 @@ public class MessageScreen extends BaseScreen {
 				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					patchName.setText(StringManager.getString(R.string.label_message_shared));
 					MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-					messageView.bind(shareEntity, null);
+					//messageView.bind(shareEntity, null);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(8f);
 					cardView.setContentPadding(padding, padding, padding, padding);
@@ -582,34 +571,34 @@ public class MessageScreen extends BaseScreen {
 
 				UI.setVisibility(shareHolder, View.VISIBLE);
 			}
-			else if (linkEntity != null) {
-
-				/* Message that shares an entity but shortcut was blocked by permissions */
-
-				if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-
-					shareView.removeAllViews();
-					View blockView = LayoutInflater.from(this).inflate(R.layout.view_button_share_message_blocked, null, false);
-
-					Entity message = new Message();
-					message.schema = Constants.SCHEMA_ENTITY_MESSAGE;
-					message.id = linkEntity.toId;
-
-					shareView.setTag(message);
-					shareView.addView(blockView);
-
-					UI.setVisibility(shareHolder, View.VISIBLE);
-				}
-			}
+//			else if (linkEntity != null) {
+//
+//				/* Message that shares an entity but shortcut was blocked by permissions */
+//
+//				if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+//
+//					shareView.removeAllViews();
+//					View blockView = LayoutInflater.from(this).inflate(R.layout.view_button_share_message_blocked, null, false);
+//
+//					Entity message = new Message();
+//					message.schema = Constants.SCHEMA_ENTITY_MESSAGE;
+//					message.id = linkEntity.toId;
+//
+//					shareView.setTag(message);
+//					shareView.addView(blockView);
+//
+//					UI.setVisibility(shareHolder, View.VISIBLE);
+//				}
+//			}
 
 			/* Show share recipients */
 
 			UI.setVisibility(shareRecipientsHolder, View.VISIBLE);
 			StringBuilder recipientsString = new StringBuilder();
-			List<Link> links = entity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Link.Direction.out);
-			for (Link link : links) {
-				recipientsString.append(link.shortcut.name);
-			}
+//			List<Link> links = entity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Link.Direction.out);
+//			for (Link link : links) {
+//				recipientsString.append(link.shortcut.name);
+//			}
 			shareRecipients.setText(recipientsString);
 		}
 		else {
@@ -617,8 +606,8 @@ public class MessageScreen extends BaseScreen {
 			/* A message without a share */
 
 			if (entity.photo != null) {
-				final Photo photo = entity.photo;
-				photoView.setImageWithPhoto(photo, null);
+				final RealmPhoto photo = entity.photo;
+				photoView.setImageWithRealmEntity(photo, null);
 				photoView.setTag(photo);
 				UI.setVisibility(photoView, View.VISIBLE);
 			}
@@ -642,21 +631,21 @@ public class MessageScreen extends BaseScreen {
 		ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
 		if (like != null) {
 			like.setDisplayedChild(0);
-			if (entity instanceof Patch && !((Patch) entity).isVisibleToCurrentUser()) {
+			if (entity.isVisibleToCurrentUser()) {
 				UI.setVisibility(like, View.GONE);
 			}
 			else {
-				Link link = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-				ImageView image = (ImageView) like.findViewById(R.id.like_image);
-				if (link != null) {
-					final int color = Colors.getColor(R.color.brand_primary);
-					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-					image.setAlpha(1.0f);
-				}
-				else {
-					image.setColorFilter(null);
-					image.setAlpha(0.5f);
-				}
+//				Link link = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+//				ImageView image = (ImageView) like.findViewById(R.id.like_image);
+//				if (link != null) {
+//					final int color = Colors.getColor(R.color.brand_primary);
+//					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+//					image.setAlpha(1.0f);
+//				}
+//				else {
+//					image.setColorFilter(null);
+//					image.setAlpha(0.5f);
+//				}
 				UI.setVisibility(like, View.VISIBLE);
 			}
 		}
@@ -664,23 +653,23 @@ public class MessageScreen extends BaseScreen {
 		/* Like count */
 		View likes = findViewById(R.id.likes_button);
 		if (likes != null) {
-			Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
-			if (count == null) {
-				count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-			}
-			if (count.count.intValue() > 0) {
-				TextView likesCount = (TextView) findViewById(R.id.likes_count);
-				TextView likesLabel = (TextView) findViewById(R.id.likes_label);
-				if (likesCount != null) {
-					String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
-					likesCount.setText(String.valueOf(count.count.intValue()));
-					likesLabel.setText(label);
-					UI.setVisibility(likes, View.VISIBLE);
-				}
-			}
-			else {
-				UI.setVisibility(likes, View.GONE);
-			}
+//			Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
+//			if (count == null) {
+//				count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
+//			}
+//			if (count.count.intValue() > 0) {
+//				TextView likesCount = (TextView) findViewById(R.id.likes_count);
+//				TextView likesLabel = (TextView) findViewById(R.id.likes_label);
+//				if (likesCount != null) {
+//					String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
+//					likesCount.setText(String.valueOf(count.count.intValue()));
+//					likesLabel.setText(label);
+//					UI.setVisibility(likes, View.VISIBLE);
+//				}
+//			}
+//			else {
+//				UI.setVisibility(likes, View.GONE);
+//			}
 		}
 	}
 
@@ -703,7 +692,7 @@ public class MessageScreen extends BaseScreen {
 
 			/* Used as part of link management */
 			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-			Shortcut toShortcut = entity.getAsShortcut();
+//			Shortcut toShortcut = entity.getAsShortcut();
 
 			LinkInsertEvent insertEvent = new LinkInsertEvent();
 			insertEvent.fromId = UserManager.currentUser.id;
@@ -711,7 +700,7 @@ public class MessageScreen extends BaseScreen {
 			insertEvent.type = Constants.TYPE_LINK_LIKE;
 			insertEvent.enabled = true;
 			insertEvent.fromShortcut = fromShortcut;
-			insertEvent.toShortcut = toShortcut;
+//			insertEvent.toShortcut = toShortcut;
 			insertEvent.actionEvent = "like_entity_" + entity.schema.toLowerCase(Locale.US);
 			insertEvent.skipCache = false;
 			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_LIKE;
@@ -794,13 +783,13 @@ public class MessageScreen extends BaseScreen {
 				.addContentMetadata("patchName", patchName);
 
 		if (entity.photo != null) {
-			Photo photo = entity.photo;
+			RealmPhoto photo = entity.photo;
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
 		}
 		else if (entity.patch != null) {
-			Photo photo = entity.patch.photo;
+			RealmPhoto photo = entity.patch.photo;
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url

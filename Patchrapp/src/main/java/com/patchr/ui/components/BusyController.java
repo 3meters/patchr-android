@@ -24,7 +24,7 @@ import com.patchr.utilities.Reporting;
 
 import org.greenrobot.eventbus.Subscribe;
 
-public class BusyPresenter {
+public class BusyController {
 
 	private Runnable           runnableHide;
 	private Runnable           runnableShow;
@@ -36,10 +36,19 @@ public class BusyPresenter {
 	private ObjectAnimator fadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
 	private ObjectAnimator fadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
-	public BusyPresenter() {
+	public BusyController() {
+		this(null, null);
+	}
+
+	public BusyController(AirProgressBar progressBar, SwipeRefreshLayout swipeRefreshLayout) {
+		if (progressBar != null) {
+			this.progressBar = progressBar;
+		}
+		if (swipeRefreshLayout != null) {
+			this.swipeRefreshLayout = swipeRefreshLayout;
+		}
 		runnableHide = new Runnable() {
-			@Override
-			public void run() {
+			@Override public void run() {
 				hide(false);
 			}
 		};
@@ -272,14 +281,14 @@ public class BusyPresenter {
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public BusyPresenter setSwipeRefresh(View swipeRefreshLayout) {
+	public BusyController setSwipeRefresh(View swipeRefreshLayout) {
 		if (swipeRefreshLayout != null && swipeRefreshLayout instanceof SwipeRefreshLayout) {
 			this.swipeRefreshLayout = (SwipeRefreshLayout) swipeRefreshLayout;
 		}
 		return this;
 	}
 
-	public BusyPresenter setProgressBar(View progressBar) {
+	public BusyController setProgressBar(View progressBar) {
 		if (progressBar != null && progressBar instanceof AirProgressBar) {
 			this.progressBar = (AirProgressBar) progressBar;
 		}

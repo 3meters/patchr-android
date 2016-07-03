@@ -19,7 +19,6 @@ import com.patchr.Patchr;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.ServiceData;
-import com.patchr.objects.User;
 import com.patchr.service.OkHttp;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
@@ -159,9 +158,8 @@ public class NetworkManager {
 		if (UserManager.shared().authenticated()
 				&& (serviceRequest.getRequestType() != RequestType.GET
 				&& serviceRequest.getRequestType() != RequestType.DELETE)) {
-			User user = UserManager.currentUser;
-			serviceRequest.getParameters().putString("user", user.id);
-			serviceRequest.getParameters().putString("session", user.session.key);
+			serviceRequest.getParameters().putString("user", UserManager.userId);
+			serviceRequest.getParameters().putString("session", UserManager.sessionKey);
 		}
 
 		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);

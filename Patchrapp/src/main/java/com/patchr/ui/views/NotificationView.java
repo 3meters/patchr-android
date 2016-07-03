@@ -5,26 +5,24 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.patchr.R;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.Notification;
-import com.patchr.objects.Photo;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
-public class NotificationView extends FrameLayout {
+public class NotificationView extends BaseView {
 
 	private static final Object lock = new Object();
 
-	public    Entity   entity;
-	protected BaseView base;
-	protected Integer  layoutResId;
+	public    RealmEntity entity;
+	protected Integer     layoutResId;
 
 	protected ViewGroup   layout;
 	protected ImageWidget userPhoto;
@@ -55,7 +53,6 @@ public class NotificationView extends FrameLayout {
 	}
 
 	protected void initialize() {
-		this.base = new BaseView();
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
@@ -70,63 +67,57 @@ public class NotificationView extends FrameLayout {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void bind(Entity entity) {
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
 
 			this.entity = entity;
-			Notification notification = (Notification) entity;
 
 			/* User */
-			if (notification.photo != null) {
-				this.userPhoto.setImageWithPhoto(notification.photo, null);
-			}
-			else if (notification.name != null) {
-				this.userPhoto.setImageWithText(notification.name, true);
-			}
+			this.userPhoto.setImageWithRealmEntity(entity.photo, entity.name);
 
 			/* Create date */
 			String dateFormatted = null;
-			if (notification.modifiedDate != null) {
-				dateFormatted = DateTime.intervalCompact(notification.modifiedDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
+			if (entity.modifiedDate != null) {
+				dateFormatted = DateTime.intervalCompact(entity.modifiedDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
 			}
 
-			base.setOrGone(this.modifiedDate, dateFormatted);
-			base.setOrGone(this.summary, notification.summary);
+			setOrGone(this.modifiedDate, dateFormatted);
+			setOrGone(this.summary, entity.summary);
 
 	        /* Photo */
 			UI.setVisibility(this.notificationPhoto, GONE);
-			if (notification.photoBig != null) {
-				final Photo photo = notification.photoBig;
-				this.notificationPhoto.setImageWithPhoto(photo, null);
+			if (entity.photoBig != null) {
+				final RealmPhoto photo = entity.photoBig;
+				this.notificationPhoto.setImageWithRealmEntity(photo, null);
 				this.notificationPhoto.setTag(photo);
 				UI.setVisibility(this.notificationPhoto, VISIBLE);
 			}
 
 			/* Notification type */
-			if (notification.type != null) {
+			if (entity.type != null) {
 				UI.setVisibility(this.notificationType, View.GONE);
 				Integer drawableResId = null;
-				if (notification.type.equals(Notification.NotificationType.WATCH)) {
+				if (entity.type.equals(Notification.NotificationType.WATCH)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconWatch);
 				}
-				else if (notification.type.equals(Notification.NotificationType.PLACE)) {
+				else if (entity.type.equals(Notification.NotificationType.PLACE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconPatch);
 				}
-				else if (notification.type.equals(Notification.NotificationType.MESSAGE)) {
+				else if (entity.type.equals(Notification.NotificationType.MESSAGE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconMessage);
 				}
-				else if (notification.type.equals(Notification.NotificationType.MEDIA)) {
+				else if (entity.type.equals(Notification.NotificationType.MEDIA)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconMediaMessage);
 				}
-				else if (notification.type.equals(Notification.NotificationType.SHARE)) {
+				else if (entity.type.equals(Notification.NotificationType.SHARE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconShare);
 				}
-				else if (notification.type.equals(Notification.NotificationType.LIKE)) {
-					if (notification.event.equals("like_entity_patch")) {
+				else if (entity.type.equals(Notification.NotificationType.LIKE)) {
+					if (entity.event.equals("like_entity_patch")) {
 						drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconFavorite);
 					}
-					else if (notification.event.equals("like_entity_message")) {
+					else if (entity.event.equals("like_entity_message")) {
 						drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconLike);
 					}
 				}

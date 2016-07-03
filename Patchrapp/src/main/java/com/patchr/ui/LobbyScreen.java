@@ -47,7 +47,8 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Preference;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.objects.User;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.ProfileEdit;
@@ -62,10 +63,7 @@ import com.patchr.utilities.UI;
 import java.util.Map;
 
 import bolts.AppLinks;
-import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
-import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
 public class LobbyScreen extends AppCompatActivity {
@@ -98,14 +96,14 @@ public class LobbyScreen extends AppCompatActivity {
 	protected Boolean restart    = false;
 	protected String  authType   = AuthType.Password;
 	protected String  authIntent = BaseScreen.State.Login;
-	protected BusyPresenter busyPresenter;
+	protected BusyController busyPresenter;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (!isTaskRoot()
-				&& getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
-				&& getIntent().getAction() != null
-				&& getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+			&& getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
+			&& getIntent().getAction() != null
+			&& getIntent().getAction().equals(Intent.ACTION_MAIN)) {
 
 			finish();
 			return;
@@ -233,7 +231,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 	protected void initialize() {
 
-		this.busyPresenter = new BusyPresenter();
+		this.busyPresenter = new BusyController();
 		this.bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 
 		if (this.bottomSheetLayout != null)
@@ -257,43 +255,40 @@ public class LobbyScreen extends AppCompatActivity {
 		 */
 		final Uri uri = this.getIntent().getData();
 
-		Branch.getInstance(Patchr.applicationContext).initSession(new Branch.BranchUniversalReferralInitListener() {
+		Branch.getInstance(Patchr.applicationContext).initSession((branchUniversalObject, linkProperties, error) -> {
 
-			@Override public void onInitFinished(BranchUniversalObject branchUniversalObject, LinkProperties linkProperties, BranchError error) {
+			if (branchUniversalObject != null) {
 
-				if (branchUniversalObject != null) {
+				Map metadata = branchUniversalObject.getMetadata();
 
-					Map metadata = branchUniversalObject.getMetadata();
-
-					if (linkProperties.getFeature().equals("reset_password")) {
-						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_RESET_TOKEN, (String) metadata.get("token"));
-						extras.putString(Constants.EXTRA_RESET_USER_NAME, (String) metadata.get("userName"));
-						extras.putString(Constants.EXTRA_RESET_USER_PHOTO, (String) metadata.get("userPhoto"));
-						startActivity(new Intent(LobbyScreen.this, ResetEdit.class).putExtras(extras));
-						finish();
-						return;
-					}
-
+				if (linkProperties.getFeature().equals("reset_password")) {
 					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
-					extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
-					extras.putString(Constants.EXTRA_REFERRER_NAME, (String) metadata.get("referrerName"));
-					extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
-					extras.putBoolean(Constants.EXTRA_SHOW_REFERRER_WELCOME, true);
-
-					Patchr.router.browse(LobbyScreen.this, (String) metadata.get("entityId"), extras, true);
-
+					extras.putString(Constants.EXTRA_RESET_TOKEN, (String) metadata.get("token"));
+					extras.putString(Constants.EXTRA_RESET_USER_NAME, (String) metadata.get("userName"));
+					extras.putString(Constants.EXTRA_RESET_USER_PHOTO, (String) metadata.get("userPhoto"));
+					startActivity(new Intent(LobbyScreen.this, ResetEdit.class).putExtras(extras));
 					finish();
 					return;
 				}
 
-				if (error != null) {
-					Logger.w(this, error.getMessage());
-				}
+				Bundle extras = new Bundle();
+				extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
+				extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
+				extras.putString(Constants.EXTRA_REFERRER_NAME, (String) metadata.get("referrerName"));
+				extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
+				extras.putBoolean(Constants.EXTRA_SHOW_REFERRER_WELCOME, true);
 
-				handleFacebook();   // Chaining
+				Patchr.router.browse(LobbyScreen.this, (String) metadata.get("entityId"), extras, true);
+
+				finish();
+				return;
 			}
+
+			if (error != null) {
+				Logger.w(this, error.getMessage());
+			}
+
+			handleFacebook();   // Chaining
 		}, uri, this);
 	}
 
@@ -308,9 +303,9 @@ public class LobbyScreen extends AppCompatActivity {
 			UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrl.toString());
 
 			routeDeepLink(sanitizer.getValue("entityId")
-					, sanitizer.getValue("entitySchema")
-					, sanitizer.getValue("referrerName").replaceAll("_", " ")
-					, sanitizer.getValue("referrerPhotoUrl"));
+				, sanitizer.getValue("entitySchema")
+				, sanitizer.getValue("referrerName").replaceAll("_", " ")
+				, sanitizer.getValue("referrerPhotoUrl"));
 			finish();
 		}
 		else {
@@ -319,26 +314,26 @@ public class LobbyScreen extends AppCompatActivity {
 			}
 			else {
 				AppLinkData.fetchDeferredAppLinkData(this,
-						new AppLinkData.CompletionHandler() {
+					new AppLinkData.CompletionHandler() {
 
-							@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-								if (appLinkData != null) {
-									String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
-									if (targetUrlString != null) {
-										Logger.i(this, "Facebook deferred applink target url: " + targetUrlString);
-										UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
+						@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+							if (appLinkData != null) {
+								String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
+								if (targetUrlString != null) {
+									Logger.i(this, "Facebook deferred applink target url: " + targetUrlString);
+									UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
 
-										routeDeepLink(sanitizer.getValue("entityId")
-												, sanitizer.getValue("entitySchema")
-												, sanitizer.getValue("referrerName").replaceAll("_", " ")
-												, sanitizer.getValue("referrerPhotoUrl"));
-										finish();
-										return;
-									}
+									routeDeepLink(sanitizer.getValue("entityId")
+										, sanitizer.getValue("entitySchema")
+										, sanitizer.getValue("referrerName").replaceAll("_", " ")
+										, sanitizer.getValue("referrerPhotoUrl"));
+									finish();
+									return;
 								}
-								proceed();
 							}
-						});
+							proceed();
+						}
+					});
 			}
 		}
 	}
@@ -500,15 +495,15 @@ public class LobbyScreen extends AppCompatActivity {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, LobbyScreen.this);
+				busyPresenter.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LobbyScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncLogin");
 				ModelResult result = DataController.getInstance().tokenLogin(authorizationCode
-						, authType
-						, LoginEdit.class.getSimpleName()
-						, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, authType
+					, LoginEdit.class.getSimpleName()
+					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				return result;
 			}
 
@@ -522,26 +517,26 @@ public class LobbyScreen extends AppCompatActivity {
 							/* User meant to login but got a new account instead. */
 							Logger.i(this, "User tried to login but got new account instead");
 							final AlertDialog dialog = Dialogs.alertDialog(R.drawable.ic_launcher
-									, "Log in"
-									, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email)
-									, null
-									, LobbyScreen.this
-									, R.string.dialog_no_account_exists_positive
-									, R.string.dialog_no_account_exists_cancel
-									, null
-									, new DialogInterface.OnClickListener() {
+								, "Log in"
+								, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email)
+								, null
+								, LobbyScreen.this
+								, R.string.dialog_no_account_exists_positive
+								, R.string.dialog_no_account_exists_cancel
+								, null
+								, new DialogInterface.OnClickListener() {
 
-										@Override public void onClick(DialogInterface dialog, int which) {
-											if (which == DialogInterface.BUTTON_POSITIVE) {
-												dialog.dismiss();
-											}
-											else if (which == DialogInterface.BUTTON_NEGATIVE) {
-												completeProfile(UserManager.currentUser);
-												dialog.dismiss();
-											}
+									@Override public void onClick(DialogInterface dialog, int which) {
+										if (which == DialogInterface.BUTTON_POSITIVE) {
+											dialog.dismiss();
+										}
+										else if (which == DialogInterface.BUTTON_NEGATIVE) {
+											completeProfile(UserManager.currentUser);
+											dialog.dismiss();
 										}
 									}
-									, null);
+								}
+								, null);
 
 							dialog.setCanceledOnTouchOutside(false);
 							dialog.show();
@@ -585,9 +580,9 @@ public class LobbyScreen extends AppCompatActivity {
 			TextView userAuthIdentifier = (TextView) findViewById(R.id.user_auth_identifier);
 			UI.setVisibility(authButton, View.GONE);
 			UI.setVisibility(guestButton, View.GONE);
-			if (UserManager.authUserHint != null && UserManager.authUserHint.name != null) {
-				UI.setImageWithEntity(userPhoto, UserManager.authUserHint);
-				UI.setTextView(userName, String.format("Log in as %1$s", UserManager.authUserHint.name));
+			if (UserManager.authUserHint != null && ((User) UserManager.authUserHint).name != null) {
+				UI.setImageWithEntity(userPhoto, (Entity) UserManager.authUserHint);
+				UI.setTextView(userName, String.format("Log in as %1$s", ((User) UserManager.authUserHint).name));
 				UI.setTextView(userAuthIdentifier, (String) UserManager.authIdentifierHint);
 			}
 			else {

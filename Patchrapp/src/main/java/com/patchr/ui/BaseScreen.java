@@ -5,13 +5,12 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -36,21 +35,16 @@ import com.patchr.components.MenuManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.components.NfcManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.Entity;
-import com.patchr.objects.FetchMode;
-import com.patchr.objects.Link;
-import com.patchr.objects.Notification;
 import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.MenuTint;
-import com.patchr.ui.fragments.EntityListFragment;
+import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -59,21 +53,22 @@ import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
-public abstract class BaseScreen extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener
-		, SwipeRefreshLayout.OnRefreshListener {
+import io.realm.Realm;
 
-	public    Toolbar            toolbar;
-	public    TextView           actionBarTitle;
-	public    ActionBar          actionBar;
-	public    View               actionBarGroup;
-	public    AppBarLayout       appBarLayout;
-	public    SwipeRefreshLayout swipeRefresh;
-	protected BusyPresenter      busyPresenter;
-	protected EmptyPresenter     emptyPresenter;
+public abstract class BaseScreen extends AppCompatActivity {
+
+	protected FloatingActionButton fab;
+	protected Toolbar              toolbar;
+	protected AppBarLayout         appBarLayout;
+	public    TextView             actionBarTitle;
+	public    ActionBar            actionBar;
+	protected BusyController       busyController;
+	protected AirProgressBar       progressBar;
+
+	public String      entityId;
+	public RealmEntity entity; // Here to support broadly shared commands (report, edit, share, etc.)
 
 	protected View     rootView;
-	public    Entity   entity;
-	public    String   entityId;
 	public    Fragment currentFragment;
 
 	public    Boolean firstDraw  = true;
@@ -88,55 +83,18 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		 * - initialize() is called after the view is inflated and base controllers have been created.
 		 */
 		unpackIntent();
+
 		this.rootView = LayoutInflater.from(this).inflate(getLayoutId(), null, false);
 		setContentView(this.rootView);
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-		NfcManager.pushUri(Uri.parse("http://patchr.com"), this);   // Default
-
-		/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-		swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe);
-		if (swipeRefresh != null) {
-			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-			swipeRefresh.setOnRefreshListener(this);
-			swipeRefresh.setRefreshing(false);
-			swipeRefresh.setEnabled(true);
-		}
-
-		this.emptyPresenter = new EmptyPresenter(findViewById(R.id.list_message));
-		this.busyPresenter = new BusyPresenter();
-		this.busyPresenter.setProgressBar(findViewById(R.id.list_progress));
-		this.busyPresenter.swipeRefreshLayout = this.swipeRefresh;
-
-		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
-		this.actionBarGroup = this.rootView.findViewById(R.id.toolbar);
-		this.appBarLayout = (AppBarLayout) this.rootView.findViewById(R.id.appbar_layout);
-
-		if (this.toolbar != null) {
-			super.setSupportActionBar(toolbar);
-			this.actionBar = super.getSupportActionBar();
-			this.actionBarTitle = (TextView) this.toolbar.findViewById(R.id.toolbar_title);
-			/*
-			 * By default we show the nav indicator and the title.
-			 */
-			if (this.actionBar != null) {
-				this.actionBar.setDisplayShowTitleEnabled(false);
-				this.actionBar.setDisplayHomeAsUpEnabled(true);
-			}
-
-			this.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					onBackPressed();
-				}
-			});
-		}
+		setupUI();
 
 		/* Party on! */
 		initialize(savedInstanceState);
+		didInitialize();
 
 		String screenName = getScreenName();
 		if (screenName != null) {
@@ -147,11 +105,16 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 	@Override protected void onResume() {
 		super.onResume();
 
-		if (this.appBarLayout != null) {
-			this.appBarLayout.addOnOffsetChangedListener(this);
+		/* Delete check */
+		if (this.entity != null) {
+			RealmEntity realmEntity = Realm.getDefaultInstance().where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+			if (realmEntity == null) {  // Entity was deleted while we where gone
+				finish();
+				return;
+			}
 		}
 
-		busyPresenter.onResume();
+		busyController.onResume();
 		processing = false;
 		/*
 		 * We always check to make sure play services are working properly. This call will finish
@@ -162,20 +125,17 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 	}
 
 	@Override protected void onPause() {
-		busyPresenter.onPause();
-		if (this.appBarLayout != null) {
-			this.appBarLayout.removeOnOffsetChangedListener(this);
-		}
 		super.onPause();
+		busyController.onPause();
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public void onRefresh() {
-		((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
-	}
 
 	@Override public void onBackPressed() {
 		if (BaseScreen.this instanceof MainScreen) {
@@ -216,12 +176,6 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		return true;
 	}
 
-	@Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-		if (this.swipeRefresh != null) {
-			this.swipeRefresh.setEnabled(i == 0);
-		}
-	}
-
 	public void submitAction() { /* Handled by child classes */}
 
 	public void cancelAction(Boolean force) {   // Chance for activity to intercept to confirm
@@ -232,8 +186,8 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 	public void onFetchComplete() {
 		processing = false;
-		if (busyPresenter != null) {
-			busyPresenter.hide(false);
+		if (busyController != null) {
+			busyController.hide(false);
 		}
 	}
 
@@ -245,6 +199,10 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		/*
 		 * Unpack all the inputs.
 		 */
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+		}
 	}
 
 	public void initialize(Bundle savedInstanceState) {
@@ -254,6 +212,38 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		 */
 	}
 
+	public void didInitialize() {}
+
+	public void setupUI() {
+
+		this.fab = (FloatingActionButton) this.rootView.findViewById(R.id.fab);
+		this.appBarLayout = (AppBarLayout) this.rootView.findViewById(R.id.appbar_layout);
+		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
+		this.progressBar = (AirProgressBar) this.rootView.findViewById(R.id.list_progress);
+
+		this.busyController = new BusyController(this.progressBar, null);
+
+		if (this.toolbar != null) {
+			super.setSupportActionBar(toolbar);
+			this.actionBar = super.getSupportActionBar();
+			this.actionBarTitle = (TextView) this.toolbar.findViewById(R.id.toolbar_title);
+			/*
+			 * By default we show the nav indicator and the title.
+			 */
+			if (this.actionBar != null) {
+				this.actionBar.setDisplayShowTitleEnabled(false);
+				this.actionBar.setDisplayHomeAsUpEnabled(true);
+			}
+
+			this.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onBackPressed();
+				}
+			});
+		}
+	}
+
 	public void navigateToPhoto(Photo photo) {
 		final String jsonPhoto = Json.objectToJson(photo);
 		Bundle extras = new Bundle();
@@ -261,12 +251,11 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		Patchr.router.route(this, Command.PHOTO, null, extras);
 	}
 
-	public void navigateToEntity(Entity entity) {
+	public void navigateToEntity(RealmEntity entity) {
 		final Bundle extras = new Bundle();
 
-		if (entity instanceof Notification) {
-			Notification notification = (Notification) entity;
-			Patchr.router.browse(this, notification.targetId, extras, true);
+		if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+			Patchr.router.browse(this, entity.targetId, extras, true);
 		}
 		else {
 			Patchr.router.browse(this, entity.id, extras, true);
@@ -313,52 +302,51 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 
 	public void confirmDelete() {
 		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_delete_title)
-				, StringManager.getString(R.string.alert_delete_message_single)
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
+			, StringManager.getString(R.string.alert_delete_title)
+			, StringManager.getString(R.string.alert_delete_message_single)
+			, null
+			, this
+			, android.R.string.ok
+			, android.R.string.cancel
+			, null
+			, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							delete();
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						delete();
 					}
 				}
-				, null);
+			}
+			, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	public void confirmRemove(final String toId) {
 
 		String message = StringManager.getString(R.string.alert_remove_message_single_no_name);
-		Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-		if (linkPlace != null) {
-			message = String.format(StringManager.getString(R.string.alert_remove_message_single), linkPlace.shortcut.name);
+		if (entity.patch != null && entity.patch.name != null) {
+			message = String.format(StringManager.getString(R.string.alert_remove_message_single), entity.patch.name);
 		}
 
 		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_remove_title)
-				, message
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
+			, StringManager.getString(R.string.alert_remove_title)
+			, message
+			, null
+			, this
+			, android.R.string.ok
+			, android.R.string.cancel
+			, null
+			, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							remove(toId);
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						remove(toId);
 					}
 				}
-				, null);
+			}
+			, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
 
@@ -367,7 +355,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -379,7 +367,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 				final ModelResult result = (ModelResult) response;
 
 				processing = false;
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(entity.schema));
@@ -400,13 +388,13 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncRemoveEntity");
 				final ModelResult result = DataController.getInstance()
-						.removeLinks(entity.id, toId, Constants.TYPE_LINK_CONTENT, entity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					.removeLinks(entity.id, toId, Constants.TYPE_LINK_CONTENT, entity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 				isCancelled();
 				return result;
 			}
@@ -414,7 +402,7 @@ public abstract class BaseScreen extends AppCompatActivity implements AppBarLayo
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
 					Logger.i(this, "Removed entity: " + entity.id);

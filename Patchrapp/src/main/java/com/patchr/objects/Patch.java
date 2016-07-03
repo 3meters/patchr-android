@@ -3,8 +3,6 @@ package com.patchr.objects;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
-import com.patchr.service.Expose;
-import com.patchr.service.SerializedName;
 import com.patchr.utilities.DateTime;
 
 import java.io.Serializable;
@@ -14,19 +12,12 @@ import java.util.Map;
 public class Patch extends Entity implements Cloneable, Serializable {
 
 	private static final long   serialVersionUID = -3599862145425838670L;
-	public static final  String collectionId     = "patches";
-	public static final  String schemaName       = "patch";
-	public static final  String schemaId         = "pa";
 
 	/*--------------------------------------------------------------------------------------------
 	 * service fields
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Expose
-	@SerializedName(name = "visibility")
-	public String privacy;                                    // private|public|hidden
-
-	@Expose
+	public String  visibility;                                    // private|public|hidden
 	public Boolean locked;
 
 	/*--------------------------------------------------------------------------------------------
@@ -34,7 +25,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public Boolean isVisibleToCurrentUser() {
-		if (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
+		if (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
 			Link link = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 			if (link == null || !link.enabled) {
 				return false;
@@ -43,17 +34,12 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		return true;
 	}
 
-	public int watchStatus() {
-		Link linkWatching = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
-		return ((linkWatching == null) ? MemberStatus.NONE : (linkWatching.enabled) ? MemberStatus.WATCHING : MemberStatus.REQUESTED);
-	}
-
 	public Boolean isRestricted() {
-		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC));
+		return (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC));
 	}
 
 	public Boolean isRestrictedForCurrentUser() {
-		return (privacy != null && !privacy.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
+		return (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
 	}
 
 	public String getBeaconId() {
@@ -62,20 +48,16 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		return null;
 	}
 
-	@Override public String getCollection() {
-		return collectionId;
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Patch setPropertiesFromMap(Patch patch, Map map, Boolean nameMapping) {
+	public static Patch setPropertiesFromMap(Patch patch, Map map) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
-		patch = (Patch) Entity.setPropertiesFromMap(patch, map, nameMapping);
-		patch.privacy = (String) (nameMapping ? map.get("visibility") : map.get("privacy"));
+		patch = (Patch) Entity.setPropertiesFromMap(patch, map);
+		patch.visibility = (String) (map.get("visibility") != null ? map.get("visibility") : map.get("privacy"));
 		patch.locked = (Boolean) map.get("locked");
 
 		return patch;
@@ -85,7 +67,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 		Patch entity = new Patch();
 		entity.schema = Constants.SCHEMA_ENTITY_PATCH;
 		entity.id = "temp:" + DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME); // Temporary
-		entity.privacy = Constants.PRIVACY_PUBLIC;
+		entity.visibility = Constants.PRIVACY_PUBLIC;
 		return entity;
 	}
 

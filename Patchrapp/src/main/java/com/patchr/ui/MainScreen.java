@@ -33,47 +33,37 @@ import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.EntitiesQueryEvent;
 import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.events.NotificationsQueryEvent;
-import com.patchr.events.TrendQueryEvent;
-import com.patchr.objects.ActionType;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Command;
-import com.patchr.objects.Entity;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Link;
-import com.patchr.objects.Notification;
 import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Photo;
-import com.patchr.objects.User;
-import com.patchr.ui.components.BusyPresenter;
-import com.patchr.ui.components.EmptyPresenter;
-import com.patchr.ui.components.ListScrollListener;
-import com.patchr.ui.components.RecyclePresenter;
+import com.patchr.objects.Query;
+import com.patchr.objects.QueryName;
+import com.patchr.ui.components.BusyController;
+import com.patchr.ui.components.EmptyController;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Maps;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressLint("Registered")
-public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectEntitiesHandler, SwipeRefreshLayout.OnRefreshListener {
+public class MainScreen extends BaseScreen implements SwipeRefreshLayout.OnRefreshListener {
 
-	protected Number  pauseDate;
+	protected Number pauseDate;
 	protected Boolean configuredForAuthenticated = UserManager.shared().authenticated();
 
 	protected EntityListFragment fragmentNotifications;
@@ -97,6 +87,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected NavigationView        drawerLeft;
 	protected View                  drawerLeftHeader;
 	protected View                  drawerRight;
+	protected View                  pendingClickView;
 
 	private FloatingActionButton fab;
 
@@ -110,8 +101,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	protected View currentNavView;
 
 	public    SwipeRefreshLayout swipeRefreshNotifications;
-	protected BusyPresenter      busyPresenterNotifications;
-	protected EmptyPresenter     emptyPresenterNotifications;
+	protected BusyController     busyPresenterNotifications;
+	protected EmptyController    emptyControllerNotifications;
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -199,7 +190,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	@Override public void onRefresh() {
 		if (this.currentFragment instanceof EntityListFragment) {
-			((EntityListFragment) this.currentFragment).fetch(FetchMode.MANUAL);
+			((EntityListFragment) this.currentFragment).onRefresh();
 		}
 	}
 
@@ -237,7 +228,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 	}
 
-	@Override public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
@@ -252,6 +244,13 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	public void onClick(View view) {
 
+		/* Hack to wait for drawer to close before doing any work */
+		if (drawerLayout != null && drawerLayout.isDrawerOpen(drawerLeft)) {
+			this.pendingClickView = view;
+			drawerLayout.closeDrawer(drawerLeft);
+			return;
+		}
+
 		if (view.getId() == R.id.action_button) {
 			addAction();
 		}
@@ -263,15 +262,13 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				Photo photo = (Photo) view.getTag();
 				navigateToPhoto(photo);
 			}
-			else if (view.getTag() instanceof Entity) {
-				final Entity entity = (Entity) view.getTag();
+			else if (view.getTag() instanceof RealmEntity) {
+				final RealmEntity entity = (RealmEntity) view.getTag();
 				navigateToEntity(entity);
 			}
 		}
 
-		if (drawerLayout != null && drawerLayout.isDrawerOpen(drawerLeft)) {
-			drawerLayout.closeDrawer(drawerLeft);
-		}
+		this.pendingClickView = null;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -280,7 +277,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
 		if (currentFragment != null && currentFragment instanceof EntityListFragment) {
-			((EntityListFragment) currentFragment).fetch(FetchMode.AUTO);
+			((EntityListFragment) currentFragment).listController.fetch(FetchMode.AUTO);
 		}
 		updateNotificationIndicator(false);
 	}
@@ -349,10 +346,10 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 
 			drawerLayout.setFocusableInTouchMode(false);
 			drawerToggle = new ActionBarDrawerToggle(this
-					, drawerLayout
-					, toolbar
-					, R.string.label_drawer_open
-					, R.string.label_drawer_close) {
+				, drawerLayout
+				, toolbar
+				, R.string.label_drawer_open
+				, R.string.label_drawer_close) {
 
 				@Override public void onDrawerClosed(View drawerView) {
 					super.onDrawerClosed(drawerView);
@@ -360,6 +357,9 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 					if (drawerView.getId() == R.id.left_drawer) {
 						if (!nextFragmentTag.equals(currentFragmentTag)) {
 							switchToFragment(nextFragmentTag);
+						}
+						else if (pendingClickView != null) {    // Hack to avoid jerky drawer close
+							onClick(pendingClickView);
 						}
 					}
 					else if (drawerView.getId() == R.id.right_drawer && drawerRight != null) {
@@ -375,7 +375,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 						NotificationManager.getInstance().setNewNotificationCount(0);
 						NotificationManager.getInstance().cancelAllNotifications();
 						updateNotificationIndicator(true);
-						((EntityListFragment) fragmentNotifications).fetch(FetchMode.AUTO);
+						((EntityListFragment) fragmentNotifications).listController.fetch(FetchMode.AUTO);
 						Reporting.screen(AnalyticsCategory.VIEW, "NotificationsList");
 					}
 				}
@@ -432,36 +432,17 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		 */
 
 		if (drawerRight != null) {
-			/* Inject swipe refresh component - listController performs operations that impact swipe behavior */
-			swipeRefreshNotifications = (SwipeRefreshLayout) findViewById(R.id.notifications_swipe);
-			if (swipeRefreshNotifications != null) {
-				swipeRefreshNotifications.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-				swipeRefreshNotifications.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(this, R.attr.refreshColorBackground));
-				swipeRefreshNotifications.setRefreshing(false);
-				swipeRefreshNotifications.setEnabled(true);
-			}
-
-			this.emptyPresenterNotifications = new EmptyPresenter(findViewById(R.id.notifications_list_message));
-			this.busyPresenterNotifications = new BusyPresenter();
-			this.busyPresenterNotifications.setProgressBar(findViewById(R.id.notifications_list_progress));
-			this.busyPresenterNotifications.swipeRefreshLayout = this.swipeRefreshNotifications;
 
 			fragmentNotifications = new EntityListFragment();
-			swipeRefreshNotifications.setOnRefreshListener(fragmentNotifications);
-			fragmentNotifications.listPresenter = new RecyclePresenter(this);
-			fragmentNotifications.listPresenter.busyPresenter = this.busyPresenterNotifications;
-			fragmentNotifications.listPresenter.emptyPresenter = this.emptyPresenterNotifications;
 			fragmentNotifications.fetchOnResumeDisabled = true;
 			fragmentNotifications.layoutResId = R.layout.fragment_notification_list;
-			fragmentNotifications.injectEntitiesHandler = this;
-			fragmentNotifications.listItemResId = R.layout.listitem_notification;
-			fragmentNotifications.emptyMessageResId = R.string.empty_notifications;
-			fragmentNotifications.query = NotificationsQueryEvent.build(ActionType.ACTION_GET_NOTIFICATIONS, UserManager.userId);
+			fragmentNotifications.query = Query.Factory(QueryName.NotificationsForUser, entityId);
+			fragmentNotifications.initialize(drawerRight);
 
 			getSupportFragmentManager()
-					.beginTransaction()
-					.replace(R.id.notifications_fragment_holder, fragmentNotifications)
-					.commit();
+				.beginTransaction()
+				.replace(R.id.notifications_fragment_holder, fragmentNotifications)
+				.commit();
 		}
 
 		switchToFragment(nextFragmentTag);
@@ -524,8 +505,8 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				}
 
 				configuredForAuthenticated = true;
-				User user = UserManager.currentUser;
-				this.userPhoto.setImageWithEntity(user);
+				RealmEntity user = UserManager.currentRealmUser;
+				this.userPhoto.setImageWithRealmEntity(user.photo, user.name);
 				this.userName.setText(user.name);
 				UI.setTextOrGone(this.userArea, user.area);
 				UI.setVisibility(this.userPhoto, View.VISIBLE);
@@ -547,7 +528,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				this.drawerLeftHeader.setTag(user);
 				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
 				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
-				cacheStamp = UserManager.currentUser.getCacheStamp();
+				//cacheStamp = UserManager.currentUser.getCacheStamp();
 			}
 			else {
 
@@ -565,16 +546,6 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(false);
 				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(false);
 			}
-		}
-
-		if (fragmentNotifications != null) {
-			fragmentNotifications.listPresenter.recycleView.addOnScrollListener(new ListScrollListener() {
-				@Override public void onMoved(int distance) {
-					if (swipeRefreshNotifications != null) {
-						swipeRefreshNotifications.setEnabled(distance == 0);
-					}
-				}
-			});
 		}
 	}
 
@@ -633,23 +604,12 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void injectEntities(List<Entity> entities, ActionType actionType) {
-		if (actionType == ActionType.ACTION_GET_NOTIFICATIONS) {
-			/* Nearby notifications are local only so inject them */
-			for (Map.Entry<String, Notification> entry : NotificationManager.getInstance().getNotifications().entrySet()) {
-				if (entry.getValue().getTriggerCategory().equals(Notification.TriggerCategory.NEARBY)) {
-					entities.add(entry.getValue());
-				}
-			}
-		}
-	}
-
 	public synchronized void switchToFragment(String fragmentType) {
 		/*
 		 * - Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.
 		 * - Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		Fragment fragment;
+		Fragment fragment = null;
 
 		if (fragments.containsKey(fragmentType)) {
 			fragment = fragments.get(fragmentType);
@@ -660,71 +620,37 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 				fragment = new NearbyListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listPresenter = new RecyclePresenter(this);
-				listFragment.listPresenter.busyPresenter = this.busyPresenter;
-				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
-				listFragment.listItemResId = R.layout.listitem_patch;
-				listFragment.emptyMessageResId = R.string.empty_nearby;
-				listFragment.titleResId = R.string.screen_title_nearby;
-				listFragment.pagingDisabled = true;
 				listFragment.restartAtTop = true;
-				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.view_nearby_header, null);
+				listFragment.listTitleResId = R.string.screen_title_nearby;
+				listFragment.header = LayoutInflater.from(this).inflate(R.layout.view_nearby_header, null);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_WATCH)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listPresenter = new RecyclePresenter(this);
-				listFragment.listPresenter.busyPresenter = this.busyPresenter;
-				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
-				listFragment.listItemResId = R.layout.listitem_patch;
-				listFragment.emptyMessageResId = R.string.empty_member_of;
-				listFragment.titleResId = R.string.screen_title_watch;
 				listFragment.restartAtTop = true;
-				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
-						, Maps.asMap("enabled", true)
-						, Link.Direction.out.name()
-						, Constants.TYPE_LINK_MEMBER
-						, Constants.SCHEMA_ENTITY_PATCH
-						, UserManager.shared().authenticated() ? UserManager.currentUser.id : null);
+				listFragment.listTitleResId = R.string.screen_title_watch;
+				listFragment.query = Query.Factory(QueryName.PatchesUserMemberOf, entityId);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_OWNER)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listPresenter = new RecyclePresenter(this);
-				listFragment.listPresenter.busyPresenter = this.busyPresenter;
-				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
-				listFragment.listItemResId = R.layout.listitem_patch;
 				listFragment.restartAtTop = true;
-				listFragment.emptyMessageResId = R.string.empty_owner_of;
-				listFragment.titleResId = R.string.screen_title_create;
-				listFragment.query = EntitiesQueryEvent.build(ActionType.ACTION_GET_ENTITIES
-						, Maps.asMap("enabled", true)
-						, Link.Direction.out.name()
-						, Constants.TYPE_LINK_CREATE
-						, Constants.SCHEMA_ENTITY_PATCH
-						, UserManager.shared().authenticated() ? UserManager.currentUser.id : null);
+				listFragment.listTitleResId = R.string.screen_title_create;
+				listFragment.listController.query = Query.Factory(QueryName.PatchesOwnedByUser, entityId);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
 
 				fragment = new EntityListFragment();
 
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listPresenter = new RecyclePresenter(this);
-				listFragment.listPresenter.busyPresenter = this.busyPresenter;
-				listFragment.listPresenter.emptyPresenter = this.emptyPresenter;
-				listFragment.listItemResId = R.layout.listitem_patch;
-				listFragment.titleResId = R.string.screen_title_trends_active;
+				listFragment.header = LayoutInflater.from(this).inflate(R.layout.view_list_header_trends_active, null);
 				listFragment.restartAtTop = true;
-				listFragment.entityCacheDisabled = true;
-				listFragment.headerView = LayoutInflater.from(this).inflate(R.layout.view_list_header_trends_active, null);
-				listFragment.query = TrendQueryEvent.build(ActionType.ACTION_GET_TREND
-						, Constants.SCHEMA_ENTITY_MESSAGE
-						, Constants.SCHEMA_ENTITY_PATCH
-						, Constants.TYPE_LINK_CONTENT);
+				listFragment.listTitleResId = R.string.screen_title_trends_active;
+				listFragment.listController.query = Query.Factory(QueryName.PatchesToExplore, entityId);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
@@ -752,7 +678,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		if (fragment instanceof MapListFragment) {
 
 			MapListFragment mapFragment = (MapListFragment) fragment;
-			mapFragment.entities = ((EntityListFragment) getCurrentFragment()).listPresenter.entities;
+			mapFragment.entities = ((EntityListFragment) getCurrentFragment()).listController.entities;
 			mapFragment.relatedListFragment = currentFragmentTag;
 			mapFragment.showIndex = true;
 			mapFragment.zoomLevel = null;
@@ -763,7 +689,7 @@ public class MainScreen extends BaseScreen implements RecyclePresenter.OnInjectE
 		}
 
 		if (fragment instanceof EntityListFragment) {
-			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).titleResId));
+			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).listTitleResId));
 		}
 
 		if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {

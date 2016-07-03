@@ -27,18 +27,18 @@
 	<!-- The screen names that will appear in the reporting -->
 
 	<screenName name="com.patchr.ui.AboutScreen">AboutScreen</screenName>
-	<screenName name="com.patchr.ui.ListScreen">ListScreen</screenName>
+	<screenName name="com.patchr.ui.collections.ListScreen">ListScreen</screenName>
 	<screenName name="com.patchr.ui.LobbyScreen">LobbyScreen</screenName>
 	<screenName name="com.patchr.ui.MainScreen">MainScreen</screenName>
 	<screenName name="com.patchr.ui.MapScreen">MapScreen</screenName>
-	<screenName name="com.patchr.ui.MemberListScreen">MemberListScreen</screenName>
+	<screenName name="com.patchr.ui.collections.MemberListScreen">MemberListScreen</screenName>
 	<screenName name="com.patchr.ui.MessageScreen">MessageScreen</screenName>
-	<screenName name="com.patchr.ui.PatchScreen">PatchScreen</screenName>
+	<screenName name="com.patchr.ui.listforms.PatchScreen">PatchScreen</screenName>
 	<screenName name="com.patchr.ui.PhotoScreen">PhotoScreen</screenName>
-	<screenName name="com.patchr.ui.PhotoSearchScreen">PhotoSearchScreen</screenName>
+	<screenName name="com.patchr.ui.collections.PhotoSearchScreen">PhotoSearchScreen</screenName>
 	<screenName name="com.patchr.ui.PhotoSwitchboardScreen">PhotoSwitchboardScreen</screenName>
-	<screenName name="com.patchr.ui.ProfileScreen">ProfileScreen</screenName>
-	<screenName name="com.patchr.ui.SearchScreen">SearchScreen</screenName>
+	<screenName name="com.patchr.ui.listforms.ProfileScreen">ProfileScreen</screenName>
+	<screenName name="com.patchr.ui.collections.SearchScreen">SearchScreen</screenName>
 	<screenName name="com.patchr.ui.SettingsScreen">SettingsScreen</screenName>
 
 	<screenName name="com.patchr.ui.fragments.MapListFragment">MapList</screenName>

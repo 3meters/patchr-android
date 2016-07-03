@@ -27,7 +27,7 @@ import com.patchr.objects.Command;
 import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -240,7 +240,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 				UI.hideSoftInput(ResetEdit.this.emailField);
 			}
 
@@ -254,7 +254,7 @@ public class ResetEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				processing = false;
-				busyPresenter.hide(false);
+				busyController.hide(false);
 
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);
@@ -287,7 +287,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 				UI.hideSoftInput(ResetEdit.this.emailField);
 			}
 
@@ -301,7 +301,7 @@ public class ResetEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				processing = false;
-				busyPresenter.hide(false);
+				busyController.hide(false);
 
 				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
 					Errors.handleError(ResetEdit.this, result.serviceResponse);
@@ -327,7 +327,7 @@ public class ResetEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -340,7 +340,7 @@ public class ResetEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				processing = false;
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");

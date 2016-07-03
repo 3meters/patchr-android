@@ -6,7 +6,8 @@ import android.support.v4.app.ShareCompat;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
+import com.patchr.model.RealmPhoto;
 import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 
@@ -25,7 +26,7 @@ public class BranchProvider {
 		Branch.getInstance(Patchr.applicationContext).setIdentity(identity);
 	}
 
-	public BranchUniversalObject buildApplink(Entity entity) {
+	public BranchUniversalObject buildApplink(RealmEntity entity) {
 
 		final String patchName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String referrerName = UserManager.currentUser.name;
@@ -49,7 +50,7 @@ public class BranchProvider {
 		}
 
 		if (entity.photo != null) {
-			Photo photo = entity.photo;
+			RealmPhoto photo = entity.photo;
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
@@ -62,7 +63,7 @@ public class BranchProvider {
 		return applink;
 	}
 
-	public void invite(final String title, final Entity entity, final Activity activity) {
+	public void invite(final String title, final RealmEntity entity, final Activity activity) {
 
 		final String patchName = (entity.name != null) ? entity.name : StringManager.getString(R.string.container_singular_lowercase);
 		final String referrerName = UserManager.currentUser.name;

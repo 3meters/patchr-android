@@ -2,7 +2,6 @@ package com.patchr.objects;
 
 import com.patchr.service.Expose;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +28,7 @@ public class ServiceData {
 	@Expose
 	public Entity              entity;
 	@Expose
-	public ServiceError        error;
+	public ProxibaseError      error;
 	@Expose
 	public Session             session;
 	@Expose
@@ -48,19 +47,19 @@ public class ServiceData {
 		serviceData.more = (Boolean) map.get("more");
 		serviceData.info = (String) map.get("info");
 		if (map.get("entity") != null) {
-			serviceData.entity = User.setPropertiesFromMap(new SimpleEntity(), (HashMap<String, Object>) map.get("entity"), nameMapping);
+			serviceData.entity = User.setPropertiesFromMap(new SimpleEntity(), (Map<String, Object>) map.get("entity"));
 		}
 		if (map.get("user") != null) {
-			serviceData.user = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("user"), nameMapping);
+			serviceData.user = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("user"));
 		}
 		if (map.get("error") != null) {
-			serviceData.error = ServiceError.setPropertiesFromMap(new ServiceError(), (HashMap<String, Object>) map.get("error"), nameMapping);
+			serviceData.error = ProxibaseError.setPropertiesFromMap(new ProxibaseError(), (Map<String, Object>) map.get("error"));
 		}
 		if (map.get("session") != null) {
-			serviceData.session = Session.setPropertiesFromMap(new Session(), (HashMap<String, Object>) map.get("session"), nameMapping);
+			serviceData.session = Session.setPropertiesFromMap(new Session(), (Map<String, Object>) map.get("session"));
 		}
 		serviceData.time = (Number) map.get("time");
-		serviceData.clientMinVersions = (HashMap<String, Object>) map.get("clientMinVersions");
+		serviceData.clientMinVersions = (Map<String, Object>) map.get("clientMinVersions");
 
 		return serviceData;
 	}

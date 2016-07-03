@@ -13,7 +13,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
@@ -25,9 +24,8 @@ import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
-import com.patchr.objects.Patch;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -61,7 +59,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onTuneButtonClick(View view) {
 		if (!tuned) {
 			untuning = false;
-			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -76,7 +74,7 @@ public class ProximityEdit extends BaseEdit {
 	public void onUntuneButtonClick(View view) {
 		if (!untuned) {
 			untuning = true;
-			busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_tuning, ProximityEdit.this);
 			if (NetworkManager.getInstance().isWifiEnabled()
 					&& PermissionUtil.hasSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				tuningInProcess = true;
@@ -107,7 +105,7 @@ public class ProximityEdit extends BaseEdit {
 					    /*
 					     * We fake that the tuning happened because it is simpler than enabling/disabling ui
 						 */
-						busyPresenter.hide(false);
+						busyController.hide(false);
 						if (untuning) {
 							buttonUntune.setText(R.string.button_tuning_tuned);
 							untuned = true;
@@ -154,16 +152,15 @@ public class ProximityEdit extends BaseEdit {
 	@Override public void bind() {
 		super.bind();
 
-		entity = DataController.getStoreEntity(entityId);
-		Patch patch = (Patch) entity;
+		//entity = DataController.getStoreEntity(entityId);
 
-		final Boolean hasActiveProximityLink = patch.hasActiveProximity();
+		final Boolean hasActiveProximityLink = entity.hasActiveProximity();
 		if (hasActiveProximityLink) {
 			firstTune = false;
 			UI.setVisibility(buttonUntune, View.VISIBLE);
 		}
 		actionBar.setTitle(R.string.screen_title_proximity_edit);
-		title.setText(patch.name);
+		title.setText(entity.name);
 	}
 
 	@Override protected int getLayoutId() {
@@ -188,18 +185,19 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
+				busyController.show(BusyController.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncTrackEntityProximity");
-				final ModelResult result = DataController.getInstance().trackEntity(entity, beacons, untuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				//final ModelResult result = DataController.getInstance().trackEntity(entity, beacons, untuning, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = new ModelResult();
 				return result;
 			}
 
 			@Override protected void onPostExecute(Object response) {
 				ModelResult result = (ModelResult) response;
-				busyPresenter.hide(false);
+				busyController.hide(false);
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, untuning ? "Untuned Patch" : "Tuned Patch");
@@ -246,17 +244,18 @@ public class ProximityEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.Refreshing);
+				busyController.show(BusyController.BusyAction.Refreshing);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncClearEntityProximity");
-				final ModelResult result = DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				//final ModelResult result = DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = new ModelResult();
 				return result;
 			}
 
 			@Override protected void onPostExecute(Object response) {
-				busyPresenter.hide(false);
+				busyController.hide(false);
 				UI.toast(StringManager.getString(updatedResId));
 				setResult(Activity.RESULT_OK);
 				finish();

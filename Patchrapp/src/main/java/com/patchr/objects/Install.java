@@ -8,7 +8,6 @@ import com.patchr.service.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +59,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 	public static Install setPropertiesFromMap(Install install, Map map, Boolean nameMapping) {
 
-		install = (Install) ServiceBase.setPropertiesFromMap(install, map, nameMapping);
+		install = (Install) ServiceBase.setPropertiesFromMap(install, map);
 		install.userId = (String) (nameMapping ? map.get("_user") : map.get("userId"));
 		install.parseInstallId = (String) map.get("parseInstallId");
 		install.installId = (String) map.get("installId");
@@ -75,21 +74,16 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 
 		if (map.get("beacons") != null) {
 			install.beacons = new ArrayList<Beacon>();
-			final List<LinkedHashMap<String, Object>> beaconMaps = (List<LinkedHashMap<String, Object>>) map.get("beacons");
+			final List<Map<String, Object>> beaconMaps = (List<Map<String, Object>>) map.get("beacons");
 			for (Map<String, Object> beaconMap : beaconMaps) {
-				install.beacons.add(Beacon.setPropertiesFromMap(new Beacon(), beaconMap, nameMapping));
+				install.beacons.add(Beacon.setPropertiesFromMap(new Beacon(), beaconMap));
 			}
 		}
 
 		if (map.get("location") != null) {
-			install.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"), nameMapping);
+			install.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"));
 		}
 
 		return install;
-	}
-
-	@Override
-	public String getCollection() {
-		return collectionId;
 	}
 }

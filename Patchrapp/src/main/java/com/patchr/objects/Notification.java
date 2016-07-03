@@ -2,40 +2,26 @@ package com.patchr.objects;
 
 import android.content.Intent;
 
-import com.patchr.service.Expose;
-
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Notification extends Entity implements Cloneable, Serializable {
 
 	private static final long   serialVersionUID = 4362288672244719348L;
-	public static final  String collectionId     = "notifications";
 
 	/*--------------------------------------------------------------------------------------------
 	 * Service fields
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Expose
 	public String targetId;
-	@Expose
 	public String parentId;
-	@Expose
 	public String userId;
-	@Expose(serialize = false, deserialize = true)
 	public Number sentDate;
-	@Expose(serialize = false, deserialize = true)
 	public String trigger;
-	@Expose(serialize = false, deserialize = true)
 	public String event;
-	@Expose(serialize = false, deserialize = true)
 	public String ticker;
-	@Expose(serialize = false, deserialize = true)
 	public Number priority;
-	@Expose(serialize = false, deserialize = true)
 	public Photo  photoBig;
-	@Expose(serialize = false, deserialize = true)
 	public String summary;
 
 	/* client only */
@@ -61,12 +47,12 @@ public class Notification extends Entity implements Cloneable, Serializable {
 		return EventCategory.NONE;
 	}
 
-	public static Notification setPropertiesFromMap(Notification entity, Map map, Boolean nameMapping) {
+	public static Notification setPropertiesFromMap(Notification entity, Map map) {
 	    /*
 	     * Properties involved with editing are copied from one entity to another.
 		 */
 		synchronized (entity) {
-			entity = (Notification) Entity.setPropertiesFromMap(entity, map, nameMapping);
+			entity = (Notification) Entity.setPropertiesFromMap(entity, map);
 			entity.targetId = (String) (map.get("targetId") != null ? map.get("targetId") : map.get("_target"));
 			entity.parentId = (String) (map.get("parentId") != null ? map.get("parentId") : map.get("_parent"));
 			entity.userId = (String) (map.get("userId") != null ? map.get("userId") : map.get("_user"));
@@ -78,25 +64,16 @@ public class Notification extends Entity implements Cloneable, Serializable {
 			entity.ticker = (String) map.get("ticker");
 
 			if (map.get("photoBig") != null) {
-				entity.photoBig = Photo.setPropertiesFromMap(new Photo(), (HashMap<String, Object>) map.get("photoBig"), nameMapping);
+				entity.photoBig = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photoBig"));
 			}
 		}
 		return entity;
 	}
 
-	public Notification clone() {
+	@Override public Notification clone() {
 		final Notification clone = (Notification) super.clone();
 		return clone;
 	}
-
-	public String getCollection() {
-		return collectionId;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
 
 	/*--------------------------------------------------------------------------------------------
 	 * Classes

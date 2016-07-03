@@ -10,13 +10,13 @@ import com.patchr.Constants;
 import com.patchr.components.AnimationManager;
 import com.patchr.ui.BaseScreen;
 
-public class EmptyPresenter {
+public class EmptyController {
 
 	public View label;
 	private ObjectAnimator fadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
 	private ObjectAnimator fadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
-	public EmptyPresenter(View view) {
+	public EmptyController(View view) {
 		label = view;
 		hide(false);
 	}
@@ -41,6 +41,20 @@ public class EmptyPresenter {
 				label.setVisibility(View.GONE);
 			}
 		}
+	}
+
+	public EmptyController setText(String text) {
+		if (this.label != null) {
+			if (!(this.label instanceof TextView)) {
+				throw new RuntimeException("Cannot call setMessage if not a TextView");
+			}
+			((TextView) this.label).setText(text);
+		}
+		return this;
+	}
+
+	public void positionBelow(final View header, final Integer headerHeightProjected) {
+		BaseScreen.position(this.label, header, headerHeightProjected);
 	}
 
 	private void fadeIn(Integer delay) {
@@ -75,18 +89,5 @@ public class EmptyPresenter {
 			}
 		});
 		fadeOutAnim.start();
-	}
-
-	public void positionBelow(final View header, final Integer headerHeightProjected) {
-		BaseScreen.position(this.label, header, headerHeightProjected);
-	}
-
-	public void setLabel(String label) {
-		if (this.label != null) {
-			if (!(this.label instanceof TextView)) {
-				throw new RuntimeException("Cannot call setMessage if not a TextView");
-			}
-			((TextView) this.label).setText(label);
-		}
 	}
 }

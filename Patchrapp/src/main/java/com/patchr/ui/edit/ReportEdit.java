@@ -21,7 +21,7 @@ import com.patchr.components.UserManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Document;
 import com.patchr.objects.User;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
@@ -141,7 +141,7 @@ public class ReportEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_sending, ReportEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -154,7 +154,7 @@ public class ReportEdit extends BaseEdit {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", Utils.capitalize(entitySchema)));
 					UI.toast(StringManager.getString(R.string.alert_report_sent));

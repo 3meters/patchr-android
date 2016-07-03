@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.CallbackManager;
+import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -16,18 +17,17 @@ import com.patchr.components.BranchProvider;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Entity;
 import com.patchr.objects.Message;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.segment.analytics.Properties;
 
 public class InviteScreen extends BaseScreen {
 
-	private   Entity          patch;
+	private   RealmEntity     patch;
 	private   String          patchJson;
 	protected CallbackManager callbackManager;      // For facebook
 
@@ -109,7 +109,8 @@ public class InviteScreen extends BaseScreen {
 		if (extras != null) {
 			this.patchJson = extras.getString(Constants.EXTRA_ENTITY);
 			if (this.patchJson != null) {
-				this.patch = (Entity) Json.jsonToObject(this.patchJson, Json.ObjectType.ENTITY);
+				Gson gson = new Gson();
+				this.patch = gson.fromJson(this.patchJson, RealmEntity.class);
 			}
 		}
 	}

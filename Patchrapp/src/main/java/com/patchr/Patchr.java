@@ -21,6 +21,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
 import com.facebook.accountkit.AccountKit;
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
@@ -45,11 +46,14 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.segment.analytics.Analytics;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.branch.referral.Branch;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class Patchr extends MultiDexApplication implements IAviaryClientCredentials {
 
@@ -58,6 +62,7 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 	public static Intent sendIntent;  // Used when we are started to handle a send intent
 
 	public static Context           applicationContext;
+	public static Realm             realm;  // Only use on main thread
 	public static SharedPreferences settings;
 
 	public static Handler   mainThreadHandler         = new Handler(Looper.getMainLooper());
@@ -140,10 +145,17 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 
 		/* Turn on parse */
 		Parse.initialize(this
-				, StringManager.getString(R.string.parse_app_id)        // application id
-				, StringManager.getString(R.string.parse_client_key));  // client key
+			, StringManager.getString(R.string.parse_app_id)        // application id
+			, StringManager.getString(R.string.parse_client_key));  // client key
 		Parse.setLogLevel(Constants.LOG_LEVEL);
 		ParseInstallation.getCurrentInstallation().saveInBackground();
+
+		/* Stetho */
+		Stetho.initialize(
+			Stetho.newInitializerBuilder(this)
+				.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+				.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+				.build());
 
 		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 		snapshotPreferences();
@@ -157,6 +169,16 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 		/* Set the folder used by image chooser for all files */
 		BChooserPreferences preferences = new BChooserPreferences(this);
 		preferences.setFolderName("Pictures/Patchr");
+
+		/* Configure realm */
+					/* Configure realm */
+		RealmConfiguration config = new RealmConfiguration.Builder(Patchr.applicationContext)
+			.name("default.realm")
+			.deleteRealmIfMigrationNeeded()
+			.build();
+
+		Realm.setDefaultConfiguration(config);
+		realm = Realm.getDefaultInstance();
 
 		/* Initialize managers */
 		initializeManagers();
@@ -237,7 +259,8 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 				activateContainer(containerHolder);
 
 				containerHolder.setContainerAvailableListener(new ContainerHolder.ContainerAvailableListener() {
-					@Override public void onContainerAvailable(ContainerHolder containerHolder, String s) {
+					@Override
+					public void onContainerAvailable(ContainerHolder containerHolder, String s) {
 						activateContainer(containerHolder);
 					}
 				});

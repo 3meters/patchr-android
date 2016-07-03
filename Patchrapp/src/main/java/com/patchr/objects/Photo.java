@@ -2,45 +2,38 @@ package com.patchr.objects;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.TypedValue;
 
 import com.patchr.Patchr;
-import com.patchr.service.Expose;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
 public class Photo extends ServiceObject implements Cloneable, Serializable {
-	/*
-	 * sourceName: aircandi, foursquare, external
-	 */
+
 	private static final long            serialVersionUID = 4979315562693226461L;
 	private static final GooglePlusProxy imageResizer     = new GooglePlusProxy();
 
-	@Expose public String prefix;
-	@Expose public String suffix;
-	@Expose public Number width;
-	@Expose public Number height;
-	@Expose public String source;
-	@Expose public Number createdDate;
+	public String prefix;
+	public String suffix;
+	public Number width;
+	public Number height;
+	public String source;
+	public Number createdDate;
 
 	/* client only */
 
 	public Entity user;
 	public String name;
 	public String description;
-
-	@NonNull public Boolean usingDefault = false;
-	@NonNull public Boolean store        = false;   // Hint that photo needs to be stored.
+	public Boolean store        = false;   // Hint that photo needs to be stored.
 
 	public Photo() {}
 
-	public Photo(@NonNull String prefix, String suffix, Number width, Number height, @NonNull String source) {
+	public Photo(String prefix, String suffix, Number width, Number height, String source) {
 		this.prefix = prefix;
 		this.suffix = suffix;
 		this.width = width;
@@ -48,7 +41,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		this.source = source;
 	}
 
-	public Photo(@NonNull String prefix, @NonNull String source) {
+	public Photo(String prefix, String source) {
 		this.prefix = prefix;
 		this.source = source;
 	}
@@ -57,7 +50,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@NonNull public static Photo setPropertiesFromMap(@NonNull Photo photo, @NonNull Map map, Boolean nameMapping) {
+	public static Photo setPropertiesFromMap(Photo photo, Map map) {
 
 		if (!map.containsKey("prefix")) {
 			throw new RuntimeException("Photo object is missing required prefix property");
@@ -78,17 +71,17 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		photo.store = (Boolean) map.get("store");
 
 		if (map.get("user") != null) {
-			photo.user = User.setPropertiesFromMap(new User(), (HashMap<String, Object>) map.get("user"), nameMapping);
+			photo.user = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("user"));
 		}
 
 		return photo;
 	}
 
-	@NonNull public String uri(PhotoCategory category) {
+	public String uri(PhotoCategory category) {
 		return UI.uri(this.prefix, this.source, category);
 	}
 
-	@NonNull public String uriNative() {
+	public String uriNative() {
 		return UI.uri(this.prefix, this.source, PhotoCategory.NONE);
 	}
 
@@ -108,7 +101,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
 	}
 
-	public static Integer getResourceIdFromResourceName(@NonNull Context context, String resourceName) {
+	public static Integer getResourceIdFromResourceName(Context context, String resourceName) {
 
 		final String resolvedResourceName = resolveResourceName(context, resourceName);
 		if (resolvedResourceName != null) {
@@ -119,7 +112,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return null;
 	}
 
-	public static String resolveResourceName(@NonNull Context context, String rawResourceName) {
+	public static String resolveResourceName(Context context, String rawResourceName) {
 		int resourceId = Patchr.applicationContext.getResources().getIdentifier(rawResourceName, "drawable", Patchr.getInstance().getPackageName());
 		if (resourceId == 0) {
 			resourceId = Patchr.applicationContext.getResources().getIdentifier(rawResourceName, "attr", Patchr.getInstance().getPackageName());
@@ -146,7 +139,6 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 				|| (obj1 != null && ((Photo) obj1).sameAs(obj2));
 	}
 
-	@NonNull
 	@Override public Photo clone() {
 		try {
 			Photo photo = (Photo) super.clone();
@@ -168,7 +160,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return createdDate;
 	}
 
-	@NonNull public Photo setCreatedAt(Number createdAt) {
+	public Photo setCreatedAt(Number createdAt) {
 		this.createdDate = createdAt;
 		return this;
 	}
@@ -177,27 +169,27 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		return name;
 	}
 
-	@NonNull public Photo setName(String name) {
+	public Photo setName(String name) {
 		this.name = name;
 		return this;
 	}
 
-	@NonNull public Photo setPrefix(@NonNull String prefix) {
+	public Photo setPrefix(String prefix) {
 		this.prefix = prefix;
 		return this;
 	}
 
-	@NonNull public Photo setPrefix(@NonNull Uri uri) {
+	public Photo setPrefix(Uri uri) {
 		this.prefix = uri.toString();
 		return this;
 	}
 
-	@NonNull public Photo setSource(@NonNull String source) {
+	public Photo setSource(String source) {
 		this.source = source;
 		return this;
 	}
 
-	@NonNull public Photo setStore(@NonNull Boolean store) {
+	public Photo setStore(Boolean store) {
 		this.store = store;
 		return this;
 	}
@@ -214,14 +206,14 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	public static class PhotoSource {
 
 		/* Service supported */
-		@NonNull public static String aircandi_images = "aircandi.images";           // set when photo is stored by us and used to construct full uri to image data (s3)
-		@NonNull public static String google          = "google";                    // set if photo comes from google - used for place photos
+		public static String aircandi_images = "aircandi.images";           // set when photo is stored by us and used to construct full uri to image data (s3)
+		public static String google          = "google";                    // set if photo comes from google - used for place photos
 
 		/* Client only */
-		@NonNull public static String generic  = "generic";                   // set in photo picker when using third party photo.
-		@NonNull public static String resource = "resource";                         // set when using embedded resource
-		@NonNull public static String bing     = "bing";                             // set when thumbnail is coming straight from bing.
-		@NonNull public static String file     = "file";                                 // set when using a photo from device (camera|gallery)
+		public static String generic  = "generic";                   // set in photo picker when using third party photo.
+		public static String resource = "resource";                         // set when using embedded resource
+		public static String bing     = "bing";                             // set when thumbnail is coming straight from bing.
+		public static String file     = "file";                                 // set when using a photo from device (camera|gallery)
 	}
 
 	public enum PhotoType {
@@ -241,12 +233,12 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 	}
 
 	private static class GooglePlusProxy implements Serializable {
-		private static final   long   serialVersionUID = 4979315502693226461L;
+		private static final long   serialVersionUID = 4979315502693226461L;
 		/*
 		 * Setting refresh to 60 minutes.
 		 */
-		@NonNull public static String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&no_expand=1&refresh=3600";
-		@NonNull public static String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&no_expand=1&refresh=3600";
+		public static        String baseWidth        = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_w=%d&no_expand=1&refresh=3600";
+		public static        String baseHeight       = "https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?url=%s&container=focus&resize_h=%d&no_expand=1&refresh=3600";
 
 		public String convert(String uri, Integer size, ResizeDimension dimension) {
 			String base = (dimension == ResizeDimension.WIDTH) ? baseWidth : baseHeight;

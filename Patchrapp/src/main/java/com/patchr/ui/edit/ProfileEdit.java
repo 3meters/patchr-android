@@ -27,6 +27,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.PhoneNumber;
@@ -34,7 +35,7 @@ import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.ui.LobbyScreen;
-import com.patchr.ui.components.BusyPresenter;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -165,9 +166,9 @@ public class ProfileEdit extends BaseEdit {
 		}
 		else {
 			if (inputState != null && inputState.equals(State.Onboarding)) {
-				this.entity = User.build();
-				((User) this.entity).email = this.inputEmail;
-				((User) this.entity).password = this.inputPassword;
+				this.entity = new RealmEntity();
+				this.entity.email = this.inputEmail;
+				this.entity.password = this.inputPassword;
 				title.setText(R.string.form_title_profile_signup);
 				area.setVisibility(View.GONE);
 				submitButton.setVisibility(View.VISIBLE);
@@ -181,7 +182,7 @@ public class ProfileEdit extends BaseEdit {
 					@Override
 					public void afterTextChanged(Editable s) {
 						if (entity != null) {
-							if (!s.toString().equals(((User) entity).email)) {
+							if (!s.toString().equals(entity.email)) {
 								if (!firstDraw) {
 									dirty = true;
 								}
@@ -198,7 +199,7 @@ public class ProfileEdit extends BaseEdit {
 				@Override
 				public void afterTextChanged(Editable s) {
 					if (entity != null) {
-						if (!s.toString().equals(((User) entity).area)) {
+						if (!s.toString().equals(entity.area)) {
 							if (!firstDraw) {
 								dirty = true;
 							}
@@ -226,7 +227,6 @@ public class ProfileEdit extends BaseEdit {
 		super.bind();
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			User user = (User) this.entity;
 			if (UserManager.authTypeHint != null) {
 				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
 					authIdentifier.setText(((PhoneNumber) UserManager.authIdentifierHint).number);
@@ -237,8 +237,8 @@ public class ProfileEdit extends BaseEdit {
 			}
 
 			if (inputState == null || !inputState.equals(State.CompleteProfile)) {
-				if (this.area != null && !TextUtils.isEmpty(user.area)) {
-					this.area.setText(user.area);
+				if (this.area != null && !TextUtils.isEmpty(entity.area)) {
+					this.area.setText(entity.area);
 				}
 			}
 		}
@@ -249,12 +249,11 @@ public class ProfileEdit extends BaseEdit {
 				this.photoEditWidget.bind(null);
 			}
 			else {
-				User user = (User) entity;
-				if (this.area != null && !TextUtils.isEmpty(user.area)) {
-					this.area.setText(user.area);
+				if (this.area != null && !TextUtils.isEmpty(entity.area)) {
+					this.area.setText(entity.area);
 				}
-				if (this.email != null && !TextUtils.isEmpty(user.email)) {
-					this.email.setText(user.email);
+				if (this.email != null && !TextUtils.isEmpty(entity.email)) {
+					this.email.setText(entity.email);
 				}
 			}
 		}
@@ -266,7 +265,7 @@ public class ProfileEdit extends BaseEdit {
 			if (inputState != null && inputState.equals(State.CompleteProfile)) {
 				if (validate()) {
 					processing = true;
-					((User) this.entity).role = "user";
+					this.entity.role = "user";
 					update();
 				}
 			}
@@ -285,19 +284,18 @@ public class ProfileEdit extends BaseEdit {
 	@Override protected void gather() {
 		super.gather(); // Handles name and description
 
-		User user = (User) entity;
 		if (email != null) {
-			user.email = Type.emptyAsNull(email.getText().toString().trim());
+			entity.email = Type.emptyAsNull(email.getText().toString().trim());
 		}
 		if (area != null) {
-			user.area = Type.emptyAsNull(area.getText().toString().trim());
+			entity.area = Type.emptyAsNull(area.getText().toString().trim());
 		}
 	}
 
 	@Override protected boolean afterUpdate() {
 		/* So our persisted user is up-to-date. Only called if update call was successful. */
-		((User) entity).session = UserManager.currentUser.session;
-		UserManager.shared().setCurrentUser((User) entity, false);  // Updates persisted user too
+		entity.session = UserManager.currentSession;
+		UserManager.shared().setCurrentRealmUser(entity, UserManager.currentSession, false);  // Updates persisted user too
 		return true;
 	}
 
@@ -326,10 +324,10 @@ public class ProfileEdit extends BaseEdit {
 
 			@Override protected void onPreExecute() {
 				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
-					busyPresenter.showHorizontalProgressBar(ProfileEdit.this);
+					busyController.showHorizontalProgressBar(ProfileEdit.this);
 				}
 				else {
-					busyPresenter.show(BusyPresenter.BusyAction.Update);
+					busyController.show(BusyController.BusyAction.Update);
 				}
 			}
 
@@ -378,15 +376,16 @@ public class ProfileEdit extends BaseEdit {
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
 						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ResponseType.TOAST, StringManager.getString(R.string.error_image_unusable));
+						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyPresenter.hide(true);
+						busyController.hide(true);
 						return result;
 					}
 				}
 
-				ModelResult result = DataController.getInstance().registerUser((User) entity
-						, (entity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+//				ModelResult result = DataController.getInstance().registerUser((User) entity
+//						, (entity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ModelResult result = new ModelResult();
 
 				return !isCancelled() ? result : null;
 			}
@@ -399,20 +398,20 @@ public class ProfileEdit extends BaseEdit {
 				 * - During service calls assuming okhttp catches the interrupt.
 				 * - During image upload to s3 if CancelEvent is sent via bus.
 				 */
-				busyPresenter.hide(true);
+				busyController.hide(true);
 				UI.toast(StringManager.getString(R.string.alert_cancelled));
 			}
 
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 
 					/* We automatically consider the user signed in. */
 					final User user = (User) result.data;
-					UserManager.shared().setCurrentUser(user, false);
+					UserManager.shared().setCurrentUser(user, user.session, false);
 
 					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
@@ -443,7 +442,7 @@ public class ProfileEdit extends BaseEdit {
 		new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyPresenter.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
+				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -455,13 +454,13 @@ public class ProfileEdit extends BaseEdit {
 				final ModelResult result = (ModelResult) response;
 
 				processing = false;
-				busyPresenter.hide(true);
+				busyController.hide(true);
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 
 					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
 					Logger.i(this, "Deleted user: " + entity.id);
-					UserManager.shared().setCurrentUser(null, false);
+					UserManager.shared().setCurrentUser(null, null, false);
 					UserManager.shared().discardAuthHints();
 					Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));

@@ -12,8 +12,7 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Message;
-import com.patchr.objects.Photo;
+import com.patchr.model.RealmPhoto;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -68,7 +67,7 @@ public class MessageEdit extends BaseEdit {
 		super.onClick(view);
 	}
 
-	@Override public void onPhotoSelected(Photo photo) {
+	@Override public void onPhotoSelected(RealmPhoto photo) {
 		this.photoEditAnimator.setDisplayedChild(1);
 		super.onPhotoSelected(photo);
 	}
@@ -147,9 +146,7 @@ public class MessageEdit extends BaseEdit {
 		super.gather();
 
 		if (!editing) {
-			Message message = (Message) entity;
-			message.type = "root";
-			message.patchId = this.parentId;
+			entity.patchId = this.parentId;
 		}
 	}
 

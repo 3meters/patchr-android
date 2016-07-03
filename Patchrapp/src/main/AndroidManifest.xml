@@ -270,7 +270,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.PatchScreen"
+			android:name=".ui.listforms.PatchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
@@ -290,7 +290,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.ProfileScreen"
+			android:name=".ui.listforms.ProfileScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
@@ -307,7 +307,7 @@
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.SearchScreen"
+			android:name=".ui.collections.SearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
@@ -324,12 +324,12 @@
 		<!-- Lists -->
 
 		<activity
-			android:name=".ui.ListScreen"
+			android:name=".ui.collections.BaseListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.MemberListScreen"
+			android:name=".ui.collections.MemberListScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
@@ -398,7 +398,7 @@
 		<!-- Builders/pickers -->
 
 		<activity
-			android:name=".ui.PhotoSearchScreen"
+			android:name=".ui.collections.PhotoSearchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
