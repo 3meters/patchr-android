@@ -33,6 +33,8 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
+import io.realm.Realm;
+
 @SuppressWarnings("ucd")
 public class UserView extends BaseView implements View.OnClickListener {
 
@@ -139,7 +141,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 				return;
 			}
 
-			this.userPhoto.setImageWithRealmEntity(entity);
+			this.userPhoto.setImageWithEntity(entity);
 			setOrGone(this.name, entity.name);
 			setOrGone(this.area, entity.area);
 
@@ -190,9 +192,11 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
-					Patchr.realm.executeTransaction(realmEntity -> {
+					Realm realm = Realm.getDefaultInstance();
+					realm.executeTransaction(realmEntity -> {
 						entity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
 					});
+					realm.close();
 				}
 				else {
 					Errors.handleError((Activity) getContext(), result.serviceResponse);

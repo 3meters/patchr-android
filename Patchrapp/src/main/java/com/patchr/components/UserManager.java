@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.facebook.accountkit.AccountKit;
-import com.google.gson.Gson;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnBackPressListener;
 import com.orhanobut.dialogplus.OnClickListener;
@@ -21,10 +20,7 @@ import com.patchr.R;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.LinkSpecFactory;
-import com.patchr.objects.LinkSpecType;
-import com.patchr.objects.LinkSpecs;
-import com.patchr.objects.PhoneNumber;
+import com.patchr.model.PhoneNumber;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
 import com.patchr.service.ProxibaseResponse;
@@ -39,8 +35,7 @@ import rx.Observable;
 
 public class UserManager {
 
-	public static User        currentUser;
-	public static RealmEntity currentRealmUser;
+	public static RealmEntity currentUser;
 	public static Session     currentSession;
 
 	public static String sessionKey;        // promoted for convenience
@@ -75,7 +70,7 @@ public class UserManager {
 			else if (authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
 				String jsonPhone = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_identifier), null);
 				if (jsonPhone != null) {
-					authIdentifierHint = PhoneNumber.fromJson(jsonPhone);
+					authIdentifierHint = Patchr.gson.fromJson(jsonPhone, PhoneNumber.class);
 				}
 			}
 		}
@@ -95,37 +90,14 @@ public class UserManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentRealmUser(RealmEntity user, Session session, Boolean refreshUser) {
+	public void setCurrentUser(RealmEntity user, Session session, Boolean refreshUser) {
 		if (user == null) {
 			discardCredentials();
 		}
 		else {
-			captureRealmCredentials(user, session);
-			captureRealmAuthHints(user, LobbyScreen.AuthType.Password);
-		}
-	}
-
-	public Boolean setCurrentUser(User user, Session session, Boolean refreshUser) {
-
-		ModelResult result = new ModelResult();
-
-		if (user == null) {
-			discardCredentials();
-		}
-		else {
-			/*
-			 * Password reset and update do not return a complete user so do a regular
-			 * data fetch to get a complete user.
-			 */
-			if (refreshUser) {
-				LinkSpecs options = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-				result = DataController.getInstance().getEntity(user.id, true, options, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
 			captureCredentials(user, session);
-			captureAuthHints(user);
+			captureAuthHints(user, LobbyScreen.AuthType.Password);
 		}
-
-		return (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS);
 	}
 
 	public void loginAuto() {
@@ -137,10 +109,9 @@ public class UserManager {
 
 		if (jsonUser != null && jsonSession != null) {
 			Logger.i(this, "Auto log in using cached user...");
-			Gson gson = new Gson();
-			final RealmEntity user = gson.fromJson(jsonUser, RealmEntity.class);
-			final Session session = gson.fromJson(jsonSession, Session.class);
-			setCurrentRealmUser(user, session, false);  // Does not block because of 'false', also updates persisted user
+			final RealmEntity user = Patchr.gson.fromJson(jsonUser, RealmEntity.class);
+			final Session session = Patchr.gson.fromJson(jsonSession, Session.class);
+			setCurrentUser(user, session, false);  // Does not block because of 'false', also updates persisted user
 		}
 	}
 
@@ -223,7 +194,7 @@ public class UserManager {
 		dialog.show();
 	}
 
-	private void captureCredentials(User user, Session session) {
+	private void captureCredentials(RealmEntity user, Session session) {
 
 		/* Update settings */
 		currentSession = session;
@@ -233,8 +204,8 @@ public class UserManager {
 		userName = user.name;
 		userRole = user.role;
 
-		String jsonUser = Json.objectToJson(user);
-		String jsonSession = Json.objectToJson(session);
+		String jsonUser = Patchr.gson.toJson(user);
+		String jsonSession = Patchr.gson.toJson(session);
 
 		Reporting.updateUser(user);  // Handles all frameworks
 
@@ -245,61 +216,12 @@ public class UserManager {
 		editor.apply();
 	}
 
-	public void captureAuthHints(User user) {
-
-		if (user.authType != null) {
-
-			SharedPreferences.Editor editor = Patchr.settings.edit();
-			String jsonUser = Json.objectToJson(user);
-
-			authTypeHint = user.authType;
-			authUserHint = user;
-
-			editor.putString(StringManager.getString(R.string.setting_last_auth_type), authTypeHint);
-			editor.putString(StringManager.getString(R.string.setting_last_auth_user), jsonUser);
-			if (user.authType.equals(LobbyScreen.AuthType.Email)
-				|| user.authType.equals(LobbyScreen.AuthType.Password)) {
-				authIdentifierHint = user.email;
-				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), (String) authIdentifierHint);
-			}
-			else if (user.authType.equals(LobbyScreen.AuthType.PhoneNumber)) {
-				authIdentifierHint = user.phone;
-				editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), ((PhoneNumber) authIdentifierHint).toJson());
-			}
-			editor.apply();
-		}
-	}
-
-	private void captureRealmCredentials(RealmEntity user, Session session) {
-
-		/* Update settings */
-		currentSession = session;
-		currentRealmUser = user;
-		sessionKey = session.key;
-		userId = user.id;
-		userName = user.name;
-		userRole = user.role;
-
-		Gson gson = new Gson();
-
-		String jsonUser = gson.toJson(user);
-		String jsonSession = gson.toJson(session);
-
-		//Reporting.updateUser(user);  // Handles all frameworks
-
-		SharedPreferences.Editor editor = Patchr.settings.edit();
-		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
-		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
-
-		editor.apply();
-	}
-
-	public void captureRealmAuthHints(RealmEntity user, String authType) {
+	public void captureAuthHints(RealmEntity user, String authType) {
 
 		if (authType != null) {
 
 			SharedPreferences.Editor editor = Patchr.settings.edit();
-			String jsonUser = Json.objectToJson(user);
+			String jsonUser = Patchr.gson.toJson(user);
 
 			authTypeHint = authType;
 			authUserHint = user;
@@ -314,8 +236,8 @@ public class UserManager {
 					editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), (String) authIdentifierHint);
 				}
 				else if (authType.equals(LobbyScreen.AuthType.PhoneNumber)) {
-					authIdentifierHint = user.phone;
-					editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), ((PhoneNumber) authIdentifierHint).toJson());
+					authIdentifierHint = user.getPhone();
+					editor.putString(StringManager.getString(R.string.setting_last_auth_identifier), user.phoneJson);
 				}
 			}
 			editor.apply();

@@ -3,6 +3,7 @@ package com.patchr.service;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.ProxibaseError;
 import com.patchr.objects.Session;
+import com.patchr.utilities.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import retrofit2.Response;
 
 public class ProxibaseResponse {
 
-	public List<RealmEntity>    data;
+	public List<RealmEntity>   data;
 	public Number              date;
 	public Number              count;
 	public Boolean             more;
@@ -20,7 +21,7 @@ public class ProxibaseResponse {
 	public String              info;
 	public Number              time;
 	public RealmEntity         user;
-	public RealmEntity       entity;
+	public RealmEntity         entity;
 	public ProxibaseError      error;
 	public Session             session;
 	public Map<String, Object> clientMinVersions;
@@ -38,22 +39,29 @@ public class ProxibaseResponse {
 		response.more = (Boolean) map.get("more");
 		response.info = (String) map.get("info");
 		response.time = (Number) map.get("time");
-
 		response.noop = false;
+
+		Boolean canEdit = (Boolean) map.get("canEdit");
+
 		if (map.get("data") == null) {
 			response.noop = true;
 		}
 		else if (map.get("data") instanceof List) {
 			List<RealmEntity> entities = new ArrayList<RealmEntity>();
 			List<Map<String, Object>> data_maps = (List<Map<String, Object>>) map.get("data");
-			for (Map<String, Object> data_map : data_maps) {
-				String schema = (String) data_map.get("schema");
-				if (schema != null) {
-					RealmEntity entity = RealmEntity.setPropertiesFromMap(new RealmEntity(), data_map);
-					entities.add(entity);
-				}
+			if (data_maps.size() == 0 && !Type.isTrue(canEdit)) {
+				response.noop = true;
 			}
-			response.data = entities;
+			if (!response.noop) {
+				for (Map<String, Object> data_map : data_maps) {
+					String schema = (String) data_map.get("schema");
+					if (schema != null) {
+						RealmEntity entity = RealmEntity.setPropertiesFromMap(new RealmEntity(), data_map);
+						entities.add(entity);
+					}
+				}
+				response.data = entities;
+			}
 		}
 		else if (map.get("data") instanceof Map) {
 			List<RealmEntity> entities = new ArrayList<RealmEntity>();

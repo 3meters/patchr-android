@@ -45,7 +45,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 	@Expose
 	public Number       beaconsDate;
 	@Expose
-	public AirLocation  location;
+	public LocationOld  location;
 	@Expose
 	public Number       locationDate;
 
@@ -81,7 +81,7 @@ public class Install extends ServiceBase implements Cloneable, Serializable {
 		}
 
 		if (map.get("location") != null) {
-			install.location = AirLocation.setPropertiesFromMap(new AirLocation(), (HashMap<String, Object>) map.get("location"));
+			install.location = LocationOld.setPropertiesFromMap(new LocationOld(), (HashMap<String, Object>) map.get("location"));
 		}
 
 		return install;

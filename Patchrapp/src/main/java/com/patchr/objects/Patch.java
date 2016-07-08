@@ -26,7 +26,7 @@ public class Patch extends Entity implements Cloneable, Serializable {
 
 	public Boolean isVisibleToCurrentUser() {
 		if (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
-			Link link = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
+			LinkOld link = linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 			if (link == null || !link.enabled) {
 				return false;
 			}

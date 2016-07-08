@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.adobe.creativesdk.aviary.internal.headless.utils.MegaPixels;
-import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -27,14 +26,13 @@ import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.Photo;
+import com.patchr.objects.LinkOld;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyController;
@@ -110,8 +108,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final Bundle extras = intent.getExtras();
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
-						Gson gson = new Gson();
-						final RealmPhoto photo = gson.fromJson(jsonPhoto, RealmPhoto.class);
+						final Photo photo = Patchr.gson.fromJson(jsonPhoto, Photo.class);
 						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entity.schema)));
 						onPhotoSelected(photo);
 					}
@@ -127,10 +124,8 @@ public abstract class BaseEdit extends BaseScreen {
 					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
 					MediaManager.scanMedia(photoUri);
 
-					RealmPhoto photo = new RealmPhoto();
-					photo.prefix = photoUri.toString();
+					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
 					photo.store = true;
-					photo.source = Photo.PhotoSource.file;
 					onPhotoSelected(photo);
 				}
 			}
@@ -150,16 +145,16 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	public void onPhotoSelected(RealmPhoto photo) {
+	public void onPhotoSelected(Photo photo) {
 		/*
 		 * All photo selection sources and types end up here
 		 */
-		dirty = !RealmPhoto.same(entity.photo, photo);
+		dirty = !Photo.same(entity.getPhoto(), photo);
 		if (dirty) {
 
-			entity.photo = photo;
-			if (entity.photo != null) {
-				entity.photo.store = true;
+			entity.setPhoto(photo);
+			if (entity.getPhoto() != null) {
+				entity.getPhoto().store = true;
 			}
 
 			bindPhoto();
@@ -238,8 +233,8 @@ public abstract class BaseEdit extends BaseScreen {
 			this.entity.schema = getEntitySchema();
 
 			if (UserManager.shared().authenticated()) {
-				entity.creator = UserManager.currentRealmUser;
-				entity.creatorId = UserManager.currentRealmUser.id;
+				entity.creator = UserManager.currentUser;
+				entity.creatorId = UserManager.currentUser.id;
 			}
 		}
 	}
@@ -290,7 +285,7 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	protected void bindPhoto() {
-		photoEditWidget.bind(entity.photo);
+		photoEditWidget.bind(entity.getPhoto());
 	}
 
 	public void editPhotoAction() {
@@ -299,8 +294,8 @@ public abstract class BaseEdit extends BaseScreen {
 		gather();
 
 		/* Route it - editor loads image directly from s3 skipping imgix service  */
-		if (entity.photo != null) {
-			final String url = entity.photo.uriNative();
+		if (entity.getPhoto() != null) {
+			final String url = entity.getPhoto().uriNative();
 			Uri imageUri = Uri.parse(url);
 
 			Intent intent = new AdobeImageIntent.Builder(this)
@@ -321,16 +316,16 @@ public abstract class BaseEdit extends BaseScreen {
 
 	public void deletePhotoAction() {
 		dirty = (editing);
-		entity.photo = null;
+		entity.setPhoto(null);
 		bindPhoto();
 	}
 
-	protected void beforeInsert(RealmEntity entity, List<Link> links) {
+	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
 		if (parentId != null) {
 			if (links == null) {
 				links = new ArrayList<>();
 			}
-			links.add(new Link(parentId, getLinkType(), this.entity.schema));
+			links.add(new LinkOld(parentId, getLinkType(), this.entity.schema));
 		}
 	}
 
@@ -351,7 +346,7 @@ public abstract class BaseEdit extends BaseScreen {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 					busyController.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
@@ -374,11 +369,11 @@ public abstract class BaseEdit extends BaseScreen {
 				 * photo from anywhere or a local photo from the device camera or gallery.
 				 */
 				Bitmap bitmap = null;
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.photo.uriNative())
+								.load(entity.getPhoto().uriNative())
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -393,7 +388,7 @@ public abstract class BaseEdit extends BaseScreen {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.photo.uriNative())
+									.load(entity.getPhoto().uriNative())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -402,7 +397,7 @@ public abstract class BaseEdit extends BaseScreen {
 						}
 						catch (OutOfMemoryError err) {
 							/* Give up and log it */
-							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.photo.uriNative());
+							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.getPhoto().uriNative());
 							throw err;
 						}
 						catch (IOException ignore) { }
@@ -427,7 +422,7 @@ public abstract class BaseEdit extends BaseScreen {
 				}
 
 				/* In case a derived class needs to augment the entity or add links before insert */
-				List<Link> links = new ArrayList<>();
+				List<LinkOld> links = new ArrayList<>();
 				beforeInsert(entity, links);
 				if (isCancelled()) return null;
 
@@ -486,7 +481,7 @@ public abstract class BaseEdit extends BaseScreen {
 					Errors.handleError(BaseEdit.this, result.serviceResponse);
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.photo = null;
+							entity.setPhoto(null);
 							bindPhoto();
 						}
 					}
@@ -501,7 +496,7 @@ public abstract class BaseEdit extends BaseScreen {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 					busyController.showHorizontalProgressBar(BaseEdit.this);
 				}
 				else {
@@ -517,11 +512,11 @@ public abstract class BaseEdit extends BaseScreen {
 				 * photo from anywhere or a local photo from the device camera or gallery.
 				 */
 				Bitmap bitmap = null;
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.photo.uriNative())
+								.load(entity.getPhoto().uriNative())
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -536,7 +531,7 @@ public abstract class BaseEdit extends BaseScreen {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.photo.uriNative())
+									.load(entity.getPhoto().uriNative())
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -601,7 +596,7 @@ public abstract class BaseEdit extends BaseScreen {
 					Errors.handleError(BaseEdit.this, result.serviceResponse);
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.photo = null;
+							entity.setPhoto(null);
 							bindPhoto();
 						}
 					}

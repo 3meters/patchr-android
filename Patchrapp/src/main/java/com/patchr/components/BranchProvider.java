@@ -6,9 +6,8 @@ import android.support.v4.app.ShareCompat;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
-import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 
 import io.branch.indexing.BranchUniversalObject;
@@ -44,13 +43,13 @@ public class BranchProvider {
 				.addContentMetadata("ownerName", ownerName)
 				.addContentMetadata("patchName", patchName);
 
-		if (UserManager.currentUser.photo != null) {
-			Photo photo = UserManager.currentUser.photo;
+		if (UserManager.currentUser.getPhoto() != null) {
+			Photo photo = UserManager.currentUser.getPhoto();
 			applink.addContentMetadata("referrerPhotoUrl", photo.uri(PhotoCategory.PROFILE));
 		}
 
-		if (entity.photo != null) {
-			RealmPhoto photo = entity.photo;
+		if (entity.getPhoto() != null) {
+			Photo photo = entity.getPhoto();
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url

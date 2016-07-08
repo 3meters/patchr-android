@@ -1,59 +1,79 @@
-package com.patchr.model;
+package com.patchr.objects;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.TypedValue;
 
 import com.patchr.Patchr;
-import com.patchr.objects.Photo;
-import com.patchr.objects.PhotoCategory;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 
 import java.io.Serializable;
 import java.util.Map;
 
-import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
-
 @SuppressWarnings("ucd")
-public class RealmPhoto extends RealmObject {
+public class PhotoOld extends ServiceObject implements Cloneable, Serializable {
 
-	private static final GooglePlusProxy imageResizer = new GooglePlusProxy();
+	private static final long            serialVersionUID = 4979315562693226461L;
+	private static final GooglePlusProxy imageResizer     = new GooglePlusProxy();
 
-	public String  prefix;
-	public Integer width;
-	public Integer height;
-	public String  source;
+	public String prefix;
+	public String suffix;
+	public Number width;
+	public Number height;
+	public String source;
+	public Number createdDate;
 
-	/* Local client */
+	/* client only */
 
-	@Ignore public Boolean store = false;   // Hint that photo needs to be stored.
+	public Entity user;
+	public String name;
+	public String description;
+	public Boolean store        = false;   // Hint that photo needs to be stored.
+
+	public PhotoOld() {}
+
+	public PhotoOld(String prefix, String suffix, Number width, Number height, String source) {
+		this.prefix = prefix;
+		this.suffix = suffix;
+		this.width = width;
+		this.height = height;
+		this.source = source;
+	}
+
+	public PhotoOld(String prefix, String source) {
+		this.prefix = prefix;
+		this.source = source;
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static RealmPhoto setPropertiesFromMap(RealmPhoto photo, Map map) {
+	public static PhotoOld setPropertiesFromMap(PhotoOld photo, Map map) {
 
 		if (!map.containsKey("prefix")) {
 			throw new RuntimeException("Photo object is missing required prefix property");
 		}
-
 		if (!map.containsKey("source")) {
 			throw new RuntimeException("Photo object is missing required source property");
 		}
-
-		photo.prefix = (String) map.get("prefix");
 		photo.source = (String) map.get("source");
-		photo.width = map.get("width") != null ? ((Double) map.get("width")).intValue() : null;
-		photo.height = map.get("height") != null ? ((Double) map.get("height")).intValue() : null;
+		photo.prefix = (String) map.get("prefix");
+		photo.suffix = (String) map.get("suffix");
+		photo.width = (Number) map.get("width");
+		photo.height = (Number) map.get("height");
 
-		return photo;
-	}
+		photo.createdDate = (Number) map.get("createdDate");
+		photo.name = (String) map.get("name");
+		photo.description = (String) map.get("description");
 
-	public Photo asPhoto() {
-		Photo photo = new Photo(prefix, source);
+		photo.store = (Boolean) map.get("store");
+
+		if (map.get("user") != null) {
+			photo.user = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("user"));
+		}
+
 		return photo;
 	}
 
@@ -66,15 +86,15 @@ public class RealmPhoto extends RealmObject {
 	}
 
 	public boolean isFile() {
-		return this.source.equals(RealmPhoto.PhotoSource.file);
+		return this.source.equals(PhotoOld.PhotoSource.file);
 	}
 
 	public boolean isResource() {
-		return this.source.equals(RealmPhoto.PhotoSource.resource);
+		return this.source.equals(PhotoOld.PhotoSource.resource);
 	}
 
 	public boolean isUri() {
-		return !(this.source.equals(RealmPhoto.PhotoSource.resource) || this.source.equals(RealmPhoto.PhotoSource.file));
+		return !(this.source.equals(PhotoOld.PhotoSource.resource) || this.source.equals(PhotoOld.PhotoSource.file));
 	}
 
 	public Integer getResId() {
@@ -86,8 +106,8 @@ public class RealmPhoto extends RealmObject {
 		final String resolvedResourceName = resolveResourceName(context, resourceName);
 		if (resolvedResourceName != null) {
 			return Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
-				, "drawable"
-				, Patchr.getInstance().getPackageName());
+					, "drawable"
+					, Patchr.getInstance().getPackageName());
 		}
 		return null;
 	}
@@ -110,13 +130,68 @@ public class RealmPhoto extends RealmObject {
 	public boolean sameAs(Object obj) {
 		if (obj == null) return false;
 		if (!((Object) this).getClass().equals(obj.getClass())) return false;
-		final RealmPhoto other = (RealmPhoto) obj;
+		final PhotoOld other = (PhotoOld) obj;
 		return (Type.equal(this.uriNative(), other.uriNative()));
 	}
 
 	public static boolean same(Object obj1, Object obj2) {
 		return (obj1 == null && obj2 == null)
-			|| (obj1 != null && ((RealmPhoto) obj1).sameAs(obj2));
+				|| (obj1 != null && ((PhotoOld) obj1).sameAs(obj2));
+	}
+
+	@Override public PhotoOld clone() {
+		try {
+			PhotoOld photo = (PhotoOld) super.clone();
+			if (user != null) {
+				photo.user = (User) user.clone();
+			}
+			return photo;
+		}
+		catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Photo not clonable");
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	public Number getCreatedAt() {
+		return createdDate;
+	}
+
+	public PhotoOld setCreatedAt(Number createdAt) {
+		this.createdDate = createdAt;
+		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public PhotoOld setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public PhotoOld setPrefix(String prefix) {
+		this.prefix = prefix;
+		return this;
+	}
+
+	public PhotoOld setPrefix(Uri uri) {
+		this.prefix = uri.toString();
+		return this;
+	}
+
+	public PhotoOld setSource(String source) {
+		this.source = source;
+		return this;
+	}
+
+	public PhotoOld setStore(Boolean store) {
+		this.store = store;
+		return this;
 	}
 
 	/*--------------------------------------------------------------------------------------------

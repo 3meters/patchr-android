@@ -3,18 +3,18 @@ package com.patchr.utilities;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
-import com.patchr.objects.AirLocation;
+import com.patchr.objects.LocationOld;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Document;
 import com.patchr.objects.ImageResult;
 import com.patchr.objects.Install;
-import com.patchr.objects.Link;
+import com.patchr.objects.LinkOld;
 import com.patchr.objects.Message;
 import com.patchr.objects.Notification;
 import com.patchr.objects.Patch;
-import com.patchr.objects.PhoneNumber;
-import com.patchr.objects.Photo;
+import com.patchr.model.PhoneNumber;
+import com.patchr.objects.PhotoOld;
 import com.patchr.objects.ServiceBase;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.ServiceEntry;
@@ -229,16 +229,16 @@ public class Json {
 					list.add(CacheStamp.setPropertiesFromMap(new CacheStamp(), map));
 				}
 				else if (objectType == Json.ObjectType.AIR_LOCATION) {
-					list.add(AirLocation.setPropertiesFromMap(new AirLocation(), map));
+					list.add(LocationOld.setPropertiesFromMap(new LocationOld(), map));
 				}
 				else if (objectType == Json.ObjectType.LINK) {
-					list.add(Link.setPropertiesFromMap(new Link(), map));
+					list.add(LinkOld.setPropertiesFromMap(new LinkOld(), map));
 				}
 				else if (objectType == Json.ObjectType.IMAGE_RESULT) {
 					list.add(ImageResult.setPropertiesFromMap(new ImageResult(), map));
 				}
 				else if (objectType == Json.ObjectType.PHOTO) {
-					list.add(Photo.setPropertiesFromMap(new Photo(), map));
+					list.add(PhotoOld.setPropertiesFromMap(new PhotoOld(), map));
 				}
 				else if (objectType == ObjectType.PHONE) {
 					list.add(PhoneNumber.setPropertiesFromMap(new PhoneNumber(), map));

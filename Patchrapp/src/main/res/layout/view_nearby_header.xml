@@ -20,18 +20,4 @@
 		android:theme="@style/button_primary_overlay"
 		tools:text="Create a patch" />
 
-	<!--
-	<TextView
-		style="@style/selectable_image"
-		android:id="@+id/action_button"
-		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:gravity="center"
-		android:textAllCaps="true"
-		android:textColor="@color/brand_primary"
-		android:background="@color/white"
-		android:clickable="true"
-		android:onClick="onClick"
-		tools:text="Create a patch" />-->
-
 </RelativeLayout>

@@ -27,7 +27,7 @@ public class RealmRecyclerViewHolder extends RecyclerView.ViewHolder {
 		bind(entity, null, null);
 	}
 
-	public void bind(RealmEntity entity, RealmEntity scopingEntity, Map options) {
+	public void bind(RealmEntity entity, RealmEntity contextEntity, Map options) {
 
 		if (entityView instanceof SearchItemView) {
 			SearchItemView view = (SearchItemView) entityView;
@@ -41,7 +41,7 @@ public class RealmRecyclerViewHolder extends RecyclerView.ViewHolder {
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 			PatchView patchView = (PatchView) entityView;
 			patchView.setTag(entity);
-			//patchView.bind(entity);
+			patchView.bind(entity);
 		}
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 			MessageView messageView = (MessageView) entityView;
@@ -51,16 +51,16 @@ public class RealmRecyclerViewHolder extends RecyclerView.ViewHolder {
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
 			NotificationView notificationView = (NotificationView) entityView;
 			notificationView.setTag(entity);
-			//notificationView.bind(entity);
+			notificationView.bind(entity);
 		}
 		else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
 			UserView userView = (UserView) entityView;
 			userView.setTag(entity);
-			if (Constants.SCHEMA_ENTITY_PATCH.equals(scopingEntity.schema)) {
-				//userView.bind(entity, scopingEntity);
+			if (Constants.SCHEMA_ENTITY_PATCH.equals(contextEntity.schema)) {
+				userView.bind(entity, contextEntity);
 				return;
 			}
-			//userView.bind(entity);
+			userView.bind(entity);
 		}
 	}
 }

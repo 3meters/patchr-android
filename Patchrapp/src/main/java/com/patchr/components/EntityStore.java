@@ -5,14 +5,14 @@ import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.components.NetworkManager.ResponseCode;
-import com.patchr.model.RealmLocation;
+import com.patchr.model.Location;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Count;
 import com.patchr.objects.Cursor;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
-import com.patchr.objects.Link.Direction;
+import com.patchr.objects.LinkOld;
+import com.patchr.objects.LinkOld.Direction;
 import com.patchr.objects.LinkSpecs;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
@@ -99,7 +99,7 @@ public class EntityStore {
 							 * or change notification registration.
 							 */
 							((User) entity).session = UserManager.currentSession;
-							UserManager.shared().setCurrentUser((User) entity, UserManager.currentSession, false);  // Updates persisted user too
+							//UserManager.shared().setCurrentUser((User) entity, UserManager.currentSession, false);  // Updates persisted user too
 						}
 					}
 				}
@@ -225,7 +225,7 @@ public class EntityStore {
 		return serviceResponse;
 	}
 
-	ServiceResponse loadEntitiesNearLocation(RealmLocation location, LinkSpecs links, String installId, Object tag) {
+	ServiceResponse loadEntitiesNearLocation(Location location, LinkSpecs links, String installId, Object tag) {
 
 		final Bundle parameters = new Bundle();
 
@@ -435,13 +435,13 @@ public class EntityStore {
 
 		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(UserManager.currentUser.id)) {
-			toEntity = UserManager.currentUser;
+			//toEntity = UserManager.currentUser;
 		}
 
 		if (toEntity != null) {
 
 			if (toEntity.linksIn == null) {
-				toEntity.linksIn = new ArrayList<Link>();
+				toEntity.linksIn = new ArrayList<LinkOld>();
 			}
 
 			if (toEntity.linksInCounts == null) {
@@ -458,7 +458,7 @@ public class EntityStore {
 				}
 			}
 
-			Link link = new Link(fromId, toId, type, fromShortcut.schema);
+			LinkOld link = new LinkOld(fromId, toId, type, fromShortcut.schema);
 			link.enabled = enabled;
 			link.modifiedDate = time;
 			link.shortcut = fromShortcut;
@@ -471,13 +471,13 @@ public class EntityStore {
 		 */
 		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(UserManager.currentUser.id)) {
-			fromEntity = UserManager.currentUser;
+			//fromEntity = UserManager.currentUser;
 		}
 
 		if (fromEntity != null) {
 
 			if (fromEntity.linksOut == null) {
-				fromEntity.linksOut = new ArrayList<Link>();
+				fromEntity.linksOut = new ArrayList<LinkOld>();
 			}
 
 			if (fromEntity.linksOutCounts == null) {
@@ -494,7 +494,7 @@ public class EntityStore {
 				}
 			}
 
-			Link link = new Link(fromId, toId, type, toShortcut.schema);
+			LinkOld link = new LinkOld(fromId, toId, type, toShortcut.schema);
 			link.enabled = enabled;
 			link.modifiedDate = time;
 			link.shortcut = toShortcut;
@@ -582,15 +582,15 @@ public class EntityStore {
 
 		Entity toEntity = mCacheMap.get(toId);
 		if (toEntity != null && toEntity.id.equals(UserManager.currentUser.id)) {
-			toEntity = UserManager.currentUser;
+			//toEntity = UserManager.currentUser;
 		}
 
 		if (toEntity != null) {
 			if (toEntity.linksIn != null) {
 
-				Iterator<Link> iterLinks = toEntity.linksIn.iterator();
+				Iterator<LinkOld> iterLinks = toEntity.linksIn.iterator();
 				while (iterLinks.hasNext()) {
-					Link link = iterLinks.next();
+					LinkOld link = iterLinks.next();
 					if (link.fromId != null && link.fromId.equals(fromId) && link.type.equals(type)) {
 
 						toEntity.activityDate = time;
@@ -614,14 +614,14 @@ public class EntityStore {
 		 */
 		Entity fromEntity = mCacheMap.get(fromId);
 		if (fromEntity != null && fromEntity.id.equals(UserManager.currentUser.id)) {
-			fromEntity = UserManager.currentUser;
+			//fromEntity = UserManager.currentUser;
 		}
 
 		if (fromEntity != null) {
 			if (fromEntity.linksOut != null) {
-				Iterator<Link> iterLinks = fromEntity.linksOut.iterator();
+				Iterator<LinkOld> iterLinks = fromEntity.linksOut.iterator();
 				while (iterLinks.hasNext()) {
-					Link link = iterLinks.next();
+					LinkOld link = iterLinks.next();
 					if (link.toId != null && link.toId.equals(toId) && link.type.equals(type)) {
 
 						fromEntity.activityDate = time;

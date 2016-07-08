@@ -85,7 +85,7 @@ public class PatchBannerView extends BaseView {
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.photoView.setImageWithRealmEntity(entity);
+			this.photoView.setImageWithEntity(entity);
 
 			setOrGone(this.name, entity.name);
 			setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));

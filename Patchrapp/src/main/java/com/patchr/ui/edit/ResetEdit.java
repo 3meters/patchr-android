@@ -22,9 +22,9 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.Photo;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyController;
@@ -165,7 +165,9 @@ public class ResetEdit extends BaseEdit {
 
 		if (resetActive) {
 			if (inputUserPhoto != null) {
-				Photo photo = new Photo(inputUserPhoto, Photo.PhotoSource.aircandi_images);
+				Photo photo = new Photo();
+				photo.prefix = inputUserPhoto;
+				photo.source = Photo.PhotoSource.aircandi_images;
 				userPhoto.setImageWithPhoto(photo, null);
 			}
 			else if (inputUserName != null) {
@@ -349,7 +351,7 @@ public class ResetEdit extends BaseEdit {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+						&& result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 						Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, new DialogInterface.OnClickListener() {
 							@Override public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();

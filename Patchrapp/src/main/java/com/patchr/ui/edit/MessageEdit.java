@@ -11,8 +11,7 @@ import android.widget.ViewAnimator;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.components.UserManager;
-import com.patchr.model.RealmPhoto;
+import com.patchr.model.Photo;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -67,7 +66,7 @@ public class MessageEdit extends BaseEdit {
 		super.onClick(view);
 	}
 
-	@Override public void onPhotoSelected(RealmPhoto photo) {
+	@Override public void onPhotoSelected(Photo photo) {
 		this.photoEditAnimator.setDisplayedChild(1);
 		super.onPhotoSelected(photo);
 	}
@@ -114,11 +113,11 @@ public class MessageEdit extends BaseEdit {
 		else {
 			UI.setTextView(this.patchName, this.entity.patch.name + " Patch");
 		}
-		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
+		//UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 	}
 
 	protected void bindPhoto() {
-		if (entity.photo != null) {
+		if (entity.getPhoto() != null) {
 			this.photoEditAnimator.setDisplayedChild(1);
 		}
 		super.bindPhoto();
@@ -128,7 +127,7 @@ public class MessageEdit extends BaseEdit {
 
 		gather();
 
-		if (this.entity.photo == null && TextUtils.isEmpty(this.entity.description)) {
+		if (this.entity.getPhoto() == null && TextUtils.isEmpty(this.entity.description)) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
 					, StringManager.getString(R.string.error_missing_message_content)

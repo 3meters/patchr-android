@@ -21,6 +21,14 @@
 			android:scaleType="centerCrop"
 			android:src="@drawable/patchr_splash" />
 
+		<ImageView
+			android:id="@+id/logo_startup"
+			android:layout_width="72dp"
+			android:layout_height="72dp"
+			android:layout_centerInParent="true"
+			android:src="@drawable/ic_img_patch_dark"
+			android:visibility="visible" />
+
 		<LinearLayout
 			android:id="@+id/dialog"
 			android:layout_width="228dp"
@@ -86,8 +94,8 @@
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal"
 						android:ellipsize="end"
-						android:singleLine="true"
 						android:fontFamily="sans-serif"
+						android:singleLine="true"
 						android:textColor="@color/white"
 						tools:text="Log in as Aliza Wenk" />
 
@@ -98,8 +106,8 @@
 						android:layout_gravity="center_horizontal"
 						android:ellipsize="end"
 						android:singleLine="true"
-						android:textSize="14sp"
 						android:textColor="@color/white_80_pcnt"
+						android:textSize="14sp"
 						tools:text="aliza@3meters.com" />
 
 				</LinearLayout>

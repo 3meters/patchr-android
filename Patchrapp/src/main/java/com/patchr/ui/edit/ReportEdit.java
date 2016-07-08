@@ -18,9 +18,9 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Document;
-import com.patchr.objects.User;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.ImageWidget;
@@ -105,7 +105,7 @@ public class ReportEdit extends BaseEdit {
 
 	@Override public void bind() {
 		this.message.setText(StringManager.getString(R.string.label_report_message) + " " + entitySchema + "?");
-		User user = UserManager.currentUser;
+		RealmEntity user = UserManager.currentUser;
 		this.userPhoto.setImageWithEntity(user);
 		this.userName.setText(user.name);
 	}

@@ -8,9 +8,9 @@ import android.view.WindowManager;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.components.DataController;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Photo;
+import com.patchr.objects.Suggest;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.EntitySuggestController;
@@ -52,7 +52,7 @@ public class SearchScreen extends BaseScreen {
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			searchPhrase = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
-			suggestScope = extras.getString(Constants.EXTRA_SEARCH_SCOPE, DataController.Suggest.Patches);
+			suggestScope = extras.getString(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
 		}
 	}
 

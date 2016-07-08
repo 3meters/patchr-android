@@ -1,19 +1,20 @@
 // $codepro.audit.disable fileComment
 package com.patchr;
 
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.multidex.MultiDexApplication;
 
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
 import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
@@ -27,6 +28,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
+import com.google.gson.Gson;
 import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
@@ -55,14 +57,14 @@ import io.branch.referral.Branch;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public class Patchr extends MultiDexApplication implements IAviaryClientCredentials {
+public class Patchr extends Application implements IAviaryClientCredentials {
 
 	private static Patchr instance;
 
 	public static Intent sendIntent;  // Used when we are started to handle a send intent
 
 	public static Context           applicationContext;
-	public static Realm             realm;  // Only use on main thread
+	public static Gson              gson;
 	public static SharedPreferences settings;
 
 	public static Handler   mainThreadHandler         = new Handler(Looper.getMainLooper());
@@ -121,88 +123,86 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 
 		Foreground.init(this);
 
-		/* Make sure setting defaults are initialized */
-		PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
-		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
-
-		/* Make sure unique id is initialized */
-		initializeInstallInfo();
-
-		/* Turn on segement to gather user data */
-		Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
-		Analytics.setSingletonInstance(analytics);
-
-		/* Turn on crash reporting */
-		Bugsnag.init(this);
-
-		/* Turn on facebook */
-		FacebookSdk.sdkInitialize(this);
-
-		/* Turn on account kit */
-		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			AccountKit.initialize(applicationContext);
-		}
-
-		/* Turn on parse */
-		Parse.initialize(this
-			, StringManager.getString(R.string.parse_app_id)        // application id
-			, StringManager.getString(R.string.parse_client_key));  // client key
-		Parse.setLogLevel(Constants.LOG_LEVEL);
-		ParseInstallation.getCurrentInstallation().saveInBackground();
-
-		/* Stetho */
-		Stetho.initialize(
-			Stetho.newInitializerBuilder(this)
-				.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-				.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
-				.build());
-
-		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
-		snapshotPreferences();
-
-		/* Establish device memory class */
-		Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
-
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));
 
-		/* Set the folder used by image chooser for all files */
-		BChooserPreferences preferences = new BChooserPreferences(this);
-		preferences.setFolderName("Pictures/Patchr");
+		AsyncTask.execute(() -> {
 
-		/* Configure realm */
-					/* Configure realm */
-		RealmConfiguration config = new RealmConfiguration.Builder(Patchr.applicationContext)
-			.name("default.realm")
-			.deleteRealmIfMigrationNeeded()
-			.build();
+			/* Make sure setting defaults are initialized */
+			PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
+			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
-		Realm.setDefaultConfiguration(config);
-		realm = Realm.getDefaultInstance();
+			/* Make sure unique id is initialized */
+			initializeInstallInfo();
 
-		/* Initialize managers */
-		initializeManagers();
+			/* Turn on segement to gather user data */
+			Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
+			Analytics.setSingletonInstance(analytics);
 
-		/* Warmup DataController */
-		DataController.getInstance().warmup();
+			/* Turn on crash reporting */
+			Bugsnag.init(this);
 
-		/* Must come after managers are initialized */
-		UserManager.shared().loginAuto();
+			/* Turn on facebook */
+			FacebookSdk.sdkInitialize(this);
 
-		/* Start activity recognition */
-		ActivityRecognitionManager.getInstance().initialize(applicationContext);
+			/* Turn on account kit */
+			if (BuildConfig.ACCOUNT_KIT_ENABLED) {
+				AccountKit.initialize(applicationContext);
+			}
 
-		/* Turn on branch */
-		Branch.getAutoInstance(this);
-	}
+			/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
+			snapshotPreferences();
 
-	protected void initializeManagers() {
+			/* Establish device memory class */
+			Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
 
-		/* Warmup media manager */
-		MediaManager.warmup();
+			/* Set the folder used by image chooser for all files */
+			BChooserPreferences preferences = new BChooserPreferences(this);
+			preferences.setFolderName("Pictures/Patchr");
 
-		/* Connectivity monitoring */
-		NetworkManager.getInstance().initialize();
+			/* Turn on parse */
+			Parse.initialize(this
+				, StringManager.getString(R.string.parse_app_id)        // application id
+				, StringManager.getString(R.string.parse_client_key));  // client key
+			Parse.setLogLevel(Constants.LOG_LEVEL);
+			ParseInstallation.getCurrentInstallation().saveInBackground();
+
+			/* Stetho */
+			Stetho.initialize(
+				Stetho.newInitializerBuilder(this)
+					.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+					.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+					.build());
+
+			/* Configure realm */
+			RealmConfiguration config = new RealmConfiguration.Builder(Patchr.applicationContext)
+				.name("patchr.realm")
+				.deleteRealmIfMigrationNeeded()
+				.build();
+
+			Realm.setDefaultConfiguration(config);
+
+			/* Stash gson */
+			gson = new Gson();
+
+			/* Warmup DataController */
+			DataController.getInstance().warmup();
+
+			/* Warmup media manager */
+			MediaManager.warmup();
+
+			/* Connectivity monitoring */
+			NetworkManager.getInstance().initialize();
+
+			/* Must come after managers are initialized */
+			UserManager.shared().loginAuto();
+
+			/* Start activity recognition */
+			ActivityRecognitionManager.getInstance().initialize(applicationContext);
+
+			/* Turn on branch */
+			Branch.getAutoInstance(this);
+		});
 	}
 
 	public void snapshotPreferences() {
@@ -215,7 +215,7 @@ public class Patchr extends MultiDexApplication implements IAviaryClientCredenti
 	}
 
 	@Override public String getClientSecret() {
-		return ContainerManager.getContainerHolder().getContainer().getString(Patchr.CREATIVE_SDK_CLIENT_SECRET);
+		return "7af6a808-0568-477e-88c2-63fa6e8ef617";
 	}
 
 	@Override public String getBillingKey() {

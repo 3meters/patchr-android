@@ -18,12 +18,9 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
-import com.patchr.objects.User;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.RoundedCornersTransformation;
 import com.patchr.utilities.Colors;
@@ -164,27 +161,18 @@ public class ImageWidget extends FrameLayout {
 		}
 	}
 
-	public void setImageWithEntity(Entity entity) {
-		if (entity.photo != null) {
-			setImageWithPhoto(entity.photo, null);
-		}
-		else {
-			setImageWithText(entity.name, (entity instanceof User));
-		}
-	}
-
-	public void setImageWithRealmEntity(RealmEntity entity) {
-		if (entity.photo != null) {
-			setImageWithPhoto(entity.photo.asPhoto(), null);
+	public void setImageWithEntity(RealmEntity entity) {
+		if (entity.getPhoto() != null) {
+			setImageWithPhoto(entity.getPhoto(), null);
 		}
 		else {
 			setImageWithText(entity.name, (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)));
 		}
 	}
 
-	public void setImageWithRealmEntity(RealmPhoto photo, String name) {
+	public void setImageWithEntity(Photo photo, String name) {
 		if (photo != null) {
-			setImageWithPhoto(photo.asPhoto(), null);
+			setImageWithPhoto(photo, null);
 		}
 		else {
 			setImageWithText(name, true);
@@ -258,15 +246,13 @@ public class ImageWidget extends FrameLayout {
 
 	public void showLoading(final Boolean visible) {
 
-		Patchr.mainThreadHandler.post(new Runnable() {
-			@Override public void run() {
-				if (progressBar != null) {
-					if (visible) {
-						progressBar.show();
-					}
-					else {
-						progressBar.hide();
-					}
+		Patchr.mainThreadHandler.post(() -> {
+			if (progressBar != null) {
+				if (visible) {
+					progressBar.show();
+				}
+				else {
+					progressBar.hide();
 				}
 			}
 		});

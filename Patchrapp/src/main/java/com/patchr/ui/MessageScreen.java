@@ -3,7 +3,9 @@ package com.patchr.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
@@ -13,8 +15,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -28,40 +30,32 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
-import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.DataQueryResultEvent;
-import com.patchr.events.EntityQueryEvent;
-import com.patchr.events.EntityQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Link;
-import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.FetchStrategy;
 import com.patchr.objects.Message.MessageType;
-import com.patchr.objects.Photo;
-import com.patchr.objects.Shortcut;
+import com.patchr.objects.QueryName;
 import com.patchr.objects.TransitionType;
+import com.patchr.service.RestClient;
+import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Locale;
 
@@ -69,6 +63,7 @@ import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
+import rx.Subscription;
 
 @SuppressWarnings("ConstantConditions")
 public class MessageScreen extends BaseScreen {
@@ -83,35 +78,26 @@ public class MessageScreen extends BaseScreen {
 	protected ImageWidget       userPhotoView;
 	protected TextView          userName;
 	protected TextView          createdDate;
-	protected ViewGroup         buttonHolder;
+	protected ViewGroup         buttonToolbar;
 
 	protected ViewGroup shareHolder;
 	protected ViewGroup shareView;
 	protected ViewGroup shareRecipientsHolder;
 	protected TextView  shareRecipients;
 
-	protected boolean bound;
-	public    String  parentId;
-	protected String  notificationId;
+	public    String       parentId;
+	public    Subscription subscription;
 
-	@Override protected void onStart() {
-		super.onStart();
-		Dispatcher.getInstance().register(this);
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
 	}
 
 	@Override protected void onResume() {
 		super.onResume();
 		if (!isFinishing()) {
-			if (this.entity != null) {
-				bind();
-			}
 			fetch(FetchMode.AUTO);
 		}
-	}
-
-	@Override protected void onStop() {
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -218,82 +204,23 @@ public class MessageScreen extends BaseScreen {
 			return;
 		}
 
-//		Link linkLike = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-//		like(linkLike == null);
+		//		Link linkLike = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
+		//		like(linkLike == null);
 	}
 
 	public void likeListAction() {
 		if (entity != null) {
-			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_user);
-			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
-			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
-			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_LIKE);
-			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.screen_title_likes_list);
-			Patchr.router.route(this, Command.ENTITY_LIST, entity, extras);
+			Intent intent = new Intent(this, BaseListScreen.class);
+			intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+			intent.putExtra(Constants.EXTRA_QUERY_NAME, QueryName.LikesForMessage);
+			startActivity(intent);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
-	}
-
-	public void onFetchComplete() {
-		super.onFetchComplete();            // Handles busy ui
-		supportInvalidateOptionsMenu();     // Update menus to match users relationship to message
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Subscribe(threadMode = ThreadMode.MAIN) public void onEntityResult(final EntityQueryResultEvent event) {
-
-		if (event.tag.equals(System.identityHashCode(this))) {
-
-			if (event.actionType == ActionType.ACTION_GET_ENTITY) {
-
-				if (event.entity != null && event.entity.id != null && event.entity.id.equals(entityId)) {
-
-					if (event.error != null) {
-						onFetchComplete();
-						return;
-					}
-
-					bound = true;
-
-					Logger.v(this, "Data result accepted: " + event.actionType.name());
-
-//					if (event.entity != null) {
-//						entity = event.entity;
-//
-//						if (parentId != null) {
-//							entity.toId = parentId;
-//						}
-//					}
-
-					/* Ensure this is flagged as read */
-					if (notificationId != null) {
-						if (NotificationManager.getInstance().getNotifications().containsKey(notificationId)) {
-							NotificationManager.getInstance().getNotifications().get(notificationId).read = true;
-						}
-					}
-
-					onFetchComplete();
-					bind();
-				}
-			}
-		}
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN) public void onDataQueryResult(final DataQueryResultEvent event) {
-
-		if (event.actionType == ActionType.ACTION_LINK_INSERT_LIKE) {
-			Reporting.track(AnalyticsCategory.ACTION, "Liked Message");
-			bindLike();
-		}
-		else if (event.actionType == ActionType.ACTION_LINK_DELETE_LIKE) {
-			Reporting.track(AnalyticsCategory.ACTION, "Unliked Message");
-			bindLike();
-		}
-		onFetchComplete();
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -324,72 +251,6 @@ public class MessageScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-		bottomSheetLayout.setPeekOnDismiss(true);
-	}
-
-	@Override public void confirmDelete() {
-
-		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
-		if (entity.type != null && entity.type.equals(MessageType.Post)) {
-//			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-//			if (linkPlace != null) {
-//				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
-//			}
-		}
-		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(R.string.alert_delete_message_title)
-				, message
-				, null
-				, this
-				, android.R.string.ok
-				, android.R.string.cancel
-				, null
-				, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							delete();
-						}
-					}
-				}
-				, null);
-		dialog.setCanceledOnTouchOutside(false);
-	}
-
-	@Override protected int getLayoutId() {
-		return R.layout.screen_message;
-	}
-
-	public void fetch(final FetchMode mode) {
-		/*
-		 * Called on main thread.
-		 */
-		Logger.v(this, "Binding: " + mode.name());
-		EntityQueryEvent request = new EntityQueryEvent();
-		request.linkProfile = LinkSpecType.LINKS_FOR_MESSAGE;
-		request.actionType = ActionType.ACTION_GET_ENTITY;
-		request.fetchMode = mode;
-		request.entityId = entityId;
-		request.tag = System.identityHashCode(this);
-
-		Dispatcher.getInstance().post(request);
-	}
-
-	public void bind() {
-	    /*
-	     * For now, we assume that the candi form isn't recycled.
-		 *
-		 * We leave most of the views visible by default so they are visible in the layout editor.
-		 *
-		 * - WebImageView primary image is visible by default
-		 * - WebImageView child views are gone by default
-		 * - Header views are visible by default
-		 */
-		if (entity == null) return;
-		Utils.guard(this.rootView != null, "Root view cannot be null");
-
 		photoView = (ImageWidget) findViewById(R.id.photo);
 		holderUser = findViewById(R.id.holder_user);
 		holderPatch = findViewById(R.id.patch_group);
@@ -399,15 +260,94 @@ public class MessageScreen extends BaseScreen {
 		userPhotoView = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
 		createdDate = (TextView) findViewById(R.id.created_date);
-		buttonHolder = (ViewGroup) findViewById(R.id.button_toolbar);
+		buttonToolbar = (ViewGroup) findViewById(R.id.button_toolbar);
 
 		shareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		shareView = (ViewGroup) findViewById(R.id.share_entity);
 		shareRecipientsHolder = (ViewGroup) findViewById(R.id.share_recipients_holder);
 		shareRecipients = (TextView) findViewById(R.id.share_recipients);
 
-        /* Share */
+		bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+		bottomSheetLayout.setPeekOnDismiss(true);
+	}
 
+	@Override public void confirmDelete() {
+
+		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
+		if (entity.type != null && entity.type.equals(MessageType.Post)) {
+			//			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
+			//			if (linkPlace != null) {
+			//				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
+			//			}
+		}
+		final AlertDialog dialog = Dialogs.alertDialog(null
+			, StringManager.getString(R.string.alert_delete_message_title)
+			, message
+			, null
+			, this
+			, android.R.string.ok
+			, android.R.string.cancel
+			, null
+			, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						delete();
+					}
+				}
+			}
+			, null);
+		dialog.setCanceledOnTouchOutside(false);
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.screen_message;
+	}
+
+	public void fetch(final FetchMode mode) {
+		if (processing) return;
+
+		processing = true;
+		Logger.v(this, "Fetching entity: " + mode.name().toString());
+		final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
+
+		AsyncTask.execute(() -> {
+			this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
+				.doOnTerminate(() -> {
+					if (this.busyController != null) {
+						this.busyController.hide(true);
+					}
+				})
+				.subscribe(response -> {
+					processing = false;
+					executed = true;
+					supportInvalidateOptionsMenu();     // In case user authenticated
+				});
+		});
+	}
+
+	public void bind() {
+
+		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+		if (this.entity == null) {
+			RealmEntity realmEntity = new RealmEntity();
+			realmEntity.id = this.entityId;
+			realm.beginTransaction();
+			this.entity = realm.copyToRealm(realmEntity);
+			realm.commitTransaction();
+		}
+
+		this.entity.addChangeListener(user -> {
+			draw();
+		});
+	}
+
+	public void draw() {
+
+		if (entity == null || entity.schema == null) return;
+
+	    /* Share */
 		Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));
 
 		/* Message patch context */
@@ -419,41 +359,37 @@ public class MessageScreen extends BaseScreen {
 				UI.setVisibility(patchPhotoView, View.GONE);
 			}
 			else {
-//				Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-//
-//				if (linkPlace != null) {
-//					holderPatch.setTag(linkPlace.shortcut.getAsEntity());
-//
-//					/* Name */
-//					patchName.setText(linkPlace.shortcut.name);
-//					UI.setVisibility(holderPatch, View.VISIBLE);
-//
-//					/* Photo */
-//					if (linkPlace.shortcut.photo != null) {
-//						patchPhotoView.setImageWithPhoto(linkPlace.shortcut.photo, null);
-//					}
-//					else {
-//						patchPhotoView.setImageWithText(linkPlace.shortcut.name, false);
-//					}
-//					UI.setVisibility(patchPhotoView, View.VISIBLE);
-//				}
-//				else {
-//					UI.setVisibility(holderPatch, View.GONE);
-//				}
+				if (entity.patch != null) {
+					holderPatch.setTag(entity.patch);
+
+					/* Name */
+					patchName.setText(entity.patch.name);
+					UI.setVisibility(holderPatch, View.VISIBLE);
+
+					/* Photo */
+					if (entity.patch.getPhoto() != null) {
+						patchPhotoView.setImageWithPhoto(entity.patch.getPhoto(), null);
+					}
+					else {
+						patchPhotoView.setImageWithText(entity.patch.name, false);
+					}
+					UI.setVisibility(patchPhotoView, View.VISIBLE);
+				}
+				else {
+					UI.setVisibility(holderPatch, View.GONE);
+				}
 			}
 		}
 
 		/* User holder */
-
 		if (holderUser != null && entity.creator != null) {
 			holderUser.setTag(entity.creator);
 		}
 
 		/* User photo */
-
 		if (userPhotoView != null) {
 			if (entity.creator != null) {
-				userPhotoView.setImageWithRealmEntity(entity.creator);
+				userPhotoView.setImageWithEntity(entity.creator);
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
@@ -462,7 +398,6 @@ public class MessageScreen extends BaseScreen {
 		}
 
 		/* User name */
-
 		if (userName != null) {
 			if (entity.creator != null && entity.creator.name != null && entity.creator.name.length() > 0) {
 				userName.setText(entity.creator.name);
@@ -474,7 +409,6 @@ public class MessageScreen extends BaseScreen {
 		}
 
 		/* Created date */
-
 		if (createdDate != null) {
 			if (entity.createdDate != null) {
 				createdDate.setText(DateTime.dateStringAt(entity.createdDate.longValue()));
@@ -486,26 +420,21 @@ public class MessageScreen extends BaseScreen {
 		}
 
 		/* Message text */
-
 		if (description != null) {
 			description.setText(null);
 
-			description.setOnLongClickListener(new OnLongClickListener() {
+			description.setOnLongClickListener(view -> {
+				TextView textView = (TextView) view;
+				String text = (String) textView.getText().toString();
 
-				@Override
-				public boolean onLongClick(View v) {
-					TextView textView = (TextView) v;
-					String text = (String) textView.getText().toString();
-
-					if (!TextUtils.isEmpty(text)) {
-						android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-						android.content.ClipData clip = android.content.ClipData.newPlainText("message", text);
-						clipboard.setPrimaryClip(clip);
-						UI.toast(StringManager.getString(R.string.alert_copied_to_clipboard));
-					}
-
-					return true;
+				if (!TextUtils.isEmpty(text)) {
+					android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+					android.content.ClipData clip = android.content.ClipData.newPlainText("message", text);
+					clipboard.setPrimaryClip(clip);
+					UI.toast(StringManager.getString(R.string.alert_copied_to_clipboard));
 				}
+
+				return true;
 			});
 
 			if (!TextUtils.isEmpty(entity.description)) {
@@ -519,7 +448,7 @@ public class MessageScreen extends BaseScreen {
 
 		UI.setVisibility(photoView, View.GONE);
 		UI.setVisibility(shareHolder, View.GONE);
-		UI.setVisibility(buttonHolder, View.GONE);
+		UI.setVisibility(buttonToolbar, View.GONE);
 		UI.setVisibility(shareRecipientsHolder, View.GONE);
 
         /* Shared entity */
@@ -528,21 +457,13 @@ public class MessageScreen extends BaseScreen {
 
 			RealmEntity shareEntity = null;
 
-//			Link linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_PATCH);
-//			if (linkEntity != null) {
-//				if (linkEntity.shortcut != null) {
-//					shareEntity = linkEntity.shortcut.getAsEntity();
-//				}
-//			}
-//
-//			if (shareEntity == null) {
-//				linkEntity = entity.getParentLink(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_MESSAGE);
-//				if (linkEntity != null) {
-//					if (linkEntity.shortcut != null) {
-//						shareEntity = linkEntity.shortcut.getAsEntity();
-//					}
-//				}
-//			}
+			if (entity.patch != null) {
+				shareEntity = entity.patch;
+			}
+
+			if (shareEntity == null && entity.message != null) {
+				shareEntity = entity.message;
+			}
 
 			if (shareEntity != null) {
 
@@ -571,105 +492,75 @@ public class MessageScreen extends BaseScreen {
 
 				UI.setVisibility(shareHolder, View.VISIBLE);
 			}
-//			else if (linkEntity != null) {
-//
-//				/* Message that shares an entity but shortcut was blocked by permissions */
-//
-//				if (linkEntity.targetSchema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-//
-//					shareView.removeAllViews();
-//					View blockView = LayoutInflater.from(this).inflate(R.layout.view_button_share_message_blocked, null, false);
-//
-//					Entity message = new Message();
-//					message.schema = Constants.SCHEMA_ENTITY_MESSAGE;
-//					message.id = linkEntity.toId;
-//
-//					shareView.setTag(message);
-//					shareView.addView(blockView);
-//
-//					UI.setVisibility(shareHolder, View.VISIBLE);
-//				}
-//			}
 
 			/* Show share recipients */
-
-			UI.setVisibility(shareRecipientsHolder, View.VISIBLE);
-			StringBuilder recipientsString = new StringBuilder();
-//			List<Link> links = entity.getLinks(Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER, null, Link.Direction.out);
-//			for (Link link : links) {
-//				recipientsString.append(link.shortcut.name);
-//			}
-			shareRecipients.setText(recipientsString);
+			if (entity.recipients != null && entity.recipients.size() > 0) {
+				UI.setVisibility(shareRecipientsHolder, View.VISIBLE);
+				StringBuilder recipientsString = new StringBuilder();
+				for (RealmEntity recipient : entity.recipients) {
+					recipientsString.append(recipient.name);
+				}
+				shareRecipients.setText(recipientsString);
+			}
 		}
 		else {
 
 			/* A message without a share */
-
-			if (entity.photo != null) {
-				final RealmPhoto photo = entity.photo;
-				photoView.setImageWithRealmEntity(photo, null);
+			if (entity.getPhoto() != null) {
+				final Photo photo = entity.getPhoto();
+				photoView.setImageWithEntity(photo, null);
 				photoView.setTag(photo);
 				UI.setVisibility(photoView, View.VISIBLE);
 			}
 
             /* Likes */
-			bindLike();    // Handled in parent class
-		}
-	}
-
-	public void bindLike() {
-
-		/* We don't support like/watch for users */
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			UI.setVisibility(findViewById(R.id.button_toolbar), View.GONE);
-			return;
-		}
-
-		UI.setVisibility(findViewById(R.id.button_toolbar), View.VISIBLE);
-
-		/* Like button coloring */
-		ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
-		if (like != null) {
-			like.setDisplayedChild(0);
-			if (entity.isVisibleToCurrentUser()) {
-				UI.setVisibility(like, View.GONE);
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+				UI.setVisibility(findViewById(R.id.button_toolbar), View.GONE);
+				return;
 			}
-			else {
-//				Link link = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-//				ImageView image = (ImageView) like.findViewById(R.id.like_image);
-//				if (link != null) {
-//					final int color = Colors.getColor(R.color.brand_primary);
-//					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-//					image.setAlpha(1.0f);
-//				}
-//				else {
-//					image.setColorFilter(null);
-//					image.setAlpha(0.5f);
-//				}
-				UI.setVisibility(like, View.VISIBLE);
-			}
-		}
 
-		/* Like count */
-		View likes = findViewById(R.id.likes_button);
-		if (likes != null) {
-//			Count count = entity.getCount(Constants.TYPE_LINK_LIKE, null, true, Link.Direction.in);
-//			if (count == null) {
-//				count = new Count(Constants.TYPE_LINK_LIKE, Constants.SCHEMA_ENTITY_PATCH, null, 0);
-//			}
-//			if (count.count.intValue() > 0) {
-//				TextView likesCount = (TextView) findViewById(R.id.likes_count);
-//				TextView likesLabel = (TextView) findViewById(R.id.likes_label);
-//				if (likesCount != null) {
-//					String label = getResources().getQuantityString(R.plurals.label_likes, count.count.intValue(), count.count.intValue());
-//					likesCount.setText(String.valueOf(count.count.intValue()));
-//					likesLabel.setText(label);
-//					UI.setVisibility(likes, View.VISIBLE);
-//				}
-//			}
-//			else {
-//				UI.setVisibility(likes, View.GONE);
-//			}
+			UI.setVisibility(buttonToolbar, View.VISIBLE);
+
+			/* Like button coloring */
+			ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
+			if (like != null) {
+				like.setDisplayedChild(0);
+				if (!entity.isVisibleToCurrentUser()) {
+					UI.setVisibility(like, View.GONE);
+				}
+				else {
+					ImageView image = (ImageView) like.findViewById(R.id.like_image);
+					if (entity.userLikes) {
+						final int color = Colors.getColor(R.color.brand_primary);
+						image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+						image.setAlpha(1.0f);
+					}
+					else {
+						image.setColorFilter(null);
+						image.setAlpha(0.5f);
+					}
+					UI.setVisibility(like, View.VISIBLE);
+				}
+			}
+
+			/* Like count */
+			View likes = findViewById(R.id.likes_button);
+
+			if (likes != null) {
+				if (entity.countLikes > 0) {
+					TextView likesCount = (TextView) findViewById(R.id.likes_count);
+					TextView likesLabel = (TextView) findViewById(R.id.likes_label);
+					if (likesCount != null) {
+						String label = getResources().getQuantityString(R.plurals.label_likes, entity.countLikes, entity.countLikes);
+						likesCount.setText(String.valueOf(entity.countLikes));
+						likesLabel.setText(label);
+						UI.setVisibility(likes, View.VISIBLE);
+					}
+				}
+				else {
+					UI.setVisibility(likes, View.GONE);
+				}
+			}
 		}
 	}
 
@@ -691,16 +582,16 @@ public class MessageScreen extends BaseScreen {
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-//			Shortcut toShortcut = entity.getAsShortcut();
+			//			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
+			//			Shortcut toShortcut = entity.getAsShortcut();
 
 			LinkInsertEvent insertEvent = new LinkInsertEvent();
 			insertEvent.fromId = UserManager.currentUser.id;
 			insertEvent.toId = entity.id;
 			insertEvent.type = Constants.TYPE_LINK_LIKE;
 			insertEvent.enabled = true;
-			insertEvent.fromShortcut = fromShortcut;
-//			insertEvent.toShortcut = toShortcut;
+			//			insertEvent.fromShortcut = fromShortcut;
+			//			insertEvent.toShortcut = toShortcut;
 			insertEvent.actionEvent = "like_entity_" + entity.schema.toLowerCase(Locale.US);
 			insertEvent.skipCache = false;
 			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_LIKE;
@@ -774,22 +665,22 @@ public class MessageScreen extends BaseScreen {
 		final String path = "message/" + entityId;
 
 		BranchUniversalObject applink = new BranchUniversalObject()
-				.setCanonicalIdentifier(path)
-				.addContentMetadata("entityId", entityId)
-				.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_MESSAGE)
-				.addContentMetadata("referrerName", referrerName)
-				.addContentMetadata("referrerId", referrerId)
-				.addContentMetadata("ownerName", ownerName)
-				.addContentMetadata("patchName", patchName);
+			.setCanonicalIdentifier(path)
+			.addContentMetadata("entityId", entityId)
+			.addContentMetadata("entitySchema", Constants.SCHEMA_ENTITY_MESSAGE)
+			.addContentMetadata("referrerName", referrerName)
+			.addContentMetadata("referrerId", referrerId)
+			.addContentMetadata("ownerName", ownerName)
+			.addContentMetadata("patchName", patchName);
 
-		if (entity.photo != null) {
-			RealmPhoto photo = entity.photo;
+		if (entity.getPhoto() != null) {
+			Photo photo = entity.getPhoto();
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
 		}
 		else if (entity.patch != null) {
-			RealmPhoto photo = entity.patch.photo;
+			Photo photo = entity.patch.getPhoto();
 			String settings = "h=500&crop&fit=crop&q=50";
 			String photoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s", photo.prefix, settings);
 			applink.setContentImageUrl(photoUrl);  // $og_image_url
@@ -804,8 +695,8 @@ public class MessageScreen extends BaseScreen {
 		applink.setContentDescription(description);                 // $og_description
 
 		LinkProperties linkProperties = new LinkProperties()
-				.setChannel("patchr-android")
-				.setFeature(Branch.FEATURE_TAG_SHARE);
+			.setChannel("patchr-android")
+			.setFeature(Branch.FEATURE_TAG_SHARE);
 
 		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
 

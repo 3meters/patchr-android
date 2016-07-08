@@ -1,48 +1,46 @@
-package com.patchr.objects;
+package com.patchr.model;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.TypedValue;
 
 import com.patchr.Patchr;
+import com.patchr.objects.PhotoCategory;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 
 import java.io.Serializable;
 import java.util.Map;
 
+import io.realm.annotations.Ignore;
+
 @SuppressWarnings("ucd")
-public class Photo extends ServiceObject implements Cloneable, Serializable {
+public class Photo {
 
-	private static final long            serialVersionUID = 4979315562693226461L;
-	private static final GooglePlusProxy imageResizer     = new GooglePlusProxy();
+	private static final GooglePlusProxy imageResizer = new GooglePlusProxy();
 
-	public String prefix;
-	public String suffix;
-	public Number width;
-	public Number height;
-	public String source;
-	public Number createdDate;
+	public String  prefix;
+	public Integer width;
+	public Integer height;
+	public String  source;
 
-	/* client only */
+	/* Local client */
 
-	public Entity user;
-	public String name;
-	public String description;
-	public Boolean store        = false;   // Hint that photo needs to be stored.
+	@Ignore public Boolean store = false;   // Hint that photo needs to be stored.
 
-	public Photo() {}
-
-	public Photo(String prefix, String suffix, Number width, Number height, String source) {
-		this.prefix = prefix;
-		this.suffix = suffix;
-		this.width = width;
-		this.height = height;
-		this.source = source;
+	public Photo() {
+		super();
 	}
 
 	public Photo(String prefix, String source) {
 		this.prefix = prefix;
+		this.source = source;
+	}
+
+	public Photo(String prefix, Integer width, Integer height, String source) {
+		this.prefix = prefix;
+		this.width = width;
+		this.height = height;
 		this.source = source;
 	}
 
@@ -55,24 +53,15 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		if (!map.containsKey("prefix")) {
 			throw new RuntimeException("Photo object is missing required prefix property");
 		}
+
 		if (!map.containsKey("source")) {
 			throw new RuntimeException("Photo object is missing required source property");
 		}
-		photo.source = (String) map.get("source");
+
 		photo.prefix = (String) map.get("prefix");
-		photo.suffix = (String) map.get("suffix");
-		photo.width = (Number) map.get("width");
-		photo.height = (Number) map.get("height");
-
-		photo.createdDate = (Number) map.get("createdDate");
-		photo.name = (String) map.get("name");
-		photo.description = (String) map.get("description");
-
-		photo.store = (Boolean) map.get("store");
-
-		if (map.get("user") != null) {
-			photo.user = User.setPropertiesFromMap(new User(), (Map<String, Object>) map.get("user"));
-		}
+		photo.source = (String) map.get("source");
+		photo.width = map.get("width") != null ? ((Double) map.get("width")).intValue() : null;
+		photo.height = map.get("height") != null ? ((Double) map.get("height")).intValue() : null;
 
 		return photo;
 	}
@@ -106,8 +95,8 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 		final String resolvedResourceName = resolveResourceName(context, resourceName);
 		if (resolvedResourceName != null) {
 			return Patchr.applicationContext.getResources().getIdentifier(resolvedResourceName
-					, "drawable"
-					, Patchr.getInstance().getPackageName());
+				, "drawable"
+				, Patchr.getInstance().getPackageName());
 		}
 		return null;
 	}
@@ -136,62 +125,7 @@ public class Photo extends ServiceObject implements Cloneable, Serializable {
 
 	public static boolean same(Object obj1, Object obj2) {
 		return (obj1 == null && obj2 == null)
-				|| (obj1 != null && ((Photo) obj1).sameAs(obj2));
-	}
-
-	@Override public Photo clone() {
-		try {
-			Photo photo = (Photo) super.clone();
-			if (user != null) {
-				photo.user = (User) user.clone();
-			}
-			return photo;
-		}
-		catch (CloneNotSupportedException e) {
-			throw new RuntimeException("Photo not clonable");
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	public Number getCreatedAt() {
-		return createdDate;
-	}
-
-	public Photo setCreatedAt(Number createdAt) {
-		this.createdDate = createdAt;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Photo setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public Photo setPrefix(String prefix) {
-		this.prefix = prefix;
-		return this;
-	}
-
-	public Photo setPrefix(Uri uri) {
-		this.prefix = uri.toString();
-		return this;
-	}
-
-	public Photo setSource(String source) {
-		this.source = source;
-		return this;
-	}
-
-	public Photo setStore(Boolean store) {
-		this.store = store;
-		return this;
+			|| (obj1 != null && ((Photo) obj1).sameAs(obj2));
 	}
 
 	/*--------------------------------------------------------------------------------------------

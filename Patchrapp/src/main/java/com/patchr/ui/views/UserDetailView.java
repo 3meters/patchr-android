@@ -14,7 +14,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.PhoneNumber;
+import com.patchr.model.PhoneNumber;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
@@ -92,7 +92,7 @@ public class UserDetailView extends BaseView {
 
 		if (this.user == null) return;
 
-		this.userPhoto.setImageWithRealmEntity(user.photo, user.name);
+		this.userPhoto.setImageWithEntity(user.getPhoto(), user.name);
 		setOrGone(this.userName, user.name);
 		setOrGone(this.userArea, user.area);
 
@@ -133,7 +133,7 @@ public class UserDetailView extends BaseView {
 	public void bind(RealmEntity user) {
 		synchronized (lock) {
 			this.user = user;
-			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentRealmUser.id.equals(this.user.id));
+			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentUser.id.equals(this.user.id));
 			draw();
 		}
 	}

@@ -13,16 +13,16 @@ public class Notification extends Entity implements Cloneable, Serializable {
 	 * Service fields
 	 *--------------------------------------------------------------------------------------------*/
 
-	public String targetId;
-	public String parentId;
-	public String userId;
-	public Number sentDate;
-	public String trigger;
-	public String event;
-	public String ticker;
-	public Number priority;
-	public Photo  photoBig;
-	public String summary;
+	public String   targetId;
+	public String   parentId;
+	public String   userId;
+	public Number   sentDate;
+	public String   trigger;
+	public String   event;
+	public String   ticker;
+	public Number   priority;
+	public PhotoOld photoBig;
+	public String   summary;
 
 	/* client only */
 	public Intent intent;
@@ -64,7 +64,7 @@ public class Notification extends Entity implements Cloneable, Serializable {
 			entity.ticker = (String) map.get("ticker");
 
 			if (map.get("photoBig") != null) {
-				entity.photoBig = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photoBig"));
+				entity.photoBig = PhotoOld.setPropertiesFromMap(new PhotoOld(), (Map<String, Object>) map.get("photoBig"));
 			}
 		}
 		return entity;

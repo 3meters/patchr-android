@@ -24,7 +24,6 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 	private static final Object lock = new Object();
 
 	public  RealmEntity entity;
-	private BaseView    base;
 	private Integer     layoutResId;
 
 	private ViewGroup layout;
@@ -89,10 +88,12 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 
 			this.entity = entity;
 
-			base.setOrGone(this.name, entity.name);
-			base.setOrGone(this.description, entity.description);
-			base.setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
-			ownerName.setText(entity.owner.name);
+			setOrGone(this.name, entity.name);
+			setOrGone(this.description, entity.description);
+			setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+			if (entity.owner != null) {
+				ownerName.setText(entity.owner.name);
+			}
 
 			privacyGroup.setVisibility((entity.visibility != null
 				&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);

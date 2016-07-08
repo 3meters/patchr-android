@@ -28,7 +28,7 @@
 		<item name="colorAccent">@color/brand_accent</item>
 
 		<!-- Default overrides -->
-		<item name="android:windowBackground">@color/background_window</item>
+		<item name="android:windowBackground">@drawable/bg_loading</item>
 		<item name="android:editTextStyle">@style/form_edit</item>
 		<item name="android:textViewStyle">@style/text_view</item>
 		<item name="android:actionMenuTextAppearance">@style/text_appearance_menu_item</item>

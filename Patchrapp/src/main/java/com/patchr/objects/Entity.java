@@ -6,9 +6,9 @@ import com.patchr.Constants;
 import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.RealmLocation;
+import com.patchr.model.Location;
 import com.patchr.objects.CacheStamp.StampSource;
-import com.patchr.objects.Link.Direction;
+import com.patchr.objects.LinkOld.Direction;
 import com.patchr.utilities.Type;
 
 import java.io.Serializable;
@@ -39,16 +39,16 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public String      subtitle;
 	public String      description;
-	public Photo       photo;
-	public AirLocation location;
+	public PhotoOld    photo;
+	public LocationOld location;
 	public String      patchId;
 
 	/* Synthetic fields */
 
-	public List<Link>  linksIn;
-	public List<Link>  linksOut;
-	public List<Count> linksInCounts;
-	public List<Count> linksOutCounts;
+	public List<LinkOld> linksIn;
+	public List<LinkOld> linksOut;
+	public List<Count>   linksInCounts;
+	public List<Count>   linksOutCounts;
 
 	public String  toId;                                         // Used to find entities this entity is linked to
 	public String  fromId;                                       // Used to find entities this entity is linked from
@@ -92,11 +92,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			entity.rank = (Number) map.get("rank");
 
 			if (map.get("photo") != null) {
-				entity.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
+				entity.photo = PhotoOld.setPropertiesFromMap(new PhotoOld(), (Map<String, Object>) map.get("photo"));
 			}
 
 			if (map.get("location") != null) {
-				entity.location = AirLocation.setPropertiesFromMap(new AirLocation(), (Map<String, Object>) map.get("location"));
+				entity.location = LocationOld.setPropertiesFromMap(new LocationOld(), (Map<String, Object>) map.get("location"));
 			}
 
 			if (map.get("patch") != null) {
@@ -104,18 +104,18 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			}
 
 			if (map.get("linksIn") != null) {
-				entity.linksIn = new ArrayList<Link>();
+				entity.linksIn = new ArrayList<LinkOld>();
 				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksIn");
 				for (Map<String, Object> linkMap : linkMaps) {
-					entity.linksIn.add(Link.setPropertiesFromMap(new Link(), linkMap));
+					entity.linksIn.add(LinkOld.setPropertiesFromMap(new LinkOld(), linkMap));
 				}
 			}
 
 			if (map.get("linksOut") != null) {
-				entity.linksOut = new ArrayList<Link>();
+				entity.linksOut = new ArrayList<LinkOld>();
 				final List<LinkedHashMap<String, Object>> linkMaps = (List<LinkedHashMap<String, Object>>) map.get("linksOut");
 				for (Map<String, Object> linkMap : linkMaps) {
-					entity.linksOut.add(Link.setPropertiesFromMap(new Link(), linkMap));
+					entity.linksOut.add(LinkOld.setPropertiesFromMap(new LinkOld(), linkMap));
 				}
 			}
 
@@ -192,11 +192,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Photo getPhoto() {
+	public PhotoOld getPhoto() {
 		return this.photo;
 	}
 
-	public RealmLocation getLocation() {
+	public Location getLocation() {
 //		/*
 //		 * We do n
 //		 */
@@ -234,8 +234,8 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				distance = beacon.getDistance(refresh);  // Estimate based on signal strength
 			}
 			else {
-				final RealmLocation entityLocation = getLocation();
-				final RealmLocation deviceLocation = LocationManager.getInstance().getAirLocationLocked();
+				final Location entityLocation = getLocation();
+				final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
 
 				if (entityLocation != null && deviceLocation != null) {
 					distance = deviceLocation.distanceTo(entityLocation);
@@ -249,11 +249,11 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	    /*
 	     * If an entity has more than one viable link, we choose the strongest one.
 		 */
-		Link activeLink = null;
+		LinkOld activeLink = null;
 		if (linksOut != null) {
-			Link strongestLink = null;
+			LinkOld strongestLink = null;
 			Integer strongestLevel = -200;
-			for (Link link : linksOut) {
+			for (LinkOld link : linksOut) {
 				if (link.type != null && link.type.equals(type)) {
 					Entity entity = DataController.getStoreEntity(link.toId);
 					if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
@@ -283,7 +283,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		final List<Entity> entities = new ArrayList<Entity>();
 		if (linksIn != null) {
 			if (direction == Direction.in || direction == Direction.both) {
-				for (Link link : linksIn) {
+				for (LinkOld link : linksIn) {
 					if (types == null || (link.type != null && types.contains(link.type))) {
 						Entity entity = DataController.getStoreEntity(link.fromId);
 						if (entity != null) {
@@ -300,7 +300,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		}
 		if (linksOut != null) {
 			if (direction == Direction.out || direction == Direction.both) {
-				for (Link link : linksOut) {
+				for (LinkOld link : linksOut) {
 					if (types == null || (link.type != null && types.contains(link.type))) {
 						Entity entity = DataController.getStoreEntity(link.toId);
 						if (entity != null) {
@@ -320,7 +320,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Entity getParent(String type, String targetSchema) {
 		if (toId == null && linksOut != null) {
-			for (Link link : linksOut) {
+			for (LinkOld link : linksOut) {
 				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || (link.targetSchema != null && link.targetSchema.equals(targetSchema))) {
 						return DataController.getStoreEntity(link.toId);
@@ -334,9 +334,9 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public Link getParentLink(String type, String targetSchema) {
+	public LinkOld getParentLink(String type, String targetSchema) {
 		if (linksOut != null) {
-			for (Link link : linksOut) {
+			for (LinkOld link : linksOut) {
 				if ((type == null || (link.type != null && link.type.equals(type)))
 					&& (targetSchema == null || link.targetSchema.equals(targetSchema)))
 					return link;
@@ -347,7 +347,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 
 	public Boolean hasActiveProximity() {
 		if (linksOut != null) {
-			for (Link link : linksOut) {
+			for (LinkOld link : linksOut) {
 				if (link.type != null && link.type.equals(Constants.TYPE_LINK_PROXIMITY)) {
 					Beacon beacon = (Beacon) DataController.getStoreEntity(link.toId);
 					if (beacon != null) return true;
@@ -374,13 +374,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public Link getLink(String type, String targetSchema, String targetId, Direction direction) {
-		List<Link> links = linksIn;
+	public LinkOld getLink(String type, String targetSchema, String targetId, Direction direction) {
+		List<LinkOld> links = linksIn;
 		if (direction == Direction.out) {
 			links = linksOut;
 		}
 		if (links != null) {
-			for (Link link : links) {
+			for (LinkOld link : links) {
 				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
 						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
@@ -392,14 +392,14 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public List<Link> getLinks(String type, String targetSchema, String targetId, Direction direction) {
-		List<Link> links = new ArrayList<Link>();
-		List<Link> tempLinks = linksIn;
+	public List<LinkOld> getLinks(String type, String targetSchema, String targetId, Direction direction) {
+		List<LinkOld> links = new ArrayList<LinkOld>();
+		List<LinkOld> tempLinks = linksIn;
 		if (direction == Direction.out) {
 			tempLinks = linksOut;
 		}
 		if (tempLinks != null) {
-			for (Link link : tempLinks) {
+			for (LinkOld link : tempLinks) {
 				if (type == null || (link.type != null && link.type.equals(type))) {
 					if (targetSchema == null || link.targetSchema.equals(targetSchema)) {
 						if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId))
@@ -411,15 +411,15 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return links;
 	}
 
-	public Link removeLinksByTypeAndTargetSchema(String type, String targetSchema, String targetId, Direction direction) {
-		List<Link> links = linksIn;
+	public LinkOld removeLinksByTypeAndTargetSchema(String type, String targetSchema, String targetId, Direction direction) {
+		List<LinkOld> links = linksIn;
 		if (direction == Direction.out) {
 			links = linksOut;
 		}
 		if (links != null) {
-			Iterator<Link> iterLinks = links.iterator();
+			Iterator<LinkOld> iterLinks = links.iterator();
 			while (iterLinks.hasNext()) {
-				Link link = iterLinks.next();
+				LinkOld link = iterLinks.next();
 				if (link.type != null && link.type.equals(type) && link.targetSchema.equals(targetSchema)) {
 					if (targetId == null || targetId.equals((direction == Direction.in) ? link.fromId : link.toId)) {
 						iterLinks.remove();
@@ -433,13 +433,13 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 	public List<Shortcut> getShortcuts(@NonNull ShortcutSettings settings, Comparator<ServiceBase> linkSorter, Comparator<Shortcut> shortcutSorter) {
 
 		List<Shortcut> shortcuts = new ArrayList<Shortcut>();
-		List<Link> links = (settings.direction == Direction.in) ? linksIn : linksOut;
+		List<LinkOld> links = (settings.direction == Direction.in) ? linksIn : linksOut;
 
 		if (links != null) {
 			if (linkSorter != null) {
 				Collections.sort(links, linkSorter);
 			}
-			for (Link link : links) {
+			for (LinkOld link : links) {
 				if ((settings.linkType == null || (link.type != null && link.type.equals(settings.linkType))) && link.shortcut != null) {
 					if (settings.linkTargetSchema == null || (link.targetSchema.equals(settings.linkTargetSchema))) {
 						if (settings.linkBroken
@@ -464,10 +464,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return shortcuts;
 	}
 
-	public Link linkFromAppUser(String linkType) {
+	public LinkOld linkFromAppUser(String linkType) {
 		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
-				for (Link link : linksIn) {
+				for (LinkOld link : linksIn) {
 					if (link.type != null
 						&& link.type.equals(linkType)
 						&& link.fromId.equals(UserManager.currentUser.id))
@@ -478,10 +478,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		return null;
 	}
 
-	public Link linkByAppUser(String linkType, String schema) {
+	public LinkOld linkByAppUser(String linkType, String schema) {
 		if (UserManager.shared().authenticated()) {
 			if (linksIn != null) {
-				for (Link link : linksIn) {
+				for (LinkOld link : linksIn) {
 					if (link.type != null
 						&& link.type.equals(linkType)
 						&& link.targetSchema.equals(schema)
@@ -490,7 +490,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 				}
 			}
 			if (linksOut != null) {
-				for (Link link : linksOut) {
+				for (LinkOld link : linksOut) {
 					if (link.type != null
 						&& link.type.equals(linkType)
 						&& link.targetSchema.equals(schema)
@@ -543,10 +543,10 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 		if (entity != null) {
 
 			if (linksIn != null) {
-				entity.linksIn = (List<Link>) ((ArrayList) linksIn).clone();
+				entity.linksIn = (List<LinkOld>) ((ArrayList) linksIn).clone();
 			}
 			if (linksOut != null) {
-				entity.linksOut = (List<Link>) ((ArrayList) linksOut).clone();
+				entity.linksOut = (List<LinkOld>) ((ArrayList) linksOut).clone();
 			}
 			if (linksInCounts != null) {
 				entity.linksInCounts = (List<Count>) ((ArrayList) linksInCounts).clone();

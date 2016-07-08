@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -37,18 +38,19 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
+import com.patchr.ui.collections.PatchScreen;
+import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.MenuTint;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -67,12 +69,14 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	public String      entityId;
 	public RealmEntity entity; // Here to support broadly shared commands (report, edit, share, etc.)
+	public Realm       realm;  // Always on main thread
 
 	protected View     rootView;
 	public    Fragment currentFragment;
 
 	public    Boolean firstDraw  = true;
 	protected Boolean processing = false;
+	protected boolean executed;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -85,6 +89,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		unpackIntent();
 
 		this.rootView = LayoutInflater.from(this).inflate(getLayoutId(), null, false);
+		getWindow().setBackgroundDrawable(null);
 		setContentView(this.rootView);
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -93,6 +98,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		setupUI();
 
 		/* Party on! */
+		this.realm = Realm.getDefaultInstance();
 		initialize(savedInstanceState);
 		didInitialize();
 
@@ -107,7 +113,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 		/* Delete check */
 		if (this.entity != null) {
-			RealmEntity realmEntity = Realm.getDefaultInstance().where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+			RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 			if (realmEntity == null) {  // Entity was deleted while we where gone
 				finish();
 				return;
@@ -131,6 +137,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	@Override protected void onDestroy() {
 		super.onDestroy();
+		if (!this.realm.isClosed()) {
+			this.realm.close();
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -210,6 +219,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		 * Perform all setup that should only happen once and
 		 * only after the view tree is available.
 		 */
+		Utils.guard(this.rootView != null, "Root view cannot be null");
 	}
 
 	public void didInitialize() {}
@@ -245,21 +255,33 @@ public abstract class BaseScreen extends AppCompatActivity {
 	}
 
 	public void navigateToPhoto(Photo photo) {
-		final String jsonPhoto = Json.objectToJson(photo);
+		final String jsonPhoto = Patchr.gson.toJson(photo);
 		Bundle extras = new Bundle();
 		extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
 		Patchr.router.route(this, Command.PHOTO, null, extras);
 	}
 
 	public void navigateToEntity(RealmEntity entity) {
-		final Bundle extras = new Bundle();
 
+		String targetId = entity.shortcutForId != null ? entity.shortcutForId : entity.id;
 		if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-			Patchr.router.browse(this, entity.targetId, extras, true);
+			targetId = entity.targetId;
 		}
-		else {
-			Patchr.router.browse(this, entity.id, extras, true);
+
+		String schema = RealmEntity.getSchemaForId(targetId);
+
+		Class<?> browseClass = MessageScreen.class;
+		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
+			browseClass = PatchScreen.class;
 		}
+		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
+			browseClass = ProfileScreen.class;
+		}
+
+		Intent intent = new Intent(this, browseClass);
+		intent.putExtra(Constants.EXTRA_ENTITY_ID, targetId);
+		startActivity(intent);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	protected void configureStandardMenuItems(Menu menu) {

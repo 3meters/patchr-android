@@ -76,11 +76,11 @@ public class SearchItemView extends BaseView {
 			UI.setVisibility(this.patchPhoto, GONE);
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				this.patchPhoto.setImageWithRealmEntity(entity);
+				this.patchPhoto.setImageWithEntity(entity);
 				UI.setVisibility(this.patchPhoto, VISIBLE);
 			}
 			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				this.userPhoto.setImageWithRealmEntity(entity);
+				this.userPhoto.setImageWithEntity(entity);
 				UI.setVisibility(this.userPhoto, VISIBLE);
 			}
 

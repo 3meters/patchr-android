@@ -23,8 +23,8 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.FontManager;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Photo;
+import com.patchr.model.Photo;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.ui.widgets.ImageWidget;
 
@@ -58,17 +58,17 @@ public class UI {
 				}
 				else if (category == PhotoCategory.PROFILE) {
 					path = "https://3meters-images.imgix.net/" + prefix
-							+ "?w=" + String.valueOf(width)
-							+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
-							+ "&q=" + String.valueOf(quality)
-							+ "&h=" + String.valueOf(width)
-							+ "&fit=min&trim=auto";
+						+ "?w=" + String.valueOf(width)
+						+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
+						+ "&q=" + String.valueOf(quality)
+						+ "&h=" + String.valueOf(width)
+						+ "&fit=min&trim=auto";
 				}
 				else {
 					path = "https://3meters-images.imgix.net/" + prefix
-							+ "?w=" + String.valueOf(width)
-							+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
-							+ "&q=" + String.valueOf(quality);
+						+ "?w=" + String.valueOf(width)
+						+ "&dpr=" + String.valueOf(Constants.PIXEL_SCALE)
+						+ "&q=" + String.valueOf(quality);
 				}
 			}
 			else if (source.equals(Photo.PhotoSource.google)) {
@@ -141,7 +141,7 @@ public class UI {
 
 			final Matrix matrix = new Matrix();
 			final float scalingRatio = Math.max((float) Constants.IMAGE_DIMENSION_MAX / (float) bitmap.getWidth(), (float) Constants.IMAGE_DIMENSION_MAX
-					/ (float) bitmap.getHeight());
+				/ (float) bitmap.getHeight());
 			matrix.postScale(scalingRatio, scalingRatio);
 			/*
 			 * Create a new bitmap from the original using the matrix to transform the result.
@@ -185,22 +185,19 @@ public class UI {
 	}
 
 	public static void toast(final String message, final int duration, final int gravity) {
-		Patchr.mainThreadHandler.post(new Runnable() {
 
-			@Override
-			public void run() {
-				final CharSequence text = message;
-				final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
-				toast.getView().setBackgroundResource(R.drawable.bg_toast);
-				TextView view = (TextView) toast.getView().findViewById(android.R.id.message);
-				view.setTextColor(Colors.getColor(R.color.black));
-				view.setShadowLayer(0, 0, 0, 0);
-				FontManager.getInstance().setTypefaceLight(view);
-				if (gravity != 0) {
-					toast.setGravity(gravity, 0, 0);
-				}
-				toast.show();
+		Patchr.mainThreadHandler.post(() -> {
+			final CharSequence text = message;
+			final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
+			toast.getView().setBackgroundResource(R.drawable.bg_toast);
+			TextView view = (TextView) toast.getView().findViewById(android.R.id.message);
+			view.setTextColor(Colors.getColor(R.color.black));
+			view.setShadowLayer(0, 0, 0, 0);
+			FontManager.getInstance().setTypefaceLight(view);
+			if (gravity != 0) {
+				toast.setGravity(gravity, 0, 0);
 			}
+			toast.show();
 		});
 	}
 
@@ -208,19 +205,14 @@ public class UI {
 		/*
 		 * Make sure this on the main thread
 		 */
-		Patchr.mainThreadHandler.post(new Runnable() {
-
-			@Override
-			public void run() {
-				if (imageView != null) {
-					if (animate) {
-						ObjectAnimator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0f, 1f);
-						anim.setDuration(300);
-						anim.start();
-					}
-					imageView.setImageDrawable(drawable);
-					//imageView.invalidate();
+		Patchr.mainThreadHandler.post(() -> {
+			if (imageView != null) {
+				if (animate) {
+					ObjectAnimator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0f, 1f);
+					anim.setDuration(300);
+					anim.start();
 				}
+				imageView.setImageDrawable(drawable);
 			}
 		});
 	}
@@ -254,7 +246,7 @@ public class UI {
 		}
 	}
 
-	public static void setImageWithEntity(ImageWidget view, Entity entity) {
+	public static void setImageWithEntity(ImageWidget view, RealmEntity entity) {
 		if (view != null && entity != null) {
 			view.setImageWithEntity(entity);
 		}

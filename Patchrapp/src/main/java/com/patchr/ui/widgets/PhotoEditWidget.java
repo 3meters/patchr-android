@@ -13,7 +13,7 @@ import android.widget.ImageView;
 
 import com.patchr.R;
 import com.patchr.components.StringManager;
-import com.patchr.model.RealmPhoto;
+import com.patchr.model.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Callback;
@@ -23,8 +23,8 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 
 	private static final Object lock = new Object();
 
-	protected RealmPhoto photo;
-	protected Integer    layoutResId;
+	protected Photo   photo;
+	protected Integer layoutResId;
 
 	public    PhotoCategory       category;
 	protected float               aspectRatio;
@@ -82,12 +82,6 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		initialize();
 	}
 
-	public PhotoEditWidget(Context context, Integer layoutResId) {
-		super(context, null, 0);
-		this.layoutResId = layoutResId;
-		initialize();
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -133,7 +127,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		this.imageWidget.setBackgroundResource(0);
 	}
 
-	public void bind(RealmPhoto photo) {
+	public void bind(Photo photo) {
 
 		synchronized (lock) {
 
@@ -152,7 +146,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 				UI.setVisibility(setButton, VISIBLE);
 			}
 			else {
-				imageWidget.setImageWithRealmEntity(photo, null);
+				imageWidget.setImageWithEntity(photo, null);
 			}
 		}
 	}

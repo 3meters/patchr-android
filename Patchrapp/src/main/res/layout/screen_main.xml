@@ -44,42 +44,14 @@
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:background="?attr/backgroundCardField"
 			app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-			<com.patchr.ui.widgets.AirSwipeRefreshLayout
-				android:id="@+id/swipe"
+			<FrameLayout
+				android:id="@+id/fragment_holder"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:layout_centerHorizontal="true">
-
-				<FrameLayout
-					android:id="@+id/fragment_holder"
-					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_centerHorizontal="true"
-					android:background="?attr/backgroundCardField" />
-
-			</com.patchr.ui.widgets.AirSwipeRefreshLayout>
-
-			<com.patchr.ui.widgets.SquareButton
-				android:id="@+id/list_message"
-				style="@style/empty_message"
-				android:layout_width="@dimen/button_round_width"
-				android:layout_height="@dimen/button_round_height"
-				android:layout_centerInParent="true"
-				android:visibility="gone"
-				tools:text="@string/empty_nearby"
-				tools:visibility="visible" />
-
-			<com.patchr.ui.widgets.AirProgressBar
-				android:id="@+id/list_progress"
-				style="?android:attr/progressBarStyleLarge"
-				android:layout_width="@dimen/progress_width"
-				android:layout_height="@dimen/progress_height"
-				android:layout_centerInParent="true"
-				android:padding="8dp"
-				android:visibility="gone"
-				tools:visibility="visible" />
+				android:layout_centerHorizontal="true" />
 
 		</RelativeLayout>
 
@@ -110,10 +82,10 @@
 		android:layout_gravity="start"
 		android:background="@color/background_form"
 		android:fitsSystemWindows="true"
-		app:itemTextAppearance="@style/text_appearance_drawer_menu_item"
-		app:itemIconTint="@color/color_drawer_item"
-		app:itemBackground="?android:attr/selectableItemBackground"
 		app:headerLayout="@layout/view_drawer_header"
+		app:itemBackground="?android:attr/selectableItemBackground"
+		app:itemIconTint="@color/color_drawer_item"
+		app:itemTextAppearance="@style/text_appearance_drawer_menu_item"
 		app:menu="@menu/menu_drawer" />
 
 	<!-- Notifications drawer -->
@@ -125,37 +97,11 @@
 		android:layout_gravity="end"
 		android:background="?attr/backgroundForm">
 
-		<com.patchr.ui.widgets.AirDrawerSwipeRefreshLayout
-			android:id="@id/swipe"
+		<com.patchr.ui.widgets.ListWidget
+			android:id="@+id/notifications_view"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
-
-			<FrameLayout
-				android:id="@+id/notifications_fragment_holder"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
-
-		</com.patchr.ui.widgets.AirDrawerSwipeRefreshLayout>
-
-		<com.patchr.ui.widgets.SquareButton
-			android:id="@id/list_message"
-			style="@style/empty_message"
-			android:layout_width="@dimen/button_round_width"
-			android:layout_height="@dimen/button_round_height"
-			android:layout_centerInParent="true"
-			android:visibility="gone"
-			tools:text="@string/empty_nearby"
-			tools:visibility="visible" />
-
-		<com.patchr.ui.widgets.AirProgressBar
-			android:id="@id/list_progress"
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="@dimen/progress_width"
-			android:layout_height="@dimen/progress_height"
-			android:layout_centerInParent="true"
-			android:padding="8dp"
-			android:visibility="gone"
-			tools:visibility="visible" />
+			android:layout_height="match_parent"
+			app:fetchOnResumeDisabled="true" />
 
 	</RelativeLayout>
 

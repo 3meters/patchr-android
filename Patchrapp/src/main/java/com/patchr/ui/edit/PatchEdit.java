@@ -25,7 +25,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -35,7 +34,7 @@ import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.events.ProcessingCanceledEvent;
-import com.patchr.model.RealmLocation;
+import com.patchr.model.Location;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Patch;
@@ -150,11 +149,10 @@ public class PatchEdit extends BaseEdit {
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_LOCATION);
 					if (json != null) {
-						Gson gson = new Gson();
-						final RealmLocation location = gson.fromJson(json, RealmLocation.class);
+						final Location location = Patchr.gson.fromJson(json, Location.class);
 						dirty = true;
-						entity.location = location;
-						entity.location.provider = Constants.LOCATION_PROVIDER_USER;
+						location.provider = Constants.LOCATION_PROVIDER_USER;
+						entity.setLocation(location);
 						bind();
 						proximityDisabled = true;
 					}
@@ -218,22 +216,25 @@ public class PatchEdit extends BaseEdit {
 		 */
 		if (event.location != null) {
 
-			LocationManager.getInstance().setLocationLocked(event.location);
-			final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
+			LocationManager.getInstance().setAndroidLocationLocked(event.location);
+			final Location locationUpdate = LocationManager.getInstance().getLocationLocked();
 
-			if (location != null) {
+			if (locationUpdate != null) {
 
-				if (entity.location == null) {
-					entity.location = new RealmLocation();
-					entity.location.lat = location.lat.doubleValue();
-					entity.location.lng = location.lng.doubleValue();
-					entity.location.accuracy = location.accuracy.floatValue();
-					entity.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+				if (entity.getLocation() == null) {
+					Location location = new Location();
+					location.lat = locationUpdate.lat.doubleValue();
+					location.lng = locationUpdate.lng.doubleValue();
+					location.accuracy = locationUpdate.accuracy.floatValue();
+					location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+					entity.setLocation(location);
 				}
-				else if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
-					entity.location.lat = location.lat.doubleValue();
-					entity.location.lng = location.lng.doubleValue();
-					entity.location.accuracy = location.accuracy.floatValue();
+				else if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					Location location = entity.getLocation();
+					location.lat = location.lat.doubleValue();
+					location.lng = location.lng.doubleValue();
+					location.accuracy = location.accuracy.floatValue();
+					entity.setLocation(location);
 				}
 				bindLocation();
 			}
@@ -254,15 +255,14 @@ public class PatchEdit extends BaseEdit {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
 		if (!this.editing) {
-			final RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
-			if (location != null) {
-				if (entity.location == null) {
-					entity.location = new RealmLocation();
-				}
-				entity.location.lat = location.lat.doubleValue();
-				entity.location.lng = location.lng.doubleValue();
-				entity.location.accuracy = location.accuracy.floatValue();
-				entity.location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+			final Location locationCurrent = LocationManager.getInstance().getLocationLocked();
+			if (locationCurrent != null) {
+				Location location = new Location();
+				location.lat = locationCurrent.lat.doubleValue();
+				location.lng = locationCurrent.lng.doubleValue();
+				location.accuracy = locationCurrent.accuracy.floatValue();
+				location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
+				entity.setLocation(location);
 			}
 		}
 
@@ -441,14 +441,14 @@ public class PatchEdit extends BaseEdit {
 		if (map != null) {
 			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-			if (entity.location != null) {
+			if (entity.getLocation() != null) {
 
 				locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-				if (entity.location.provider != null) {
-					if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
+				if (entity.getLocation().provider != null) {
+					if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_USER)) {
 						locationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
 					}
-					else if (entity.location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+					else if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
 						if (editing) {
 							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
 						}
@@ -460,11 +460,11 @@ public class PatchEdit extends BaseEdit {
 
 				map.clear();
 				map.addMarker(new MarkerOptions()
-					.position(entity.location.asLatLng())
+					.position(entity.getLocation().asLatLng())
 					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
 					.anchor(0.5f, 0.5f));
 
-				map.moveCamera(CameraUpdateFactory.newLatLngZoom(entity.location.asLatLng(), 17f));
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(entity.getLocation().asLatLng(), 17f));
 				mapView.setVisibility(View.VISIBLE);
 				mapProgressBar.hide();
 				mapView.invalidate();

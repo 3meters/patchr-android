@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.CallbackManager;
-import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -109,8 +108,7 @@ public class InviteScreen extends BaseScreen {
 		if (extras != null) {
 			this.patchJson = extras.getString(Constants.EXTRA_ENTITY);
 			if (this.patchJson != null) {
-				Gson gson = new Gson();
-				this.patch = gson.fromJson(this.patchJson, RealmEntity.class);
+				this.patch = Patchr.gson.fromJson(this.patchJson, RealmEntity.class);
 			}
 		}
 	}

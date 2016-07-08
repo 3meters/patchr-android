@@ -40,9 +40,8 @@ import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.ui.listforms.PatchScreen;
-import com.patchr.ui.listforms.ProfileScreen;
-import com.patchr.utilities.Json;
+import com.patchr.ui.collections.PatchScreen;
+import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.utilities.Utils;
 
 public class Router {
@@ -305,9 +304,8 @@ public class Router {
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationEdit.class);
 			final Intent intent = intentBuilder.build();
 
-			if (entity.location != null) {
-				final String json = Json.objectToJson(entity.location);
-				intent.putExtra(Constants.EXTRA_LOCATION, json);
+			if (entity.locationJson != null) {
+				intent.putExtra(Constants.EXTRA_LOCATION, entity.locationJson);
 				intent.putExtra(Constants.EXTRA_TITLE, entity.name);
 			}
 

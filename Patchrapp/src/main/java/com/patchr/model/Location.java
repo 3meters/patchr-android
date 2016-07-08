@@ -4,10 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Map;
 
-import io.realm.RealmObject;
-
 @SuppressWarnings("ucd")
-public class RealmLocation extends RealmObject {
+public class Location {
 
 	private static final long                      serialVersionUID = 455904759787968585L;
 	private static final android.location.Location fromLocation     = new android.location.Location("from");
@@ -21,7 +19,7 @@ public class RealmLocation extends RealmObject {
 	public Float  speed;
 	public String provider;
 
-	public static RealmLocation setPropertiesFromMap(RealmLocation location, Map map) {
+	public static Location setPropertiesFromMap(Location location, Map map) {
 
 		location.lat = (Double) map.get("lat");
 		location.lng = (Double) map.get("lng");
@@ -34,7 +32,7 @@ public class RealmLocation extends RealmObject {
 		return location;
 	}
 
-	public Float distanceTo(RealmLocation location) {
+	public Float distanceTo(Location location) {
 
 		if (this.lat == null || this.lng == null) {
 			throw new IllegalArgumentException("Attempted to call distanceTo on location without lat/lng");

@@ -19,7 +19,7 @@ public class RealmArrayAdapter extends RecyclerView.Adapter<RealmRecyclerViewHol
 	private static final int TYPE_ITEM   = 1;
 	private static final int TYPE_FOOTER = 2;
 
-	private OrderedRealmCollection<RealmEntity> data;   // Live results
+	public  OrderedRealmCollection<RealmEntity> data;   // Live results
 	private LayoutInflater                      inflater;
 	private Context                             context;
 
@@ -30,7 +30,7 @@ public class RealmArrayAdapter extends RecyclerView.Adapter<RealmRecyclerViewHol
 	public boolean showIndex      = true;
 	public boolean pagingDisabled = true;
 	public boolean     more;
-	public RealmEntity scopingEntity;
+	public RealmEntity contextEntity;
 
 	public RealmArrayAdapter(Context context, OrderedRealmCollection<RealmEntity> data) {
 
@@ -82,7 +82,7 @@ public class RealmArrayAdapter extends RecyclerView.Adapter<RealmRecyclerViewHol
 			RealmEntity entity = getItem(position);
 			if (entity != null) {
 				entity.index = getIndex(position);
-				holder.bind(entity, scopingEntity, options);
+				holder.bind(entity, contextEntity, options);
 			}
 		}
 	}

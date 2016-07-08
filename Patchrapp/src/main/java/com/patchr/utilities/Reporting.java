@@ -9,8 +9,8 @@ import com.patchr.components.BranchProvider;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
 import com.segment.analytics.Traits;
@@ -30,7 +30,7 @@ public class Reporting {
 		Bugsnag.addToTab("device", "patchr_install_id", Patchr.getInstance().getinstallId());
 
 		/* Location info */
-		Location location = LocationManager.getInstance().getLocationLocked();
+		Location location = LocationManager.getInstance().getAndroidLocationLocked();
 		if (location != null) {
 			Bugsnag.addToTab("location", "accuracy", location.getAccuracy());
 			Bugsnag.addToTab("location", "age_in_secs", DateTime.secondsAgo(location.getTime()));
@@ -86,10 +86,10 @@ public class Reporting {
 		Bugsnag.addToTab("memory", "memory_free_mb", Utils.freeMemoryMB());
 	}
 
-	public static void updateUser(User user) {
+	public static void updateUser(RealmEntity user) {
 		if (user != null) {
 			String userName = user.name != null ? user.name : "Provisional";
-			String userAuth = user.email != null ? user.email : user.phone != null ? user.phone.displayNumber() : "null";
+			String userAuth = user.email != null ? user.email : user.getPhone() != null ? user.getPhone().displayNumber() : "null";
 			BranchProvider.setIdentity(user.id);
 			Bugsnag.setUser(user.id, userName, userAuth);
 			Analytics.with(Patchr.applicationContext).alias(user.id);

@@ -1,5 +1,7 @@
 package com.patchr.objects;
 
+import com.patchr.model.Photo;
+
 import java.util.Map;
 
 /**

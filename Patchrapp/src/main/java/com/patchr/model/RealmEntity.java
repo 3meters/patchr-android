@@ -4,10 +4,9 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.AirLocation;
-import com.patchr.objects.Beacon;
 import com.patchr.objects.LinkCount;
 import com.patchr.objects.LinkDestination;
 import com.patchr.objects.LinkSpec;
@@ -45,18 +44,19 @@ public class RealmEntity extends RealmObject {
 
 	/* Service persisted fields */
 	@PrimaryKey
-	public String     id;
-	public String     schema;
-	public String     type;
-	public String     name;
-	public String     namelc;
-	public String     subtitle;
-	public String     description;
-	public RealmPhoto photo;
+	public String id;
+	public String schema;
+	public String type;
+	public String name;
+	public String namelc;
+	public String subtitle;
+	public String description;
+	public String photoJson;
 
-	public RealmLocation location;
-	public String        patchId; // _acl
-	public Boolean       locked;
+	public String  locationJson;
+	public String  aclId; // _acl
+	public String  patchId; // _acl
+	public Boolean locked;
 
 	public String ownerId;
 	public String creatorId;
@@ -67,15 +67,15 @@ public class RealmEntity extends RealmObject {
 	public Long   sortDate;
 
 	/* Patch entity */
-	public String visibility;                                    // private|public|hidden
+	public String visibility;           // private|public|hidden
 
 	/* User entity */
-	public String           area;
-	public Boolean          developer;
-	public String           email;
-	public String           password;
-	public RealmPhoneNumber phone;
-	public String           role;
+	public String  area;
+	public Boolean developer;
+	public String  email;
+	public String  password;
+	public String  role;
+	public String  phoneJson;
 
 	/* Message entity */
 	public RealmEntity            message;
@@ -87,23 +87,23 @@ public class RealmEntity extends RealmObject {
 	public Integer signal;                                    // Used to evaluate location accuracy
 
 	/* Notification entity */
-	public String     targetId;
-	public String     parentId;
-	public String     userId;
-	public Long       sentDate;
-	public String     trigger;
-	public String     event;
-	public String     ticker;
-	public Integer    priority;
-	public RealmPhoto photoBig;
-	public String     summary;
+	public String  targetId;
+	public String  parentId;
+	public String  userId;
+	public Long    sentDate;
+	public String  trigger;
+	public String  event;
+	public String  ticker;
+	public Integer priority;
+	public String  photoBigJson;
+	public String  summary;
 
 	/* Service calculated fields */
 	public RealmEntity owner;
 	public RealmEntity creator;
 	public RealmEntity modifier;
 	public RealmEntity patch;
-	public RealmLink   link;
+	public Link        link;
 	public String      reason;        // Search suggestions
 	public Float       score;         // Search suggestions
 
@@ -122,14 +122,18 @@ public class RealmEntity extends RealmObject {
 	public Integer countMessages;
 	public Boolean userHasMessaged = false;
 	public String shortcutForId;
+	public Float  distance;              // Used to cache most recent distance calculation.
 
 	/* Local convenience fields */
-	@Ignore public Float distance;                                     // Used to cache most recent distance calculation.
 	@Ignore public Integer index = 0;                                   // Used to cross reference list position for mapping.
 	@Ignore public String authType;
 	@Ignore public Intent intent;
 	@Ignore public Boolean personalized = true;
-	@Ignore public Session session;
+	@Ignore public  Session     session;
+	@Ignore private PhoneNumber phone;
+	@Ignore private Photo       photo;
+	@Ignore private Location    location;
+	@Ignore private Photo       photoBig;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -179,10 +183,14 @@ public class RealmEntity extends RealmObject {
 			entity.locked = (Boolean) map.get("locked");
 
 			if (map.get("photo") != null) {
-				entity.photo = RealmPhoto.setPropertiesFromMap(new RealmPhoto(), (Map<String, Object>) map.get("photo"));
+				String photoJson = Patchr.gson.toJson(map.get("photo"), SimpleMap.class);
+				entity.photoJson = photoJson;
+				entity.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
 			}
 			if (map.get("location") != null) {
-				entity.location = RealmLocation.setPropertiesFromMap(new RealmLocation(), (Map<String, Object>) map.get("location"));
+				String locationJson = Patchr.gson.toJson(map.get("location"), SimpleMap.class);
+				entity.locationJson = locationJson;
+				entity.location = Location.setPropertiesFromMap(new Location(), (Map<String, Object>) map.get("location"));
 			}
 			if (map.get("patch") != null) {
 				entity.patch = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("patch"), true);
@@ -202,7 +210,7 @@ public class RealmEntity extends RealmObject {
 				 * Will get pulled in on a user for a list of users watching a patch and on patches when showing patches a
 				 * user is watching (let's us show that a watch request is pending/approved).
 				 */
-				entity.link = RealmLink.setPropertiesFromMap(new RealmLink(), (Map<String, Object>) map.get("link"));
+				entity.link = Link.setPropertiesFromMap(new Link(), (Map<String, Object>) map.get("link"));
 			}
 
 			entity.countLikes = 0;
@@ -265,7 +273,9 @@ public class RealmEntity extends RealmObject {
 				entity.authType = (String) map.get("authType");
 
 				if (map.get("phone") != null) {
-					entity.phone = RealmPhoneNumber.setPropertiesFromMap(new RealmPhoneNumber(), (Map<String, Object>) map.get("phone"));
+					String phoneJson = Patchr.gson.toJson(map.get("phone"), SimpleMap.class);
+					entity.phoneJson = phoneJson;
+					entity.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), (Map<String, Object>) map.get("phone"));
 				}
 
 				entity.patchesMember = 0;
@@ -341,7 +351,9 @@ public class RealmEntity extends RealmObject {
 				entity.summary = (String) map.get("summary");
 
 				if (map.get("photoBig") != null) {
-					entity.photoBig = RealmPhoto.setPropertiesFromMap(new RealmPhoto(), (Map<String, Object>) map.get("photoBig"));
+					String photoJson = Patchr.gson.toJson(map.get("photoBig"), SimpleMap.class);
+					entity.photoBigJson = photoJson;
+					entity.photoBig = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photoBig"));
 				}
 			}
 			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
@@ -363,7 +375,6 @@ public class RealmEntity extends RealmObject {
 	}
 
 	public static RealmEntity copyToRealmOrUpdate(Realm realm, RealmEntity entity) {
-		deleteNestedObjectsFromRealm(realm, entity.id);
 		RealmEntity realmEntity = realm.copyToRealmOrUpdate(entity);
 		return realmEntity;
 	}
@@ -375,23 +386,26 @@ public class RealmEntity extends RealmObject {
 
 	public static void deleteNestedObjectsFromRealm(RealmEntity entity) {
 		if (entity != null && entity.isValid()) {
-			if (entity.photo != null && entity.photo.isValid()) entity.photo.deleteFromRealm();
-			if (entity.location != null && entity.location.isValid())
-				entity.location.deleteFromRealm();
-			if (entity.phone != null && entity.phone.isValid()) entity.phone.deleteFromRealm();
+
+			/* Shortcuts */
 			if (entity.creator != null && entity.creator.isValid())
 				entity.creator.deleteFromRealm();
-			if (entity.owner != null && entity.owner.isValid()) entity.owner.deleteFromRealm();
+
+			if (entity.owner != null && entity.owner.isValid())
+				entity.owner.deleteFromRealm();
+
 			if (entity.modifier != null && entity.modifier.isValid())
 				entity.modifier.deleteFromRealm();
-			if (entity.patch != null && entity.patch.isValid()) entity.patch.deleteFromRealm();
+
+			if (entity.patch != null && entity.patch.isValid())
+				entity.patch.deleteFromRealm();
+
 			if (entity.message != null && entity.message.isValid())
 				entity.message.deleteFromRealm();
+
 			if (entity.recipients != null && entity.recipients.isValid()) {
 				entity.recipients.deleteAllFromRealm();
 			}
-			if (entity.photoBig != null && entity.photoBig.isValid())
-				entity.photoBig.deleteFromRealm();
 		}
 	}
 
@@ -536,9 +550,67 @@ public class RealmEntity extends RealmObject {
 		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
 	}
 
-	public RealmLocation getLocation() {
+	public PhoneNumber getPhone() {
+		if (this.phone == null && this.phoneJson != null) {
+			this.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), Patchr.gson.fromJson(this.phoneJson, SimpleMap.class));
+		}
+		return this.phone;
+	}
 
-		RealmLocation _location = null;
+	public Photo getPhoto() {
+		if (this.photo == null && this.photoJson != null) {
+			this.photo = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoJson, SimpleMap.class));
+		}
+		return this.photo;
+	}
+
+	public void setPhoto(Photo photo) {
+		if (photo == null) {
+			this.photo = null;
+			this.photoJson = null;
+		}
+		else {
+			this.photo = photo;
+			this.photoJson = Patchr.gson.toJson(photo, Photo.class);
+		}
+	}
+
+	public Photo getPhotoBig() {
+		if (this.photoBig == null && this.photoBigJson != null) {
+			this.photoBig = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));
+		}
+		return this.photoBig;
+	}
+
+	public void setPhotoBig(Photo photo) {
+		if (photo == null) {
+			this.photoBig = null;
+			this.photoBigJson = null;
+		}
+		else {
+			this.photoBig = photo;
+			this.photoBigJson = Patchr.gson.toJson(photo, Photo.class);
+		}
+	}
+
+	public void setLocation(Location location) {
+		if (location == null) {
+			this.location = null;
+			this.locationJson = null;
+		}
+		else {
+			this.location = location;
+			this.locationJson = Patchr.gson.toJson(location, Location.class);
+		}
+	}
+
+	public Location getLocation() {
+
+		Location _location = null;
+
+		if (this.location == null && this.locationJson != null) {
+			this.location = Location.setPropertiesFromMap(new Location(), Patchr.gson.fromJson(this.locationJson, SimpleMap.class));
+		}
 
 		if (this.location != null
 			&& this.location.lat != null
@@ -621,8 +693,8 @@ public class RealmEntity extends RealmObject {
 					distance = beacon.getDistance(refresh);  // Estimate based on signal strength
 				}
 				else {
-					final RealmLocation entityLocation = getLocation();
-					final RealmLocation deviceLocation = LocationManager.getInstance().getAirLocationLocked();
+					final Location entityLocation = getLocation();
+					final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
 
 					if (entityLocation != null && deviceLocation != null) {
 						distance = deviceLocation.distanceTo(entityLocation);

@@ -2,7 +2,6 @@ package com.patchr.ui.collections;
 
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
@@ -14,14 +13,15 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Query;
-import com.patchr.objects.QueryName;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 
 import static com.patchr.objects.FetchMode.AUTO;
 
+/*
+ * Just a veneer of commands to support BaseListScreen
+ */
 @SuppressWarnings("ucd")
 public class MemberListScreen extends BaseListScreen {
 
@@ -43,11 +43,6 @@ public class MemberListScreen extends BaseListScreen {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void initialize(Bundle savedInstanceState) {
-		this.listController.query = Query.Factory(QueryName.MembersForPatch, this.entityId);
-		super.initialize(savedInstanceState);
-	}
-
 	public void removeRequestAction(final Entity entity) {
 
 		Integer messageResId = entity.linkEnabled
@@ -62,27 +57,27 @@ public class MemberListScreen extends BaseListScreen {
 
 		/* Confirm a decline since the user won't be able to undo */
 		final AlertDialog declineDialog = Dialogs.alertDialog(null
-				, null
-				, StringManager.getString(messageResId)
-				, null
-				, this
-				, okResId
-				, cancelResId
-				, null
-				, new DialogInterface.OnClickListener() {
+			, null
+			, StringManager.getString(messageResId)
+			, null
+			, this
+			, okResId
+			, cancelResId
+			, null
+			, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							removeRequest(entity.id);
-							dialog.dismiss();
-						}
-						else if (which == DialogInterface.BUTTON_NEGATIVE) {
-							dialog.dismiss();
-						}
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						removeRequest(entity.id);
+						dialog.dismiss();
+					}
+					else if (which == DialogInterface.BUTTON_NEGATIVE) {
+						dialog.dismiss();
 					}
 				}
-				, null);
+			}
+			, null);
 
 		declineDialog.setCanceledOnTouchOutside(false);
 		declineDialog.show();
@@ -97,11 +92,11 @@ public class MemberListScreen extends BaseListScreen {
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncWatchEntity");
 				return DataController.getInstance().deleteLink(fromId
-						, entity.id
-						, Constants.TYPE_LINK_MEMBER
-						, false
-						, entity.schema
-						, actionEvent, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+					, entity.id
+					, Constants.TYPE_LINK_MEMBER
+					, false
+					, entity.schema
+					, actionEvent, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			}
 
 			@Override protected void onPostExecute(Object response) {
@@ -113,7 +108,7 @@ public class MemberListScreen extends BaseListScreen {
 				}
 				else {
 					if (result.serviceResponse.statusCodeService != null
-							&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
+						&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
 						Errors.handleError(MemberListScreen.this, result.serviceResponse);
 					}
 				}

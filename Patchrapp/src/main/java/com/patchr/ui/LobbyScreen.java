@@ -41,10 +41,10 @@ import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.RegisterInstallEvent;
+import com.patchr.model.PhoneNumber;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.Entity;
-import com.patchr.objects.PhoneNumber;
 import com.patchr.objects.Preference;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
@@ -109,6 +109,7 @@ public class LobbyScreen extends AppCompatActivity {
 			return;
 		}
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		getWindow().setBackgroundDrawable(null);
 		setContentView(R.layout.screen_lobby);
 		initialize();
 	}
@@ -125,10 +126,17 @@ public class LobbyScreen extends AppCompatActivity {
 		}
 	}
 
+	@Override public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			Logger.d(this, "Lobby visible");
+		}
+	}
+
 	@Override protected void onStop() {
 		super.onStop();
 		/* Hack to prevent false positives for deferred deep links */
-		if (Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
+		if (Patchr.settings != null && Patchr.settings.getBoolean(Preference.FIRST_RUN, true)) {
 			SharedPreferences.Editor editor = Patchr.settings.edit();
 			editor.putBoolean(Preference.FIRST_RUN, false);
 			editor.apply();
@@ -347,7 +355,7 @@ public class LobbyScreen extends AppCompatActivity {
 				/* Always reset the entity cache */
 				DataController.getInstance().clearStore();
 				LocationManager.getInstance().stop();
-				LocationManager.getInstance().setLocationLocked(null);
+				LocationManager.getInstance().setAndroidLocationLocked(null);
 
 				/* Restart notification tracking */
 				NotificationManager.getInstance().setNewNotificationCount(0);
@@ -402,7 +410,7 @@ public class LobbyScreen extends AppCompatActivity {
 		Patchr.sendIntent = null;
 	}
 
-	public void completeProfile(Entity entity) {
+	public void completeProfile(RealmEntity entity) {
 
 		final String jsonEntity = Json.objectToJson(entity);
 		Intent intent = new Intent(this, ProfileEdit.class);
@@ -574,6 +582,9 @@ public class LobbyScreen extends AppCompatActivity {
 		Button authButton = (Button) findViewById(R.id.auth_button);
 		Button guestButton = (Button) findViewById(R.id.guest_button);
 
+		View logoStartup = findViewById(R.id.logo_startup);
+		ObjectAnimator.ofFloat(logoStartup, "alpha", 1f, 0f).setDuration(300).start();
+
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			ImageWidget userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 			TextView userName = (TextView) findViewById(R.id.user_name);
@@ -581,7 +592,7 @@ public class LobbyScreen extends AppCompatActivity {
 			UI.setVisibility(authButton, View.GONE);
 			UI.setVisibility(guestButton, View.GONE);
 			if (UserManager.authUserHint != null && ((User) UserManager.authUserHint).name != null) {
-				UI.setImageWithEntity(userPhoto, (Entity) UserManager.authUserHint);
+				UI.setImageWithEntity(userPhoto, (RealmEntity) UserManager.authUserHint);
 				UI.setTextView(userName, String.format("Log in as %1$s", ((User) UserManager.authUserHint).name));
 				UI.setTextView(userAuthIdentifier, (String) UserManager.authIdentifierHint);
 			}
@@ -596,9 +607,7 @@ public class LobbyScreen extends AppCompatActivity {
 		}
 
 		View dialog = findViewById(R.id.dialog);
-		ObjectAnimator anim = ObjectAnimator.ofFloat(dialog, "alpha", 0f, 1f);
-		anim.setDuration(300);
-		anim.start();
+		ObjectAnimator.ofFloat(dialog, "alpha", 0f, 1f).setDuration(300).start();
 	}
 
 	private void updateRequired() {

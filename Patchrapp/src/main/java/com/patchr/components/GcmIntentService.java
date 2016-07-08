@@ -8,9 +8,9 @@ import android.os.Vibrator;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Notification;
-import com.patchr.objects.User;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Json;
 
@@ -40,7 +40,7 @@ public class GcmIntentService extends GcmListenerService {
 
 				@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
 
-				User currentUser = UserManager.currentUser;
+				RealmEntity currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
 					return;
 
@@ -50,7 +50,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * the application is in the foreground or not.
 				 */
 				if (currentUser != null) {
-					currentUser.activityDate = notification.sentDate;
+					currentUser.activityDate = notification.sentDate.longValue();
 				}
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */

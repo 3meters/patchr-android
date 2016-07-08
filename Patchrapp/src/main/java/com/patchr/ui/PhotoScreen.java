@@ -24,11 +24,10 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Photo;
+import com.patchr.model.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
@@ -101,7 +100,7 @@ public class PhotoScreen extends BaseScreen {
 		if (extras != null) {
 			final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 			if (jsonPhoto != null) {
-				photo = (Photo) Json.jsonToObject(jsonPhoto, Json.ObjectType.PHOTO);
+				photo = Patchr.gson.fromJson(jsonPhoto, Photo.class);
 			}
 		}
 	}

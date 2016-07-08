@@ -33,11 +33,11 @@
 	<screenName name="com.patchr.ui.MapScreen">MapScreen</screenName>
 	<screenName name="com.patchr.ui.collections.MemberListScreen">MemberListScreen</screenName>
 	<screenName name="com.patchr.ui.MessageScreen">MessageScreen</screenName>
-	<screenName name="com.patchr.ui.listforms.PatchScreen">PatchScreen</screenName>
+	<screenName name="com.patchr.ui.collections.PatchScreen">PatchScreen</screenName>
 	<screenName name="com.patchr.ui.PhotoScreen">PhotoScreen</screenName>
 	<screenName name="com.patchr.ui.collections.PhotoSearchScreen">PhotoSearchScreen</screenName>
 	<screenName name="com.patchr.ui.PhotoSwitchboardScreen">PhotoSwitchboardScreen</screenName>
-	<screenName name="com.patchr.ui.listforms.ProfileScreen">ProfileScreen</screenName>
+	<screenName name="com.patchr.ui.collections.ProfileScreen">ProfileScreen</screenName>
 	<screenName name="com.patchr.ui.collections.SearchScreen">SearchScreen</screenName>
 	<screenName name="com.patchr.ui.SettingsScreen">SettingsScreen</screenName>
 

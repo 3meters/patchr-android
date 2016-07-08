@@ -12,7 +12,7 @@ import java.util.Map;
  */
 
 @SuppressWarnings("ucd")
-public class Link extends ServiceBase {
+public class LinkOld extends ServiceBase {
 
 	private static final long serialVersionUID = 8839291281700760437L;
 
@@ -28,15 +28,15 @@ public class Link extends ServiceBase {
 	public Shortcut    shortcut;
 	public List<Count> stats;
 
-	public Link() {}
+	public LinkOld() {}
 
-	public Link(String toId, String type, String targetSchema) {
+	public LinkOld(String toId, String type, String targetSchema) {
 		this.toId = toId;
 		this.type = type;
 		this.targetSchema = targetSchema;
 	}
 
-	public Link(String fromId, String toId, String type, String targetSchema) {
+	public LinkOld(String fromId, String toId, String type, String targetSchema) {
 		this.toId = toId;
 		this.type = type;
 		this.targetSchema = targetSchema;
@@ -107,9 +107,9 @@ public class Link extends ServiceBase {
 	 * Copy and serialization
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static Link setPropertiesFromMap(Link link, Map map) {
+	public static LinkOld setPropertiesFromMap(LinkOld link, Map map) {
 
-		link = (Link) ServiceBase.setPropertiesFromMap(link, map);
+		link = (LinkOld) ServiceBase.setPropertiesFromMap(link, map);
 
 		link.fromId = (String) (map.get("_from") != null ? map.get("_from") : map.get("fromId"));
 		link.toId = (String) (map.get("_to") != null ? map.get("_to") : map.get("toId"));
@@ -135,8 +135,8 @@ public class Link extends ServiceBase {
 		return link;
 	}
 
-	@Override public Link clone() {
-		final Link link = (Link) super.clone();
+	@Override public LinkOld clone() {
+		final LinkOld link = (LinkOld) super.clone();
 		if (link != null && stats != null) {
 			link.stats = (List<Count>) ((ArrayList) stats).clone();
 		}

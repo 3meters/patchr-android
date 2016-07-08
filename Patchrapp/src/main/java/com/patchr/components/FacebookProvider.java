@@ -9,10 +9,9 @@ import com.facebook.FacebookException;
 import com.facebook.share.model.AppInviteContent;
 import com.facebook.share.widget.AppInviteDialog;
 import com.patchr.R;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Photo;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -31,8 +30,8 @@ public class FacebookProvider {
 			String referrerNameEncoded = Utils.encode(UserManager.currentUser.name);
 			String referrerPhotoUrl = "";
 
-			if (UserManager.currentUser.photo != null) {
-				Photo photo = UserManager.currentUser.photo;
+			if (UserManager.currentUser.getPhoto() != null) {
+				Photo photo = UserManager.currentUser.getPhoto();
 				String photoUrlEncoded = Utils.encode(photo.uri(PhotoCategory.PROFILE));
 				referrerPhotoUrl = String.format("&referrerPhotoUrl=%1$s", photoUrlEncoded);
 			}
@@ -40,8 +39,8 @@ public class FacebookProvider {
 			String queryString = String.format("entityId=%1$s&entitySchema=%2$s&referrerName=%3$s%4$s", entity.id, entity.schema, referrerNameEncoded, referrerPhotoUrl);
 			Uri applink = Uri.parse(String.format("https://fb.me/934234473291708?%1$s", queryString));
 
-			if (entity.photo != null) {
-				RealmPhoto photo = entity.photo;
+			if (entity.getPhoto() != null) {
+				Photo photo = entity.getPhoto();
 				String patchNameEncoded = Utils.encode(patchName);
 				String settings = "w=1200&h=628&crop&fit=crop&q=25&txtsize=96&txtalign=left,bottom&txtcolor=fff&txtshad=5&txtpad=60&txtfont=Helvetica%20Neue%20Light";
 				patchPhotoUrl = String.format("https://3meters-images.imgix.net/%1$s?%2$s&txt=%3$s", photo.prefix, settings, patchNameEncoded);

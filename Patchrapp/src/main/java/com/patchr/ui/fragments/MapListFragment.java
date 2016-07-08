@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -35,13 +34,15 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
 import com.patchr.components.StringManager;
+import com.patchr.model.Location;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmLocation;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.realm.RealmList;
 
 public class MapListFragment extends SupportMapFragment implements ClusterManager.OnClusterClickListener<MapListFragment.EntityItem>
 	, ClusterManager.OnClusterInfoWindowClickListener<MapListFragment.EntityItem>
@@ -49,7 +50,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	, ClusterManager.OnClusterItemInfoWindowClickListener<MapListFragment.EntityItem>
 	, GoogleMap.OnMyLocationButtonClickListener {
 
-	public    List<RealmEntity>          entities;
+	public    RealmList<RealmEntity>     entities;
 	public    Integer                    titleResId;
 	public    String                     relatedListFragment;
 	public    Integer                    zoomLevel;
@@ -58,6 +59,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	protected ClusterManager<EntityItem> clusterManager;
 	protected AirClusterRenderer         clusterRenderer;
 	protected Bitmap                     markerBitmap;
+	public Integer bottomPadding = 0;
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -95,6 +97,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				clusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
 
 				map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				map.setPadding(0, 0, 0, bottomPadding);
 
 				UiSettings uiSettings = map.getUiSettings();
 
@@ -181,7 +184,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				for (RealmEntity entity : entities) {
 					if (entity.getLocation() != null) {
 						entity.index = entities.indexOf(entity) + 1;
-						RealmLocation location = entity.getLocation();
+						Location location = entity.getLocation();
 						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
 						clusterManager.addItem(entityItem);
 					}
@@ -200,7 +203,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			 */
 			if (entities.size() == 1 && zoomLevel != null) {
 				RealmEntity entity = entities.get(0);
-				RealmLocation location = entity.getLocation();
+				Location location = entity.getLocation();
 				if (location != null && location.lat != null && location.lng != null) {
 					map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), zoomLevel));
 				}
@@ -210,7 +213,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			 */
 			else {
 				if (zoomLevel != null) {
-					Location location = LocationManager.getInstance().getLocationLocked();
+					android.location.Location location = LocationManager.getInstance().getAndroidLocationLocked();
 					if (location != null) {
 						LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 						map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel));
@@ -241,8 +244,8 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		if (entities != null) {
 			LatLngBounds.Builder builder = LatLngBounds.builder();
 			for (RealmEntity entity : entities) {
-				if (entity.location != null) {
-					builder.include(new LatLng(entity.location.lat.doubleValue(), entity.location.lng.doubleValue()));
+				if (entity.getLocation() != null) {
+					builder.include(new LatLng(entity.getLocation().lat.doubleValue(), entity.getLocation().lng.doubleValue()));
 				}
 			}
 			bounds = builder.build();

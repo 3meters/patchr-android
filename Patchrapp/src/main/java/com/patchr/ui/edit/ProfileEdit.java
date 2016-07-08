@@ -30,7 +30,7 @@ import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.objects.PhoneNumber;
+import com.patchr.model.PhoneNumber;
 import com.patchr.objects.PhotoCategory;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
@@ -295,7 +295,7 @@ public class ProfileEdit extends BaseEdit {
 	@Override protected boolean afterUpdate() {
 		/* So our persisted user is up-to-date. Only called if update call was successful. */
 		entity.session = UserManager.currentSession;
-		UserManager.shared().setCurrentRealmUser(entity, UserManager.currentSession, false);  // Updates persisted user too
+		UserManager.shared().setCurrentUser(entity, UserManager.currentSession, false);  // Updates persisted user too
 		return true;
 	}
 
@@ -323,7 +323,7 @@ public class ProfileEdit extends BaseEdit {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 					busyController.showHorizontalProgressBar(ProfileEdit.this);
 				}
 				else {
@@ -335,12 +335,12 @@ public class ProfileEdit extends BaseEdit {
 				Thread.currentThread().setName("AsyncInsertUser");
 
 				Bitmap bitmap = null;
-				if (entity.photo != null && Type.isTrue(entity.photo.store)) {
+				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
 
 					/* Synchronous call to get the bitmap */
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.photo.uri(PhotoCategory.STANDARD))
+								.load(entity.getPhoto().uri(PhotoCategory.STANDARD))
 								.centerInside()
 								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
 								.get();
@@ -355,7 +355,7 @@ public class ProfileEdit extends BaseEdit {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.photo.uri(PhotoCategory.STANDARD))
+									.load(entity.getPhoto().uri(PhotoCategory.STANDARD))
 									.centerInside()
 									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
 									.get();
@@ -411,7 +411,7 @@ public class ProfileEdit extends BaseEdit {
 
 					/* We automatically consider the user signed in. */
 					final User user = (User) result.data;
-					UserManager.shared().setCurrentUser(user, user.session, false);
+					//UserManager.shared().setCurrentUser(user, user.session, false);
 
 					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
@@ -425,7 +425,7 @@ public class ProfileEdit extends BaseEdit {
 					Errors.handleError(ProfileEdit.this, result.serviceResponse);
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.photo = null;
+							entity.setPhoto(null);
 							bindPhoto();
 						}
 					}

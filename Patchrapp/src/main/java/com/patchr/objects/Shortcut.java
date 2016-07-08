@@ -3,7 +3,7 @@ package com.patchr.objects;
 import android.content.Intent;
 
 import com.patchr.Constants;
-import com.patchr.objects.Photo.PhotoSource;
+import com.patchr.objects.PhotoOld.PhotoSource;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -28,8 +28,8 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 	public String      appUrl;
 	public Number      validatedDate;
 	public Number      position;
-	public Photo       photo;
-	public AirLocation location;
+	public PhotoOld    photo;
+	public LocationOld location;
 	public Boolean     content;
 	public String      action;
 	public Number      sortDate;
@@ -68,11 +68,11 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		shortcut.action = (String) map.get("action");
 
 		if (map.get("photo") != null) {
-			shortcut.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
+			shortcut.photo = PhotoOld.setPropertiesFromMap(new PhotoOld(), (Map<String, Object>) map.get("photo"));
 		}
 
 		if (map.get("location") != null) {
-			shortcut.location = AirLocation.setPropertiesFromMap(new AirLocation(), (Map<String, Object>) map.get("location"));
+			shortcut.location = LocationOld.setPropertiesFromMap(new LocationOld(), (Map<String, Object>) map.get("location"));
 		}
 
 		if (map.get("creator") != null) {
@@ -99,7 +99,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 				.setApp(type)
 				.setName(name)
 				.setSubtitle(subtitle)
-				.setPhoto(new Photo(image, null, null, null, PhotoSource.resource))
+				.setPhoto(new PhotoOld(image, null, null, null, PhotoSource.resource))
 				.setPosition(position)
 				.setContent(content)
 				.setAction(action);
@@ -122,14 +122,14 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		}
 	}
 
-	public Photo getPhoto() {
+	public PhotoOld getPhoto() {
 		return this.photo;
 	}
 
-	public Photo getBrokenPhoto() {
+	public PhotoOld getBrokenPhoto() {
 		String prefix = "img_broken";
 		String source = PhotoSource.resource;
-		Photo photo = new Photo(prefix, null, null, null, source);
+		PhotoOld photo = new PhotoOld(prefix, null, null, null, source);
 		return photo;
 	}
 
@@ -202,7 +202,7 @@ public class Shortcut extends ServiceObject implements Cloneable, Serializable {
 		return this;
 	}
 
-	public Shortcut setPhoto(Photo photo) {
+	public Shortcut setPhoto(PhotoOld photo) {
 		this.photo = photo;
 		return this;
 	}

@@ -7,7 +7,6 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,8 +19,8 @@ import com.google.android.gms.location.LocationServices;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.LocationUpdatedEvent;
-import com.patchr.model.RealmLocation;
-import com.patchr.objects.AirLocation;
+import com.patchr.model.Location;
+import com.patchr.objects.LocationOld;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Preference;
 import com.patchr.utilities.Errors;
@@ -56,9 +55,9 @@ public class LocationManager implements
 	protected GoogleApiClient                  mGoogleApiClient;
 	protected LocationRequest                  mLocationRequest;
 
-	private RealmLocation mAirLocationLocked;
-	private Location      mLocationLastKnown;
-	private Location      mLocationLocked;
+	private Location                  mLocationLocked;
+	private android.location.Location mAndroidLocationLastKnown;
+	private android.location.Location mAndroidLocationLocked;
 	private Boolean mRequestingLocationUpdates = false;
 	private Boolean mFirstAccept               = false;
 	private Boolean mFirstAccepted             = false;
@@ -74,10 +73,10 @@ public class LocationManager implements
 	private LocationManager() {
 
 		mGoogleApiClient = new GoogleApiClient.Builder(Patchr.applicationContext)
-				.addApi(LocationServices.API)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this)
-				.build();
+			.addApi(LocationServices.API)
+			.addConnectionCallbacks(this)
+			.addOnConnectionFailedListener(this)
+			.build();
 
 		mLocationManager = (android.location.LocationManager) Patchr.applicationContext.getSystemService(Context.LOCATION_SERVICE);
 	}
@@ -123,30 +122,30 @@ public class LocationManager implements
 		}
 	}
 
-	@Override public void onLocationChanged(Location location) {
+	@Override public void onLocationChanged(android.location.Location location) {
 
 		if (location == null) return;
 
 		if (!mFirstAccept || mFirstAccepted) {
 
 			/* Discard first location update if close to last known location */
-			if (mLocationLastKnown != null && mLocationLastKnown != location) {
-				Float distance = mLocationLastKnown.distanceTo(location);
+			if (mAndroidLocationLastKnown != null && mAndroidLocationLastKnown != location) {
+				Float distance = mAndroidLocationLastKnown.distanceTo(location);
 				Logger.v(this, "Location distance from last known: " + distance);
 				if (distance <= Constants.DIST_TWENTY_FIVE_METERS) {
 					Logger.v(this, "Location skipped because close to last known: " + location.toString());
-					mLocationLastKnown = null;
+					mAndroidLocationLastKnown = null;
 					return;
 				}
 			}
 
 			/* Discard if location if close to last locked location - could be last known */
-			if (mLocationLocked != null) {
-				Float distance = mLocationLocked.distanceTo(location);
+			if (mAndroidLocationLocked != null) {
+				Float distance = mAndroidLocationLocked.distanceTo(location);
 				Logger.v(this, "Location distance from last locked: " + distance);
 				if (distance <= Constants.DIST_TWENTY_FIVE_METERS) {
 					Logger.v(this, "Location skipped because close to last locked: " + location.toString());
-					mLocationLastKnown = null;
+					mAndroidLocationLastKnown = null;
 					return;
 				}
 			}
@@ -154,7 +153,7 @@ public class LocationManager implements
 
 		Logger.d(this, "Location changed: " + location.toString());
 		mFirstAccepted = true;
-		if (mLocationLastKnown != null && mLocationLastKnown == location) {
+		if (mAndroidLocationLastKnown != null && mAndroidLocationLastKnown == location) {
 			Logger.d(this, "Using last known: " + location.toString());
 		}
 
@@ -167,8 +166,8 @@ public class LocationManager implements
 			}
 			if (location.getAccuracy() <= ACCURACY_PREFERRED) {
 				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-						, "location_accepted"
-						, NetworkManager.getInstance().getNetworkType());
+					, "location_accepted"
+					, NetworkManager.getInstance().getNetworkType());
 			}
 		}
 
@@ -195,10 +194,10 @@ public class LocationManager implements
 		/* Developers can turn on high accuracy processing */
 		if (Utils.devModeEnabled() && Patchr.settings.getBoolean(Preference.ENABLE_LOCATION_HIGH_ACCURACY, false)) {
 			mLocationRequest = LocationRequest.create()
-					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-					.setSmallestDisplacement(MIN_DISPLACEMENT)
-					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
-					.setFastestInterval(Constants.TIME_FIVE_SECONDS);
+				.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+				.setSmallestDisplacement(MIN_DISPLACEMENT)
+				.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+				.setFastestInterval(Constants.TIME_FIVE_SECONDS);
 		}
 		/*
 		 * Balanced doesn't allow gps so if wifi isn't available then grind
@@ -206,18 +205,18 @@ public class LocationManager implements
 		 */
 		else if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
 			mLocationRequest = LocationRequest.create()
-					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-					.setSmallestDisplacement(MIN_DISPLACEMENT)
-					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
-					.setFastestInterval(Constants.TIME_FIVE_SECONDS);
+				.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+				.setSmallestDisplacement(MIN_DISPLACEMENT)
+				.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+				.setFastestInterval(Constants.TIME_FIVE_SECONDS);
 		}
 		/* Normal request */
 		else {
 			mLocationRequest = LocationRequest.create()
-					.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-					.setSmallestDisplacement(MIN_DISPLACEMENT)
-					.setInterval(Constants.TIME_FIFTEEN_SECONDS)
-					.setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
+				.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+				.setSmallestDisplacement(MIN_DISPLACEMENT)
+				.setInterval(Constants.TIME_FIFTEEN_SECONDS)
+				.setFastestInterval(Constants.TIME_FIFTEEN_SECONDS);
 		}
 
 		if (mGoogleApiClient.isConnected()) {
@@ -241,32 +240,32 @@ public class LocationManager implements
 
 		/* Get last known location */
 		if (ActivityCompat.checkSelfPermission(Patchr.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-			mLocationLastKnown = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-			if (mLocationLastKnown != null) {
-				onLocationChanged(mLocationLastKnown);
+			mAndroidLocationLastKnown = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+			if (mAndroidLocationLastKnown != null) {
+				onLocationChanged(mAndroidLocationLastKnown);
 			}
 
 			/* Start updates */
 			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
-					, mLocationRequest
-					, this);
+				, mLocationRequest
+				, this);
 		}
 	}
 
 	/* Public */
 
-	@NonNull public Boolean hasMoved(Location locationCandidate) {
-		if (mLocationLocked == null) return true;
-		final float distance = mLocationLocked.distanceTo(locationCandidate);
+	@NonNull public Boolean hasMoved(android.location.Location locationCandidate) {
+		if (mAndroidLocationLocked == null) return true;
+		final float distance = mAndroidLocationLocked.distanceTo(locationCandidate);
 		return (distance >= mLocationRequest.getSmallestDisplacement());
 	}
 
 	@NonNull public Boolean isLocationAccessEnabled() {
 		return (mLocationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
-				|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
+			|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
 	}
 
-	@NonNull public ModelResult getAddressForLocation(final AirLocation location) {
+	@NonNull public ModelResult getAddressForLocation(final LocationOld location) {
 		/*
 		 * Can trigger network access so should be called on a background thread.
 		 */
@@ -297,7 +296,7 @@ public class LocationManager implements
 			if (addresses != null && addresses.size() > 0) {
 				Address geolookup = addresses.get(0);
 				if (geolookup.hasLatitude() && geolookup.hasLongitude()) {
-					AirLocation location = new AirLocation(geolookup.getLatitude(), geolookup.getLongitude());
+					LocationOld location = new LocationOld(geolookup.getLatitude(), geolookup.getLongitude());
 					location.accuracy = 25;
 					result.data = location;
 				}
@@ -318,45 +317,45 @@ public class LocationManager implements
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Location getLocationLocked() {
-		return mLocationLocked;
+	public android.location.Location getAndroidLocationLocked() {
+		return mAndroidLocationLocked;
 	}
 
-	public synchronized void setLocationLocked(Location locationLocked) {
+	public synchronized void setAndroidLocationLocked(android.location.Location androidLocationLocked) {
 
-		mLocationLocked = locationLocked;  // Only place this is being set
+		mAndroidLocationLocked = androidLocationLocked;  // Only place this is being set
 
-		if (mLocationLocked == null || !mLocationLocked.hasAccuracy()) {
-			mAirLocationLocked = null;
+		if (mAndroidLocationLocked == null || !mAndroidLocationLocked.hasAccuracy()) {
+			mLocationLocked = null;
 			return;
 		}
 
 		/* We set our version of location at the same time */
 
-		RealmLocation location = new RealmLocation();
-		location.lat = mLocationLocked.getLatitude();
-		location.lng = mLocationLocked.getLongitude();
+		Location location = new Location();
+		location.lat = mAndroidLocationLocked.getLatitude();
+		location.lng = mAndroidLocationLocked.getLongitude();
 
-		if (mLocationLocked.hasAltitude()) {
-			location.altitude = mLocationLocked.getAltitude();
+		if (mAndroidLocationLocked.hasAltitude()) {
+			location.altitude = mAndroidLocationLocked.getAltitude();
 		}
-		if (mLocationLocked.hasAccuracy()) {
+		if (mAndroidLocationLocked.hasAccuracy()) {
 						/* In meters. */
-			location.accuracy = mLocationLocked.getAccuracy();
+			location.accuracy = mAndroidLocationLocked.getAccuracy();
 		}
-		if (mLocationLocked.hasBearing()) {
+		if (mAndroidLocationLocked.hasBearing()) {
 						/* Direction of travel in degrees East of true North. */
-			location.bearing = mLocationLocked.getBearing();
+			location.bearing = mAndroidLocationLocked.getBearing();
 		}
-		if (mLocationLocked.hasSpeed()) {
+		if (mAndroidLocationLocked.hasSpeed()) {
 						/* Speed of the device over ground in meters/second. */
-			location.speed = mLocationLocked.getSpeed();
+			location.speed = mAndroidLocationLocked.getSpeed();
 		}
-		location.provider = mLocationLocked.getProvider();
-		mAirLocationLocked = location;  // Only place this is being set
+		location.provider = mAndroidLocationLocked.getProvider();
+		mLocationLocked = location;  // Only place this is being set
 	}
 
-	public RealmLocation getAirLocationLocked() {
-		return mAirLocationLocked;
+	public Location getLocationLocked() {
+		return mLocationLocked;
 	}
 }

@@ -1,6 +1,7 @@
 package com.patchr.objects;
 
 public class QueryName {
+	public static String LikesForMessage      = "LikesForMessage";
 	public static String MembersForPatch      = "MembersForPatch";
 	public static String MessagesByUser       = "MessagesByUser";
 	public static String MessagesForPatch     = "MessagesForPatch";

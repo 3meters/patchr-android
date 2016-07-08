@@ -6,7 +6,7 @@
 	<string name="screen_title_profile" tools:ignore="UnusedResources">Profile</string>
 	<string name="screen_title_photo_form" tools:ignore="UnusedResources">Photo</string>
 	<string name="screen_title_about_form" tools:ignore="UnusedResources">About Patchr</string>
-	<string name="screen_title_map_form" tools:ignore="UnusedResources">Map</string>
+	<string name="screen_title_map_form" tools:ignore="UnusedResources">Patch location</string>
 	<string name="screen_title_search_form" tools:ignore="UnusedResources">Search</string>
 	<string name="screen_title_settings_form" tools:ignore="UnusedResources">Settings</string>
 	<string name="screen_title_invite" tools:ignore="UnusedResources">Invite to patch</string>
@@ -31,13 +31,13 @@
 
 	<string name="screen_title_patch_list" tools:ignore="UnusedResources">Patches</string>
 	<string name="screen_title_nearby" tools:ignore="UnusedResources">Nearby</string>
-	<string name="screen_title_watch" tools:ignore="UnusedResources">Member of</string>
-	<string name="screen_title_create" tools:ignore="UnusedResources">Owner of</string>
+	<string name="screen_title_member_of" tools:ignore="UnusedResources">Member of</string>
+	<string name="screen_title_owner_of" tools:ignore="UnusedResources">Owner of</string>
 	<string name="screen_title_like" tools:ignore="UnusedResources">Favorites</string>
-	<string name="screen_title_trends_active" tools:ignore="UnusedResources">Explore</string>
+	<string name="screen_title_explore" tools:ignore="UnusedResources">Explore</string>
 	<string name="screen_title_notifications" tools:ignore="UnusedResources">Notifications</string>
-	<string name="screen_title_likes_list" tools:ignore="UnusedResources">Liked by</string>
-	<string name="screen_title_member_list" tools:ignore="UnusedResources">Members</string>
+	<string name="screen_title_likes" tools:ignore="UnusedResources">Liked by</string>
+	<string name="screen_title_members" tools:ignore="UnusedResources">Members</string>
 
 	<string name="form_title_profile_edit" tools:ignore="UnusedResources">Profile</string>
 	<string name="form_title_profile_signup" tools:ignore="UnusedResources">Make your profile more personal</string>
@@ -504,12 +504,16 @@
 
 	<!-- Labels: Empty -->
 
-	<string name="empty_nearby">No patches found nearby</string>
-	<string name="empty_nearby_denied">Location permission denied</string>
+	<string name="empty_nearby">No patches nearby</string>
 	<string name="empty_member_of">Join patches and browse them here</string>
 	<string name="empty_owner_of">Make patches and browse them here</string>
+	<string name="empty_explore">Discover popular patches here</string>
 	<string name="empty_notifications">No notifications yet</string>
+
+	<string name="empty_nearby_denied">Location permission denied</string>
+
 	<string name="empty_posted_messages">See your posted messages here</string>
+	<string name="empty_patch_messages">Be the first to post a message to this patch</string>
 	<string name="empty_members">No members yet</string>
 	<string name="empty_photo_search">No photos found for</string>
 	<string name="empty_general">Nothing to see here yet!</string>

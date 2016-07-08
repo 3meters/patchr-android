@@ -1,6 +1,6 @@
 package com.patchr.objects;
 
-import com.patchr.objects.Link.Direction;
+import com.patchr.objects.LinkOld.Direction;
 
 /**
  * @author Jayma

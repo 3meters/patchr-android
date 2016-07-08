@@ -9,8 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.patchr.R;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.objects.Notification;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
@@ -74,7 +74,7 @@ public class NotificationView extends BaseView {
 			this.entity = entity;
 
 			/* User */
-			this.userPhoto.setImageWithRealmEntity(entity.photo, entity.name);
+			this.userPhoto.setImageWithEntity(entity.getPhoto(), entity.name);
 
 			/* Create date */
 			String dateFormatted = null;
@@ -87,9 +87,9 @@ public class NotificationView extends BaseView {
 
 	        /* Photo */
 			UI.setVisibility(this.notificationPhoto, GONE);
-			if (entity.photoBig != null) {
-				final RealmPhoto photo = entity.photoBig;
-				this.notificationPhoto.setImageWithRealmEntity(photo, null);
+			if (entity.getPhotoBig() != null) {
+				final Photo photo = entity.getPhotoBig();
+				this.notificationPhoto.setImageWithEntity(photo, null);
 				this.notificationPhoto.setTag(photo);
 				UI.setVisibility(this.notificationPhoto, VISIBLE);
 			}

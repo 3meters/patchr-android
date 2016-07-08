@@ -1,4 +1,4 @@
-package com.patchr.ui.listforms;
+package com.patchr.ui.collections;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -41,22 +41,20 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.LinkDeleteEvent;
-import com.patchr.events.LinkInsertEvent;
 import com.patchr.events.NotificationReceivedEvent;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.ActionType;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.FetchMode;
-import com.patchr.objects.Link;
+import com.patchr.objects.LinkOld;
 import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Message;
-import com.patchr.objects.Photo;
-import com.patchr.objects.Query;
 import com.patchr.objects.QueryName;
-import com.patchr.objects.Shortcut;
+import com.patchr.objects.QuerySpec;
 import com.patchr.objects.TransitionType;
-import com.patchr.ui.collections.BaseListScreen;
+import com.patchr.ui.MapScreen;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.ListScrollListener;
@@ -84,10 +82,9 @@ public class PatchScreen extends BaseListScreen {
 	private final Handler handler = new Handler();
 
 	protected BottomSheetLayout bottomSheetLayout;
+	protected ViewGroup         actionView;
 
 	protected String notificationId;
-	protected String memberStatus = MemberStatus.NonMember;    // Set in draw
-	private boolean bound;
 
 	protected CallbackManager callbackManager;      // For facebook
 	protected String          branchLink;           // Uri
@@ -162,6 +159,9 @@ public class PatchScreen extends BaseListScreen {
 		else if (item.getItemId() == R.id.leave_patch) {
 			joinAction();
 		}
+		else if (item.getItemId() == R.id.map) {
+			mapAction();
+		}
 		else {
 			return super.onOptionsItemSelected(item);   // home, report, logout
 		}
@@ -230,7 +230,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 			else if (resultCode == Constants.RESULT_USER_LOGGED_IN && UserManager.shared().authenticated()) {
-				onRefresh();
+				this.listWidget.onRefresh();
 			}
 			else if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
 				if (intent != null && intent.getExtras() != null) {
@@ -341,7 +341,7 @@ public class PatchScreen extends BaseListScreen {
 		}
 
 		/* Cancel request */
-		if (memberStatus.equals(MemberStatus.Member)) {
+		if (entity.userMemberStatus.equals(MemberStatus.Member)) {
 			if (entity.isRestrictedForCurrentUser()) {
 				confirmLeave();
 			}
@@ -349,23 +349,30 @@ public class PatchScreen extends BaseListScreen {
 				join(false /* delete */);
 			}
 		}
-		else if (memberStatus.equals(MemberStatus.Pending)) {
+		else if (entity.userMemberStatus.equals(MemberStatus.Pending)) {
 			join(false /* delete */);
 		}
-		else if (memberStatus.equals(MemberStatus.NonMember)) {
+		else if (entity.userMemberStatus.equals(MemberStatus.NonMember)) {
 			join(true /* insert */);
 		}
 	}
 
 	private void memberListAction() {
 		if (entity != null) {
-			Bundle extras = new Bundle();
-			extras.putInt(Constants.EXTRA_LIST_ITEM_RESID, R.layout.listitem_user);
-			extras.putString(Constants.EXTRA_LIST_LINK_DIRECTION, Link.Direction.in.name());
-			extras.putString(Constants.EXTRA_LIST_LINK_SCHEMA, Constants.SCHEMA_ENTITY_USER);
-			extras.putString(Constants.EXTRA_LIST_LINK_TYPE, Constants.TYPE_LINK_MEMBER);
-			extras.putInt(Constants.EXTRA_LIST_TITLE_RESID, R.string.screen_title_member_list);
-			Patchr.router.route(this, Command.MEMBER_LIST, entity, extras);
+			Intent intent = new Intent(this, MemberListScreen.class);
+			intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+			intent.putExtra(Constants.EXTRA_QUERY_NAME, QueryName.MembersForPatch);
+			startActivity(intent);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+		}
+	}
+
+	private void mapAction() {
+		if (entity != null) {
+			Intent intent = new Intent(this, MapScreen.class);
+			intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+			startActivity(intent);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 	}
 
@@ -395,8 +402,8 @@ public class PatchScreen extends BaseListScreen {
 
 	@Override public void initialize(Bundle savedInstanceState) {
 		this.header = new PatchDetailView(this);
-		this.boundHeader = true;
-		this.query = Query.Factory(QueryName.MessagesForPatch, entityId);
+		this.querySpec = QuerySpec.Factory(QueryName.MessagesForPatch);
+		this.actionView = (ViewGroup) header.findViewById(R.id.action_group);
 
 		super.initialize(savedInstanceState);
 
@@ -406,7 +413,7 @@ public class PatchScreen extends BaseListScreen {
 		if (this.bottomSheetLayout != null)
 			this.bottomSheetLayout.setPeekOnDismiss(true);
 
-		this.listController.recyclerView.addOnScrollListener(new ListScrollListener() {
+		this.listWidget.recyclerView.addOnScrollListener(new ListScrollListener() {
 			@Override public void onMoved(int distance) {
 				((PatchDetailView) header).bannerView.photoView.imageView.setTranslationY(distance / 2);    // Parallax
 			}
@@ -417,54 +424,73 @@ public class PatchScreen extends BaseListScreen {
 		super.bind();
 
 		/* Bind action button */
-		{
-			ViewGroup actionView = (ViewGroup) header.findViewById(R.id.action_group);
+		updateActiveView();
+		this.entity.addChangeListener(user -> {
+			updateActiveView();
+		});
+	}
 
-			if (actionView != null && entity != null) {
+	public void updateActiveView() {
+		if (entity != null && entity.schema != null) {
 
-				Boolean owner = entity.isOwnedByCurrentUser();
-				Boolean hasMessaged = entity.userHasMessaged;
-				Boolean isPublic = (entity.visibility != null
-					&& entity.visibility.equals(Constants.PRIVACY_PUBLIC)
-					&& entity.isVisibleToCurrentUser());
+			Boolean owner = entity.isOwnedByCurrentUser();
+			Boolean hasMessaged = entity.userHasMessaged;
+			Boolean isPublic = (entity.visibility != null
+				&& entity.visibility.equals(Constants.PRIVACY_PUBLIC)
+				&& entity.isVisibleToCurrentUser());
 
-				TextView buttonAlert = (TextView) actionView.findViewById(R.id.action_button);
-				if (buttonAlert == null) return;
+			TextView buttonAlert = (TextView) actionView.findViewById(R.id.action_button);
+			if (buttonAlert == null) return;
 
-				int requestCount = entity.countPending;
+			int requestCount = entity.countPending;
 
-				/* Owner */
+			/* Owner */
 
-				if (owner) {
-					/*
-					 * - Member requests then alert to handle
-					 * - No messages then alert to invite
-					 */
-					if (requestCount > 0) {
-						String requests = getResources().getQuantityString(R.plurals.button_pending_requests, requestCount, requestCount);
-						buttonAlert.setText(requests);
-						buttonAlert.setTag(R.id.members_button);
-					}
-					else if (memberStatus.equals(MemberStatus.NonMember)) {
-						buttonAlert.setText(R.string.button_list_watch_request);
-						buttonAlert.setTag(R.id.join_button);
+			if (owner) {
+				/*
+				 * - Member requests then alert to handle
+				 * - No messages then alert to invite
+				 */
+				if (requestCount > 0) {
+					String requests = getResources().getQuantityString(R.plurals.button_pending_requests, requestCount, requestCount);
+					buttonAlert.setText(requests);
+					buttonAlert.setTag(R.id.members_button);
+				}
+				else if (entity.userMemberStatus.equals(MemberStatus.NonMember)) {
+					buttonAlert.setText(R.string.button_list_watch_request);
+					buttonAlert.setTag(R.id.join_button);
+				}
+				else {
+					buttonAlert.setText(StringManager.getString(R.string.button_list_share));
+					buttonAlert.setTag(R.id.invite);
+				}
+			}
+
+			/* Members */
+
+			else {
+				if (entity.userMemberStatus.equals(MemberStatus.NonMember)) {
+					buttonAlert.setText(R.string.button_list_watch_request);
+					buttonAlert.setTag(R.id.join_button);
+					return;
+				}
+
+				if (isPublic) {
+					if (!hasMessaged) {
+						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
+						buttonAlert.setTag(R.id.fab);
 					}
 					else {
 						buttonAlert.setText(StringManager.getString(R.string.button_list_share));
 						buttonAlert.setTag(R.id.invite);
 					}
 				}
-
-				/* Members */
-
 				else {
-					if (memberStatus.equals(MemberStatus.NonMember)) {
-						buttonAlert.setText(R.string.button_list_watch_request);
+					if (entity.userMemberStatus.equals(MemberStatus.Pending)) {
+						buttonAlert.setText(R.string.button_list_watch_request_cancel);
 						buttonAlert.setTag(R.id.join_button);
-						return;
 					}
-
-					if (isPublic) {
+					else if (entity.userMemberStatus.equals(MemberStatus.Member)) {
 						if (!hasMessaged) {
 							buttonAlert.setText(StringManager.getString(R.string.button_no_message));
 							buttonAlert.setTag(R.id.fab);
@@ -474,31 +500,15 @@ public class PatchScreen extends BaseListScreen {
 							buttonAlert.setTag(R.id.invite);
 						}
 					}
-					else {
-						if (memberStatus.equals(MemberStatus.Pending)) {
-							buttonAlert.setText(R.string.button_list_watch_request_cancel);
-							buttonAlert.setTag(R.id.join_button);
-						}
-						else if (memberStatus.equals(MemberStatus.Member)) {
-							if (!hasMessaged) {
-								buttonAlert.setText(StringManager.getString(R.string.button_no_message));
-								buttonAlert.setTag(R.id.fab);
-							}
-							else {
-								buttonAlert.setText(StringManager.getString(R.string.button_list_share));
-								buttonAlert.setTag(R.id.invite);
-							}
-						}
 
-						if (justApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
-							if (hasMessaged) {
-								buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
-								buttonAlert.setTag(R.id.invite);
-							}
-							else {
-								buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
-								buttonAlert.setTag(R.id.fab);
-							}
+					if (justApproved) {  // We add a little sugar by using a flag set by an 'approved' notification
+						if (hasMessaged) {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved));
+							buttonAlert.setTag(R.id.invite);
+						}
+						else {
+							buttonAlert.setText(StringManager.getString(R.string.button_just_approved_no_message));
+							buttonAlert.setTag(R.id.fab);
 						}
 					}
 				}
@@ -574,22 +584,22 @@ public class PatchScreen extends BaseListScreen {
 		if (activate) {
 
 			/* Used as part of link management */
-			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-			Shortcut toShortcut = null; // entity.getAsShortcut();
-
-			LinkInsertEvent insertEvent = new LinkInsertEvent();
-			insertEvent.fromId = UserManager.currentUser.id;
-			insertEvent.toId = entity.id;
-			insertEvent.type = Constants.TYPE_LINK_MEMBER;
-			insertEvent.enabled = enabled;
-			insertEvent.fromShortcut = fromShortcut;
-			insertEvent.toShortcut = toShortcut;
-			insertEvent.actionEvent = entity.isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity";
-			insertEvent.skipCache = false;
-			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_MEMBER;
-			insertEvent.tag = System.identityHashCode(this);
-
-			Dispatcher.getInstance().post(insertEvent);
+			//			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
+			//			Shortcut toShortcut = null; // entity.getAsShortcut();
+			//
+			//			LinkInsertEvent insertEvent = new LinkInsertEvent();
+			//			insertEvent.fromId = UserManager.currentUser.id;
+			//			insertEvent.toId = entity.id;
+			//			insertEvent.type = Constants.TYPE_LINK_MEMBER;
+			//			insertEvent.enabled = enabled;
+			//			insertEvent.fromShortcut = fromShortcut;
+			//			insertEvent.toShortcut = toShortcut;
+			//			insertEvent.actionEvent = entity.isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity";
+			//			insertEvent.skipCache = false;
+			//			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_MEMBER;
+			//			insertEvent.tag = System.identityHashCode(this);
+			//
+			//			Dispatcher.getInstance().post(insertEvent);
 		}
 		else {
 
@@ -609,7 +619,7 @@ public class PatchScreen extends BaseListScreen {
 
 	public void mute(final Boolean mute) {
 
-		final Link link = null; // entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
+		final LinkOld link = null; // entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
 		final String actionEvent = mute ? "mute_watch_entity" : "unmute_watch_entity";
 
 		new AsyncTask() {
@@ -739,11 +749,11 @@ public class PatchScreen extends BaseListScreen {
 				if (UserManager.shared().authenticated()) {
 
 					authenticatedForInvite = true;
-					if (memberStatus.equals(MemberStatus.Member)) {
+					if (entity.userMemberStatus.equals(MemberStatus.Member)) {
 						buttonGroup.setVisibility(View.GONE);
 						member.setText("You are a member of this patch!");
 					}
-					else if (memberStatus.equals(MemberStatus.Pending)) {
+					else if (entity.userMemberStatus.equals(MemberStatus.Pending)) {
 						buttonGroup.setVisibility(View.GONE);
 						member.setText("Requested");
 					}

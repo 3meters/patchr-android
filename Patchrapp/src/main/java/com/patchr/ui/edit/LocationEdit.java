@@ -22,7 +22,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.objects.AirLocation;
+import com.patchr.objects.LocationOld;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.utilities.Json;
@@ -36,7 +36,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 
 	protected MapView     mapView;
 	protected GoogleMap   map;
-	protected AirLocation originalLocation;
+	protected LocationOld originalLocation;
 	protected String      title;
 	protected Marker      marker;
 	protected boolean     dirty;
@@ -104,7 +104,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 			title = extras.getString(Constants.EXTRA_TITLE);
 			final String json = extras.getString(Constants.EXTRA_LOCATION);
 			if (json != null) {
-				originalLocation = (AirLocation) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
+				originalLocation = (LocationOld) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
 			}
 		}
 	}
@@ -154,7 +154,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 
 		final Intent intent = new Intent();
 		CameraPosition position = map.getCameraPosition();
-		AirLocation location = new AirLocation(position.target.latitude, position.target.longitude);
+		LocationOld location = new LocationOld(position.target.latitude, position.target.longitude);
 		location.accuracy = 1;
 		String json = Json.objectToJson(location);
 		intent.putExtra(Constants.EXTRA_LOCATION, json);

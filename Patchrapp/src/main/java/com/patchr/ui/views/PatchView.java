@@ -82,7 +82,7 @@ public class PatchView extends BaseView {
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.photoView.setImageWithRealmEntity(entity);
+			this.photoView.setImageWithEntity(entity);
 			setOrGone(this.name, entity.name);
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -97,10 +97,10 @@ public class PatchView extends BaseView {
 				setOrGone(this.messageCount, String.valueOf(entity.countMessages));
 
 				/* Watch count for nearby list */
-				setOrGone(this.watchCount, String.valueOf(entity.countMessages));
+				setOrGone(this.watchCount, String.valueOf(entity.countMembers));
 
 				/* Distance */
-				final Float distance = entity.getDistance(true); // In meters
+				final Float distance = entity.distance; // In meters
 				final String distanceFormatted = Utils.distanceFormatted(distance);
 				setOrGone(this.distance, distanceFormatted);
 			}

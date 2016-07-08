@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
-import com.patchr.objects.Preference;
 import com.patchr.utilities.UI;
 
 import java.util.concurrent.Executor;
@@ -36,6 +35,7 @@ public class Constants {
 
 	public static final String EXTRA_MESSAGE_TYPE = "com.patchr.EXTRA_MESSAGE_TYPE";
 
+	public static final String EXTRA_QUERY_NAME                  = "com.patchr.EXTRA_QUERY_NAME";
 	public static final String EXTRA_LAYOUT_RESID                = "com.patchr.EXTRA_LAYOUT_RESID";
 	public static final String EXTRA_MESSAGE                     = "com.patchr.EXTRA_MESSAGE";
 	public static final String EXTRA_LOCATION                    = "com.patchr.EXTRA_LOCATION";
@@ -257,9 +257,9 @@ public class Constants {
 	public static final int ACTIVITY_SHARE             = 970;
 
 	public static final String FRAGMENT_TYPE_NEARBY        = "nearby";
-	public static final String FRAGMENT_TYPE_WATCH         = "watch";
+	public static final String FRAGMENT_TYPE_MEMBER_OF     = "watch";
+	public static final String FRAGMENT_TYPE_OWNER_OF      = "create";
 	public static final String FRAGMENT_TYPE_LIKE          = "like";
-	public static final String FRAGMENT_TYPE_OWNER         = "create";
 	public static final String FRAGMENT_TYPE_TREND_POPULAR = "trend_popular";
 	public static final String FRAGMENT_TYPE_TREND_ACTIVE  = "trend_active";
 	public static final String FRAGMENT_TYPE_SETTINGS      = "settings";
@@ -294,8 +294,11 @@ public class Constants {
 	public static final String  INSTALL_TYPE_RANDOM     = "random_uuid";
 	public static final String  INSTALL_TYPE_ANDROID_ID = "android_id";
 	public static final String  INSTALL_TYPE_SERIAL     = "serial_num";
-	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
-	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
+
+//	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
+//	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
+	public static       boolean DEV_ENABLED = false;
+	public static       boolean STAGING_ENABLED = false;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants

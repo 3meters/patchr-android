@@ -5,7 +5,7 @@ import java.util.Map;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class RealmLink extends RealmObject {
+public class Link extends RealmObject {
 
 	/* Service persisted fields */
 	@PrimaryKey
@@ -22,7 +22,7 @@ public class RealmLink extends RealmObject {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public static RealmLink setPropertiesFromMap(RealmLink link, Map map) {
+	public static Link setPropertiesFromMap(Link link, Map map) {
 
 		synchronized (link) {
 

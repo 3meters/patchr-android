@@ -7,7 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
-public class AirLocation extends ServiceObject {
+public class LocationOld extends ServiceObject {
 
 	private static final long                      serialVersionUID = 455904759787968585L;
 	private static final android.location.Location fromLocation     = new android.location.Location("from");
@@ -21,14 +21,14 @@ public class AirLocation extends ServiceObject {
 	public Number speed;
 	public String provider;
 
-	public AirLocation() {}
+	public LocationOld() {}
 
-	public AirLocation(@NonNull Number lat, @NonNull Number lng) {
+	public LocationOld(@NonNull Number lat, @NonNull Number lng) {
 		this.lat = lat;
 		this.lng = lng;
 	}
 
-	public static AirLocation setPropertiesFromMap(AirLocation location, Map map) {
+	public static LocationOld setPropertiesFromMap(LocationOld location, Map map) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
@@ -42,7 +42,7 @@ public class AirLocation extends ServiceObject {
 		return location;
 	}
 
-	public Float distanceTo(@NonNull AirLocation location) {
+	public Float distanceTo(@NonNull LocationOld location) {
 
 		if (this.lat == null || this.lng == null) {
 			throw new IllegalArgumentException("Attempted to call distanceTo on location without lat/lng");
@@ -64,9 +64,9 @@ public class AirLocation extends ServiceObject {
 		return new LatLng(this.lat.doubleValue(), this.lng.doubleValue());
 	}
 
-	@Override public AirLocation clone() {
+	@Override public LocationOld clone() {
 		try {
-			final AirLocation clone = (AirLocation) super.clone();
+			final LocationOld clone = (LocationOld) super.clone();
 			return clone;
 		}
 		catch (final CloneNotSupportedException ex) {

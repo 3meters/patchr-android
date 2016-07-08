@@ -36,10 +36,9 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
+import com.patchr.model.Photo;
 import com.patchr.objects.ImageResult;
 import com.patchr.objects.ImageResult.Thumbnail;
-import com.patchr.objects.Photo;
-import com.patchr.objects.Photo.PhotoSource;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.RequestType;
@@ -49,8 +48,8 @@ import com.patchr.service.ServiceRequest.AuthType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.EmptyController;
-import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
+import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
@@ -204,7 +203,8 @@ public class PhotoSearchScreen extends BaseScreen {
 		gridView.setColumnWidth(photoWidthPixels);
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (((EndlessImageAdapter) gridView.getAdapter()).getItemViewType(position) != Adapter.IGNORE_ITEM_VIEW_TYPE) {
 
 					ImageResult imageResult = images.get(position);
@@ -214,9 +214,8 @@ public class PhotoSearchScreen extends BaseScreen {
 					 * an empty photo means the image is coming from external service like bing.
 					 */
 					if (photo == null) {
-						photo = new Photo(imageResult.getMediaUrl(), null, imageResult.getWidth(), imageResult.getHeight(), PhotoSource.generic);
+						photo = new Photo(imageResult.getMediaUrl(), imageResult.getWidth().intValue(), imageResult.getHeight().intValue(), Photo.PhotoSource.generic);
 					}
-					photo.name = titleOptional;
 
 					final Intent intent = new Intent();
 					final String jsonPhoto = Json.objectToJson(photo);
@@ -273,7 +272,7 @@ public class PhotoSearchScreen extends BaseScreen {
 		/* Add query to auto complete array */
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
-					"{}"));
+				"{}"));
 			jsonSearchMap.put(query, query);
 			editor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
 			editor.apply();
@@ -296,7 +295,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	private void initAutoComplete() {
 		try {
 			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
-					"{}"));
+				"{}"));
 			previousSearches.clear();
 			if (defaultSearch != null) {
 				jsonSearchMap.put(defaultSearch, defaultSearch);
@@ -316,8 +315,8 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private void bindAutoCompleteAdapter() {
 		searchAdapter = new ArrayAdapter<String>(this
-				, android.R.layout.simple_dropdown_item_1line
-				, previousSearches);
+			, android.R.layout.simple_dropdown_item_1line
+			, previousSearches);
 		search.setAdapter(searchAdapter);
 	}
 
@@ -332,24 +331,24 @@ public class PhotoSearchScreen extends BaseScreen {
 		}
 
 		final String bingUrl = Constants.URI_PROXIBASE_SEARCH_IMAGES
-				+ "?Query=" + query
-				+ "&Market=%27en-US%27&Adult=%27Strict%27&ImageFilters=%27size%3alarge%27"
-				+ "&$top=" + String.valueOf(count + 1)
-				+ "&$skip=" + String.valueOf(offset)
-				+ "&$format=Json";
+			+ "?Query=" + query
+			+ "&Market=%27en-US%27&Adult=%27Strict%27&ImageFilters=%27size%3alarge%27"
+			+ "&$top=" + String.valueOf(count + 1)
+			+ "&$skip=" + String.valueOf(offset)
+			+ "&$format=Json";
 
 		final ServiceRequest serviceRequest = new ServiceRequest(bingUrl, RequestType.GET, ResponseFormat.JSON);
 		serviceRequest.setAuthType(AuthType.BASIC)
-				.setUserName(null)
-				.setPassword(ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY));
+			.setUserName(null)
+			.setPassword(ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY));
 
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects((String) result.serviceResponse.data
-					, Json.ObjectType.IMAGE_RESULT
-					, Json.ServiceDataWrapper.TRUE);
+				, Json.ObjectType.IMAGE_RESULT
+				, Json.ServiceDataWrapper.TRUE);
 
 			List<ImageResult> images = new ArrayList<ImageResult>();
 
@@ -373,8 +372,8 @@ public class PhotoSearchScreen extends BaseScreen {
 
 				Boolean usable = false;
 				if (imageResult.getFileSize() <= maxSize
-						&& imageResult.getHeight() <= maxDimen
-						&& imageResult.getWidth() <= maxDimen) {
+					&& imageResult.getHeight() <= maxDimen
+					&& imageResult.getWidth() <= maxDimen) {
 					usable = true;
 				}
 
@@ -462,8 +461,8 @@ public class PhotoSearchScreen extends BaseScreen {
 				}
 				else {
 					Logger.d(this, "Query Bing for more images: start = " + String.valueOf(offset)
-							+ " new total = "
-							+ String.valueOf(getWrappedAdapter().getCount() + mMoreImages.size()));
+						+ " new total = "
+						+ String.valueOf(getWrappedAdapter().getCount() + mMoreImages.size()));
 
 					if (!serviceData.more) {
 						return false;
@@ -540,7 +539,7 @@ public class PhotoSearchScreen extends BaseScreen {
 				holder.data = itemData;
 				holder.photoView.setTag(itemData.getThumbnail().getUrl());
 				Thumbnail thumbnail = itemData.getThumbnail();
-				Photo photo = new Photo().setPrefix(thumbnail.getUrl()).setSource(PhotoSource.bing);
+				Photo photo = new Photo(thumbnail.getUrl(), Photo.PhotoSource.bing);
 				holder.photoView.setImageWithPhoto(photo, null);
 			}
 			return view;

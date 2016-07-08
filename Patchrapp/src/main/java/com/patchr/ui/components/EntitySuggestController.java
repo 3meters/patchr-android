@@ -23,6 +23,7 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.Entity;
+import com.patchr.objects.Suggest;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.UI;
 import com.tokenautocomplete.TokenCompleteTextView;
@@ -68,7 +69,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 		this.context = context;
 		this.entities = new ArrayList<>();
 		this.adapter = new SuggestArrayAdapter(this.entities);
-		this.suggestScope = DataController.Suggest.Patches;
+		this.suggestScope = Suggest.Patches;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -161,7 +162,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 					ModelResult result = DataController.getInstance().suggest(chars.toString().trim()
 							, suggestScope
 							, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
-							, LocationManager.getInstance().getAirLocationLocked()
+							, LocationManager.getInstance().getLocationLocked()
 							, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 					return result;
@@ -203,7 +204,7 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
 
-	private class SuggestArrayAdapter extends RecyclerView.Adapter<RecyclerViewHolder> {
+	private class SuggestArrayAdapter extends RecyclerView.Adapter<RealmRecyclerViewHolder> {
 
 		private List<Entity>   entities;
 		private LayoutInflater inflater;
@@ -213,12 +214,12 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 			this.inflater = LayoutInflater.from(context);
 		}
 
-		@Override public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		@Override public RealmRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.listitem_search, parent, false);
-			return new RecyclerViewHolder(view);
+			return new RealmRecyclerViewHolder(view);
 		}
 
-		@Override public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+		@Override public void onBindViewHolder(RealmRecyclerViewHolder holder, int position) {
 			Entity entity = this.entities.get(position);
 			//holder.bind(entity);
 		}

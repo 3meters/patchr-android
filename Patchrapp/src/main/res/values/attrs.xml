@@ -24,6 +24,13 @@
 		<enum name="argb_8888" value="3" />
 	</attr>
 
+	<!-- Lists -->
+
+	<attr name="pagingDisabled" format="boolean" />
+	<attr name="cacheDisabled" format="boolean" />
+	<attr name="fetchOnResumeDisabled" format="boolean" />
+	<attr name="restartAtTop" format="boolean" />
+
 	<!-- Theme attributes -->
 
 	<declare-styleable name="AppTheme">
@@ -125,6 +132,12 @@
 
 	</declare-styleable>
 
+	<declare-styleable name="ListWidget">
+		<attr name="pagingDisabled" />
+		<attr name="cacheDisabled" />
+		<attr name="fetchOnResumeDisabled" />
+		<attr name="restartAtTop" />
+	</declare-styleable>
 	<declare-styleable name="ImageWidget">
 		<attr name="aspectRatio" />
 		<attr name="config" />

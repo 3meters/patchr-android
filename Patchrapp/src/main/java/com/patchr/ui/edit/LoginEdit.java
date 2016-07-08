@@ -194,8 +194,8 @@ public class LoginEdit extends BaseEdit {
 			.subscribe(
 				response -> {
 					if (response.isSuccessful()) {
-						Logger.i(this, "User signed in: " + UserManager.currentRealmUser.name);
-						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentRealmUser.name);
+						Logger.i(this, "User signed in: " + UserManager.currentUser.name);
+						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 						setResult(Constants.RESULT_USER_LOGGED_IN);
 						finish();
 						AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);

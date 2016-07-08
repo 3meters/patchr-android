@@ -8,8 +8,7 @@ public class ContainerManager {
 	/**
 	 * Utility class; don't instantiate.
 	 */
-	private ContainerManager() {
-	}
+	private ContainerManager() {}
 
 	public static ContainerHolder getContainerHolder() {
 		return containerHolder;

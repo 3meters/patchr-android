@@ -11,8 +11,8 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.StringManager;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
@@ -124,7 +124,7 @@ public class MessageView extends BaseView {
 			}
 
 			/* User */
-			this.userPhotoView.setImageWithRealmEntity(entity.creator.photo, entity.creator.name);
+			this.userPhotoView.setImageWithEntity(entity.creator.getPhoto(), entity.creator.name);
 			setOrGone(this.userName, entity.creator.name);
 
 			/* Create date */
@@ -192,9 +192,9 @@ public class MessageView extends BaseView {
 			else {
 
 		        /* Photo */
-				if (entity.photo != null) {
-					final RealmPhoto photo = entity.photo;
-					this.photoView.setImageWithRealmEntity(photo, null);
+				if (entity.getPhoto() != null) {
+					final Photo photo = entity.getPhoto();
+					this.photoView.setImageWithEntity(photo, null);
 					this.photoView.setTag(photo);
 					UI.setVisibility(this.photoView, VISIBLE);
 				}

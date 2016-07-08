@@ -15,22 +15,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.DataController;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.model.RealmPhoto;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Link;
+import com.patchr.objects.LinkOld;
 import com.patchr.objects.Message.MessageType;
-import com.patchr.objects.Photo;
 import com.patchr.objects.Recipient;
+import com.patchr.objects.Suggest;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
@@ -117,7 +115,7 @@ public class ShareEdit extends BaseEdit {
 	}
 
 	public void onCancelPhotoButtonClick(View view) {
-		entity.photo = null;
+		entity.setPhoto(null);
 		onPhotoCanceled();
 	}
 
@@ -132,8 +130,7 @@ public class ShareEdit extends BaseEdit {
 		if (extras != null) {
 			String shareJson = extras.getString(Constants.EXTRA_SHARE_PATCH);
 			if (shareJson != null) {
-				Gson gson = new Gson();
-				this.inputShareEntity = gson.fromJson(shareJson, RealmEntity.class);
+				this.inputShareEntity = Patchr.gson.fromJson(shareJson, RealmEntity.class);
 			}
 			this.inputShareType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
 			this.inputShareEntityId = extras.getString(Constants.EXTRA_SHARE_ID);
@@ -165,7 +162,7 @@ public class ShareEdit extends BaseEdit {
 		this.entitySuggest = new EntitySuggestController(this);
 		this.entitySuggest.searchInput = this.recipientsField;
 		this.entitySuggest.busyPresenter = this.busyController;
-		this.entitySuggest.suggestScope = DataController.Suggest.Users;
+		this.entitySuggest.suggestScope = Suggest.Users;
 		this.entitySuggest.recyclerView = this.listView;
 		this.entitySuggest.initialize();
 
@@ -239,7 +236,7 @@ public class ShareEdit extends BaseEdit {
 
 									@Override protected Object doInBackground(Object... params) {
 										Thread.currentThread().setName("AsyncShareBitmap");
-										RealmPhoto photo = null;
+										Photo photo = null;
 
 										try {
 											Bitmap bitmap = Picasso.with(Patchr.applicationContext)
@@ -252,10 +249,8 @@ public class ShareEdit extends BaseEdit {
 											Uri uri = MediaManager.getSharePathUri();
 
 											if (file != null && uri != null) {
-												photo = new RealmPhoto();
-												photo.prefix = uri.toString();
+												photo = new Photo(uri.toString(), Photo.PhotoSource.file);
 												photo.store = true;
-												photo.source = Photo.PhotoSource.file;
 											}
 											else {
 												UI.toast(StringManager.getString(R.string.error_storage_unmounted));
@@ -275,7 +270,7 @@ public class ShareEdit extends BaseEdit {
 
 									@Override protected void onPostExecute(Object response) {
 										if (response != null) {
-											RealmPhoto photo = (RealmPhoto) response;
+											Photo photo = (Photo) response;
 											onPhotoSelected(photo); // mDirty gets set in this method
 											dirty = false;
 											bind();
@@ -330,10 +325,8 @@ public class ShareEdit extends BaseEdit {
 								Uri uri = MediaManager.getSharePathUri();
 
 								if (file != null && uri != null) {
-									photo = new Photo()
-											.setPrefix(uri.toString())
-											.setStore(true)
-											.setSource(Photo.PhotoSource.file);
+									photo = new Photo(uri.toString(), Photo.PhotoSource.file);
+									photo.store = true;
 								}
 								else {
 									UI.toast(StringManager.getString(R.string.error_storage_unmounted));
@@ -350,7 +343,7 @@ public class ShareEdit extends BaseEdit {
 
 						@Override protected void onPostExecute(Object response) {
 							if (response != null) {
-								RealmPhoto photo = (RealmPhoto) response;
+								Photo photo = (Photo) response;
 								onPhotoSelected(photo); // mDirty gets set in this method
 								dirty = false;
 								bind();
@@ -379,7 +372,7 @@ public class ShareEdit extends BaseEdit {
          */
 		super.bind();
 
-		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
+		//UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 
 		if (this.description != null) {
 			this.description.setMinLines(3);
@@ -443,13 +436,13 @@ public class ShareEdit extends BaseEdit {
 		return Constants.TYPE_LINK_SHARE;
 	}
 
-	@Override protected void beforeInsert(RealmEntity entity, List<Link> links) {
+	@Override protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
 	    /* Called on background thread. */
 		if (inputShareEntityId != null) {
-			links.add(new Link(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
+			links.add(new LinkOld(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
 		}
 		for (Recipient recipient : this.recipientsField.getObjects()) {
-			links.add(new Link(recipient.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
+			links.add(new LinkOld(recipient.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
 		}
 	}
 

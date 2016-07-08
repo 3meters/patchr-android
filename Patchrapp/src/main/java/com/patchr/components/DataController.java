@@ -24,8 +24,9 @@ import com.patchr.events.NotificationsQueryEvent;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.events.ShareCheckEvent;
 import com.patchr.events.TrendQueryEvent;
-import com.patchr.model.RealmLocation;
-import com.patchr.objects.AirLocation;
+import com.patchr.model.Location;
+import com.patchr.model.Photo;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
@@ -33,17 +34,18 @@ import com.patchr.objects.Cursor;
 import com.patchr.objects.Document;
 import com.patchr.objects.Entity;
 import com.patchr.objects.Install;
-import com.patchr.objects.Link;
-import com.patchr.objects.Link.Direction;
+import com.patchr.objects.LinkOld;
+import com.patchr.objects.LinkOld.Direction;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecItem;
 import com.patchr.objects.LinkSpecType;
 import com.patchr.objects.LinkSpecs;
+import com.patchr.objects.LocationOld;
 import com.patchr.objects.Patch;
-import com.patchr.objects.Photo;
 import com.patchr.objects.ServiceBase.UpdateScope;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
+import com.patchr.objects.Suggest;
 import com.patchr.objects.User;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
@@ -75,14 +77,14 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public class DataController {
 
-	private        Number       activityDate;     // Monitored by nearby
-	private        boolean      registering;
-	private static EntityStore  ENTITY_STORE;
+	private        Number      activityDate;     // Monitored by nearby
+	private        boolean     registering;
+	private static EntityStore entityStore;
 
 	private DataController() {
 		try {
 			Dispatcher.getInstance().register(this);
-			ENTITY_STORE = new EntityStore();
+			entityStore = new EntityStore();
 		}
 		catch (IllegalArgumentException ignore) {
 			/* ignore */
@@ -116,7 +118,7 @@ public class DataController {
 				final List<String> loadEntityIds = new ArrayList<>();
 				loadEntityIds.add(event.entityId);
 
-				ServiceResponse serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+				ServiceResponse serviceResponse = entityStore.loadEntities(loadEntityIds, links, event.cacheStamp, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 
 				EntityQueryResultEvent data = new EntityQueryResultEvent();
 				data.actionType = event.actionType;
@@ -161,7 +163,7 @@ public class DataController {
 				 */
 				LinkSpecs options = LinkSpecFactory.build(event.linkProfile);
 
-				ServiceResponse serviceResponse = ENTITY_STORE.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
+				ServiceResponse serviceResponse = entityStore.loadEntitiesForEntity(event.entityId, options, event.cursor, event.cacheStamp, null, event.tag);
 
 				EntitiesQueryResultEvent resultEvent = new EntitiesQueryResultEvent();
 				resultEvent.actionType = event.actionType;
@@ -406,7 +408,7 @@ public class DataController {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static Entity getStoreEntity(String entityId) {
-		return ENTITY_STORE.getStoreEntity(entityId);
+		return entityStore.getStoreEntity(entityId);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -420,13 +422,13 @@ public class DataController {
 		 */
 		final ModelResult result = new ModelResult();
 
-		Entity entity = ENTITY_STORE.getStoreEntity(entityId);
+		Entity entity = entityStore.getStoreEntity(entityId);
 		if (refresh || entity == null) {
 			final List<String> loadEntityIds = new ArrayList<>();
 			loadEntityIds.add(entityId);
 
 			/* This is the only place in the code that calls loadEntities */
-			result.serviceResponse = ENTITY_STORE.loadEntities(loadEntityIds, linkOptions, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
+			result.serviceResponse = entityStore.loadEntities(loadEntityIds, linkOptions, null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
 			if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 				ServiceData serviceData = (ServiceData) result.serviceResponse.data;
 				final List<Entity> entities = (List<Entity>) serviceData.data;
@@ -477,7 +479,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult suggest(String input, String suggestScope, String userId, RealmLocation location, long limit, Object tag) {
+	public ModelResult suggest(String input, String suggestScope, String userId, Location location, long limit, Object tag) {
 
 		final ModelResult result = new ModelResult();
 		final Bundle parameters = new Bundle();
@@ -533,40 +535,6 @@ public class DataController {
 	 * User updates
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ModelResult login(String email, String password, String activityName, Object tag) {
-		ModelResult result = new ModelResult();
-
-		final Bundle parameters = new Bundle();
-		parameters.putString("email", email);
-		parameters.putString("password", password);
-		parameters.putString("installId", Patchr.getInstance().getinstallId());
-		parameters.putBoolean("getEntities", true);
-
-		LinkSpecs links = LinkSpecFactory.build(LinkSpecType.LINKS_FOR_USER_CURRENT);
-		if (links != null) {
-			parameters.putString("links", "object:" + Json.objectToJson(links));
-		}
-
-		final ServiceRequest serviceRequest = new ServiceRequest()
-			.setUri(Constants.URL_PROXIBASE_SERVICE_AUTH + "signin")
-			.setRequestType(RequestType.METHOD)
-			.setParameters(parameters)
-			.setTag(tag)
-			.setActivityName(activityName)
-			.setResponseFormat(ResponseFormat.JSON);
-
-		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-
-		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			final String jsonResponse = (String) result.serviceResponse.data;
-			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-			User user = serviceData.user;
-			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, user.session, false);
-		}
-		return result;
-	}
-
 	public ModelResult tokenLogin(String token, String authType, String activityName, Object tag) {
 		ModelResult result = new ModelResult();
 
@@ -596,7 +564,7 @@ public class DataController {
 			User user = serviceData.user;
 			user.authType = authType;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, user.session, false);
+			//UserManager.shared().setCurrentUser(user, user.session, false);
 		}
 		return result;
 	}
@@ -651,7 +619,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, user.session, true);
+			//UserManager.shared().setCurrentUser(user, user.session, true);
 		}
 		return result;
 	}
@@ -724,7 +692,7 @@ public class DataController {
 
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			UserManager.shared().setCurrentUser(user, user.session, true);
+			//UserManager.shared().setCurrentUser(user, user.session, true);
 		}
 
 		return result;
@@ -760,15 +728,15 @@ public class DataController {
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
-			User user = serviceData.user;
-			user.session = serviceData.session;
-			result.data = user;
+//			RealmEntity user = (RealmEntity) serviceData.user;
+//			user.session = serviceData.session;
+//			result.data = user;
 			/*
 			 * Put image to S3 if we have one. Handles setting up the photo object on user
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
 
-				result.serviceResponse = storeImageAtS3(null, user, bitmap);
+//				result.serviceResponse = storeImageAtS3(user, user.id, bitmap);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -821,7 +789,7 @@ public class DataController {
 		return insertEntity(entity, null, null, null, waitForContent, tag);
 	}
 
-	public ModelResult insertEntity(Entity entity, List<Link> links, List<Beacon> beacons, Bitmap bitmap, Boolean waitForContent, Object tag) {
+	public ModelResult insertEntity(Entity entity, List<LinkOld> links, List<Beacon> beacons, Bitmap bitmap, Boolean waitForContent, Object tag) {
 		/*
 		 * Inserts the entity in the entity service collection and Links are created to all the included beacons. The
 		 * inserted entity is retrieved from the service and pushed into the local cache. The cached entity is returned
@@ -838,7 +806,7 @@ public class DataController {
 		/* Upload image to S3 as needed */
 
 		if (bitmap != null && !bitmap.isRecycled()) {
-			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
+			//result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -855,7 +823,7 @@ public class DataController {
 				 * Location and beaconIds are used to determine  if installs should receive
 				 * notifications because they are nearby.
 				 */
-				RealmLocation location = LocationManager.getInstance().getAirLocationLocked();
+				Location location = LocationManager.getInstance().getLocationLocked();
 				if (location != null) {
 					parameters.putString("location", "object:" + Json.objectToJson(location));
 				}
@@ -871,7 +839,7 @@ public class DataController {
 						/* Final resort if patch doesn't have it's own location */
 						if (location != null) {
 
-							beacon.location = new AirLocation();
+							beacon.location = new LocationOld();
 
 							beacon.location.lat = location.lat;
 							beacon.location.lng = location.lng;
@@ -903,7 +871,7 @@ public class DataController {
 			/* Link */
 			if (links != null && links.size() > 0) {
 				final List<String> linkStrings = new ArrayList<>();
-				for (Link link : links) {
+				for (LinkOld link : links) {
 					linkStrings.add("object:" + Json.objectToJson(link, Json.UseAnnotations.TRUE, Json.ExcludeNulls.TRUE));
 				}
 				parameters.putStringArrayList("links", (ArrayList<String>) linkStrings);
@@ -934,12 +902,12 @@ public class DataController {
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
 			if (UserManager.shared().authenticated()) {
-				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.fixupAddLink(UserManager.currentUser.id
-					, insertedEntity.id
-					, Constants.TYPE_LINK_CREATE
-					, null
-					, UserManager.currentUser.getAsShortcut(), insertedEntity.getAsShortcut());
+//				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+//				entityStore.fixupAddLink(UserManager.currentUser.id
+//					, insertedEntity.id
+//					, Constants.TYPE_LINK_CREATE
+//					, null
+//					, UserManager.currentUser, insertedEntity.getAsShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -963,7 +931,7 @@ public class DataController {
 
 		/* Upload new images to S3 as needed. */
 		if (bitmap != null) {
-			result.serviceResponse = storeImageAtS3(entity, null, bitmap);
+			//result.serviceResponse = storeImageAtS3(entity, null, bitmap);
 		}
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
@@ -997,7 +965,7 @@ public class DataController {
 			 * from the service.
 			 */
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-				ENTITY_STORE.fixupEntityUser(entity);
+				entityStore.fixupEntityUser(entity);
 			}
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -1019,7 +987,7 @@ public class DataController {
 		Entity entity;
 
 		if (!cacheOnly) {
-			entity = ENTITY_STORE.getStoreEntity(entityId);
+			entity = entityStore.getStoreEntity(entityId);
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Deleting entity requires entity from cache");
@@ -1043,11 +1011,11 @@ public class DataController {
 
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
-			entity = ENTITY_STORE.removeEntityTree(entityId);
+			entity = entityStore.removeEntityTree(entityId);
 			/* Remove 'create' link */
 			if (UserManager.shared().authenticated()) {
 				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
-				ENTITY_STORE.fixupRemoveLink(UserManager.currentUser.id, entityId, Constants.TYPE_LINK_CREATE, null);
+				entityStore.fixupRemoveLink(UserManager.currentUser.id, entityId, Constants.TYPE_LINK_CREATE, null);
 			}
 
 			if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
@@ -1096,9 +1064,9 @@ public class DataController {
 
 			if (beacons != null) {
 				for (Beacon beacon : beacons) {
-					Link link = entity.getLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, beacon.id, Direction.out);
+					LinkOld link = entity.getLink(Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON, beacon.id, Direction.out);
 					if (link == null) {
-						link = new Link(entity.id, beacon.id, Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON);
+						link = new LinkOld(entity.id, beacon.id, Constants.TYPE_LINK_PROXIMITY, Constants.SCHEMA_ENTITY_BEACON);
 						if (entity.linksOut == null) {
 							entity.linksOut = new ArrayList<>();
 						}
@@ -1106,7 +1074,7 @@ public class DataController {
 						/*
 						 * Entity could be a clone so grab the one in the cache.
 						 */
-						Entity cacheEntity = ENTITY_STORE.getStoreEntity(entity.id);
+						Entity cacheEntity = entityStore.getStoreEntity(entity.id);
 						if (cacheEntity != null) {
 							cacheEntity.activityDate = DateTime.nowDate().getTime();
 						}
@@ -1155,7 +1123,7 @@ public class DataController {
 		 */
 		if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 			if (!skipCache) {
-				ENTITY_STORE.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
+				entityStore.fixupAddLink(fromId, toId, type, enabled, fromShortcut, toShortcut);
 			}
 		}
 
@@ -1191,7 +1159,7 @@ public class DataController {
 			 * Fail could be because of Constants.HTTP_STATUS_CODE_FORBIDDEN_DUPLICATE which is what
 			 * prevents any user from liking the same entity more than once.
 			 */
-			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, enabled);
+			entityStore.fixupRemoveLink(fromId, toId, type, enabled);
 		}
 
 		return result;
@@ -1239,7 +1207,7 @@ public class DataController {
 			if (UserManager.shared().authenticated()) {
 				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 			}
-			ENTITY_STORE.fixupRemoveLink(fromId, toId, type, null);
+			entityStore.fixupRemoveLink(fromId, toId, type, null);
 		}
 
 		return result;
@@ -1252,7 +1220,7 @@ public class DataController {
 	public ModelResult getTrending(String toSchema, String fromSchema, String trendType, Cursor cursor, Object tag) {
 		ModelResult result = new ModelResult();
 
-		final User currentUser = UserManager.currentUser;
+		final RealmEntity currentUser = UserManager.currentUser;
 
 		LinkSpecs links = new LinkSpecs().setActive(new ArrayList<LinkSpecItem>());
 		links.shortcuts = false;
@@ -1335,7 +1303,7 @@ public class DataController {
 		return result;
 	}
 
-	public ModelResult updateProximity(List<String> beaconIds, RealmLocation location, String installId, Object tag) {
+	public ModelResult updateProximity(List<String> beaconIds, Location location, String installId, Object tag) {
 
 		if (installId == null) {
 			throw new IllegalArgumentException("updateProximity requires installId");
@@ -1384,7 +1352,7 @@ public class DataController {
 		return result;
 	}
 
-	private ServiceResponse storeImageAtS3(Entity entity, User user, Bitmap bitmap) {
+	private ServiceResponse storeImageAtS3(RealmEntity entity, String userId, Bitmap bitmap) {
 
 		/* Make sure the bitmap is less than or equal to the maximum size we want to persist. */
 		bitmap = UI.ensureBitmapScaleForS3(bitmap);
@@ -1393,17 +1361,12 @@ public class DataController {
 		 * Push it to S3. It is always formatted/compressed as a jpeg.
 		 */
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String imageKey = String.valueOf((user != null) ? user.id : UserManager.currentUser.id) + "_" + stringDate + ".jpg";
+		final String imageKey = String.format("%1$s_%2$s.jpg", userId, stringDate); // User id at root to avoid collisions
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			if (entity != null) {
-				entity.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
-			}
-			else if (user != null) {
-				user.photo = new Photo(imageKey, null, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
-			}
+			entity.setPhoto(new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images));
 		}
 
 		return serviceResponse;
@@ -1430,7 +1393,7 @@ public class DataController {
 			final String json = (String) result.serviceResponse.data;
 			final ServiceData serviceData = (ServiceData) Json.jsonToObjects(json, Json.ObjectType.LINK, Json.ServiceDataWrapper.TRUE);
 			if (serviceData.data != null && serviceData.count.intValue() > 0) {
-				result.data = (List<Link>) serviceData.data;
+				result.data = (List<LinkOld>) serviceData.data;
 			}
 		}
 
@@ -1446,11 +1409,11 @@ public class DataController {
 	}
 
 	public Integer clearEntities(String schema, String type, Boolean foundByProximity) {
-		return ENTITY_STORE.removeEntities(schema, type, foundByProximity);
+		return entityStore.removeEntities(schema, type, foundByProximity);
 	}
 
 	public void clearStore() {
-		ENTITY_STORE.clearStore();
+		entityStore.clearStore();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -1461,7 +1424,7 @@ public class DataController {
 
 		Integer searchRangeMeters = Constants.PATCH_NEAR_RADIUS;
 
-		List<Patch> patches = (List<Patch>) ENTITY_STORE.getStoreEntities(
+		List<Patch> patches = (List<Patch>) entityStore.getStoreEntities(
 			Constants.SCHEMA_ENTITY_PATCH,
 			Constants.TYPE_ANY,
 			searchRangeMeters,
@@ -1474,7 +1437,7 @@ public class DataController {
 	}
 
 	public List<? extends Entity> getBeacons() {
-		return (List<Beacon>) ENTITY_STORE.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
+		return (List<Beacon>) entityStore.getStoreEntities(Constants.SCHEMA_ENTITY_BEACON, Constants.TYPE_ANY, null, null /* proximity required */);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -1547,7 +1510,7 @@ public class DataController {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public static EntityStore getEntityCache() {
-		return ENTITY_STORE;
+		return entityStore;
 	}
 
 	public DataController setActivityDate(Number activityDate) {
@@ -1558,15 +1521,4 @@ public class DataController {
 	/*--------------------------------------------------------------------------------------------
 	 * Classes
 	 *--------------------------------------------------------------------------------------------*/
-
-	public static class Suggest {
-		public static String Patches = "patch";
-		public static String Users   = "user";
-	}
-
-	public enum FetchStrategy {
-		UseCache,
-		UseCacheAndVerify,
-		IgnoreCache
-	}
 }

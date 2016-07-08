@@ -23,4 +23,7 @@ public interface ProxibaseApi {
 
 	@GET("find/users")
 	Observable<Response<Map<String, Object>>> findByEmail(@Query("q[email]") String email);
+
+	@POST("{path}")
+	Observable<Response<Map<String, Object>>> fetch(@Path(value = "path", encoded = true) String path, @Body Map<String, Object> parameters);
 }

@@ -28,11 +28,10 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
+import com.patchr.model.Photo;
 import com.patchr.objects.Command;
-import com.patchr.objects.Photo;
 import com.patchr.objects.TransitionType;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -114,7 +113,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 					final Bundle extras = intent.getExtras();
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
 					if (json != null) {
-						final Photo photo = (Photo) Json.jsonToObject(json, Json.ObjectType.PHOTO);
+						final Photo photo = Patchr.gson.fromJson(json, Photo.class);
 						submitAction(photo);
 					}
 				}
@@ -137,9 +136,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 				if (chosenImage != null) {
 					final Uri photoUri = Uri.parse("file://" + chosenImage.getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo()
-							.setPrefix(photoUri.toString())
-							.setSource(Photo.PhotoSource.file);
+					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
 					submitAction(photo);
 				}
 			}
@@ -167,9 +164,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 				if (chosenImages != null && chosenImages.size() > 0) {
 					final Uri photoUri = Uri.parse("file://" + chosenImages.getImage(0).getFilePathOriginal());
 					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo()
-							.setPrefix(photoUri.toString())
-							.setSource(Photo.PhotoSource.file);
+					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
 					submitAction(photo);
 				}
 			}
@@ -209,7 +204,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 
 	public void submitAction(Photo photo) {
 		final Intent intent = new Intent();
-		final String jsonPhoto = Json.objectToJson(photo);
+		final String jsonPhoto = Patchr.gson.toJson(photo);
 		intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
 		setResult(Activity.RESULT_OK, intent);
 		finish();

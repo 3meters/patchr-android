@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 	The package element below is used internally only: R class, activity/service registrations.
 	The	official application id used in the app .apk and in the Google Play store is specified
 	in build.gradle
@@ -98,9 +99,11 @@
 		<meta-data
 			android:name="com.facebook.sdk.ApplicationId"
 			android:value="@string/facebook_app_id" />
-		<meta-data android:name="com.facebook.accountkit.ClientToken"
+		<meta-data
+			android:name="com.facebook.accountkit.ClientToken"
 			android:value="@string/account_kit_client_token" />
-		<meta-data android:name="com.facebook.accountkit.ApplicationName"
+		<meta-data
+			android:name="com.facebook.accountkit.ApplicationName"
 			android:value="@string/name_app" />
 
 		<!-- Misc data -->
@@ -242,7 +245,8 @@
 			<!-- AppLink config: autoVerify means Google will make a verification call to the
 				 applink provider to confirm that there is an association with the app by
 				 producing our SHA256 cert fingerprint -->
-			<intent-filter android:autoVerify="true"
+			<intent-filter
+				android:autoVerify="true"
 				tools:ignore="UnusedAttribute">
 				<action android:name="android.intent.action.VIEW" />
 
@@ -270,7 +274,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.listforms.PatchScreen"
+			android:name=".ui.collections.PatchScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden">
 			<!-- The meta-data element is needed for versions lower than 4.1 -->
@@ -290,7 +294,7 @@
 		</activity>
 
 		<activity
-			android:name=".ui.listforms.ProfileScreen"
+			android:name=".ui.collections.ProfileScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
@@ -438,10 +442,13 @@
 			tools:replace="android:theme">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
+
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
+
 				<data android:scheme="@string/ak_login_protocol_scheme" />
-			</intent-filter></activity>
+			</intent-filter>
+		</activity>
 	</application>
 
 </manifest>
