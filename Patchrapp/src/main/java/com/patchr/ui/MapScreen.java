@@ -71,11 +71,13 @@ public class MapScreen extends BaseScreen {
 	public void bind() {
 		this.actionBarTitle.setText(R.string.screen_title_map_form);
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
-		RealmList<RealmEntity> entities = new RealmList<RealmEntity>();
-		entities.add(entity);
-		MapListFragment fragment = (MapListFragment) currentFragment;
-		fragment.entities = entities;
-		fragment.bind();
+		if (this.entity != null) {
+			RealmList<RealmEntity> entities = new RealmList<RealmEntity>();
+			entities.add(entity);
+			MapListFragment fragment = (MapListFragment) currentFragment;
+			fragment.entities = entities;
+			fragment.bind();
+		}
 	}
 
 	@Override protected int getLayoutId() {

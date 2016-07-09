@@ -164,6 +164,14 @@
 		<item name="android:background">@color/gray_05_pcnt</item>
 	</style>
 
+	<!-- Search bar -->
+
+	<style name="patchr_theme_search_bar">
+		<item name="floatingSearch_leftActionColor">@color/brand_primary</item>
+		<item name="floatingSearch_backgroundColor">@color/gray_05_pcnt</item>
+		<item name="floatingSearch_hintTextColor">@color/text_hint</item>
+	</style>
+
 	<!-- Dialog Themes -->
 
 	<style name="patchr_theme_dialog" parent="base_theme_dialog">

@@ -14,11 +14,14 @@ import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.Suggest;
+import com.patchr.utilities.Maps;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import io.realm.Realm;
@@ -217,6 +220,15 @@ public class RestClient {
 		linked.put("limit", Constants.PAGE_SIZE);
 		linked.put("skip", skip);
 		linked.put("more", true);
+		linked.put("linkFields", "type,enabled");
+
+		Realm realm = Realm.getDefaultInstance();
+		RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", patchId).findFirst();
+		Boolean isOwner = (patch.ownerId.equals(UserManager.userId));
+		if (!isOwner) {
+			linked.put("filter", Maps.asMap("enabled", true));
+		}
+		realm.close();
 
 		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, linked);
 
@@ -353,6 +365,7 @@ public class RestClient {
 		linked.put("limit", Constants.PAGE_SIZE);
 		linked.put("skip", skip);
 		linked.put("more", true);
+		linked.put("linkFields", "type,enabled");
 
 		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, linked);
 
@@ -381,6 +394,54 @@ public class RestClient {
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread());
 	}
+
+	public Observable<ProxibaseResponse> suggest(final String input, String suggestScope, String userId, Location location, long limit) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("provider", "google");
+		parameters.put("input", input.toLowerCase(Locale.US));
+		parameters.put("limit", limit);
+
+		if (userId != null) {
+			parameters.put("_user", userId); // So service can handle places the current user is watching
+		}
+
+		if (suggestScope.equals(Suggest.Patches)) {
+			parameters.put("patches", true);
+		}
+		else if (suggestScope.equals(Suggest.Users)) {
+			parameters.put("users", true);
+		}
+		else {
+			parameters.put("patches", true);
+			parameters.put("users", true);
+		}
+
+		if (!suggestScope.equals(Suggest.Users)) {
+			/*
+			 * Foursquare won't return anything if lat/lng isn't provided.
+			 */
+			if (location != null) {
+				addLocationParameter(parameters, location);
+				parameters.put("radius", Constants.PLACE_SUGGEST_RADIUS);
+				parameters.put("timeout", Constants.TIMEOUT_SERVICE_PLACE_SUGGEST);
+			}
+		}
+
+		addSessionParameters(parameters);
+
+		return RestClient.proxiApi.fetch("suggest", parameters)
+			.map(responseMap -> {
+				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+				return response;
+			})
+			.doOnError(throwable -> {
+				Logger.w(this, throwable.toString());
+			})
+			.subscribeOn(Schedulers.io())
+			.observeOn(AndroidSchedulers.mainThread());
+	}
+
 
 	/*--------------------------------------------------------------------------------------------
 	 * Modify

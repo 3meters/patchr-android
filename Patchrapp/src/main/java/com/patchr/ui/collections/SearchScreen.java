@@ -2,10 +2,9 @@ package com.patchr.ui.collections;
 
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.View;
-import android.view.WindowManager;
 
+import com.arlib.floatingsearchview.FloatingSearchView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.model.Photo;
@@ -14,11 +13,13 @@ import com.patchr.objects.Suggest;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.EntitySuggestController;
+import com.patchr.utilities.Colors;
 
 public class SearchScreen extends BaseScreen {
 
-	private String                  suggestScope;
-	private String                  searchPhrase;
+	private String             suggestScope;
+	private String             searchPhrase;
+	private FloatingSearchView searchView;
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,37 +60,27 @@ public class SearchScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 
 		RecyclerView recyclerView = (RecyclerView) findViewById(R.id.results_list);
+		searchView = (FloatingSearchView) findViewById(R.id.search_view);
 
-		SearchView searchView = new SearchView(this);
-		searchView.setIconified(false);
-		searchView.setQueryHint("Search...");
-		searchView.setFocusable(true);
-		searchView.requestFocusFromTouch();
-		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-
-			@Override public boolean onClose() {
-				cancelAction(false);
-				return false;
+		searchView.setSearchHint("Search...");
+		searchView.setLeftActionMode(FloatingSearchView.LEFT_ACTION_MODE_SHOW_HOME);
+		searchView.setDimBackground(false);
+		searchView.setBackgroundColor(Colors.getColor(R.color.transparent));
+		searchView.setSearchFocusable(true);
+		searchView.setSearchFocused(true);
+		searchView.setOnHomeActionClickListener(new FloatingSearchView.OnHomeActionClickListener() {
+			@Override public void onHomeClicked() {
+				onBackPressed();
 			}
 		});
-		this.actionBar.setCustomView(searchView);
-		this.actionBar.setDisplayShowCustomEnabled(true);
-		this.actionBar.setDisplayShowHomeEnabled(true);
-		this.actionBar.setDefaultDisplayHomeAsUpEnabled(true);
-		this.actionBar.setDisplayShowTitleEnabled(false);
 
 		EntitySuggestController entitySuggest = new EntitySuggestController(this);
 		entitySuggest.searchView = searchView;
-		entitySuggest.busyPresenter = this.busyController;
 		entitySuggest.recyclerView = recyclerView;
 		entitySuggest.suggestScope = this.suggestScope;
 		entitySuggest.initialize();
 
-		if (this.searchPhrase != null) {
-			searchView.setQuery(this.searchPhrase, true);
-		}
-
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		//getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 	}
 
 	@Override protected int getLayoutId() {
@@ -97,7 +88,7 @@ public class SearchScreen extends BaseScreen {
 	}
 
 	@Override protected int getTransitionBack(int transitionType) {
-		return TransitionType.VIEW_BACK;
+		return TransitionType.FORM_BACK;
 	}
 
 	public void bind() { }

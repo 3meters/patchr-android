@@ -126,6 +126,9 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.id_container));
 
+		/* Turn on branch */
+		Branch.getAutoInstance(this);
+
 		AsyncTask.execute(() -> {
 
 			/* Make sure setting defaults are initialized */
@@ -199,9 +202,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			/* Start activity recognition */
 			ActivityRecognitionManager.getInstance().initialize(applicationContext);
-
-			/* Turn on branch */
-			Branch.getAutoInstance(this);
 		});
 	}
 

@@ -166,7 +166,7 @@ public class ImageWidget extends FrameLayout {
 			setImageWithPhoto(entity.getPhoto(), null);
 		}
 		else {
-			setImageWithText(entity.name, (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)));
+			setImageWithText(entity.name, entity.schema.equals(Constants.SCHEMA_ENTITY_USER));
 		}
 	}
 

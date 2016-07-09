@@ -256,7 +256,7 @@ public abstract class Entity extends ServiceBase implements Cloneable, Serializa
 			for (LinkOld link : linksOut) {
 				if (link.type != null && link.type.equals(type)) {
 					Entity entity = DataController.getStoreEntity(link.toId);
-					if (entity != null && entity.schema != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+					if (entity != null && entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
 						Beacon beacon = (Beacon) entity;
 						if (beacon.signal != null && beacon.signal.intValue() > strongestLevel) {
 							strongestLink = link;

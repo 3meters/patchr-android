@@ -7,7 +7,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,15 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.patchr.Constants;
+import com.arlib.floatingsearchview.FloatingSearchView;
 import com.patchr.R;
-import com.patchr.components.DataController;
 import com.patchr.components.LocationManager;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Entity;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.Suggest;
+import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.UI;
 import com.tokenautocomplete.TokenCompleteTextView;
@@ -34,7 +31,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class EntitySuggestController implements SearchView.OnQueryTextListener {
+import rx.Subscription;
+
+public class EntitySuggestController {
 	/*
 	 * Used by SearchForm and MessageEdit.
 	 */
@@ -42,18 +41,17 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	private static final int     MESSAGE_TEXT_CHANGED       = 1337;
 	private static final int     DEFAULT_AUTOCOMPLETE_DELAY = 750;
 
-	private List<Entity>         entities;
+	private List<RealmEntity>    entities;
 	private RecyclerView.Adapter adapter;
 	private Context              context;
 	public  RecyclerView         recyclerView;
 	public  BusyController       busyPresenter;
 
-	public  EditText   searchInput;
-	public  SearchView searchView;
-	private View       searchProgress;
-	private View       searchImage;
-	private boolean    suggestInProgress;
-	public  String     suggestScope;
+	public  EditText           searchInput;
+	public  FloatingSearchView searchView;
+	private boolean            suggestInProgress;
+	public  String             suggestScope;
+	public  Subscription       subscription;
 
 	private SimpleTextWatcher                   textWatcher;
 	private String                              suggestInput;
@@ -75,16 +73,6 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
-
-	@Override public boolean onQueryTextSubmit(String query) {
-		textChanged(query);
-		return false;
-	}
-
-	@Override public boolean onQueryTextChange(String newText) {
-		textChanged(newText);
-		return false;
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -117,7 +105,11 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 		else if (searchView != null && recyclerView != null) {
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
 			recyclerView.setAdapter(adapter);
-			searchView.setOnQueryTextListener(this);
+			searchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
+				@Override public void onSearchTextChanged(String oldQuery, String newQuery) {
+					textChanged(newQuery);
+				}
+			});
 		}
 	}
 
@@ -143,55 +135,41 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 
 		if (!suggestInProgress) {
 			suggestInProgress = true;
-			new AsyncTask() {
 
-				@Override protected void onPreExecute() {
-					if (busyPresenter != null) {
-						busyPresenter.show(BusyController.BusyAction.Scanning_Empty);
-					}
+			if (busyPresenter != null) {
+				busyPresenter.show(BusyController.BusyAction.Scanning_Empty);
+			}
 
-					if (searchProgress != null) {
-						searchImage.setVisibility(View.INVISIBLE);
-						searchProgress.setVisibility(View.VISIBLE);
-					}
-				}
+			if (searchView != null) {
+				searchView.showProgress();
+			}
 
-				@Override protected Object doInBackground(Object... params) {
-					Thread.currentThread().setName("AsyncSuggestQuery");
-
-					ModelResult result = DataController.getInstance().suggest(chars.toString().trim()
-							, suggestScope
-							, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
-							, LocationManager.getInstance().getLocationLocked()
-							, LIMIT, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-
-					return result;
-				}
-
-				@Override protected void onPostExecute(Object response) {
-					final ModelResult result = (ModelResult) response;
-
-					if (busyPresenter != null) {
-						busyPresenter.hide(false);
-					}
-
-					if (searchProgress != null) {
-						searchImage.setVisibility(View.VISIBLE);
-						searchProgress.setVisibility(View.INVISIBLE);
-					}
-
-					if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
-						final List<Entity> suggestions = (List<Entity>) result.data;
+			AsyncTask.execute(() -> {
+				this.subscription = RestClient.getInstance().suggest(chars.toString().trim()
+					, suggestScope
+					, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
+					, LocationManager.getInstance().getLocationLocked()
+					, LIMIT)
+					.doOnTerminate(() -> {
+						if (busyPresenter != null) {
+							busyPresenter.hide(false);
+						}
+						if (searchView != null) {
+							searchView.hideProgress();
+						}
+					})
+					.subscribe(response -> {
+						suggestInProgress = false;
 						entities.clear();
-						entities.addAll(suggestions);
-						Collections.sort(entities, new SortByScoreAndDistance());
+						if (response.data != null) {
+							final List<RealmEntity> suggestions = (List<RealmEntity>) response.data;
+							entities.addAll(suggestions);
+							Collections.sort(entities, new SortByScoreAndDistance());
+						}
 						adapter.notifyDataSetChanged();
 						bindDropdown();
-					}
-
-					suggestInProgress = false;
-				}
-			}.executeOnExecutor(Constants.EXECUTOR);
+					});
+			});
 		}
 	}
 
@@ -206,22 +184,23 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 
 	private class SuggestArrayAdapter extends RecyclerView.Adapter<RealmRecyclerViewHolder> {
 
-		private List<Entity>   entities;
-		private LayoutInflater inflater;
+		private List<RealmEntity> entities;
+		private LayoutInflater    inflater;
 
-		private SuggestArrayAdapter(List<Entity> entities) {
+		private SuggestArrayAdapter(List<RealmEntity> entities) {
 			this.entities = entities;
 			this.inflater = LayoutInflater.from(context);
 		}
 
-		@Override public RealmRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		@Override
+		public RealmRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.listitem_search, parent, false);
 			return new RealmRecyclerViewHolder(view);
 		}
 
 		@Override public void onBindViewHolder(RealmRecyclerViewHolder holder, int position) {
-			Entity entity = this.entities.get(position);
-			//holder.bind(entity);
+			RealmEntity entity = this.entities.get(position);
+			holder.bind(entity);
 		}
 
 		@Override public int getItemCount() {
@@ -229,9 +208,9 @@ public class EntitySuggestController implements SearchView.OnQueryTextListener {
 		}
 	}
 
-	public static class SortByScoreAndDistance implements Comparator<Entity> {
+	public static class SortByScoreAndDistance implements Comparator<RealmEntity> {
 
-		@Override public int compare(@NonNull Entity object1, @NonNull Entity object2) {
+		@Override public int compare(@NonNull RealmEntity object1, @NonNull RealmEntity object2) {
 
 			if (object1.score.floatValue() > object2.score.floatValue())
 				return -1;

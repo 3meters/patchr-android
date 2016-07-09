@@ -1,6 +1,7 @@
 package com.patchr.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.MapManager;
@@ -42,6 +44,8 @@ import com.patchr.objects.Command;
 import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.Suggest;
+import com.patchr.objects.TransitionType;
+import com.patchr.ui.collections.SearchScreen;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
@@ -98,6 +102,11 @@ public class MainScreen extends BaseScreen {
 	protected String currentFragmentTag;
 
 	protected View currentNavView;
+
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getWindow().setBackgroundDrawable(null);
+	}
 
 	@Override protected void onStart() {
 		super.onStart();
@@ -217,8 +226,8 @@ public class MainScreen extends BaseScreen {
 		}
 	}
 
-	@Override public void onRequestPermissionsResult(int requestCode
-		, @NonNull String permissions[], @NonNull int[] grantResults) {
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
@@ -531,9 +540,11 @@ public class MainScreen extends BaseScreen {
 	}
 
 	public void searchAction() {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
-		Patchr.router.route(this, Command.SEARCH, null, extras);
+
+		Intent intent = new Intent(this, SearchScreen.class);
+		intent.putExtra(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
+		startActivity(intent);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	private void tetherAlert() {

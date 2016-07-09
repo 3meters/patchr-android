@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.patchr.R;
 import com.patchr.objects.QuerySpec;
@@ -112,6 +113,8 @@ public class EntityListFragment extends Fragment {
 		}
 		if (this.headerResId != null) {
 			View header = LayoutInflater.from(getContext()).inflate(this.headerResId, null, false);
+			ListView.LayoutParams params = new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT);
+			header.setLayoutParams(params);
 			this.listWidget.setHeader(header);
 		}
 	}

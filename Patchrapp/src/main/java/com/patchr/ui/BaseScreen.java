@@ -89,7 +89,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		unpackIntent();
 
 		this.rootView = LayoutInflater.from(this).inflate(getLayoutId(), null, false);
-		getWindow().setBackgroundDrawable(null);
 		setContentView(this.rootView);
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);

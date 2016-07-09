@@ -424,14 +424,16 @@ public class PatchScreen extends BaseListScreen {
 		super.bind();
 
 		/* Bind action button */
-		updateActiveView();
-		this.entity.addChangeListener(user -> {
+		if (this.entity != null) {
 			updateActiveView();
-		});
+			this.entity.addChangeListener(user -> {
+				updateActiveView();
+			});
+		}
 	}
 
 	public void updateActiveView() {
-		if (entity != null && entity.schema != null) {
+		if (entity != null) {
 
 			Boolean owner = entity.isOwnedByCurrentUser();
 			Boolean hasMessaged = entity.userHasMessaged;

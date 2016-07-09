@@ -21,6 +21,7 @@ import com.patchr.ui.widgets.ListWidget;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
+import io.realm.RealmChangeListener;
 import rx.Subscription;
 
 @SuppressWarnings("ucd")
@@ -31,12 +32,14 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	public ListWidget listWidget;
 
 	public Integer topPadding = 0;  // Hack to handle ui tweaking
-	public BaseView     header;
-	public Subscription subscription;
+	public BaseView            header;
+	public Subscription        subscription;
+	public RealmChangeListener changeListener;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		bind();     // Display header and list from cache
+		bind();                                         // Display header from cache
+		listWidget.bind(this.querySpec, this.entityId); // Display list from cache
 	}
 
 	@Override protected void onStart() {
@@ -62,6 +65,13 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	@Override protected void onStop() {
 		super.onStop();
 		listWidget.onStop();
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		if (entity != null && changeListener != null) {
+			entity.removeChangeListener(changeListener);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -137,6 +147,24 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 		}
 	}
 
+	public void bind() {
+
+		if (this.header != null) {
+			this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+			if (this.entity != null) {
+				supportInvalidateOptionsMenu();     // In case user authenticated
+				this.header.bind(this.entity);
+				this.changeListener = new RealmChangeListener() {
+					@Override public void onChange(Object element) {
+						header.invalidate();
+						supportInvalidateOptionsMenu();     // In case user authenticated
+					}
+				};
+				this.entity.addChangeListener(this.changeListener);
+			}
+		}
+	}
+
 	public void fetch(final FetchMode mode) {
 
 		if (this.header == null) {
@@ -158,37 +186,14 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 					})
 					.subscribe(response -> {
 						processing = false;
+						if (this.entity == null) {
+							bind();
+						}
 						listWidget.fetch(mode);
 						supportInvalidateOptionsMenu();     // In case user authenticated
 					});
 			});
 		}
-	}
-
-	public void bind() {
-
-		if (this.header != null) {
-
-			this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
-			if (this.entity == null) {
-				RealmEntity realmEntity = new RealmEntity();
-				realmEntity.id = this.entityId;
-				realm.beginTransaction();
-				this.entity = realm.copyToRealm(realmEntity);
-				realm.commitTransaction();
-			}
-			else {
-				supportInvalidateOptionsMenu();     // In case user authenticated
-			}
-			this.header.bind(this.entity);
-			this.entity.removeChangeListeners();
-			this.entity.addChangeListener(user -> {
-				header.invalidate();
-				supportInvalidateOptionsMenu();     // In case user authenticated
-			});
-		}
-
-		this.listWidget.bind(this.querySpec, this.entityId);
 	}
 
 	public void draw() {

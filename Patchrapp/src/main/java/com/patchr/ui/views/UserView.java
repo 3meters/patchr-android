@@ -149,15 +149,15 @@ public class UserView extends BaseView implements View.OnClickListener {
 				setOrGone(this.email, entity.email);
 			}
 
-			if (patch != null) {
+			if (patch != null && entity.link != null) {
 				this.patch = patch;
 				if (entity.id.equals(patch.ownerId)) {
 					setOrGone(this.role, User.Role.OWNER);
 				}
 				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)) {
 					this.removeButton.setTag(entity);
-					this.enableSwitch.setChecked(entity.userMemberStatus.equals(MemberStatus.Member));
-					this.enableLabel.setText(entity.userMemberStatus.equals(MemberStatus.Member) ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+					this.enableSwitch.setChecked(entity.link.enabled);
+					this.enableLabel.setText(entity.link.enabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
 					UI.setVisibility(this.editGroup, VISIBLE);
 				}
 			}

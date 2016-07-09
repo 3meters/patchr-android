@@ -63,6 +63,7 @@ import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
+import io.realm.RealmChangeListener;
 import rx.Subscription;
 
 @SuppressWarnings("ConstantConditions")
@@ -85,8 +86,9 @@ public class MessageScreen extends BaseScreen {
 	protected ViewGroup shareRecipientsHolder;
 	protected TextView  shareRecipients;
 
-	public    String       parentId;
-	public    Subscription subscription;
+	public String              parentId;
+	public Subscription        subscription;
+	public RealmChangeListener changeListener;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -97,6 +99,13 @@ public class MessageScreen extends BaseScreen {
 		super.onResume();
 		if (!isFinishing()) {
 			fetch(FetchMode.AUTO);
+		}
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		if (entity != null && changeListener != null) {
+			entity.removeChangeListener(changeListener);
 		}
 	}
 
@@ -305,6 +314,21 @@ public class MessageScreen extends BaseScreen {
 		return R.layout.screen_message;
 	}
 
+	public void bind() {
+
+		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+		if (entity != null) {
+			supportInvalidateOptionsMenu();     // In case user authenticated
+			this.changeListener = new RealmChangeListener() {
+				@Override public void onChange(Object element) {
+					draw();
+					supportInvalidateOptionsMenu();     // In case user authenticated
+				}
+			};
+			this.entity.addChangeListener(this.changeListener);
+		}
+	}
+
 	public void fetch(final FetchMode mode) {
 		if (processing) return;
 
@@ -322,30 +346,16 @@ public class MessageScreen extends BaseScreen {
 				.subscribe(response -> {
 					processing = false;
 					executed = true;
-					supportInvalidateOptionsMenu();     // In case user authenticated
+					if (this.entity == null) {
+						bind();
+					}
 				});
-		});
-	}
-
-	public void bind() {
-
-		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
-		if (this.entity == null) {
-			RealmEntity realmEntity = new RealmEntity();
-			realmEntity.id = this.entityId;
-			realm.beginTransaction();
-			this.entity = realm.copyToRealm(realmEntity);
-			realm.commitTransaction();
-		}
-
-		this.entity.addChangeListener(user -> {
-			draw();
 		});
 	}
 
 	public void draw() {
 
-		if (entity == null || entity.schema == null) return;
+		if (entity == null) return;
 
 	    /* Share */
 		Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));

@@ -1,47 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@color/background_screen"
 	android:orientation="vertical">
 
-	<android.support.design.widget.AppBarLayout
-		android:id="@+id/appbar_layout"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:background="@color/transparent">
-
-		<android.support.v7.widget.Toolbar
-
-			android:id="@+id/actionbar_toolbar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:minHeight="?attr/actionBarSize"
-			android:theme="@style/patchr_theme_action_bar"
-			custom:layout_scrollFlags="scroll|enterAlways"
-			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-			<TextView
-				android:id="@+id/toolbar_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="left"
-				android:textSize="18sp"
-				tools:text="Title" />
-
-		</android.support.v7.widget.Toolbar>
-
-	</android.support.design.widget.AppBarLayout>
-
 	<com.patchr.ui.widgets.AirRelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/white"
-		android:layout_gravity="center_horizontal">
+		android:layout_gravity="center_horizontal"
+		android:layout_marginTop="?attr/actionBarSize"
+		android:background="@color/white">
 
 		<android.support.v7.widget.RecyclerView
 			android:id="@+id/results_list"
@@ -50,8 +23,8 @@
 			android:layout_centerHorizontal="true"
 			android:animationCache="false"
 			android:cacheColorHint="@color/transparent"
-			android:footerDividersEnabled="false"
 			android:divider="@null"
+			android:footerDividersEnabled="false"
 			android:headerDividersEnabled="false"
 			android:listSelector="@color/transparent"
 			android:scrollingCache="false" />
@@ -68,4 +41,24 @@
 
 	</com.patchr.ui.widgets.AirRelativeLayout>
 
-</LinearLayout>
+	<FrameLayout
+		android:id="@+id/toolbar_container"
+		android:layout_width="match_parent"
+		android:background="@color/white"
+		android:layout_height="wrap_content">
+
+		<com.arlib.floatingsearchview.FloatingSearchView
+			android:id="@+id/search_view"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize"
+			android:theme="@style/patchr_theme_search_bar"
+			app:floatingSearch_searchBarMarginLeft="4dp"
+			app:floatingSearch_searchBarMarginRight="4dp"
+			app:floatingSearch_searchBarMarginTop="4dp"
+			app:floatingSearch_showSearchKey="false"
+			app:floatingSearch_dimBackground="false"
+			app:floatingSearch_suggestionsListAnimDuration="250" />
+
+	</FrameLayout>
+
+</FrameLayout>
