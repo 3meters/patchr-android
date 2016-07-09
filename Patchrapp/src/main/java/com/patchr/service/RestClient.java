@@ -5,7 +5,9 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
+import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
+import com.patchr.exceptions.NoNetworkException;
 import com.patchr.model.Location;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
@@ -69,6 +71,11 @@ public class RestClient {
 	public Observable<ProxibaseResponse> logout(String userId, String sessionKey) {
 
 		return RestClient.proxiApi.logout(userId, sessionKey)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread())
 			.map(responseMap -> ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap));
@@ -83,6 +90,11 @@ public class RestClient {
 		parameters.put("installId", installId);
 
 		return RestClient.proxiApi.login(parameters)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.map(responseMap -> {
 				return ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 			})
@@ -103,6 +115,11 @@ public class RestClient {
 	public Observable<ProxibaseResponse> findByEmail(String email) {
 
 		return RestClient.proxiApi.findByEmail(email)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.map(responseMap -> ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap))
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread());
@@ -135,6 +152,11 @@ public class RestClient {
 		addQueryParameter(parameters, strategy, id);
 
 		return RestClient.proxiApi.findById(collection, id, parameters)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.map(responseMap -> {
 				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 				/* Cherrypick session info so it's available downstream */
@@ -147,9 +169,6 @@ public class RestClient {
 					RealmEntity.copyToRealmOrUpdate(user);
 				}
 				return response;
-			})
-			.doOnError(throwable -> {
-				Logger.w(this, throwable.toString());
 			})
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread());
@@ -381,15 +400,17 @@ public class RestClient {
 	private Observable<ProxibaseResponse> fetch(final String path, final SimpleMap parameters, final String queryId, final Location location, final Integer skip) {
 
 		return RestClient.proxiApi.fetch(path, parameters)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.map(responseMap -> {
 				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 				if (!response.noop) {
 					updateRealm(response, queryId, location, skip);
 				}
 				return response;
-			})
-			.doOnError(throwable -> {
-				Logger.w(this, throwable.toString());
 			})
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread());
@@ -431,12 +452,14 @@ public class RestClient {
 		addSessionParameters(parameters);
 
 		return RestClient.proxiApi.fetch("suggest", parameters)
+			.doOnSubscribe(() -> {
+				if (!NetworkManager.getInstance().isConnected()) {
+					Observable.error(new NoNetworkException());
+				}
+			})
 			.map(responseMap -> {
 				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 				return response;
-			})
-			.doOnError(throwable -> {
-				Logger.w(this, throwable.toString());
 			})
 			.subscribeOn(Schedulers.io())
 			.observeOn(AndroidSchedulers.mainThread());

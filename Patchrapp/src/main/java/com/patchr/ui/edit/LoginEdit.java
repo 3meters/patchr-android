@@ -239,6 +239,9 @@ public class LoginEdit extends BaseEdit {
 							UI.toast("Email has already been used.");
 						}
 					}
+				},
+				error -> {
+					Logger.e(this, error.getLocalizedMessage());
 				});
 	}
 

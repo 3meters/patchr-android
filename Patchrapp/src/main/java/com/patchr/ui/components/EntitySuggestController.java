@@ -17,6 +17,7 @@ import android.widget.EditText;
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
+import com.patchr.components.Logger;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.Suggest;
@@ -158,17 +159,21 @@ public class EntitySuggestController {
 							searchView.hideProgress();
 						}
 					})
-					.subscribe(response -> {
-						suggestInProgress = false;
-						entities.clear();
-						if (response.data != null) {
-							final List<RealmEntity> suggestions = (List<RealmEntity>) response.data;
-							entities.addAll(suggestions);
-							Collections.sort(entities, new SortByScoreAndDistance());
-						}
-						adapter.notifyDataSetChanged();
-						bindDropdown();
-					});
+					.subscribe(
+						response -> {
+							suggestInProgress = false;
+							entities.clear();
+							if (response.data != null) {
+								final List<RealmEntity> suggestions = (List<RealmEntity>) response.data;
+								entities.addAll(suggestions);
+								Collections.sort(entities, new SortByScoreAndDistance());
+							}
+							adapter.notifyDataSetChanged();
+							bindDropdown();
+						},
+						error -> {
+							Logger.e(this, error.getLocalizedMessage());
+						});
 			});
 		}
 	}

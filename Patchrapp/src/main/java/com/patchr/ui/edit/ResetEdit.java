@@ -19,12 +19,12 @@ import com.patchr.components.DataController;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyController;
@@ -168,7 +168,7 @@ public class ResetEdit extends BaseEdit {
 				Photo photo = new Photo();
 				photo.prefix = inputUserPhoto;
 				photo.source = Photo.PhotoSource.aircandi_images;
-				userPhoto.setImageWithPhoto(photo, null);
+				userPhoto.setImageWithPhoto(photo);
 			}
 			else if (inputUserName != null) {
 				userPhoto.setImageWithText(inputUserName, true);

@@ -21,7 +21,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -33,6 +32,7 @@ import com.patchr.objects.Beacon;
 import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkOld;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyController;
@@ -413,7 +413,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.responseCode = ResponseCode.FAILED;
 						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
 						busyController.hide(true);
@@ -456,7 +456,7 @@ public abstract class BaseEdit extends BaseScreen {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Entity insertedEntity = (Entity) result.data;
 					entity.id = insertedEntity.id;
@@ -551,7 +551,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.responseCode = ResponseCode.FAILED;
 						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
 						busyController.hide(true);
@@ -584,7 +584,7 @@ public abstract class BaseEdit extends BaseScreen {
 			@Override protected void onPostExecute(Object response) {
 				final ModelResult result = (ModelResult) response;
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
 						Reporting.track(AnalyticsCategory.EDIT, "Updated " + Utils.capitalize(entity.schema));
 						UI.toast(StringManager.getString(updatedResId));

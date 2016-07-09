@@ -2,7 +2,7 @@ package com.patchr.service;
 
 import android.support.annotation.NonNull;
 
-import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.objects.ResponseCode;
 import com.patchr.utilities.Errors.ErrorResponse;
 
 @SuppressWarnings("ucd")

@@ -24,6 +24,7 @@ import com.patchr.events.BeaconsLockedEvent;
 import com.patchr.events.QueryWifiScanReceivedEvent;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Reporting;
@@ -199,7 +200,7 @@ public class ProximityEdit extends BaseEdit {
 				ModelResult result = (ModelResult) response;
 				busyController.hide(false);
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, untuning ? "Untuned Patch" : "Tuned Patch");
 				}
 

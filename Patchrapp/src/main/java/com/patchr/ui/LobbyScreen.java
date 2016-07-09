@@ -46,6 +46,7 @@ import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
 import com.patchr.objects.Preference;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyController;
@@ -519,7 +520,7 @@ public class LobbyScreen extends AppCompatActivity {
 				final ModelResult result = (ModelResult) response;
 
 				busyPresenter.hide(true);
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					if (authIntent.equals(BaseScreen.State.Login)) {
 						if (UserManager.shared().provisional()) {
 							/* User meant to login but got a new account instead. */

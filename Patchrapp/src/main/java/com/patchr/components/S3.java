@@ -11,9 +11,9 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.patchr.Patchr;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.ProcessingProgressEvent;
+import com.patchr.objects.ResponseCode;
 import com.patchr.service.ServiceResponse;
 
 import org.greenrobot.eventbus.Subscribe;

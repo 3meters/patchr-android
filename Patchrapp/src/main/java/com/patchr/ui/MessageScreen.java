@@ -318,6 +318,7 @@ public class MessageScreen extends BaseScreen {
 
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 		if (entity != null) {
+			draw();
 			supportInvalidateOptionsMenu();     // In case user authenticated
 			this.changeListener = new RealmChangeListener() {
 				@Override public void onChange(Object element) {
@@ -343,13 +344,17 @@ public class MessageScreen extends BaseScreen {
 						this.busyController.hide(true);
 					}
 				})
-				.subscribe(response -> {
-					processing = false;
-					executed = true;
-					if (this.entity == null) {
-						bind();
-					}
-				});
+				.subscribe(
+					response -> {
+						processing = false;
+						executed = true;
+						if (this.entity == null) {
+							bind();
+						}
+					},
+					error -> {
+						Logger.e(this, error.getLocalizedMessage());
+					});
 		});
 	}
 
@@ -378,7 +383,7 @@ public class MessageScreen extends BaseScreen {
 
 					/* Photo */
 					if (entity.patch.getPhoto() != null) {
-						patchPhotoView.setImageWithPhoto(entity.patch.getPhoto(), null);
+						patchPhotoView.setImageWithPhoto(entity.patch.getPhoto());
 					}
 					else {
 						patchPhotoView.setImageWithText(entity.patch.name, false);

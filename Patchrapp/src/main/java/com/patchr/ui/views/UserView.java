@@ -26,6 +26,7 @@ import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.MemberStatus;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.ImageWidget;
@@ -190,7 +191,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 				if (((Activity) getContext()).isFinishing()) return;
 				ModelResult result = (ModelResult) response;
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
 					Realm realm = Realm.getDefaultInstance();
 					realm.executeTransaction(realmEntity -> {

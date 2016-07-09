@@ -11,6 +11,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.ProximityController;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.WifiApState;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
 import com.segment.analytics.Traits;
@@ -65,18 +66,18 @@ public class Reporting {
 
 		/* Wifi access point state */
 
-		NetworkManager.WIFI_AP_STATE wifiApState = NetworkManager.getInstance().getWifiApState();
+		WifiApState wifiApState = NetworkManager.getInstance().getWifiApState();
 		if (wifiApState != null) {
-			if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLED) {
+			if (wifiApState == WifiApState.WIFI_AP_STATE_DISABLED) {
 				Bugsnag.addToTab("wifi", "wifi_ap_state", "disabled");
 			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLED) {
+			else if (wifiApState == WifiApState.WIFI_AP_STATE_ENABLED) {
 				Bugsnag.addToTab("wifi", "wifi_ap_state", "enabled");
 			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_ENABLING) {
+			else if (wifiApState == WifiApState.WIFI_AP_STATE_ENABLING) {
 				Bugsnag.addToTab("wifi", "wifi_ap_state", "enabling");
 			}
-			else if (wifiApState == NetworkManager.WIFI_AP_STATE.WIFI_AP_STATE_DISABLING) {
+			else if (wifiApState == WifiApState.WIFI_AP_STATE_DISABLING) {
 				Bugsnag.addToTab("wifi", "wifi_ap_state", "disabling");
 			}
 		}

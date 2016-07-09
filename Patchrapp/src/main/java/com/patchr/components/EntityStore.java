@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.model.Location;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
@@ -14,6 +13,7 @@ import com.patchr.objects.Entity;
 import com.patchr.objects.LinkOld;
 import com.patchr.objects.LinkOld.Direction;
 import com.patchr.objects.LinkSpecs;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;

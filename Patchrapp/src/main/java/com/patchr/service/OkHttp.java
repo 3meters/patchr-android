@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.components.Logger;
-import com.patchr.components.NetworkManager.ResponseCode;
+import com.patchr.objects.ResponseCode;
 import com.patchr.utilities.Reporting;
 
 import java.io.BufferedReader;

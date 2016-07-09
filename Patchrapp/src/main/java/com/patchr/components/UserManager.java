@@ -140,8 +140,8 @@ public class UserManager {
 			response -> {
 				Logger.i(this, "Logout from service successful");
 			},
-			throwable -> {
-				Logger.w(this, "Logout from service failed");
+			error -> {
+				Logger.e(this, error.getLocalizedMessage());
 			});
 
 		Logger.i(this, "User logged out: " + UserManager.currentUser.id);

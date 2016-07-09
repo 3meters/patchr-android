@@ -36,7 +36,6 @@ import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
 import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataQueryResultEvent;
@@ -53,6 +52,7 @@ import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Message;
 import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.TransitionType;
 import com.patchr.ui.MapScreen;
 import com.patchr.ui.components.CircleTransform;
@@ -642,7 +642,7 @@ public class PatchScreen extends BaseListScreen {
 
 			@Override protected void onPostExecute(Object response) {
 				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
 				}
 				fetch(FetchMode.AUTO);

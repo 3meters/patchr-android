@@ -20,9 +20,10 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
-import com.patchr.objects.LocationOld;
 import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.LocationOld;
 import com.patchr.objects.Preference;
+import com.patchr.objects.ResponseCode;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -277,7 +278,7 @@ public class LocationManager implements
 			result.data = geocoder.getFromLocation(location.lat.doubleValue(), location.lng.doubleValue(), 1);
 		}
 		catch (IOException e) {
-			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+			result.serviceResponse.responseCode = ResponseCode.FAILED;
 			result.serviceResponse.exception = e;
 			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
 		}
@@ -301,12 +302,12 @@ public class LocationManager implements
 					result.data = location;
 				}
 				else {
-					result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+					result.serviceResponse.responseCode = ResponseCode.FAILED;
 				}
 			}
 		}
 		catch (IOException exception) {
-			result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+			result.serviceResponse.responseCode = ResponseCode.FAILED;
 			result.serviceResponse.exception = exception;
 			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
 		}

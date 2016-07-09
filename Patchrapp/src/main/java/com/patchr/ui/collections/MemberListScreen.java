@@ -13,6 +13,7 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
+import com.patchr.objects.ResponseCode;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -102,7 +103,7 @@ public class MemberListScreen extends BaseListScreen {
 			@Override protected void onPostExecute(Object response) {
 				if (isFinishing()) return;
 				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
 					fetch(AUTO);
 				}

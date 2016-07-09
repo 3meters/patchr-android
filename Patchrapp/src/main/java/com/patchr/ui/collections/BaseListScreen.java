@@ -184,14 +184,19 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 							this.busyController.hide(true);
 						}
 					})
-					.subscribe(response -> {
-						processing = false;
-						if (this.entity == null) {
-							bind();
-						}
-						listWidget.fetch(mode);
-						supportInvalidateOptionsMenu();     // In case user authenticated
-					});
+					.subscribe(
+						response -> {
+							processing = false;
+							if (this.entity == null) {
+								bind();
+							}
+							listWidget.fetch(mode);
+							supportInvalidateOptionsMenu();     // In case user authenticated
+						},
+						error -> {
+							processing = false;
+							Logger.e(this, error.getLocalizedMessage());
+						});
 			});
 		}
 	}

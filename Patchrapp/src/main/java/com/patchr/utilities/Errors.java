@@ -323,7 +323,7 @@ public final class Errors {
 				if (NetworkManager.getInstance().isConnected()) {
 					if (!NetworkManager.getInstance().isMobileNetwork()) {
 						/* This can trigger another call to getErrorResponse and recurse until a stack overflow. */
-						if (NetworkManager.getInstance().isWalledGardenConnection()) {
+						if (NetworkManager.getInstance().isInternetReachable()) {
 							return new ErrorResponse(ErrorActionType.AUTO, StringManager.getString(R.string.error_connection_walled_garden));
 						}
 					}

@@ -27,11 +27,12 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Command;
-import com.patchr.model.PhoneNumber;
 import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
 import com.patchr.ui.LobbyScreen;
@@ -375,7 +376,7 @@ public class ProfileEdit extends BaseEdit {
 
 					if (bitmap == null) {
 						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = NetworkManager.ResponseCode.FAILED;
+						result.serviceResponse.responseCode = ResponseCode.FAILED;
 						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
 						result.serviceResponse.errorResponse.clearPhoto = true;
 						busyController.hide(true);
@@ -407,7 +408,7 @@ public class ProfileEdit extends BaseEdit {
 
 				busyController.hide(true);
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					/* We automatically consider the user signed in. */
 					final User user = (User) result.data;
@@ -456,7 +457,7 @@ public class ProfileEdit extends BaseEdit {
 				processing = false;
 				busyController.hide(true);
 
-				if (result.serviceResponse.responseCode == NetworkManager.ResponseCode.SUCCESS) {
+				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 
 					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
 					Logger.i(this, "Deleted user: " + entity.id);

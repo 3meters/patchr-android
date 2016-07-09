@@ -70,7 +70,6 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	private String          contextEntityId;
 	private RealmEntity     contextEntity;
 
-
 	public RealmArrayAdapter         adapter;
 	public RealmResults<RealmEntity> entities;
 	public Query                     query;
@@ -214,11 +213,16 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 						this.busyController.hide(true);
 					}
 				})
-				.subscribe(response -> {
-					processingQuery = false;
-					executed = true;
-					fetchQueryItemsComplete(mode, response, skip);
-				});
+				.subscribe(
+					response -> {
+						processingQuery = false;
+						executed = true;
+						fetchQueryItemsComplete(mode, response, skip);
+					},
+					error -> {
+						processingQuery = false;
+						Logger.e(this, error.getLocalizedMessage());
+					});
 		});
 	}
 

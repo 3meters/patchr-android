@@ -18,7 +18,10 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
+import com.patchr.objects.ConnectedState;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.ServiceData;
+import com.patchr.objects.WifiApState;
 import com.patchr.service.OkHttp;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
@@ -156,8 +159,8 @@ public class NetworkManager {
 		}
 
 		if (UserManager.shared().authenticated()
-				&& (serviceRequest.getRequestType() != RequestType.GET
-				&& serviceRequest.getRequestType() != RequestType.DELETE)) {
+			&& (serviceRequest.getRequestType() != RequestType.GET
+			&& serviceRequest.getRequestType() != RequestType.DELETE)) {
 			serviceRequest.getParameters().putString("user", UserManager.userId);
 			serviceRequest.getParameters().putString("session", UserManager.sessionKey);
 		}
@@ -187,9 +190,9 @@ public class NetworkManager {
 
 	public ServiceResponse clientVersionCheck(ServiceRequest serviceRequest, ServiceResponse serviceResponse) {
 		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
-				&& !serviceRequest.getIgnoreResponseData()
-				&& serviceResponse.exception == null
-				&& serviceResponse.data != null) {
+			&& !serviceRequest.getIgnoreResponseData()
+			&& serviceResponse.exception == null
+			&& serviceResponse.data != null) {
 			/*
 			 * We think anything json is coming from the Aircandi service (except Bing)
 			 */
@@ -250,7 +253,8 @@ public class NetworkManager {
 
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi") // We check which build version we are using.
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1) public static boolean isAirplaneMode(Context context) {
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+	public static boolean isAirplaneMode(Context context) {
 		ContentResolver cr = context.getContentResolver();
 		if (Constants.SUPPORTS_JELLY_BEAN_MR1)
 			return Settings.Global.getInt(cr, Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
@@ -284,56 +288,16 @@ public class NetworkManager {
 		return "none";
 	}
 
-	public boolean isWalledGardenConnection() {
+	public boolean isInternetReachable() {
 
-		final ServiceRequest serviceRequest = new ServiceRequest()
-				.setUri(Constants.URI_WALLED_GARDEN)
-				.setRequestType(RequestType.GET)
-				.setResponseFormat(ResponseFormat.NONE)
-				.setErrorCheck(false);
-
-		final ServiceResponse serviceResponse = NetworkManager.getInstance().request(serviceRequest);
-		if (serviceResponse.responseCode == ResponseCode.SUCCESS)
-			return serviceResponse.statusCode != 204;
-		else {
+		Response response = get(Constants.URI_WALLED_GARDEN, null);
+		boolean success = (response != null && response.isSuccessful() && response.code() == 204);
+		if (!success) {
 			/* We assume a failure means most likely not a walled garden */
-			String message = "Walled garden check: failed with exception " + serviceResponse.exception;
+			String message = "Reachability check returned false";
 			Reporting.breadcrumb(message);
-			return false;
 		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Wifi routines
-	 *--------------------------------------------------------------------------------------------*/
-
-	public Boolean isWifiEnabled() {
-		Boolean wifiEnabled = null;
-		if (mWifiManager != null) {
-			wifiEnabled = (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
-		}
-		return wifiEnabled;
-	}
-
-	public boolean isWifiTethered() {
-		/*
-		 * We use reflection because the method is hidden and unpublished.
-		 */
-		Boolean isTethered = false;
-		if (mWifiManager != null) {
-			final Method[] wmMethods = mWifiManager.getClass().getDeclaredMethods();
-			for (Method method : wmMethods) {
-				if (method.getName().equals("isWifiApEnabled")) {
-					try {
-						isTethered = (Boolean) method.invoke(mWifiManager);
-					}
-					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-						Reporting.logException(e);
-					}
-				}
-			}
-		}
-		return isTethered;
+		return success;
 	}
 
 	private String getNetworkTypeLabel(Integer type, Integer subType) {
@@ -399,6 +363,39 @@ public class NetworkManager {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Wifi routines
+	 *--------------------------------------------------------------------------------------------*/
+
+	public Boolean isWifiEnabled() {
+		Boolean wifiEnabled = null;
+		if (mWifiManager != null) {
+			wifiEnabled = (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
+		}
+		return wifiEnabled;
+	}
+
+	public boolean isWifiTethered() {
+		/*
+		 * We use reflection because the method is hidden and unpublished.
+		 */
+		Boolean isTethered = false;
+		if (mWifiManager != null) {
+			final Method[] wmMethods = mWifiManager.getClass().getDeclaredMethods();
+			for (Method method : wmMethods) {
+				if (method.getName().equals("isWifiApEnabled")) {
+					try {
+						isTethered = (Boolean) method.invoke(mWifiManager);
+					}
+					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+						Reporting.logException(e);
+					}
+				}
+			}
+		}
+		return isTethered;
+	}
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -406,17 +403,17 @@ public class NetworkManager {
 		return mWifiManager.getWifiState();
 	}
 
-	public WIFI_AP_STATE getWifiApState() {
+	public WifiApState getWifiApState() {
 		try {
 			Method method = mWifiManager.getClass().getMethod("getWifiApState");
 			int tmp = ((Integer) method.invoke(mWifiManager));
 			if (tmp > 10) {
 				tmp = tmp - 10;
 			}
-			return WIFI_AP_STATE.class.getEnumConstants()[tmp];
+			return WifiApState.class.getEnumConstants()[tmp];
 		}
 		catch (Exception ignore) {}
-		return WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
+		return WifiApState.WIFI_AP_STATE_FAILED;
 	}
 
 	public ConnectedState getConnectedState() {
@@ -429,28 +426,5 @@ public class NetworkManager {
 
 	public WifiManager getWifiManager() {
 		return mWifiManager;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public enum ResponseCode {
-		SUCCESS,
-		FAILED,
-		INTERRUPTED
-	}
-
-	public enum ConnectedState {
-		NONE,
-		NORMAL,
-	}
-
-	public enum WIFI_AP_STATE {
-		WIFI_AP_STATE_DISABLING,
-		WIFI_AP_STATE_DISABLED,
-		WIFI_AP_STATE_ENABLING,
-		WIFI_AP_STATE_ENABLED,
-		WIFI_AP_STATE_FAILED
 	}
 }

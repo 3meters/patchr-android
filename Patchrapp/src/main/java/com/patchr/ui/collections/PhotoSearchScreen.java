@@ -34,11 +34,11 @@ import com.patchr.components.ContainerManager;
 import com.patchr.components.Logger;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.NetworkManager.ResponseCode;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.ImageResult;
 import com.patchr.objects.ImageResult.Thumbnail;
+import com.patchr.objects.ResponseCode;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.TransitionType;
 import com.patchr.service.RequestType;
@@ -540,7 +540,7 @@ public class PhotoSearchScreen extends BaseScreen {
 				holder.photoView.setTag(itemData.getThumbnail().getUrl());
 				Thumbnail thumbnail = itemData.getThumbnail();
 				Photo photo = new Photo(thumbnail.getUrl(), Photo.PhotoSource.bing);
-				holder.photoView.setImageWithPhoto(photo, null);
+				holder.photoView.setImageWithPhoto(photo);
 			}
 			return view;
 		}
