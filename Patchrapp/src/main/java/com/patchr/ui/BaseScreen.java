@@ -43,6 +43,7 @@ import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.collections.PatchScreen;
 import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.components.BusyController;
@@ -376,35 +377,30 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	protected void delete() {
 
-		new AsyncTask() {
+		processing = true;
+		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
+		String collection = RealmEntity.getCollectionForSchema(entity.schema);
+		String schema = entity.schema;
+		String path = String.format("data/%1$s/%2$s", collection, entityId);
 
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncDeleteEntity");
-				return DataController.getInstance().deleteEntity(entity.id, false, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				processing = false;
-				busyController.hide(true);
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(entity.schema));
-					Logger.i(this, "Deleted entity: " + entity.id);
-					UI.toast(StringManager.getString(R.string.alert_deleted));
-					setResult(Constants.RESULT_ENTITY_DELETED);
-					finish();
-				}
-				else {
-					Errors.handleError(BaseScreen.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().deleteEntity(path, entityId)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+						Logger.i(this, "Deleted entity: " + entityId);
+						UI.toast(StringManager.getString(R.string.alert_deleted));
+						setResult(Constants.RESULT_ENTITY_DELETED);
+						finish();
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 
 	protected void remove(final String toId) {

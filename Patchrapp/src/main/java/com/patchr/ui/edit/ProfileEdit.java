@@ -176,36 +176,6 @@ public class ProfileEdit extends BaseEdit {
 				termsButton.setVisibility(View.VISIBLE);
 				changePasswordButton.setVisibility(View.GONE);
 			}
-
-			if (email != null) {
-				email.addTextChangedListener(new SimpleTextWatcher() {
-
-					@Override public void afterTextChanged(Editable s) {
-						if (entity != null) {
-							if (!s.toString().equals(entity.email)) {
-								if (!firstDraw) {
-									dirty = true;
-								}
-							}
-						}
-					}
-				});
-			}
-		}
-
-		if (area != null) {
-			area.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override public void afterTextChanged(Editable s) {
-					if (entity != null) {
-						if (!s.toString().equals(entity.area)) {
-							if (!firstDraw) {
-								dirty = true;
-							}
-						}
-					}
-				}
-			});
 		}
 
 		name.setImeOptions(EditorInfo.IME_ACTION_GO);
@@ -417,7 +387,7 @@ public class ProfileEdit extends BaseEdit {
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
 							entity.setPhoto(null);
-							bindPhoto();
+							bindPhoto(null);
 						}
 					}
 				}

@@ -159,10 +159,10 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	}
 
 	public void fetch(final FetchMode mode) {
-		fetch(mode, true);
+		fetch(mode, false);
 	}
 
-	public void fetch(final FetchMode mode, Boolean cascade) {
+	public void fetch(final FetchMode mode, Boolean headerOnly) {
 
 		if (this.header == null) {
 			listWidget.fetch(mode);
@@ -175,24 +175,31 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 				FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
 				AsyncTask.execute(() -> {
+
+					if (!headerOnly && entity != null) {
+						/* We can do both in parallel */
+						listWidget.fetch(mode);
+					}
+
 					this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
 						.doOnTerminate(() -> {
-							processing = false;
 							if (this.busyController != null) {
 								this.busyController.hide(true);
 							}
 						})
 						.subscribe(
 							response -> {
+								processing = false;
 								if (this.entity == null) {
 									bind();
-								}
-								if (cascade) {
-									listWidget.fetch(mode);
+									if (!headerOnly) {
+										listWidget.fetch(mode);
+									}
 								}
 								supportInvalidateOptionsMenu();     // In case user authenticated
 							},
 							error -> {
+								processing = false;
 								Logger.w(this, error.getLocalizedMessage());
 							});
 				});

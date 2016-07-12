@@ -95,7 +95,7 @@ public class RestClient {
 		}
 	}
 
-	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy, final String usingUserId, final String usingSession)    {
+	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy, final String usingUserId, final String usingSession) {
 
 		String schema = RealmEntity.getSchemaForId(id);
 		String collection = RealmEntity.getCollectionForSchema(schema);
@@ -407,12 +407,12 @@ public class RestClient {
 		return post(path, parameters, null, null, false);
 	}
 
-	public Observable<ProxibaseResponse> deleteObject(final String path, final String objectId) {
+	public Observable<ProxibaseResponse> deleteEntity(final String path, final String objectId) {
 
 		SimpleMap parameters = new SimpleMap();
 		addSessionParameters(parameters);
 
-		return post(path, parameters, objectId, null, true);
+		return delete(path, parameters, objectId, true);
 	}
 
 	public Observable<ProxibaseResponse> insertLink(String fromId, String toId, String type) {
@@ -449,7 +449,7 @@ public class RestClient {
 				realm.beginTransaction();
 				RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 				if (realmEntity != null) {
-					realmEntity.userMemberStatus = enabled ?  MemberStatus.Member : MemberStatus.Pending;
+					realmEntity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
 				}
 				realm.commitTransaction();
 				realm.close();

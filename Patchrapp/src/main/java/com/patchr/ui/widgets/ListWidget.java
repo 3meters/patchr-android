@@ -208,18 +208,15 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 		AsyncTask.execute(() -> {
 			this.subscription = RestClient.getInstance().fetchListItems(strategy, this.querySpec, this.contextEntityId, skip)
-				.doOnTerminate(() -> {
-					if (this.busyController != null) {
-						this.busyController.hide(true);
-					}
-				})
 				.subscribe(
 					response -> {
+						this.busyController.hide(true);
 						processingQuery = false;
 						executed = true;
 						fetchQueryItemsComplete(mode, response, skip);
 					},
 					error -> {
+						this.busyController.hide(true);
 						processingQuery = false;
 						Logger.w(this, error.getLocalizedMessage());
 					});

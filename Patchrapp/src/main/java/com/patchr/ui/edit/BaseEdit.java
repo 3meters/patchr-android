@@ -8,7 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -37,7 +37,6 @@ import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.PhotoSwitchboardScreen;
 import com.patchr.ui.components.BusyController;
-import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -54,6 +53,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Subscription;
+
 public abstract class BaseEdit extends BaseScreen {
 
 	protected PhotoEditWidget photoEditWidget;
@@ -61,7 +62,8 @@ public abstract class BaseEdit extends BaseScreen {
 	protected TextView        description;
 	protected String          photoSource;
 
-	protected AsyncTask taskService;
+	protected AsyncTask    taskService;
+	public    Subscription subscription;
 
 	protected Boolean brokenLink        = false;
 	protected Boolean proximityDisabled = false;        // Patch is only using location
@@ -70,9 +72,6 @@ public abstract class BaseEdit extends BaseScreen {
 	protected Integer updateProgressResId = R.string.progress_updating;
 	protected Integer insertedResId       = R.string.alert_inserted;
 	protected Integer updatedResId        = R.string.alert_updated;
-
-	//public Boolean editing = false;
-	public Boolean dirty = false;
 
 	protected Integer dirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer dirtyExitMessageResId  = R.string.alert_dirty_exit_message;
@@ -129,6 +128,15 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
+	@Override public void cancelAction(Boolean force) {
+		if (!force && isDirty()) {
+			confirmDirtyExit();
+		}
+		else {
+			super.cancelAction(force);
+		}
+	}
+
 	public void onClick(View view) {
 		if (view.getId() == R.id.photo_set_button) {
 			setPhotoAction();
@@ -145,11 +153,44 @@ public abstract class BaseEdit extends BaseScreen {
 		/*
 		 * All photo selection sources and types end up here
 		 */
-		dirty = !Photo.same(photoEditWidget.photo, photo);
-		if (dirty) {
-			bindPhoto();
+		if (!Photo.same(photoEditWidget.photo, photo)) {
+			bindPhoto(photo);
 			photoEditWidget.dirty = true;
 		}
+	}
+
+	public void setPhotoAction() {
+		Intent intent = new Intent(this, PhotoSwitchboardScreen.class);
+		startActivityForResult(intent, Constants.ACTIVITY_PHOTO_PICK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_TO);
+	}
+
+	public void editPhotoAction() {
+
+		/* Route it - editor loads image directly from s3 skipping imgix service  */
+		if (entity.getPhoto() != null) {
+			final String url = entity.getPhoto().uriNative();
+			Uri imageUri = Uri.parse(url);
+
+			Intent intent = new AdobeImageIntent.Builder(this)
+				.setData(imageUri)
+				.withOutputFormat(Bitmap.CompressFormat.JPEG)
+				.withOutputQuality(90)
+				.saveWithNoChanges(false)
+				.withOutputSize(MegaPixels.Mp5)
+				.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
+				.withVibrationEnabled(true)
+				.withAutoColorEnabled(true)
+				.build();
+
+			startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+		}
+	}
+
+	public void deletePhotoAction() {
+		photoEditWidget.dirty = (inputState.equals(State.Editing));
+		bindPhoto(null);
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -186,137 +227,49 @@ public abstract class BaseEdit extends BaseScreen {
 		name = (TextView) findViewById(R.id.name);
 		description = (TextView) findViewById(R.id.description);
 		photoEditWidget = (PhotoEditWidget) findViewById(R.id.photo_edit);
-
-		if (name != null) {
-			name.addTextChangedListener(new SimpleTextWatcher() {
-				@Override public void afterTextChanged(Editable s) {
-					if (entity != null && (entity.name == null || !s.toString().equals(entity.name))) {
-						if (!firstDraw) {
-							dirty = true;
-						}
-					}
-				}
-			});
-		}
-		if (description != null) {
-			description.addTextChangedListener(new SimpleTextWatcher() {
-				@Override public void afterTextChanged(Editable s) {
-					if (entity != null && (entity.description == null || !s.toString().equals(entity.description))) {
-						if (!firstDraw) {
-							dirty = true;
-						}
-					}
-				}
-			});
-		}
 	}
 
-	public void bind() {
+	protected void bind() {
 
 		if (entityId != null && inputState.equals(State.Editing)) {
-			this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
-			if (this.entity != null) {
+			entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+			if (entity != null) {
 				UI.setTextView(name, entity.name);
 				UI.setTextView(description, entity.description);
-				bindPhoto();
+				bindPhoto(entity.getPhoto());
 				firstDraw = false;
 			}
 		}
 	}
 
-	protected void bindPhoto() {
-		photoEditWidget.bind(entity.getPhoto());
+	protected void bindPhoto(Photo photo) {
+		photoEditWidget.bind(photo);
 	}
 
 	protected void gather(SimpleMap parameters) {
 
 		if (inputState.equals(State.Creating)) {
-			parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
-			parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
-			parameters.put("photo", photoEditWidget.photo); // Could be null
-		}
-		else if (inputState.equals(State.Editing)) {
-			if (name.getText().toString().equals(entity.name)) {
+			if (name != null) {
 				parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
 			}
-			if (description.getText().toString().equals(entity.description)) {
+			if (description != null) {
 				parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
 			}
-			if (photoEditWidget.dirty) {
+			if (photoEditWidget != null && photoEditWidget.photo != null) {
 				parameters.put("photo", photoEditWidget.photo); // Could be null
 			}
 		}
-	}
-
-	@Override public void submitAction() {
-		if (!this.processing) {
-			this.processing = true;
-			/*
-			 * We assume that by accepting while creating a patch, the users intention is
-			 * to commit even if nothing is dirty.
-			 */
-			if (!inputState.equals(State.Editing) || this.dirty) {
-				if (isValid()) {   // validate also gathers
-					if (inputState.equals(State.Editing)) {
-						update();
-					}
-					else {
-						insert();
-					}
-				}
-				else {
-					this.processing = false;
-				}
+		else if (inputState.equals(State.Editing)) {
+			if (name != null && !name.getText().toString().equals(entity.name)) {
+				parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
 			}
-			else {
-				this.processing = false;
-				cancelAction(false);
+			if (description != null && !description.getText().toString().equals(entity.description)) {
+				parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
+			}
+			if (photoEditWidget != null && photoEditWidget.dirty) {
+				parameters.put("photo", photoEditWidget.photo); // Could be null
 			}
 		}
-	}
-
-	@Override public void cancelAction(Boolean force) {
-		if (!force && dirty) {
-			confirmDirtyExit();
-		}
-		else {
-			super.cancelAction(force);
-		}
-	}
-
-	public void setPhotoAction() {
-		Intent intent = new Intent(this, PhotoSwitchboardScreen.class);
-		startActivityForResult(intent, Constants.ACTIVITY_PHOTO_PICK);
-		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_TO);
-	}
-
-	public void editPhotoAction() {
-
-		/* Route it - editor loads image directly from s3 skipping imgix service  */
-		if (entity.getPhoto() != null) {
-			final String url = entity.getPhoto().uriNative();
-			Uri imageUri = Uri.parse(url);
-
-			Intent intent = new AdobeImageIntent.Builder(this)
-				.setData(imageUri)
-				.withOutputFormat(Bitmap.CompressFormat.JPEG)
-				.withOutputQuality(90)
-				.saveWithNoChanges(false)
-				.withOutputSize(MegaPixels.Mp5)
-				.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
-				.withVibrationEnabled(true)
-				.withAutoColorEnabled(true)
-				.build();
-
-			startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
-			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
-		}
-	}
-
-	public void deletePhotoAction() {
-		dirty = (inputState.equals(State.Editing));
-		entity.setPhoto(null);
-		bindPhoto();
 	}
 
 	protected boolean afterInsert(Entity entity) {
@@ -325,6 +278,33 @@ public abstract class BaseEdit extends BaseScreen {
 
 	protected boolean afterUpdate() {
 		return true;
+	}
+
+	protected boolean isDirty() {
+		if (inputState.equals(State.Creating)) {
+			if (name != null && TextUtils.isEmpty(name.getText().toString())) {
+				return true;
+			}
+			if (description != null && TextUtils.isEmpty(description.getText().toString())) {
+				return true;
+			}
+			if (photoEditWidget != null && photoEditWidget.photo != null) {
+				return true;
+			}
+		}
+		else if (inputState.equals(State.Editing)) {
+			if (name != null && !entity.name.equals(name.getText().toString())) {
+				return true;
+			}
+			if (description != null && !entity.description.equals(description.getText().toString())) {
+				return true;
+			}
+			if (photoEditWidget != null && photoEditWidget.dirty) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected boolean isValid() {
@@ -417,13 +397,12 @@ public abstract class BaseEdit extends BaseScreen {
 				if (isCancelled()) return null;
 
 				//ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				ModelResult result = new ModelResult();
 				if (isCancelled()) return null;
 
 				/* Don't allow cancel if we made it this far */
 				busyController.hide(true);
 
-				return result;
+				return null;
 			}
 
 			@Override protected void onCancelled(Object response) {
@@ -472,7 +451,7 @@ public abstract class BaseEdit extends BaseScreen {
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
 							entity.setPhoto(null);
-							bindPhoto();
+							bindPhoto(null);
 						}
 					}
 				}
@@ -587,7 +566,7 @@ public abstract class BaseEdit extends BaseScreen {
 					if (result.serviceResponse.errorResponse != null) {
 						if (result.serviceResponse.errorResponse.clearPhoto) {
 							entity.setPhoto(null);
-							bindPhoto();
+							bindPhoto(null);
 						}
 					}
 				}

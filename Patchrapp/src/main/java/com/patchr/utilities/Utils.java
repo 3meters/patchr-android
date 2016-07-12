@@ -59,6 +59,12 @@ public class Utils {
 		return string.substring(0, 1).toUpperCase(Locale.US) + string.substring(1).toLowerCase(Locale.US);
 	}
 
+	public static String getImageKey() {
+		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
+		final String imageKey = String.format("%1$s_%2$s.jpg", UserManager.userId, stringDate); // User id at root to avoid collisions
+		return imageKey;
+	}
+
 	public static String md5(final String s) {
 		try {
 			// Create MD5 Hash

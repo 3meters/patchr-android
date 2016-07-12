@@ -216,9 +216,6 @@ public class MessageScreen extends BaseScreen {
 			UserManager.shared().showGuestGuard(this, "Sign up for a free account to like messages and more.");
 			return;
 		}
-
-		//		Link linkLike = entity.linkFromAppUser(Constants.TYPE_LINK_LIKE);
-		//		like(linkLike == null);
 	}
 
 	public void likeListAction() {

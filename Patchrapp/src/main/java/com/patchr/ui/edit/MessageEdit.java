@@ -1,22 +1,32 @@
 package com.patchr.ui.edit;
 
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
+import com.patchr.components.Logger;
+import com.patchr.components.S3;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
+import com.patchr.service.ServiceResponse;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,16 +76,19 @@ public class MessageEdit extends BaseEdit {
 		return true;
 	}
 
-	@Override public void onClick(View view) {
-		if (view.getId() == R.id.photo_delete_button) {
-			this.photoEditAnimator.setDisplayedChild(0);
-		}
-		super.onClick(view);
-	}
-
 	@Override public void onPhotoSelected(Photo photo) {
 		this.photoEditAnimator.setDisplayedChild(1);
 		super.onPhotoSelected(photo);
+	}
+
+	@Override public void submitAction() {
+
+		if (!isValid()) return;
+		if (processing) return;
+
+		SimpleMap parameters = new SimpleMap();
+		gather(parameters);
+		post(parameters);
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -123,21 +136,9 @@ public class MessageEdit extends BaseEdit {
 		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 	}
 
-	@Override protected void bindPhoto() {
-		if (entity.getPhoto() != null) {
-			this.photoEditAnimator.setDisplayedChild(1);
-		}
-		super.bindPhoto();
-	}
-
-	@Override protected boolean isValid() {
-
-		if (photoEditWidget.photo == null && TextUtils.isEmpty(description.getText().toString().trim())) {
-			Dialogs.alert(R.string.error_missing_message_content, this);
-			return false;
-		}
-
-		return true;
+	@Override protected void bindPhoto(Photo photo) {
+		this.photoEditAnimator.setDisplayedChild(photo != null ? 1 : 0);
+		super.bindPhoto(photo);
 	}
 
 	@Override protected void gather(SimpleMap parameters) {
@@ -151,6 +152,64 @@ public class MessageEdit extends BaseEdit {
 			links.add(link);
 			parameters.put("links", links);
 		}
+	}
+
+	protected void post(SimpleMap parameters) {
+
+		processing = true;
+		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
+		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, MessageEdit.this);
+
+		AsyncTask.execute(() -> {
+
+			if (parameters.containsKey("photo")) {
+
+				Photo photo = (Photo) parameters.get("photo");
+				Bitmap bitmap = Photo.getBitmapForPhoto(photo);
+				if (bitmap == null) {
+					processing = false;
+					busyController.hide(true);
+					Logger.w(this, "Failed to download bitmap from the network");
+					return;
+				}
+
+				/* Make sure the bitmap is less than or equal to the maximum size we want to persist. */
+				bitmap = UI.ensureBitmapScaleForS3(bitmap);
+
+				/* Push it to S3. It is always formatted/compressed as a jpeg. */
+				String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
+				ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
+
+				/* Update the photo object for the entity or user */
+				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+					parameters.put("photo", new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images));
+				}
+			}
+
+			subscription = RestClient.getInstance().postEntity(path, parameters)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						finish();
+						AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
+	}
+
+	@Override protected boolean isValid() {
+
+		if (photoEditWidget.photo == null && TextUtils.isEmpty(description.getText().toString().trim())) {
+			Dialogs.alert(R.string.error_missing_message_content, this);
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override protected int getLayoutId() {

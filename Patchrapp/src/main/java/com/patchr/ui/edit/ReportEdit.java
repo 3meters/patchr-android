@@ -42,6 +42,7 @@ public class ReportEdit extends BaseEdit {
 	private ImageWidget userPhoto;
 	private TextView    userName;
 	private TextView    message;
+	public  boolean     dirty;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

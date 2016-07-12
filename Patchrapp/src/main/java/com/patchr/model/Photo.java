@@ -1,14 +1,19 @@
 package com.patchr.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.TypedValue;
 
+import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.objects.enums.PhotoCategory;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
+import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -88,6 +93,39 @@ public class Photo {
 
 	public Integer getResId() {
 		return getResourceIdFromResourceName(Patchr.applicationContext, this.prefix);
+	}
+
+	public static Bitmap getBitmapForPhoto(Photo photo) {
+
+		/* Synchronous call to get the bitmap */
+		Bitmap bitmap = null;
+		try {
+			bitmap = Picasso.with(Patchr.applicationContext)
+				.load(photo.uri(PhotoCategory.STANDARD))
+				.centerInside()
+				.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+				.get();
+		}
+		catch (OutOfMemoryError error) {
+			/* We make attempt to recover by giving the vm another chance to
+			 * garbage collect plus reduce the image size in memory by 75%. */
+			System.gc();
+			try {
+				bitmap = Picasso.with(Patchr.applicationContext)
+					.load(photo.uri(PhotoCategory.STANDARD))
+					.centerInside()
+					.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+					.get();
+			}
+			catch (IOException ignore) {}
+		}
+		catch (IOException ignore) {
+			/* This is where we are ignoring exceptions like our reset problem with picasso. This
+			 * can happen pulling an image from the network or from a local file. */
+			Reporting.breadcrumb("Picasso failed to load bitmap");
+		}
+
+		return bitmap;
 	}
 
 	public static Integer getResourceIdFromResourceName(Context context, String resourceName) {

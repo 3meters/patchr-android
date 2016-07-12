@@ -37,6 +37,7 @@ public class FeedbackEdit extends BaseEdit {
 	private ImageWidget userPhoto;
 	private TextView    userName;
 	private TextView    message;
+	public  boolean     dirty;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -104,12 +105,12 @@ public class FeedbackEdit extends BaseEdit {
 
 		if (description.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(R.string.error_missing_message)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
+				, null
+				, StringManager.getString(R.string.error_missing_message)
+				, null
+				, this
+				, android.R.string.ok
+				, null, null, null, null);
 			return false;
 		}
 		return true;

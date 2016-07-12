@@ -638,7 +638,7 @@ public class PatchScreen extends BaseListScreen {
 			.subscribe(
 				response -> {
 					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
-					fetch(FetchMode.MANUAL, false);  // Need to refetch the patch, don't cascade to list
+					fetch(FetchMode.MANUAL, true);  // Need to refetch the patch, header only
 					processingCommand = false;
 				},
 				error -> {

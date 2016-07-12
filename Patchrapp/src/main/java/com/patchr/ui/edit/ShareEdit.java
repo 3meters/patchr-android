@@ -57,6 +57,7 @@ public class ShareEdit extends BaseEdit {
 
 	private RealmEntity shareEntity;
 	private String      descriptionDefault;
+	public  boolean     dirty;
 
 	private ImageWidget              userPhoto;
 	private RecipientsCompletionView recipientsField;
@@ -112,7 +113,7 @@ public class ShareEdit extends BaseEdit {
 	}
 
 	protected void onPhotoCanceled() {
-		bindPhoto();
+		bindPhoto(null);
 	}
 
 	public void onCancelPhotoButtonClick(View view) {
