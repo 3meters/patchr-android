@@ -1,6 +1,7 @@
 package com.patchr.objects;
 
 import com.patchr.R;
+import com.patchr.objects.enums.QueryName;
 
 import org.jetbrains.annotations.NotNull;
 

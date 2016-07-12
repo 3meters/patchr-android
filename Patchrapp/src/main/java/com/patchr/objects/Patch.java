@@ -111,19 +111,4 @@ public class Patch extends Entity implements Cloneable, Serializable {
 			}
 		}
 	}
-
-	public static class ReasonType {
-		public static String WATCH    = "watch";
-		public static String LOCATION = "location";
-		public static String RECENT   = "recent";
-		public static String OTHER    = "other";
-	}
-
-	public static class Type {
-		public static String EVENT   = "event";
-		public static String GROUP   = "group";
-		public static String PLACE   = "place";
-		public static String PROJECT = "project";
-		public static String OTHER   = "other";
-	}
 }

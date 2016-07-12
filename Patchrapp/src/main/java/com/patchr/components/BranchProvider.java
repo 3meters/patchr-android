@@ -8,7 +8,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;

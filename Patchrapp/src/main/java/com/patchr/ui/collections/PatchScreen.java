@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -28,36 +27,35 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
-import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
-import com.patchr.components.ModelResult;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.DataQueryResultEvent;
-import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.ActionType;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
-import com.patchr.objects.FetchMode;
-import com.patchr.objects.LinkOld;
-import com.patchr.objects.MemberStatus;
 import com.patchr.objects.Message;
-import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
-import com.patchr.objects.ResponseCode;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.ActionType;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.FetchMode;
+import com.patchr.objects.enums.LinkType;
+import com.patchr.objects.enums.MemberStatus;
+import com.patchr.objects.enums.QueryName;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.MapScreen;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.components.ListScrollListener;
+import com.patchr.ui.edit.MessageEdit;
+import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Dialogs;
@@ -68,8 +66,6 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.Locale;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -84,7 +80,7 @@ public class PatchScreen extends BaseListScreen {
 	protected BottomSheetLayout bottomSheetLayout;
 	protected ViewGroup         actionView;
 
-	protected String notificationId;
+	protected boolean processingCommand;
 
 	protected CallbackManager callbackManager;      // For facebook
 	protected String          branchLink;           // Uri
@@ -173,46 +169,48 @@ public class PatchScreen extends BaseListScreen {
 		 * Base activity broadcasts view clicks that target onViewClick. There are actions
 		 * that should be handled at the activity level like add a new entity.
 		 */
-		if (processing) return;
+		if (!processingCommand) {
 
-		processing = true;
-		Integer id = view.getId();
+			processingCommand = true;
+			Integer id = view.getId();
 
-		/* Action button redirects based on tag */
-		if (id == R.id.action_button) {
-			id = (Integer) view.getTag();
-		}
-
-		if (id == R.id.fab) {
-			addAction();
-		}
-		else if (id == R.id.invite) {
-			inviteAction();
-		}
-		else if (id == R.id.join_button) {
-			joinAction();
-		}
-		else if (id == R.id.members_button) {
-			memberListAction();
-		}
-		else if (id == R.id.tune_button) {
-			tuneAction();
-		}
-		else if (id == R.id.mute_button) {
-			muteAction();
-		}
-		else if (view.getTag() != null) {
-			if (view.getTag() instanceof Photo) {
-				Photo photo = (Photo) view.getTag();
-				navigateToPhoto(photo);
+			/* Action button redirects based on tag */
+			if (id == R.id.action_button) {
+				id = (Integer) view.getTag();
 			}
-			else if (view.getTag() instanceof RealmEntity) {
-				final RealmEntity entity = (RealmEntity) view.getTag();
-				navigateToEntity(entity);
+
+			/* Async */
+			if (id == R.id.mute_button) {
+				muteAction();
+			}
+
+			/* Synchronous */
+			else {
+				if (id == R.id.fab) {
+					addAction();
+				}
+				else if (id == R.id.invite) {
+					inviteAction();
+				}
+				else if (id == R.id.join_button) {
+					joinAction();
+				}
+				else if (id == R.id.members_button) {
+					memberListAction();
+				}
+				else if (view.getTag() != null) {
+					if (view.getTag() instanceof Photo) {
+						Photo photo = (Photo) view.getTag();
+						navigateToPhoto(photo);
+					}
+					else if (view.getTag() instanceof RealmEntity) {
+						final RealmEntity entity = (RealmEntity) view.getTag();
+						navigateToEntity(entity);
+					}
+				}
+				processingCommand = false;
 			}
 		}
-
-		processing = false;
 	}
 
 	@Override public void onConfigurationChanged(Configuration newConfig) {
@@ -298,10 +296,6 @@ public class PatchScreen extends BaseListScreen {
 		mute(!entity.userMemberMuted);
 	}
 
-	private void tuneAction() {
-		Patchr.router.route(this, Command.TUNE, entity, null);
-	}
-
 	public void addAction() {
 
 		if (!UserManager.shared().authenticated()) {
@@ -309,13 +303,13 @@ public class PatchScreen extends BaseListScreen {
 			return;
 		}
 
-		if (entity == null) return;
-
-		if (MenuManager.canUserAdd(entity)) {
-			Bundle extras = new Bundle();
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
-			extras.putString(Constants.EXTRA_ENTITY_PARENT_NAME, entity.name);
-			Patchr.router.add(this, Constants.SCHEMA_ENTITY_MESSAGE, extras, true);
+		if (entity != null && MenuManager.canUserAdd(entity)) {
+			Intent intent = new Intent(this, MessageEdit.class);
+			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
+			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_NAME, entity.name);
+			intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+			startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 	}
 
@@ -377,8 +371,11 @@ public class PatchScreen extends BaseListScreen {
 	}
 
 	public void editAction() {
-		Bundle extras = new Bundle();
-		Patchr.router.edit(this, entity, extras, true);
+		Intent intent = new Intent(this, PatchEdit.class);
+		intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+		intent.putExtra(Constants.EXTRA_STATE, State.Editing);
+		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_EDIT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void deleteAction() {
@@ -394,7 +391,6 @@ public class PatchScreen extends BaseListScreen {
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			this.notificationId = extras.getString(Constants.EXTRA_NOTIFICATION_ID);
 			this.referrerName = extras.getString(Constants.EXTRA_REFERRER_NAME);
 			this.referrerPhotoUrl = extras.getString(Constants.EXTRA_REFERRER_PHOTO_URL);
 		}
@@ -581,73 +577,74 @@ public class PatchScreen extends BaseListScreen {
 
 	public void join(final boolean activate) {
 
-		final boolean enabled = !(entity.isRestrictedForCurrentUser());
-
-		if (activate) {
-
-			/* Used as part of link management */
-			//			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-			//			Shortcut toShortcut = null; // entity.getAsShortcut();
-			//
-			//			LinkInsertEvent insertEvent = new LinkInsertEvent();
-			//			insertEvent.fromId = UserManager.currentUser.id;
-			//			insertEvent.toId = entity.id;
-			//			insertEvent.type = Constants.TYPE_LINK_MEMBER;
-			//			insertEvent.enabled = enabled;
-			//			insertEvent.fromShortcut = fromShortcut;
-			//			insertEvent.toShortcut = toShortcut;
-			//			insertEvent.actionEvent = entity.isVisibleToCurrentUser() ? "watch_entity_patch" : "request_watch_entity";
-			//			insertEvent.skipCache = false;
-			//			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_MEMBER;
-			//			insertEvent.tag = System.identityHashCode(this);
-			//
-			//			Dispatcher.getInstance().post(insertEvent);
+		if (!entity.userMemberStatus.equals(MemberStatus.NonMember)) {  // Member or pending
+			RestClient.getInstance().deleteLinkById(entity.userMemberId)
+				.subscribe(
+					response -> {
+						Reporting.track(AnalyticsCategory.EDIT, "Left patch");
+						realm.executeTransaction(realm -> {
+							entity.userMemberId = null;
+							if (entity.userMemberStatus.equals(MemberStatus.Member)) {
+								entity.countMembers--;
+							}
+							entity.userMemberStatus = MemberStatus.NonMember;
+						});
+						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+						fetch(FetchMode.AUTO);
+					},
+					error -> {
+						Logger.w(this, error.getLocalizedMessage());
+						processingCommand = false;
+					});
 		}
 		else {
-
-			LinkDeleteEvent deleteEvent = new LinkDeleteEvent();
-			deleteEvent.fromId = UserManager.currentUser.id;
-			deleteEvent.toId = entity.id;
-			deleteEvent.type = Constants.TYPE_LINK_MEMBER;
-			deleteEvent.schema = entity.schema;
-			deleteEvent.enabled = enabled;
-			deleteEvent.actionEvent = "unwatch_entity_" + entity.schema.toLowerCase(Locale.US);
-			deleteEvent.actionType = ActionType.ACTION_LINK_DELETE_MEMBER;
-			deleteEvent.tag = System.identityHashCode(this);
-
-			Dispatcher.getInstance().post(deleteEvent);
+			RestClient.getInstance().insertLink(UserManager.userId, entity.id, LinkType.Watch)
+				.subscribe(
+					response -> {
+						if (response.data != null && response.count.intValue() == 1) {
+							RealmEntity link = response.data.get(0);
+							realm.executeTransaction(realm -> {
+								entity.userMemberId = link.id;
+								if (link.enabled) {
+									entity.userMemberStatus = MemberStatus.Member;
+									entity.countMembers++;
+									Reporting.track(AnalyticsCategory.EDIT, "Joined patch");
+								}
+								else {
+									entity.userMemberStatus = MemberStatus.Pending;
+									Reporting.track(AnalyticsCategory.EDIT, "Joined patch");
+								}
+							});
+						}
+						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+						fetch(FetchMode.AUTO);
+					},
+					error -> {
+						Logger.w(this, error.getLocalizedMessage());
+						processingCommand = false;
+					});
 		}
 	}
 
 	public void mute(final Boolean mute) {
 
-		final LinkOld link = null; // entity.linkFromAppUser(Constants.TYPE_LINK_MEMBER);
-		final String actionEvent = mute ? "mute_watch_entity" : "unmute_watch_entity";
+		final ViewAnimator animator = (ViewAnimator) ((PatchDetailView) header).bannerView.muteButton;
+		animator.setDisplayedChild(1);  // Turned off in drawButtons
 
-		new AsyncTask() {
+		String entityId = entity.id;
+		String linkId = entity.userMemberId;
 
-			@Override protected void onPreExecute() {
-				if (header != null) {
-					ViewAnimator animator = (ViewAnimator) ((PatchDetailView) header).bannerView.muteButton;
-					if (animator != null) {
-						animator.setDisplayedChild(1);  // Turned off in drawButtons
-					}
-				}
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncMuteLink");
-				return DataController.getInstance().muteLink(link.id, mute, actionEvent);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
+		RestClient.getInstance().muteLinkById(entityId, linkId, mute)
+			.subscribe(
+				response -> {
 					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
-				}
-				fetch(FetchMode.AUTO);
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+					fetch(FetchMode.MANUAL, false);  // Need to refetch the patch, don't cascade to list
+					processingCommand = false;
+				},
+				error -> {
+					Logger.w(this, error.getLocalizedMessage());
+					processingCommand = false;
+				});
 	}
 
 	protected void confirmJoin() {

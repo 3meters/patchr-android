@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.objects.enums;
 
 public class Preference {
 	public static String ENABLE_DEV                    = "pref_enable_dev";

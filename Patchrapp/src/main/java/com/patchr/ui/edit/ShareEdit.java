@@ -23,12 +23,13 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkOld;
 import com.patchr.objects.Message.MessageType;
 import com.patchr.objects.Recipient;
-import com.patchr.objects.Suggest;
+import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Suggest;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
@@ -55,7 +56,7 @@ public class ShareEdit extends BaseEdit {
 	private RealmEntity inputShareEntity;
 
 	private RealmEntity shareEntity;
-	private String descriptionDefault;
+	private String      descriptionDefault;
 
 	private ImageWidget              userPhoto;
 	private RecipientsCompletionView recipientsField;
@@ -68,8 +69,8 @@ public class ShareEdit extends BaseEdit {
 
 		Intent intent = getIntent();
 		if (intent.getAction() != null
-				&& intent.getAction().equals(Intent.ACTION_SEND)
-				&& !UserManager.shared().authenticated()) {
+			&& intent.getAction().equals(Intent.ACTION_SEND)
+			&& !UserManager.shared().authenticated()) {
 			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share using Patchr and more.");
 			return;
 		}
@@ -143,7 +144,6 @@ public class ShareEdit extends BaseEdit {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
 		this.entity.type = "share";
-		this.entitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
 
 		this.userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		this.shareEntityView = (ViewGroup) findViewById(R.id.share_entity);
@@ -240,10 +240,10 @@ public class ShareEdit extends BaseEdit {
 
 										try {
 											Bitmap bitmap = Picasso.with(Patchr.applicationContext)
-													.load(photoUri)
-													.centerInside()
-													.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-													.get();
+												.load(photoUri)
+												.centerInside()
+												.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+												.get();
 
 											File file = MediaManager.copyBitmapToSharePath(bitmap);
 											Uri uri = MediaManager.getSharePathUri();
@@ -316,10 +316,10 @@ public class ShareEdit extends BaseEdit {
 							try {
 
 								Bitmap bitmap = Picasso.with(Patchr.applicationContext)
-										.load(photoUri)
-										.centerInside()
-										.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-										.get();
+									.load(photoUri)
+									.centerInside()
+									.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+									.get();
 
 								File file = MediaManager.copyBitmapToSharePath(bitmap);
 								Uri uri = MediaManager.getSharePathUri();
@@ -398,16 +398,14 @@ public class ShareEdit extends BaseEdit {
 		}
 	}
 
-	@Override public void gather() {
-		super.gather();
+	@Override public void gather(SimpleMap parameters) {
+		super.gather(parameters);
 		if (TextUtils.isEmpty(this.description.getText())) {
 			this.entity.description = this.descriptionDefault;
 		}
 	}
 
-	@Override protected boolean validate() {
-
-		gather();
+	@Override protected boolean isValid() {
 
 		if (this.recipientsField.getObjects().size() == 0) {
 
@@ -420,23 +418,19 @@ public class ShareEdit extends BaseEdit {
 			}
 
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-					, null
-					, StringManager.getString(messageResId)
-					, null
-					, this
-					, android.R.string.ok
-					, null, null, null, null);
+				, null
+				, StringManager.getString(messageResId)
+				, null
+				, this
+				, android.R.string.ok
+				, null, null, null, null);
 			return false;
 		}
 
 		return true;
 	}
 
-	@Override protected String getLinkType() {
-		return Constants.TYPE_LINK_SHARE;
-	}
-
-	@Override protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
+	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
 	    /* Called on background thread. */
 		if (inputShareEntityId != null) {
 			links.add(new LinkOld(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
@@ -446,7 +440,7 @@ public class ShareEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean afterInsert(Entity entity) {
+	protected boolean afterInsert(Entity entity) {
 		if (inputShareType != null) {
 			if (inputShareType.equals(MessageType.Invite)) {
 				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));
@@ -456,10 +450,6 @@ public class ShareEdit extends BaseEdit {
 			}
 		}
 		return true;
-	}
-
-	@Override protected String getEntitySchema() {
-		return Constants.SCHEMA_ENTITY_MESSAGE;
 	}
 
 	@Override protected int getLayoutId() {

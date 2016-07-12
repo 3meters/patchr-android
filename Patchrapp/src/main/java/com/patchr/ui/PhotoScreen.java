@@ -25,7 +25,7 @@ import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;

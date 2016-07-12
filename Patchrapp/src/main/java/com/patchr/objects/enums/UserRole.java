@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.objects.enums;
 
 public class UserRole {
 	public static String OWNER  = "owner";

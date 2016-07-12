@@ -82,28 +82,31 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(RealmEntity entity) {
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
-
 			this.entity = entity;
+			draw();
+		}
+	}
 
-			setOrGone(this.name, entity.name);
-			setOrGone(this.description, entity.description);
-			setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
-			if (entity.owner != null) {
-				ownerName.setText(entity.owner.name);
-			}
+	public void draw() {
 
-			privacyGroup.setVisibility((entity.visibility != null
-				&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+		setOrGone(this.name, entity.name);
+		setOrGone(this.description, entity.description);
+		setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+		if (entity.owner != null) {
+			ownerName.setText(entity.owner.name);
+		}
 
-			UI.setVisibility(this.expandoButton, View.GONE);
-			if (!TextUtils.isEmpty(entity.description)) {
-				this.expandoButton.setText(StringManager.getString(R.string.button_text_expand));
-				UI.setVisibility(this.expandoButton, View.VISIBLE);
-				this.expandoButton.setOnClickListener(this);
-			}
+		privacyGroup.setVisibility((entity.visibility != null
+			&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+
+		UI.setVisibility(this.expandoButton, View.GONE);
+		if (!TextUtils.isEmpty(entity.description)) {
+			this.expandoButton.setText(StringManager.getString(R.string.button_text_expand));
+			UI.setVisibility(this.expandoButton, View.VISIBLE);
+			this.expandoButton.setOnClickListener(this);
 		}
 	}
 

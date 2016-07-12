@@ -56,7 +56,7 @@ public class GcmIntentService extends GcmListenerService {
 				/* Tickle activity date on entity manager because that is monitored by radar. */
 				String targetSchema = Entity.getSchemaForId(notification.targetId);
 				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					DataController.getInstance().setActivityDate(DateTime.nowDate().getTime());
+					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
 				}
 
 				/* Track */

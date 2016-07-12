@@ -141,7 +141,7 @@
 				android:textSize="16sp" />
 
 			<Button
-				android:id="@+id/submit_button"
+				android:id="@+id/signup_button"
 				style="@style/button_raised"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"

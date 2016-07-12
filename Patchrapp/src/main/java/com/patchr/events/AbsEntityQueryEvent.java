@@ -1,9 +1,9 @@
 package com.patchr.events;
 
-import com.patchr.objects.ActionType;
+import com.patchr.objects.enums.ActionType;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Cursor;
-import com.patchr.objects.FetchMode;
+import com.patchr.objects.enums.FetchMode;
 import com.patchr.utilities.Errors;
 
 @SuppressWarnings("ucd")

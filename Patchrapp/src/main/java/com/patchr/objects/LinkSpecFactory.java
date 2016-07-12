@@ -3,6 +3,7 @@ package com.patchr.objects;
 import com.patchr.Constants;
 import com.patchr.components.UserManager;
 import com.patchr.objects.LinkOld.Direction;
+import com.patchr.objects.enums.LinkSpecType;
 import com.patchr.utilities.Maps;
 
 import java.util.ArrayList;

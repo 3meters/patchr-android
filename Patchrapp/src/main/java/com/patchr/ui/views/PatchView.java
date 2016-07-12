@@ -82,7 +82,7 @@ public class PatchView extends BaseView {
 		synchronized (lock) {
 
 			this.entity = entity;
-			this.photoView.setImageWithEntity(entity);
+			this.photoView.setImageWithEntity(entity, null);
 			setOrGone(this.name, entity.name);
 
 			if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {

@@ -24,9 +24,9 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.MemberStatus;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.MemberStatus;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.Shortcut;
 import com.patchr.objects.User;
 import com.patchr.ui.widgets.ImageWidget;
@@ -142,7 +142,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 				return;
 			}
 
-			this.userPhoto.setImageWithEntity(entity);
+			this.userPhoto.setImageWithEntity(entity, null);
 			setOrGone(this.name, entity.name);
 			setOrGone(this.area, entity.area);
 

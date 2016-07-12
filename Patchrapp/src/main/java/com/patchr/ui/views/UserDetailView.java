@@ -63,11 +63,6 @@ public class UserDetailView extends BaseView {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void invalidate() {
-		super.invalidate();
-		draw();
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -92,7 +87,7 @@ public class UserDetailView extends BaseView {
 
 		if (this.user == null) return;
 
-		this.userPhoto.setImageWithEntity(user.getPhoto(), user.name);
+		this.userPhoto.setImageWithPhoto(user.getPhoto(), user.name, null);
 		setOrGone(this.userName, user.name);
 		setOrGone(this.userArea, user.area);
 

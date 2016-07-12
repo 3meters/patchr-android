@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.objects.enums;
 
 public class LinkType {
 	public static String Proximity = "proximity";

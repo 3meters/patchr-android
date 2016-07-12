@@ -25,7 +25,7 @@ import com.patchr.components.FontManager;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.widgets.ImageWidget;
 
 @SuppressWarnings("ucd")
@@ -248,7 +248,7 @@ public class UI {
 
 	public static void setImageWithEntity(ImageWidget view, RealmEntity entity) {
 		if (view != null && entity != null) {
-			view.setImageWithEntity(entity);
+			view.setImageWithEntity(entity, null);
 		}
 	}
 

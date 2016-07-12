@@ -2,8 +2,8 @@ package com.patchr.components;
 
 import com.patchr.Constants;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Command;
-import com.patchr.objects.MemberStatus;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.MemberStatus;
 
 public class MenuManager {
 

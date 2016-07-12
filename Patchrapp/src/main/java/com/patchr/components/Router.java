@@ -12,8 +12,8 @@ import android.support.v4.app.Fragment;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Command;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.AboutScreen;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.LobbyScreen;
@@ -21,11 +21,12 @@ import com.patchr.ui.MainScreen;
 import com.patchr.ui.MapScreen;
 import com.patchr.ui.MessageScreen;
 import com.patchr.ui.PhotoScreen;
-import com.patchr.ui.PhotoSwitchboardScreen;
 import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.collections.MemberListScreen;
+import com.patchr.ui.collections.PatchScreen;
 import com.patchr.ui.collections.PhotoSearchScreen;
+import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.collections.SearchScreen;
 import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
@@ -35,13 +36,10 @@ import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProfileEdit;
-import com.patchr.ui.edit.ProximityEdit;
 import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.ui.collections.PatchScreen;
-import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.utilities.Utils;
 
 public class Router {
@@ -133,20 +131,6 @@ public class Router {
 
 			activity.startActivity(intent);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.VIEW_TO);
-		}
-
-		else if (route == Command.TUNE) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching tune requires entity");
-			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, ProximityEdit.class);
-			if (extras == null) {
-				extras = new Bundle();
-			}
-			intentBuilder.setEntityId(entity.id).addExtras(extras);
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Command.MAP) {
@@ -341,13 +325,6 @@ public class Router {
 				((Activity) activity).finish();
 				AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_BACK);
 			}
-		}
-
-		else if (route == Command.PHOTO_PICK) {
-
-			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoSwitchboardScreen.class);
-			((Activity) activity).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_PHOTO_PICK);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.DIALOG_TO);
 		}
 
 		else if (route == Command.PHOTO_FROM_CAMERA) {

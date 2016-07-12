@@ -24,7 +24,6 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
@@ -36,16 +35,18 @@ import com.patchr.events.LinkDeleteEvent;
 import com.patchr.events.LinkInsertEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.ActionType;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.FetchMode;
-import com.patchr.objects.FetchStrategy;
 import com.patchr.objects.Message.MessageType;
-import com.patchr.objects.QueryName;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.ActionType;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.FetchMode;
+import com.patchr.objects.enums.FetchStrategy;
+import com.patchr.objects.enums.QueryName;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.components.InsetViewTransformer;
+import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
@@ -182,8 +183,11 @@ public class MessageScreen extends BaseScreen {
 	}
 
 	public void editAction() {
-		Bundle extras = new Bundle();
-		Patchr.router.edit(this, entity, extras, true);
+		Intent intent = new Intent(this, MessageEdit.class);
+		intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+		intent.putExtra(Constants.EXTRA_STATE, State.Editing);
+		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_EDIT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void deleteAction() {
@@ -353,7 +357,7 @@ public class MessageScreen extends BaseScreen {
 						}
 					},
 					error -> {
-						Logger.e(this, error.getLocalizedMessage());
+						Logger.w(this, error.getLocalizedMessage());
 					});
 		});
 	}
@@ -383,7 +387,7 @@ public class MessageScreen extends BaseScreen {
 
 					/* Photo */
 					if (entity.patch.getPhoto() != null) {
-						patchPhotoView.setImageWithPhoto(entity.patch.getPhoto());
+						patchPhotoView.setImageWithPhoto(entity.patch.getPhoto(), null, null);
 					}
 					else {
 						patchPhotoView.setImageWithText(entity.patch.name, false);
@@ -404,7 +408,7 @@ public class MessageScreen extends BaseScreen {
 		/* User photo */
 		if (userPhotoView != null) {
 			if (entity.creator != null) {
-				userPhotoView.setImageWithEntity(entity.creator);
+				userPhotoView.setImageWithEntity(entity.creator, null);
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
@@ -523,7 +527,7 @@ public class MessageScreen extends BaseScreen {
 			/* A message without a share */
 			if (entity.getPhoto() != null) {
 				final Photo photo = entity.getPhoto();
-				photoView.setImageWithEntity(photo, null);
+				photoView.setImageWithPhoto(photo, null, null);
 				photoView.setTag(photo);
 				UI.setVisibility(photoView, View.VISIBLE);
 			}

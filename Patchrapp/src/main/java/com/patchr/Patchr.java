@@ -43,7 +43,7 @@ import com.patchr.components.Router;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Preference;
+import com.patchr.objects.enums.Preference;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;

@@ -13,7 +13,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.patchr.Patchr;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.ProcessingProgressEvent;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.service.ServiceResponse;
 
 import org.greenrobot.eventbus.Subscribe;

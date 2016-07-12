@@ -20,7 +20,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.components.CircleTransform;
 import com.patchr.ui.components.RoundedCornersTransformation;
 import com.patchr.utilities.Colors;
@@ -162,25 +162,25 @@ public class ImageWidget extends FrameLayout {
 		}
 	}
 
-	public void setImageWithEntity(RealmEntity entity) {
+	public void setImageWithEntity(RealmEntity entity, Callback callback) {
 		if (entity.getPhoto() != null) {
-			setImageWithPhoto(entity.getPhoto());
+			setImageWithPhoto(entity.getPhoto(), null, callback);
 		}
 		else {
 			setImageWithText(entity.name, entity.schema.equals(Constants.SCHEMA_ENTITY_USER));
 		}
 	}
 
-	public void setImageWithEntity(Photo photo, String name) {
+	public void setImageWithPhoto(Photo photo, String name, Callback callback) {
 		if (photo != null) {
-			setImageWithPhoto(photo);
+			setImageWithPhoto(photo, callback);
 		}
 		else {
 			setImageWithText(name, true);
 		}
 	}
 
-	public void setImageWithPhoto(Photo photo) {
+	private void setImageWithPhoto(Photo photo, Callback callback) {
 
 		/* Optimize if we already have the image */
 		if (photo.isUri() && this.uriBound != null && this.imageView.getDrawable() != null) {
@@ -200,14 +200,14 @@ public class ImageWidget extends FrameLayout {
 		}
 
 		if (shape.equals("round")) {
-			loadImageView(photo, new CircleTransform());
+			loadImageView(photo, new CircleTransform(), callback);
 		}
 		else if (shape.equals("rounded")) {
 			int displayRadius = UI.getRawPixelsForDisplayPixels((float) this.radius);
-			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0));
+			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
 		}
 		else {
-			loadImageView(photo, null);
+			loadImageView(photo, null, callback);
 		}
 	}
 
@@ -264,7 +264,7 @@ public class ImageWidget extends FrameLayout {
 		requestLayout();
 	}
 
-	private void loadImageView(@NonNull final Photo photo, final Transformation transform) {
+	private void loadImageView(@NonNull final Photo photo, final Transformation transform, Callback callback) {
 		/*
 		 * This is the only patch in the code that turns on proxy handling.
 		 * SizeHint on AirImageView is used when target size is fixed and known before view layout.
@@ -326,27 +326,32 @@ public class ImageWidget extends FrameLayout {
 				}
 			}
 
-			creator.into(this.imageView, new Callback() {
+			if (callback != null) {
+				creator.into(this.imageView, callback);
+			}
+			else {
+				creator.into(this.imageView, new Callback() {
 
-				@Override public void onSuccess() {}
+					@Override public void onSuccess() {}
 
-				@Override public void onError() {
-					RequestCreator creator = Picasso
-						.with(Patchr.applicationContext)
-						.load(uri)
-						.config(bitmapConfig);
+					@Override public void onError() {
+						RequestCreator creator = Picasso
+							.with(Patchr.applicationContext)
+							.load(uri)
+							.config(bitmapConfig);
 
-					if (transform != null) {
-						creator.transform(transform);
-						if (shape.equals("rounded")) {
-							creator.centerCrop();
-							creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+						if (transform != null) {
+							creator.transform(transform);
+							if (shape.equals("rounded")) {
+								creator.centerCrop();
+								creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+							}
 						}
-					}
 
-					creator.into(imageView);
-				}
-			});
+						creator.into(imageView);
+					}
+				});
+			}
 		}
 	}
 

@@ -39,10 +39,10 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
-import com.patchr.objects.ResponseCode;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.ResponseCode;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.collections.PatchScreen;
 import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.components.BusyController;
@@ -66,6 +66,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 	public    ActionBar            actionBar;
 	protected BusyController       busyController;
 	protected AirProgressBar       progressBar;
+
+	/* Inputs */
+	public String inputState;
 
 	public String      entityId;
 	public RealmEntity entity; // Here to support broadly shared commands (report, edit, share, etc.)
@@ -111,7 +114,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		super.onResume();
 
 		/* Delete check */
-		if (this.entity != null) {
+		if (this.entity != null && inputState == null) {
 			RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 			if (realmEntity == null) {  // Entity was deleted while we where gone
 				finish();
@@ -488,16 +491,5 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	protected int getTransitionBack(int transitionType) {
 		return transitionType;
-	}
-
-	public static class State {
-		public static String Editing         = "editing";
-		public static String Creating        = "creating";
-		public static String Login           = "login";
-		public static String Signup          = "signup";
-		public static String Onboarding      = "onboarding";
-		public static String CompleteProfile = "complete_profile";
-		public static String Sharing         = "sharing";
-		public static String Searching       = "searching";
 	}
 }

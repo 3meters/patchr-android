@@ -3,7 +3,7 @@ package com.patchr.components;
 import android.app.Activity;
 
 import com.patchr.R;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.TransitionType;
 
 public class AnimationManager {
 

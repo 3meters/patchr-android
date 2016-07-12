@@ -17,16 +17,16 @@ import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
 import com.patchr.model.PhoneNumber;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.Session;
 import com.patchr.objects.User;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.State;
 import com.patchr.service.ProxibaseResponse;
 import com.patchr.service.RestClient;
 import com.patchr.ui.LobbyScreen;
-import com.patchr.ui.edit.LoginEdit;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -90,7 +90,7 @@ public class UserManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void setCurrentUser(RealmEntity user, Session session, Boolean refreshUser) {
+	public void setCurrentUser(RealmEntity user, Session session) {
 		if (user == null) {
 			discardCredentials();
 		}
@@ -111,7 +111,7 @@ public class UserManager {
 			Logger.i(this, "Auto log in using cached user...");
 			final RealmEntity user = Patchr.gson.fromJson(jsonUser, RealmEntity.class);
 			final Session session = Patchr.gson.fromJson(jsonSession, Session.class);
-			setCurrentUser(user, session, false);  // Does not block because of 'false', also updates persisted user
+			setCurrentUser(user, session);  // Does not block because of 'false', also updates persisted user
 		}
 	}
 
@@ -131,7 +131,7 @@ public class UserManager {
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			AccountKit.logOut();
-			setCurrentUser(null, null, false);
+			setCurrentUser(null, null);
 			Reporting.track(AnalyticsCategory.ACTION, "Logged Out");
 			return;
 		}
@@ -141,11 +141,11 @@ public class UserManager {
 				Logger.i(this, "Logout from service successful");
 			},
 			error -> {
-				Logger.e(this, error.getLocalizedMessage());
+				Logger.w(this, error.getLocalizedMessage());
 			});
 
 		Logger.i(this, "User logged out: " + UserManager.currentUser.id);
-		setCurrentUser(null, null, false);
+		setCurrentUser(null, null);
 		Reporting.track(AnalyticsCategory.ACTION, "Logged out");
 	}
 
@@ -167,12 +167,12 @@ public class UserManager {
 				@Override public void onClick(DialogPlus dialog, View view) {
 					if (view.getId() == R.id.button_login) {
 						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
+						extras.putString(Constants.EXTRA_ONBOARD_MODE, State.Login);
 						Patchr.router.route(context, Command.LOGIN, null, extras);
 					}
-					else if (view.getId() == R.id.submit_button) {
+					else if (view.getId() == R.id.signup_button) {
 						Bundle extras = new Bundle();
-						extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
+						extras.putString(Constants.EXTRA_ONBOARD_MODE, State.Signup);
 						Patchr.router.route(context, Command.LOGIN, null, extras);
 					}
 					dialog.dismiss();
@@ -192,6 +192,18 @@ public class UserManager {
 			.create();
 
 		dialog.show();
+	}
+
+	public void handlePasswordChange(ProxibaseResponse response) {
+
+		Session session = response.session;
+		currentSession = session;
+		sessionKey = session.key;
+
+		String jsonSession = Patchr.gson.toJson(session);
+		SharedPreferences.Editor editor = Patchr.settings.edit();
+		editor.putString(StringManager.getString(R.string.setting_user_session), jsonSession);
+		editor.apply();
 	}
 
 	private void captureCredentials(RealmEntity user, Session session) {

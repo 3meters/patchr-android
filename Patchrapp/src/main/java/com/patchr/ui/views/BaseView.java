@@ -26,6 +26,8 @@ public class BaseView extends FrameLayout {
 
 	public void bind(RealmEntity entity) {}
 
+	public void draw() {}
+
 	protected void setVisibility(View view, Integer visibility) {
 		if (view != null) {
 			view.setVisibility(visibility);

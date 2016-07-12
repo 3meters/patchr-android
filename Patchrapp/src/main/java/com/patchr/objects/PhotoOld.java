@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.TypedValue;
 
 import com.patchr.Patchr;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 

@@ -74,7 +74,7 @@ public class NotificationView extends BaseView {
 			this.entity = entity;
 
 			/* User */
-			this.userPhoto.setImageWithEntity(entity.getPhoto(), entity.name);
+			this.userPhoto.setImageWithPhoto(entity.getPhoto(), entity.name, null);
 
 			/* Create date */
 			String dateFormatted = null;
@@ -89,7 +89,7 @@ public class NotificationView extends BaseView {
 			UI.setVisibility(this.notificationPhoto, GONE);
 			if (entity.getPhotoBig() != null) {
 				final Photo photo = entity.getPhotoBig();
-				this.notificationPhoto.setImageWithEntity(photo, null);
+				this.notificationPhoto.setImageWithPhoto(photo, null, null);
 				this.notificationPhoto.setTag(photo);
 				UI.setVisibility(this.notificationPhoto, VISIBLE);
 			}

@@ -1,5 +1,7 @@
 package com.patchr.objects;
 
+import com.patchr.exceptions.ServiceException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -35,5 +37,15 @@ public class ProxibaseError {
 		}
 
 		return error;
+	}
+
+	public ServiceException asException() {
+		ServiceException exception = new ServiceException();
+		exception.name = this.name;
+		exception.code = this.code;
+		exception.status = this.status;
+		exception.message = this.message;
+		exception.description = this.description;
+		return exception;
 	}
 }

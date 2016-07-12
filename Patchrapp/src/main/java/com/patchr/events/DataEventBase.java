@@ -1,6 +1,6 @@
 package com.patchr.events;
 
-import com.patchr.objects.ActionType;
+import com.patchr.objects.enums.ActionType;
 
 @SuppressWarnings("ucd")
 public abstract class DataEventBase {

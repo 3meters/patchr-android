@@ -9,6 +9,7 @@ import com.patchr.components.UserManager;
 import com.patchr.model.Location;
 import com.patchr.objects.CacheStamp.StampSource;
 import com.patchr.objects.LinkOld.Direction;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.Type;
 
 import java.io.Serializable;

@@ -15,8 +15,9 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Command;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ClearableEditText;
@@ -32,13 +33,12 @@ import rx.Subscription;
 
 public class LoginEdit extends BaseEdit {
 
-	private ClearableEditText email;
-	private PasswordEditText  password;
-	private TextView          title;
-	private View              forgotPasswordButton;
-	private View              loginButton;
-	private String onboardMode = OnboardMode.Login;
-	protected Subscription subscription;
+	private   ClearableEditText email;
+	private   PasswordEditText  password;
+	private   TextView          title;
+	private   View              forgotPasswordButton;
+	private   View              loginButton;
+	protected Subscription      subscription;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,7 +51,7 @@ public class LoginEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (onboardMode.equals(OnboardMode.Signup)) {
+		if (inputState.equals(State.Signup)) {
 			getMenuInflater().inflate(R.menu.menu_next, menu);
 		}
 		else {
@@ -75,7 +75,7 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	public void onClick(View view) {
-		if (view.getId() == R.id.submit_button) {
+		if (view.getId() == R.id.signup_button) {
 			submitAction();
 		}
 		else if (view.getId() == R.id.forgot_password_button) {
@@ -87,19 +87,11 @@ public class LoginEdit extends BaseEdit {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Override public void unpackIntent() {
-		super.unpackIntent();
-		final Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			this.onboardMode = extras.getString(Constants.EXTRA_ONBOARD_MODE, OnboardMode.Login);
-		}
-	}
-
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
 		title = (TextView) findViewById(R.id.title);
-		loginButton = findViewById(R.id.submit_button);
+		loginButton = findViewById(R.id.signup_button);
 		forgotPasswordButton = findViewById(R.id.forgot_password_button);
 		email = (ClearableEditText) findViewById(R.id.email);
 		password = (PasswordEditText) findViewById(R.id.password);
@@ -113,7 +105,7 @@ public class LoginEdit extends BaseEdit {
 			});
 		}
 
-		if (onboardMode.equals(OnboardMode.Signup)) {
+		if (inputState.equals(State.Signup)) {
 			title.setText(R.string.form_title_login_signup);
 			loginButton.setVisibility(View.GONE);
 			forgotPasswordButton.setVisibility(View.GONE);
@@ -127,7 +119,7 @@ public class LoginEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean validate() {
+	@Override protected boolean isValid() {
 
 		if (password.getText().length() == 0) {
 			Dialogs.alert(R.string.error_missing_password, this);
@@ -170,11 +162,11 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@Override public void submitAction() {
-		if (validate()) {
-			if (onboardMode.equals(OnboardMode.Login)) {
+		if (isValid()) {
+			if (inputState.equals(State.Login)) {
 				login();
 			}
-			else if (onboardMode.equals(OnboardMode.Signup)) {
+			else if (inputState.equals(State.Signup)) {
 				validateEmail();
 			}
 		}
@@ -217,13 +209,9 @@ public class LoginEdit extends BaseEdit {
 	private void validateEmail() {
 
 		final String email = this.email.getText().toString().toLowerCase(Locale.US);
+		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this);
 
-		this.subscription = RestClient.getInstance().findByEmail(email)
-			.doOnSubscribe(() -> busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this))
-			.doOnTerminate(() -> busyController.hide(true))  // Before either onCompleted or onError
-			.doOnError(throwable -> {
-				Logger.w(this, "Service call failed");      // onCompleted will not be called
-			})
+		subscription = RestClient.getInstance().validEmail(email)
 			.subscribe(
 				response -> {
 					busyController.hide(true);
@@ -241,12 +229,8 @@ public class LoginEdit extends BaseEdit {
 					}
 				},
 				error -> {
-					Logger.e(this, error.getLocalizedMessage());
+					busyController.hide(true);
+					Logger.w(this, error.getLocalizedMessage());
 				});
-	}
-
-	public static class OnboardMode {
-		public static String Login  = "login";
-		public static String Signup = "signup";
 	}
 }

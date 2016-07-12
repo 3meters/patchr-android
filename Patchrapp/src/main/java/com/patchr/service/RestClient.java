@@ -1,8 +1,12 @@
 package com.patchr.service;
 
+import android.os.Build;
+
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.parse.ParseInstallation;
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.components.AndroidManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
@@ -11,23 +15,26 @@ import com.patchr.exceptions.NoNetworkException;
 import com.patchr.model.Location;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.FetchStrategy;
-import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
-import com.patchr.objects.Suggest;
+import com.patchr.objects.enums.FetchStrategy;
+import com.patchr.objects.enums.MemberStatus;
+import com.patchr.objects.enums.QueryName;
+import com.patchr.objects.enums.Suggest;
+import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Maps;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,6 +45,7 @@ import rx.schedulers.Schedulers;
 public class RestClient {
 
 	private static ProxibaseApi proxiApi;
+	private static BingApi      bingApi;
 	private static RestClient instance = new RestClient();
 
 	public static RestClient getInstance() {
@@ -48,15 +56,25 @@ public class RestClient {
 		try {
 			/* Configure http client */
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
+			OkHttpClient client = httpClient.build();
 
-			Retrofit retrofit = new Retrofit.Builder()
+			Retrofit retrofitProxi = new Retrofit.Builder()
 				.baseUrl("https://api.aircandi.com/v1/")
-				.client(httpClient.build())
+				.client(client)
 				.addConverterFactory(GsonConverterFactory.create())
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
 				.build();
 
-			proxiApi = retrofit.create(ProxibaseApi.class);
+			proxiApi = retrofitProxi.create(ProxibaseApi.class);
+
+			Retrofit retrofitBing = new Retrofit.Builder()
+				.baseUrl("https://api.datamarket.azure.com/Bing/Search/v1/")
+				.client(client)
+				.addConverterFactory(GsonConverterFactory.create())
+				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+				.build();
+
+			bingApi = retrofitBing.create(BingApi.class);
 		}
 		catch (IllegalArgumentException ignore) {
 			/* ignore */
@@ -65,68 +83,7 @@ public class RestClient {
 	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * User and install
-	 *--------------------------------------------------------------------------------------------*/
-
-	public Observable<ProxibaseResponse> logout(String userId, String sessionKey) {
-
-		return RestClient.proxiApi.logout(userId, sessionKey)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread())
-			.map(responseMap -> ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap));
-	}
-
-	public Observable<ProxibaseResponse> login(String email, String password) {
-
-		final String installId = Patchr.getInstance().getinstallId();
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("email", email);
-		parameters.put("password", password);
-		parameters.put("installId", installId);
-
-		return RestClient.proxiApi.login(parameters)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.map(responseMap -> {
-				return ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-			})
-			.flatMap(response -> {
-				String userId = response.user.shortcutForId;
-				String sessionKey = response.session.key;
-				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
-			})
-			.doOnNext(response -> {
-				RealmEntity user = response.data.get(0);
-				Session session = response.session;
-				UserManager.shared().setCurrentUser(user, session, false);
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread());
-	}
-
-	public Observable<ProxibaseResponse> findByEmail(String email) {
-
-		return RestClient.proxiApi.findByEmail(email)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.map(responseMap -> ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap))
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread());
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Fetch
+	 * Fetch public
 	 *--------------------------------------------------------------------------------------------*/
 
 	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy) {
@@ -138,40 +95,32 @@ public class RestClient {
 		}
 	}
 
-	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy, final String usingUserId, final String usingSession) {
+	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy, final String usingUserId, final String usingSession)    {
 
 		String schema = RealmEntity.getSchemaForId(id);
 		String collection = RealmEntity.getCollectionForSchema(schema);
 
 		SimpleMap parameters = new SimpleMap();
 		RealmEntity.extras(schema, parameters);
-		if (usingUserId != null) {
+		if (usingUserId != null && usingSession != null) {
 			parameters.put("user", usingUserId);
 			parameters.put("session", usingSession);
 		}
+
 		addQueryParameter(parameters, strategy, id);
 
-		return RestClient.proxiApi.findById(collection, id, parameters)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.map(responseMap -> {
-				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-				/* Cherrypick session info so it's available downstream */
+		return post(String.format("find/%1$s/%2$s", collection, id), parameters, null, null, false)
+			.map(response -> {
+					/* Cherrypick session info so it's available downstream */
 				if (usingSession != null) {
 					response.session = new Session();
 					response.session.key = usingSession;
 				}
 				if (!response.noop && response.data.size() > 0) {
-					RealmEntity user = (RealmEntity) response.data.get(0);
-					RealmEntity.copyToRealmOrUpdate(user);
+					updateRealm(response, null, null);
 				}
 				return response;
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread());
+			});
 	}
 
 	public Observable<ProxibaseResponse> fetchListItems(final FetchStrategy strategy, final QuerySpec querySpec, final String entityId, final Integer skip) {
@@ -205,215 +154,6 @@ public class RestClient {
 		}
 
 		throw new IllegalArgumentException("No match on query name.");
-	}
-
-	private Observable<ProxibaseResponse> fetchLikesForMessage(final FetchStrategy strategy, final QuerySpec querySpec, final String messageId, final Integer skip) {
-
-		final String queryId = querySpec.getId(messageId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("from", "users");
-		linked.put("type", "like");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, messageId);
-
-		return fetch(String.format("find/messages/%1$s", messageId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchMembersForPatch(final FetchStrategy strategy, final QuerySpec querySpec, final String patchId, final Integer skip) {
-
-		final String queryId = querySpec.getId(patchId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("from", "users");
-		linked.put("type", "watch");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-		linked.put("linkFields", "type,enabled");
-
-		Realm realm = Realm.getDefaultInstance();
-		RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", patchId).findFirst();
-		Boolean isOwner = (patch.ownerId.equals(UserManager.userId));
-		if (!isOwner) {
-			linked.put("filter", Maps.asMap("enabled", true));
-		}
-		realm.close();
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, patchId);
-
-		return fetch(String.format("find/patches/%1$s", patchId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchMessagesByUser(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
-
-		final String queryId = querySpec.getId(userId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("to", "messages");
-		linked.put("type", "create");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_MESSAGE, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, userId);
-
-		return fetch(String.format("find/users/%1$s", userId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchMessagesForPatch(final FetchStrategy strategy, final QuerySpec querySpec, final String patchId, final Integer skip) {
-
-		final String queryId = querySpec.getId(patchId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("from", "messages");
-		linked.put("type", "content");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_MESSAGE, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, patchId);
-
-		return fetch(String.format("find/patches/%1$s", patchId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchNotificationsForUser(final QuerySpec querySpec, final Integer skip) {
-
-		final String queryId = querySpec.getId(null);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("limit", Constants.PAGE_SIZE);
-		parameters.put("skip", skip);
-		parameters.put("more", true);
-		addSessionParameters(parameters);   // Notifications keys on the authenticated user id
-
-		return fetch("user/getNotifications", parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchPatchesNearby(final QuerySpec querySpec, final Integer skip) {
-
-		final String queryId = querySpec.getId(null);
-
-		Location location = LocationManager.getInstance().getLocationLocked();
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("limit", 50);
-		parameters.put("skip", skip);
-		parameters.put("more", false);
-		parameters.put("radius", 10000);
-		parameters.put("rest", true);
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, parameters);
-
-		addLocationParameter(parameters, location);
-		addSessionParameters(parameters);
-
-		return fetch("patches/near", parameters, queryId, location, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchPatchesOwnedByUser(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
-
-		final String queryId = querySpec.getId(userId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("to", "patches");
-		linked.put("type", "create");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, userId);
-
-		return fetch(String.format("find/users/%1$s", userId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchPatchesToExplore(final QuerySpec querySpec, final Integer skip) {
-
-		final String queryId = querySpec.getId(null);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("limit", 50);
-		parameters.put("skip", skip);
-		parameters.put("more", true);
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, parameters);
-		addSessionParameters(parameters);
-
-		return fetch("patches/interesting", parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetchPatchesUserMemberOf(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
-
-		final String queryId = querySpec.getId(userId);
-
-		SimpleMap linked = new SimpleMap();
-		linked.put("to", "patches");
-		linked.put("type", "watch");
-		linked.put("limit", Constants.PAGE_SIZE);
-		linked.put("skip", skip);
-		linked.put("more", true);
-		linked.put("linkFields", "type,enabled");
-
-		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, linked);
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("linked", linked);
-		parameters.put("promote", "linked");
-		addSessionParameters(parameters);
-		addQueryParameter(parameters, strategy, userId);
-
-		return fetch(String.format("find/users/%1$s", userId), parameters, queryId, null, skip);
-	}
-
-	private Observable<ProxibaseResponse> fetch(final String path, final SimpleMap parameters, final String queryId, final Location location, final Integer skip) {
-
-		return RestClient.proxiApi.fetch(path, parameters)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.map(responseMap -> {
-				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-				if (!response.noop) {
-					updateRealm(response, queryId, location, skip);
-				}
-				return response;
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread());
 	}
 
 	public Observable<ProxibaseResponse> suggest(final String input, String suggestScope, String userId, Location location, long limit) {
@@ -451,40 +191,540 @@ public class RestClient {
 
 		addSessionParameters(parameters);
 
-		return RestClient.proxiApi.fetch("suggest", parameters)
-			.doOnSubscribe(() -> {
-				if (!NetworkManager.getInstance().isConnected()) {
-					Observable.error(new NoNetworkException());
-				}
-			})
-			.map(responseMap -> {
-				ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-				return response;
-			})
-			.subscribeOn(Schedulers.io())
-			.observeOn(AndroidSchedulers.mainThread());
+		return post("suggest", parameters, null, null, false);
 	}
 
+	/*--------------------------------------------------------------------------------------------
+	 * Fetch collections
+	 *--------------------------------------------------------------------------------------------*/
+
+	private Observable<ProxibaseResponse> fetchLikesForMessage(final FetchStrategy strategy, final QuerySpec querySpec, final String messageId, final Integer skip) {
+
+		final String queryId = querySpec.getId(messageId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("from", "users");
+		linked.put("type", "like");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, messageId);
+
+		return post(String.format("find/messages/%1$s", messageId), parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchMembersForPatch(final FetchStrategy strategy, final QuerySpec querySpec, final String patchId, final Integer skip) {
+
+		final String queryId = querySpec.getId(patchId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("from", "users");
+		linked.put("type", "watch");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+		linked.put("linkFields", "type,enabled");
+
+		Realm realm = Realm.getDefaultInstance();
+		RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", patchId).findFirst();
+		Boolean isOwner = (patch.ownerId.equals(UserManager.userId));
+		if (!isOwner) {
+			linked.put("filter", Maps.asMap("enabled", true));
+		}
+		realm.close();
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, patchId);
+
+		return post(String.format("find/patches/%1$s", patchId), parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchMessagesByUser(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
+
+		final String queryId = querySpec.getId(userId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("to", "messages");
+		linked.put("type", "create");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_MESSAGE, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, userId);
+
+		return post(String.format("find/users/%1$s", userId), parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchMessagesForPatch(final FetchStrategy strategy, final QuerySpec querySpec, final String patchId, final Integer skip) {
+
+		final String queryId = querySpec.getId(patchId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("from", "messages");
+		linked.put("type", "content");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_MESSAGE, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, patchId);
+
+		return post(String.format("find/patches/%1$s", patchId), parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchNotificationsForUser(final QuerySpec querySpec, final Integer skip) {
+
+		final String queryId = querySpec.getId(null);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("limit", Constants.PAGE_SIZE);
+		parameters.put("skip", skip);
+		parameters.put("more", true);
+		addSessionParameters(parameters);   // Notifications keys on the authenticated user id
+
+		return post("user/getNotifications", parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchPatchesNearby(final QuerySpec querySpec, final Integer skip) {
+
+		final String queryId = querySpec.getId(null);
+
+		Location location = LocationManager.getInstance().getLocationLocked();
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("limit", 50);
+		parameters.put("skip", skip);
+		parameters.put("more", false);
+		parameters.put("radius", 10000);
+		parameters.put("rest", true);
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, parameters);
+
+		addLocationParameter(parameters, location);
+		addSessionParameters(parameters);
+
+		return post("patches/near", parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchPatchesOwnedByUser(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
+
+		final String queryId = querySpec.getId(userId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("to", "patches");
+		linked.put("type", "create");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, userId);
+
+		return post(String.format("find/users/%1$s", userId), parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchPatchesToExplore(final QuerySpec querySpec, final Integer skip) {
+
+		final String queryId = querySpec.getId(null);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("limit", 50);
+		parameters.put("skip", skip);
+		parameters.put("more", true);
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, parameters);
+
+		addSessionParameters(parameters);
+
+		return post("patches/interesting", parameters, queryId, skip, true);
+	}
+
+	private Observable<ProxibaseResponse> fetchPatchesUserMemberOf(final FetchStrategy strategy, final QuerySpec querySpec, final String userId, final Integer skip) {
+
+		final String queryId = querySpec.getId(userId);
+
+		SimpleMap linked = new SimpleMap();
+		linked.put("to", "patches");
+		linked.put("type", "watch");
+		linked.put("limit", Constants.PAGE_SIZE);
+		linked.put("skip", skip);
+		linked.put("more", true);
+		linked.put("linkFields", "type,enabled");
+
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_PATCH, linked);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("linked", linked);
+		parameters.put("promote", "linked");
+
+		addSessionParameters(parameters);
+		addQueryParameter(parameters, strategy, userId);
+
+		return post(String.format("find/users/%1$s", userId), parameters, queryId, skip, true);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Modify
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Observable<ProxibaseResponse> postEntity(final String path, SimpleMap data) {
+
+		SimpleMap parameters = data;
+		if (!data.containsKey("data")) {
+			parameters = new SimpleMap();
+			parameters.put("data", data);
+		}
+		addSessionParameters(parameters);
+
+		return post(path, parameters, null, null, false);
+	}
+
+	public Observable<ProxibaseResponse> deleteObject(final String path, final String objectId) {
+
+		SimpleMap parameters = new SimpleMap();
+		addSessionParameters(parameters);
+
+		return post(path, parameters, objectId, null, true);
+	}
+
+	public Observable<ProxibaseResponse> insertLink(String fromId, String toId, String type) {
+
+		SimpleMap link = new SimpleMap();
+		link.put("_from", fromId);
+		link.put("_to", toId);
+		link.put("type", type);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("data", link);
+
+		addSessionParameters(parameters);
+
+		return post("data/links", parameters, null, null, false);
+	}
+
+	public Observable<ProxibaseResponse> enableLinkById(String entityId, String linkId, Boolean enabled) {
+
+		SimpleMap link = new SimpleMap();
+		link.put("enabled", enabled);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("data", link);
+
+		addSessionParameters(parameters);
+
+		return post(String.format("data/links/%1$s", linkId), parameters, null, null, false)
+			.map(response -> {
+				/*
+				 * Updating realm ripples to the ui and saves us a refetch.
+				 */
+				Realm realm = Realm.getDefaultInstance();
+				realm.beginTransaction();
+				RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+				if (realmEntity != null) {
+					realmEntity.userMemberStatus = enabled ?  MemberStatus.Member : MemberStatus.Pending;
+				}
+				realm.commitTransaction();
+				realm.close();
+
+				return response;
+			});
+	}
+
+	public Observable<ProxibaseResponse> muteLinkById(String entityId, String linkId, Boolean muted) {
+
+		SimpleMap link = new SimpleMap();
+		link.put("mute", muted);
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("data", link);
+
+		addSessionParameters(parameters);
+
+		return post(String.format("data/links/%1$s", linkId), parameters, null, null, false);
+	}
+
+	public Observable<ProxibaseResponse> deleteLinkById(String linkId) {
+
+		SimpleMap parameters = new SimpleMap();
+		addSessionParameters(parameters);
+
+		return delete(String.format("data/links/%1$s", linkId), parameters, null, false);
+	}
+
+	public Observable<ProxibaseResponse> deleteLink(String fromId, String toId, String type) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("query[_to]", toId);
+		parameters.put("query[_from]", fromId);
+		parameters.put("query[type]", type);
+
+		addSessionParameters(parameters);
+
+		return delete("data/links", parameters, null, false);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	* Bing
+	*--------------------------------------------------------------------------------------------*/
+
+	public Observable<Response<Map<String, Object>>> loadSearchImages(String query, Integer limit, Integer offset) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("Query", query);
+		parameters.put("Market", "en-US");
+		parameters.put("Adult", "Strict");
+		parameters.put("ImageFilters", "size=large");
+		parameters.put("$top", limit + 1);
+		parameters.put("$skip", offset);
+		parameters.put("$format", "size=large");
+
+		if (!NetworkManager.getInstance().isConnected()) {
+			return Observable.error(new NoNetworkException("Not connected to network"));
+		}
+		else {
+			return bingApi.get("Image", parameters)
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread());
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * User and install
+	 *--------------------------------------------------------------------------------------------*/
+
+	public Observable<ProxibaseResponse> logout(String userId, String sessionKey) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("user", userId);
+		parameters.put("session", sessionKey);
+
+		return get("auth/signout", parameters, false);
+	}
+
+	public Observable<ProxibaseResponse> login(String email, String password) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("email", email);
+		parameters.put("password", password);
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+
+		return post("auth/signin", parameters, null, null, false)
+			.flatMap(response -> {
+				String userId = response.user.shortcutForId;
+				String sessionKey = response.session.key;
+				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
+			})
+			.doOnNext(response -> {
+				RealmEntity user = response.data.get(0);
+				Session session = response.session;
+				UserManager.shared().setCurrentUser(user, session);
+			});
+	}
+
+	public Observable<ProxibaseResponse> validEmail(String email) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("q[email]", email);
+
+		return get("find/users", parameters, false);
+	}
+
+	public Observable<ProxibaseResponse> updatePassword(final String userId, final String password, final String passwordNew) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("userId", userId);
+		parameters.put("oldPassword", password);
+		parameters.put("newPassword", password);
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+		addSessionParameters(parameters);
+
+		return post("user/pw/change", parameters, null, null, false).doOnNext(response -> {
+			UserManager.shared().handlePasswordChange(response);
+		});
+	}
+
+	public Observable<ProxibaseResponse> requestPasswordReset(final String email) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("email", email);
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+		addSessionParameters(parameters);
+
+		return post("user/pw/reqreset", parameters, null, null, false);
+	}
+
+	public Observable<ProxibaseResponse> resetPassword(final String password, final String token) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("token", token);
+		parameters.put("password", password);
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+
+		return post("user/pw/reset", parameters, null, null, false)
+			.flatMap(response -> {
+				String userId = response.user.shortcutForId;
+				String sessionKey = response.session.key;
+				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
+			})
+			.doOnNext(response -> {
+				RealmEntity user = response.data.get(0);
+				Session session = response.session;
+				UserManager.shared().setCurrentUser(user, session);
+			});
+	}
+
+	public Observable<ProxibaseResponse> registerInstall() {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+		parameters.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
+		parameters.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
+		parameters.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
+		parameters.put("clientPackageName", Patchr.applicationContext.getPackageName());
+		parameters.put("deviceName", AndroidManager.getInstance().getDeviceName());
+		parameters.put("deviceType", "android");
+		parameters.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
+
+		if (parameters.get("parseInstallId") == null) {
+			throw new IllegalStateException("parseInstallId cannot be null");
+		}
+
+		return post("do/registerInstall", parameters, null, null, false);
+	}
+
+	public Observable<ProxibaseResponse> updateProximity(@NotNull final Location location) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+		addLocationParameter(parameters, location);
+		addSessionParameters(parameters);
+
+		return post("do/updateProximity", parameters, null, null, false);
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Rest
+	 *--------------------------------------------------------------------------------------------*/
+
+	private Observable<ProxibaseResponse> post(final String path, final SimpleMap parameters, final String queryId, final Integer skip, final Boolean updateRealm) {
+
+		if (!NetworkManager.getInstance().isConnected()) {
+			return Observable.error(new NoNetworkException("Not connected to network"));
+		}
+		else {
+			return proxiApi.post(path, parameters)
+				.map(responseMap -> {
+					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (response.error != null) {
+						throw response.error.asException();
+					}
+					else if (updateRealm && !response.noop && response.data.size() > 0) {
+						updateRealm(response, queryId, skip);
+					}
+					return response;
+				})
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread());
+		}
+	}
+
+	private Observable<ProxibaseResponse> get(final String path, final SimpleMap parameters, final Boolean updateRealm) {
+
+		if (!NetworkManager.getInstance().isConnected()) {
+			return Observable.error(new NoNetworkException("Not connected to network"));
+		}
+		else {
+			return proxiApi.get(path, parameters)
+				.map(responseMap -> {
+					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (response.error != null) {
+						throw response.error.asException();
+					}
+					else if (updateRealm && !response.noop) {
+						updateRealm(response, null, null);
+					}
+					return response;
+				})
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread());
+		}
+	}
+
+	private Observable<ProxibaseResponse> delete(final String path, final SimpleMap parameters, final String entityId, final Boolean updateRealm) {
+
+		if (!NetworkManager.getInstance().isConnected()) {
+			return Observable.error(new NoNetworkException("Not connected to network"));
+		}
+		else {
+			return proxiApi.delete(path, parameters)
+				.map(responseMap -> {
+					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (response.error != null) {
+						throw response.error.asException();
+					}
+					else if (updateRealm && entityId != null) {
+						Realm realm = Realm.getDefaultInstance();
+						realm.beginTransaction();
+						RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+						if (realmEntity != null) {
+							realmEntity.deleteFromRealm();
+						}
+						realm.commitTransaction();
+						realm.close();
+					}
+					return response;
+				})
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread());
+		}
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Helpers
 	 *--------------------------------------------------------------------------------------------*/
 
-	private void updateRealm(ProxibaseResponse response, String queryId, Location locationx, int skip) {
+	private void updateRealm(@NotNull ProxibaseResponse response, String queryId, Integer skip) {
 
+		Query realmQuery = null;
 		Realm realm = Realm.getDefaultInstance();
 		realm.beginTransaction();
 
-		@NotNull Query realmQuery = realm.where(Query.class).equalTo("id", queryId).findFirst();
-		realmQuery.more = (response.more != null && response.more);
-		realmQuery.executed = true;
+		if (queryId != null) {
+			realmQuery = realm.where(Query.class).equalTo("id", queryId).findFirst();
+			realmQuery.more = (response.more != null && response.more);
+			realmQuery.executed = true;
 
-		if (skip == 0) {
-			realmQuery.entities.clear();
+			if (skip != null && skip == 0) {
+				realmQuery.entities.clear();
+			}
 		}
 
 		Location location = LocationManager.getInstance().getLocationLocked();
@@ -498,7 +738,7 @@ public class RestClient {
 			if (location != null && realmEntity.getLocation() != null) {
 				realmEntity.distance = location.distanceTo(realmEntity.getLocation());  // Cache distance at time of query
 			}
-			if (!realmQuery.entities.contains(realmEntity)) {
+			if (realmQuery != null && !realmQuery.entities.contains(realmEntity)) {
 				realmQuery.entities.add(realmEntity);
 			}
 		}
@@ -530,8 +770,19 @@ public class RestClient {
 
 	private void addLocationParameter(SimpleMap parameters, Location location) {
 		SimpleMap locationMap = new SimpleMap();
+
 		locationMap.put("lat", location.lat);
 		locationMap.put("lng", location.lng);
+
+		List<Double> geoarray = new ArrayList<Double>();
+		geoarray.add(0, location.lng);
+		geoarray.add(1, location.lat);
+		locationMap.put("geometry", geoarray);
+
+		if (location.accuracy != null) {
+			locationMap.put("accuracy", location.accuracy);
+		}
+
 		parameters.put("location", locationMap);
 	}
 }

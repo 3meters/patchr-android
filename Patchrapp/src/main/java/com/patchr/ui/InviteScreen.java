@@ -17,9 +17,9 @@ import com.patchr.components.FacebookProvider;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.Message;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.utilities.Reporting;
 import com.segment.analytics.Properties;
@@ -64,7 +64,7 @@ public class InviteScreen extends BaseScreen {
 	public void onClick(View view) {
 
 		Integer id = view.getId();
-		if (id == R.id.submit_button) {
+		if (id == R.id.signup_button) {
 			submitAction();
 		}
 

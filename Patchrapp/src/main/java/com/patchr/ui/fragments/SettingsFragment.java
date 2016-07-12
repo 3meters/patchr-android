@@ -31,7 +31,7 @@ import com.patchr.R;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.Command;
+import com.patchr.objects.enums.Command;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
@@ -223,9 +223,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	private void initializeDev() {
 
 		/* Listen for dev toggle */
-		Preference pref = findPreference(com.patchr.objects.Preference.ENABLE_DEV);
+		Preference pref = findPreference(com.patchr.objects.enums.Preference.ENABLE_DEV);
 		if (pref != null) {
-			Boolean enabled = Patchr.settings.getBoolean(com.patchr.objects.Preference.ENABLE_DEV, false);
+			Boolean enabled = Patchr.settings.getBoolean(com.patchr.objects.enums.Preference.ENABLE_DEV, false);
 			enableDeveloper(enabled);
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -239,7 +239,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 
 		/* Listen for tag refresh click */
-		final Preference prefTagRefresh = findPreference(com.patchr.objects.Preference.TAG_REFRESH);
+		final Preference prefTagRefresh = findPreference(com.patchr.objects.enums.Preference.TAG_REFRESH);
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
 					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
@@ -257,10 +257,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	private void enableDeveloper(Boolean enable) {
-		findPreference(com.patchr.objects.Preference.TESTING_SCREEN).setEnabled(enable);
-		findPreference(com.patchr.objects.Preference.ENABLE_LOCATION_HIGH_ACCURACY).setEnabled(enable);
-		findPreference(com.patchr.objects.Preference.TAG_REFRESH).setEnabled(enable);
-		findPreference(com.patchr.objects.Preference.USE_STAGING_SERVICE).setEnabled(enable);
+		findPreference(com.patchr.objects.enums.Preference.TESTING_SCREEN).setEnabled(enable);
+		findPreference(com.patchr.objects.enums.Preference.ENABLE_LOCATION_HIGH_ACCURACY).setEnabled(enable);
+		findPreference(com.patchr.objects.enums.Preference.TAG_REFRESH).setEnabled(enable);
+		findPreference(com.patchr.objects.enums.Preference.USE_STAGING_SERVICE).setEnabled(enable);
 		Picasso.with(Patchr.applicationContext).setIndicatorsEnabled(enable);
 		Picasso.with(Patchr.applicationContext).setLoggingEnabled(enable);
 	}

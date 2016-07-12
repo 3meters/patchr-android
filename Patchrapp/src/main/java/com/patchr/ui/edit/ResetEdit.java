@@ -22,9 +22,9 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.User;
 import com.patchr.ui.components.BusyController;
@@ -114,7 +114,7 @@ public class ResetEdit extends BaseEdit {
 		passwordField = (EditText) findViewById(R.id.password);
 		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
-		submitButton = (Button) findViewById(R.id.submit_button);
+		submitButton = (Button) findViewById(R.id.signup_button);
 
 		passwordField.setVisibility(View.GONE);
 		emailField.setVisibility(View.GONE);
@@ -168,7 +168,7 @@ public class ResetEdit extends BaseEdit {
 				Photo photo = new Photo();
 				photo.prefix = inputUserPhoto;
 				photo.source = Photo.PhotoSource.aircandi_images;
-				userPhoto.setImageWithPhoto(photo);
+				userPhoto.setImageWithPhoto(photo, null, null);
 			}
 			else if (inputUserName != null) {
 				userPhoto.setImageWithText(inputUserName, true);
@@ -182,7 +182,7 @@ public class ResetEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean validate() {
+	@Override protected boolean isValid() {
 
 		if (!resetActive) {
 			if (emailField.getText().length() == 0) {
@@ -213,7 +213,7 @@ public class ResetEdit extends BaseEdit {
 
 		if (this.processing) return;
 
-		if (validate()) {
+		if (isValid()) {
 			if (!resetActive) {
 				if (!emailValidated) {
 					validateEmail();

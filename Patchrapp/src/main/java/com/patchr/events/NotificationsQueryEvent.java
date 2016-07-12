@@ -1,9 +1,9 @@
 package com.patchr.events;
 
 import com.patchr.Constants;
-import com.patchr.objects.ActionType;
+import com.patchr.objects.enums.ActionType;
 import com.patchr.objects.Cursor;
-import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.enums.LinkSpecType;
 
 public class NotificationsQueryEvent extends AbsEntitiesQueryEvent {
 

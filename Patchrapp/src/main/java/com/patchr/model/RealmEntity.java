@@ -1,28 +1,27 @@
 package com.patchr.model;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.LinkCount;
-import com.patchr.objects.LinkDestination;
+import com.patchr.objects.enums.EventCategory;
+import com.patchr.objects.enums.LinkDestination;
 import com.patchr.objects.LinkSpec;
-import com.patchr.objects.LinkType;
-import com.patchr.objects.MemberStatus;
+import com.patchr.objects.enums.LinkType;
+import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.TriggerCategory;
 import com.patchr.utilities.Maps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -97,6 +96,9 @@ public class RealmEntity extends RealmObject {
 	public Integer priority;
 	public String  photoBigJson;
 	public String  summary;
+
+	/* Link as entity */
+	public Boolean enabled;
 
 	/* Service calculated fields */
 	public RealmEntity owner;
@@ -181,6 +183,7 @@ public class RealmEntity extends RealmObject {
 			entity.score = map.get("score") != null ? ((Double) map.get("score")).floatValue() : null;
 			entity.reason = (String) map.get("reason");
 			entity.locked = (Boolean) map.get("locked");
+			entity.enabled = (Boolean) map.get("enabled");
 
 			if (map.get("photo") != null) {
 				String photoJson = Patchr.gson.toJson(map.get("photo"), SimpleMap.class);
@@ -334,7 +337,10 @@ public class RealmEntity extends RealmObject {
 							if (entity.recipients == null) {
 								entity.recipients = new RealmList<RealmEntity>();
 							}
-							entity.recipients.add(RealmEntity.setPropertiesFromMap(new RealmEntity(), linkMap, true));
+							RealmEntity recipient = RealmEntity.setPropertiesFromMap(new RealmEntity(), linkMap, true);
+							if (recipient != null) {
+								entity.recipients.add(recipient);
+							}
 						}
 					}
 				}
@@ -365,49 +371,212 @@ public class RealmEntity extends RealmObject {
 		return entity;
 	}
 
-	public static RealmEntity copyToRealmOrUpdate(RealmEntity entity) {
-		Realm realm = Realm.getDefaultInstance();
-		realm.beginTransaction();
-		RealmEntity realmEntity = copyToRealmOrUpdate(realm, entity);
-		realm.commitTransaction();
-		realm.close();
-		return realmEntity;
+	public Boolean isOwnedByCurrentUser() {
+		Boolean owned = (ownerId != null
+			&& UserManager.shared().authenticated()
+			&& ownerId.equals(UserManager.currentUser.id));
+		return owned;
 	}
 
-	public static RealmEntity copyToRealmOrUpdate(Realm realm, RealmEntity entity) {
-		RealmEntity realmEntity = realm.copyToRealmOrUpdate(entity);
-		return realmEntity;
+	public Boolean isVisibleToCurrentUser() {
+		return !(isRestricted() && !isOwnedByCurrentUser()) || userMemberStatus.equals(MemberStatus.Member);
 	}
 
-	public static void deleteNestedObjectsFromRealm(Realm realm, String id) {
-		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", id).findFirst();
-		deleteNestedObjectsFromRealm(entity);
+	public Boolean isRestricted() {
+		return (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC));
 	}
 
-	public static void deleteNestedObjectsFromRealm(RealmEntity entity) {
-		if (entity != null && entity.isValid()) {
+	public Boolean isRestrictedForCurrentUser() {
+		return (isRestricted() && !isOwnedByCurrentUser());
+	}
 
-			/* Shortcuts */
-			if (entity.creator != null && entity.creator.isValid())
-				entity.creator.deleteFromRealm();
+	public String getBeaconId() {
+		final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
+		if (beacon != null) return beacon.id;
+		return null;
+	}
 
-			if (entity.owner != null && entity.owner.isValid())
-				entity.owner.deleteFromRealm();
+	public Long idAsLong() {
+		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
+	}
 
-			if (entity.modifier != null && entity.modifier.isValid())
-				entity.modifier.deleteFromRealm();
+	public RealmEntity getActiveBeacon(String type, Boolean primaryOnly) {
+		return null;
+	}
 
-			if (entity.patch != null && entity.patch.isValid())
-				entity.patch.deleteFromRealm();
+	public RealmEntity getParent(String type, String targetSchema) {
+		return null;
+	}
 
-			if (entity.message != null && entity.message.isValid())
-				entity.message.deleteFromRealm();
+	public Boolean hasActiveProximity() {
+		return false;
+	}
 
-			if (entity.recipients != null && entity.recipients.isValid()) {
-				entity.recipients.deleteAllFromRealm();
+	public Float getDistance(Boolean refresh) {
+
+		if (schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
+			if (refresh || this.distance == null) {
+
+				this.distance = -1f;
+
+				if (this.signal.intValue() >= -40) {
+					this.distance = 1f;
+				}
+				else if (this.signal.intValue() >= -50) {
+					this.distance = 2f;
+				}
+				else if (this.signal.intValue() >= -55) {
+					this.distance = 3f;
+				}
+				else if (this.signal.intValue() >= -60) {
+					this.distance = 5f;
+				}
+				else if (this.signal.intValue() >= -65) {
+					this.distance = 7f;
+				}
+				else if (this.signal.intValue() >= -70) {
+					this.distance = 10f;
+				}
+				else if (this.signal.intValue() >= -75) {
+					this.distance = 15f;
+				}
+				else if (this.signal.intValue() >= -80) {
+					this.distance = 20f;
+				}
+				else if (this.signal.intValue() >= -85) {
+					this.distance = 30f;
+				}
+				else if (this.signal.intValue() >= -90) {
+					this.distance = 40f;
+				}
+				else if (this.signal.intValue() >= -95) {
+					this.distance = 60f;
+				}
+				else {
+					this.distance = 80f;
+				}
 			}
+
+			return this.distance * LocationManager.FeetToMetersConversion;
+		}
+		else {
+			if (refresh || distance == null) {
+				distance = null;
+				final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
+				if (beacon != null) {
+					distance = beacon.getDistance(refresh);  // Estimate based on signal strength
+				}
+				else {
+					final Location entityLocation = getLocation();
+					final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
+
+					if (entityLocation != null && deviceLocation != null) {
+						distance = deviceLocation.distanceTo(entityLocation);
+					}
+				}
+			}
+			return distance;
 		}
 	}
+
+	public String getTriggerCategory() {
+		if (this.trigger.contains("nearby")) return TriggerCategory.NEARBY;
+		if (this.trigger.contains("watch")) return TriggerCategory.WATCH;
+		if (this.trigger.contains("own")) return TriggerCategory.OWN;
+		return TriggerCategory.NONE;
+	}
+
+	public String getEventCategory() {
+		if (this.event.contains("share")) return EventCategory.SHARE;
+		if (this.event.contains("insert")) return EventCategory.INSERT;
+		if (this.event.contains("watch")) return EventCategory.WATCH;
+		if (this.event.contains("like")) return EventCategory.LIKE;
+		return EventCategory.NONE;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	public PhoneNumber getPhone() {
+		if (this.phone == null && this.phoneJson != null) {
+			this.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), Patchr.gson.fromJson(this.phoneJson, SimpleMap.class));
+		}
+		return this.phone;
+	}
+
+	public Photo getPhoto() {
+		if (this.photo == null && this.photoJson != null) {
+			this.photo = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoJson, SimpleMap.class));
+		}
+		return this.photo;
+	}
+
+	public void setPhoto(Photo photo) {
+		if (photo == null) {
+			this.photo = null;
+			this.photoJson = null;
+		}
+		else {
+			this.photo = photo;
+			this.photoJson = Patchr.gson.toJson(photo, Photo.class);
+		}
+	}
+
+	public Photo getPhotoBig() {
+		if (this.photoBig == null && this.photoBigJson != null) {
+			this.photoBig = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));
+		}
+		return this.photoBig;
+	}
+
+	public void setPhotoBig(Photo photo) {
+		if (photo == null) {
+			this.photoBig = null;
+			this.photoBigJson = null;
+		}
+		else {
+			this.photoBig = photo;
+			this.photoBigJson = Patchr.gson.toJson(photo, Photo.class);
+		}
+	}
+
+	public void setLocation(Location location) {
+		if (location == null) {
+			this.location = null;
+			this.locationJson = null;
+		}
+		else {
+			this.location = location;
+			this.locationJson = Patchr.gson.toJson(location, Location.class);
+		}
+	}
+
+	public Location getLocation() {
+
+		Location _location = null;
+
+		if (this.location == null && this.locationJson != null) {
+			this.location = Location.setPropertiesFromMap(new Location(), Patchr.gson.fromJson(this.locationJson, SimpleMap.class));
+		}
+
+		if (this.location != null
+			&& this.location.lat != null
+			&& this.location.lng != null) {
+			return this.location;
+		}
+		else {
+			final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
+			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
+				return beacon.location;
+			}
+		}
+		return null;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Helpers
+	 *--------------------------------------------------------------------------------------------*/
 
 	public static void extras(String schema, SimpleMap parameters) {
 
@@ -516,347 +685,5 @@ public class RealmEntity extends RealmObject {
 			array.add(Maps.asMap("modifiedDate", Maps.asMap("$gt", modifiedDate)));
 			return Maps.asMap("$or", array);
 		}
-	}
-
-	public Boolean isOwnedByCurrentUser() {
-		Boolean owned = (ownerId != null
-			&& UserManager.shared().authenticated()
-			&& ownerId.equals(UserManager.currentUser.id));
-		return owned;
-	}
-
-	public Boolean isVisibleToCurrentUser() {
-		if (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser()) {
-			return userMemberStatus.equals(MemberStatus.Member);
-		}
-		return true;
-	}
-
-	public Boolean isRestricted() {
-		return (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC));
-	}
-
-	public Boolean isRestrictedForCurrentUser() {
-		return (visibility != null && !visibility.equals(Constants.PRIVACY_PUBLIC) && !isOwnedByCurrentUser());
-	}
-
-	public String getBeaconId() {
-		final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-		if (beacon != null) return beacon.id;
-		return null;
-	}
-
-	public Long idAsLong() {
-		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
-	}
-
-	public PhoneNumber getPhone() {
-		if (this.phone == null && this.phoneJson != null) {
-			this.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), Patchr.gson.fromJson(this.phoneJson, SimpleMap.class));
-		}
-		return this.phone;
-	}
-
-	public Photo getPhoto() {
-		if (this.photo == null && this.photoJson != null) {
-			this.photo = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoJson, SimpleMap.class));
-		}
-		return this.photo;
-	}
-
-	public void setPhoto(Photo photo) {
-		if (photo == null) {
-			this.photo = null;
-			this.photoJson = null;
-		}
-		else {
-			this.photo = photo;
-			this.photoJson = Patchr.gson.toJson(photo, Photo.class);
-		}
-	}
-
-	public Photo getPhotoBig() {
-		if (this.photoBig == null && this.photoBigJson != null) {
-			this.photoBig = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));
-		}
-		return this.photoBig;
-	}
-
-	public void setPhotoBig(Photo photo) {
-		if (photo == null) {
-			this.photoBig = null;
-			this.photoBigJson = null;
-		}
-		else {
-			this.photoBig = photo;
-			this.photoBigJson = Patchr.gson.toJson(photo, Photo.class);
-		}
-	}
-
-	public void setLocation(Location location) {
-		if (location == null) {
-			this.location = null;
-			this.locationJson = null;
-		}
-		else {
-			this.location = location;
-			this.locationJson = Patchr.gson.toJson(location, Location.class);
-		}
-	}
-
-	public Location getLocation() {
-
-		Location _location = null;
-
-		if (this.location == null && this.locationJson != null) {
-			this.location = Location.setPropertiesFromMap(new Location(), Patchr.gson.fromJson(this.locationJson, SimpleMap.class));
-		}
-
-		if (this.location != null
-			&& this.location.lat != null
-			&& this.location.lng != null) {
-			return this.location;
-		}
-		else {
-			final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
-				return beacon.location;
-			}
-		}
-		return null;
-	}
-
-	public RealmEntity getActiveBeacon(String type, Boolean primaryOnly) {
-		return null;
-	}
-
-	public RealmEntity getParent(String type, String targetSchema) {
-		return null;
-	}
-
-	public Boolean hasActiveProximity() {
-		return false;
-	}
-
-	public Float getDistance(Boolean refresh) {
-
-		if (schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-			if (refresh || this.distance == null) {
-
-				this.distance = -1f;
-
-				if (this.signal.intValue() >= -40) {
-					this.distance = 1f;
-				}
-				else if (this.signal.intValue() >= -50) {
-					this.distance = 2f;
-				}
-				else if (this.signal.intValue() >= -55) {
-					this.distance = 3f;
-				}
-				else if (this.signal.intValue() >= -60) {
-					this.distance = 5f;
-				}
-				else if (this.signal.intValue() >= -65) {
-					this.distance = 7f;
-				}
-				else if (this.signal.intValue() >= -70) {
-					this.distance = 10f;
-				}
-				else if (this.signal.intValue() >= -75) {
-					this.distance = 15f;
-				}
-				else if (this.signal.intValue() >= -80) {
-					this.distance = 20f;
-				}
-				else if (this.signal.intValue() >= -85) {
-					this.distance = 30f;
-				}
-				else if (this.signal.intValue() >= -90) {
-					this.distance = 40f;
-				}
-				else if (this.signal.intValue() >= -95) {
-					this.distance = 60f;
-				}
-				else {
-					this.distance = 80f;
-				}
-			}
-
-			return this.distance * LocationManager.FeetToMetersConversion;
-		}
-		else {
-			if (refresh || distance == null) {
-				distance = null;
-				final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-				if (beacon != null) {
-					distance = beacon.getDistance(refresh);  // Estimate based on signal strength
-				}
-				else {
-					final Location entityLocation = getLocation();
-					final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
-
-					if (entityLocation != null && deviceLocation != null) {
-						distance = deviceLocation.distanceTo(entityLocation);
-					}
-				}
-			}
-			return distance;
-		}
-	}
-
-	public String getTriggerCategory() {
-		if (this.trigger.contains("nearby")) return TriggerCategory.NEARBY;
-		if (this.trigger.contains("watch")) return TriggerCategory.WATCH;
-		if (this.trigger.contains("own")) return TriggerCategory.OWN;
-		return TriggerCategory.NONE;
-	}
-
-	public String getEventCategory() {
-		if (this.event.contains("share")) return EventCategory.SHARE;
-		if (this.event.contains("insert")) return EventCategory.INSERT;
-		if (this.event.contains("watch")) return EventCategory.WATCH;
-		if (this.event.contains("like")) return EventCategory.LIKE;
-		return EventCategory.NONE;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Classes
-	 *--------------------------------------------------------------------------------------------*/
-
-	public static class SortBySortDate implements Comparator<RealmEntity> {
-
-		@Override
-		public int compare(@NonNull RealmEntity object1, @NonNull RealmEntity object2) {
-			if (object1.sortDate == null || object2.sortDate == null)
-				return 0;
-			else {
-				if (object1.sortDate.longValue() < object2.sortDate.longValue())
-					return 1;
-				else if (object1.sortDate.longValue() == object2.sortDate.longValue())
-					return 0;
-				return -1;
-			}
-		}
-	}
-
-	public static class SortBySortDateAscending implements Comparator<RealmEntity> {
-
-		@Override
-		public int compare(@NonNull RealmEntity object1, @NonNull RealmEntity object2) {
-			if (object1.sortDate == null || object2.sortDate == null)
-				return 0;
-			else {
-				if (object1.sortDate.longValue() > object2.sortDate.longValue())
-					return 1;
-				else if (object1.sortDate.longValue() == object2.sortDate.longValue())
-					return 0;
-				return -1;
-			}
-		}
-	}
-
-	public static class SortByProximityAndDistance implements Comparator<RealmEntity> {
-
-		@Override public int compare(RealmEntity object1, RealmEntity object2) {
-			/*
-			 * Ordering
-			 * 1. has distance
-			 * 2. distance is null
-			 */
-			if (object1.distance == null && object2.distance == null)
-				return 0;
-			else if (object1.distance == null)
-				return 1;
-			else if (object2.distance == null)
-				return -1;
-			else {
-				if (object1.distance.intValue() < object2.distance.intValue())
-					return -1;
-				else if (object1.distance.intValue() > object2.distance.intValue())
-					return 1;
-				else
-					return 0;
-			}
-		}
-	}
-
-	public static class SortBySignalLevel implements Comparator<RealmEntity> {
-
-		@Override public int compare(RealmEntity object1, RealmEntity object2) {
-
-			if (object1.signal == null && object2.signal == null)
-				return 0;
-			else if (object1.signal == null)
-				return 1;
-			else if (object2.signal == null)
-				return -1;
-			else {
-				if ((object1.signal / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE)
-					> (object2.signal / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
-					return -1;
-				else if ((object1.signal / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE)
-					< (object2.signal / Constants.RADAR_BEACON_SIGNAL_BUCKET_SIZE))
-					return 1;
-				else
-					return 0;
-			}
-		}
-	}
-
-	public static class ReasonType {
-		public static String WATCH    = "watch";
-		public static String LOCATION = "location";
-		public static String RECENT   = "recent";
-		public static String OTHER    = "other";
-	}
-
-	public static class Type {
-		public static String EVENT   = "event";
-		public static String GROUP   = "group";
-		public static String PLACE   = "place";
-		public static String PROJECT = "project";
-		public static String OTHER   = "other";
-	}
-
-	public static class Priority {
-		public static Integer ONE   = 1;    // All bells and whistles for in-app notifications
-		public static Integer TWO   = 2;    // Mute chirping/toast for in-app notifications
-		public static Integer THREE = 3;
-	}
-
-	public static class NotificationType {
-		/*
-		 * Used to determine icon to display in notification ui.
-		 */
-		public static String MESSAGE = "message";
-		public static String MEDIA   = "media";
-		public static String PLACE   = "patch";
-		public static String SHARE   = "share";
-		public static String WATCH   = "watch";
-		public static String LIKE    = "like";
-	}
-
-	public static class TriggerCategory {
-		/*
-		 * Used to characterize why the current user is receiving the notification.
-		 * Used to enable/disable status notifications based on user preference settings.
-		 */
-		public static String NEARBY = "nearby";         // sent because this user is nearby
-		public static String WATCH  = "watch";          // sent because this user is watching the target entity
-		public static String OWN    = "own";            // sent because this user is the owner of the target entity
-		public static String NONE   = "none";
-	}
-
-	public static class EventCategory {
-		/*
-		 * Used to characterize the action associated with the notification.
-		 * Used to enable/disable status notifications based on user preference settings.
-		 */
-		public static String INSERT = "insert";         // notification about a patch|message insert
-		public static String SHARE  = "share";          // notification about patch|message|photo share
-		public static String LIKE   = "like";           // notification about patch|message like
-		public static String WATCH  = "watch";          // notification about patch watch
-		public static String NONE   = "none";
 	}
 }

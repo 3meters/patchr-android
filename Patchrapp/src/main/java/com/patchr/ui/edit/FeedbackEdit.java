@@ -16,9 +16,10 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.Document;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.ImageWidget;
@@ -91,17 +92,16 @@ public class FeedbackEdit extends BaseEdit {
 	}
 
 	@Override public void bind() {
-		this.userPhoto.setImageWithEntity(UserManager.currentUser);
+		this.userPhoto.setImageWithEntity(UserManager.currentUser, null);
 		this.userName.setText(UserManager.currentUser.name);
 	}
 
-	@Override protected void gather() {
+	@Override protected void gather(SimpleMap parameters) {
 		feedback.data.put("message", description.getText().toString().trim());
 	}
 
-	@Override protected boolean validate() {
+	@Override protected boolean isValid() {
 
-		gather();
 		if (description.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null

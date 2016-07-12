@@ -21,7 +21,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.objects.Command;
+import com.patchr.objects.enums.Command;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;

@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,19 +27,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
-import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.model.Location;
-import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
-import com.patchr.objects.Patch;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.PatchType;
+import com.patchr.objects.enums.State;
 import com.patchr.ui.InviteScreen;
-import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
@@ -57,11 +54,11 @@ public class PatchEdit extends BaseEdit {
 	protected ImageWidget photoViewPlace;
 	private   TextView    title;
 
-	private RadioGroup  buttonGroupType;
+	private RadioGroup  buttonPatchType;
 	private RadioButton buttonTypeEvent;
 	private RadioButton buttonTypeGroup;
 	private RadioButton buttonTypePlace;
-	private RadioButton buttonTypeProject;
+	private RadioButton buttonTypeTrip;
 
 	protected MapView        mapView;
 	protected AirProgressBar mapProgressBar;
@@ -71,11 +68,12 @@ public class PatchEdit extends BaseEdit {
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bind();
+		draw();
 	}
 
 	@Override public void onResume() {
 		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-			if (!editing && LocationManager.getInstance().isLocationAccessEnabled()) {
+			if (inputState.equals(State.Creating) && LocationManager.getInstance().isLocationAccessEnabled()) {
 				LocationManager.getInstance().start(true);  // Location triggers sequence
 			}
 		}
@@ -84,7 +82,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public void onPause() {
 		if (mapView != null) mapView.onPause();
-		if (!editing) {
+		if (inputState.equals(State.Creating)) {
 			LocationManager.getInstance().stop();
 		}
 		super.onPause();
@@ -106,7 +104,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (editing) {
+		if (inputState.equals(State.Editing)) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
@@ -138,9 +136,8 @@ public class PatchEdit extends BaseEdit {
 					final Bundle extras = intent.getExtras();
 					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
 					if (privacy != null) {
-						dirty = true;
-						entity.visibility = privacy;
-						bind();
+						buttonPrivacy.setTag(privacy);
+						draw();
 					}
 				}
 			}
@@ -150,11 +147,10 @@ public class PatchEdit extends BaseEdit {
 					final String json = extras.getString(Constants.EXTRA_LOCATION);
 					if (json != null) {
 						final Location location = Patchr.gson.fromJson(json, Location.class);
-						dirty = true;
 						location.provider = Constants.LOCATION_PROVIDER_USER;
-						entity.setLocation(location);
-						bind();
+						mapView.setTag(location);
 						proximityDisabled = true;
+						draw();
 					}
 				}
 			}
@@ -173,28 +169,24 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	public void onTypeLabelClick(View view) {
-		dirty = true;
 		String type = (String) view.getTag();
-		if (type.equals(Patch.Type.EVENT)) {
+		if (type.equals(PatchType.EVENT)) {
 			buttonTypeEvent.performClick();
 		}
-		else if (type.equals(Patch.Type.GROUP)) {
+		else if (type.equals(PatchType.GROUP)) {
 			buttonTypeGroup.performClick();
 		}
-		else if (type.equals(Patch.Type.PLACE)) {
+		else if (type.equals(PatchType.PLACE)) {
 			buttonTypePlace.performClick();
 		}
-		else if (type.equals(Patch.Type.PROJECT)) {
-			buttonTypeProject.performClick();
+		else if (type.equals(PatchType.TRIP)) {
+			buttonTypeTrip.performClick();
 		}
 	}
 
 	public void onTypeButtonClick(View view) {
-
-		dirty = true;
-		String type = (String) view.getTag();
-		buttonGroupType.check(view.getId());
-		entity.type = type;
+		buttonPatchType.setTag((String) view.getTag());
+		draw();
 	}
 
 	public void onPrivacyBuilderClick(View view) {
@@ -217,33 +209,12 @@ public class PatchEdit extends BaseEdit {
 		if (event.location != null) {
 
 			LocationManager.getInstance().setAndroidLocationLocked(event.location);
-			final Location locationUpdate = LocationManager.getInstance().getLocationLocked();
+			Location location = LocationManager.getInstance().getLocationLocked();
 
-			if (locationUpdate != null) {
-
-				if (entity.getLocation() == null) {
-					Location location = new Location();
-					location.lat = locationUpdate.lat.doubleValue();
-					location.lng = locationUpdate.lng.doubleValue();
-					location.accuracy = locationUpdate.accuracy.floatValue();
-					location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
-					entity.setLocation(location);
-				}
-				else if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
-					Location location = entity.getLocation();
-					location.lat = location.lat.doubleValue();
-					location.lng = location.lng.doubleValue();
-					location.accuracy = location.accuracy.floatValue();
-					entity.setLocation(location);
-				}
-				bindLocation();
+			if (location != null) {
+				mapView.setTag(location);
+				drawLocation();
 			}
-		}
-	}
-
-	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (taskService != null) {
-			taskService.cancel(true);
 		}
 	}
 
@@ -254,26 +225,14 @@ public class PatchEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
-		if (!this.editing) {
-			final Location locationCurrent = LocationManager.getInstance().getLocationLocked();
-			if (locationCurrent != null) {
-				Location location = new Location();
-				location.lat = locationCurrent.lat.doubleValue();
-				location.lng = locationCurrent.lng.doubleValue();
-				location.accuracy = locationCurrent.accuracy.floatValue();
-				location.provider = Constants.LOCATION_PROVIDER_GOOGLE;
-				entity.setLocation(location);
-			}
-		}
-
 		insertProgressResId = R.string.progress_saving_patch;
 		insertedResId = R.string.alert_inserted_patch;
 
 		buttonTypeEvent = (RadioButton) findViewById(R.id.radio_event);
 		buttonTypeGroup = (RadioButton) findViewById(R.id.radio_group);
 		buttonTypePlace = (RadioButton) findViewById(R.id.radio_place);
-		buttonTypeProject = (RadioButton) findViewById(R.id.radio_project);
-		buttonGroupType = (RadioGroup) findViewById(R.id.buttons_type);
+		buttonTypeTrip = (RadioButton) findViewById(R.id.radio_trip);
+		buttonPatchType = (RadioGroup) findViewById(R.id.buttons_type);
 
 		buttonPrivacy = (TextView) findViewById(R.id.privacy_policy_button);
 		title = (TextView) findViewById(R.id.title);
@@ -285,17 +244,15 @@ public class PatchEdit extends BaseEdit {
 		Drawable chevron = UI.setTint(originalDrawable, R.color.brand_primary);
 		buttonPrivacy.setCompoundDrawables(null, null, chevron, null);
 
-		this.actionBarTitle.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
-		this.title.setText(editing ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
+		this.actionBarTitle.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
+		this.title.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		if (mapView != null) {
 
 			mapView.onCreate(null);
 			mapView.onResume();
 			mapView.getMapAsync(new OnMapReadyCallback() {
-				@Override
-				public void onMapReady(GoogleMap googleMap) {
-
+				@Override public void onMapReady(GoogleMap googleMap) {
 					map = googleMap;
 					map.getUiSettings().setMapToolbarEnabled(false);
 					MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
@@ -315,7 +272,7 @@ public class PatchEdit extends BaseEdit {
 								else {
 									mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 								}
-								bindLocation();
+								drawLocation();
 							}
 						});
 					}
@@ -328,32 +285,120 @@ public class PatchEdit extends BaseEdit {
 		super.bind();
 
 		/* Only called when the activity is first created. */
+		if (entity != null) {
+			mapView.setTag(entity.getLocation());
 
-		bindLocation();
+			/* Visibility */
+			if (buttonPrivacy != null) {
+				buttonPrivacy.setTag(entity.visibility);
+			}
 
+			/* Type */
+			if (buttonPatchType != null) {
+				buttonPatchType.setTag(entity.type);
+			}
+		}
+		else {
+			Location location = LocationManager.getInstance().getLocationLocked();
+			if (location != null) {
+				mapView.setTag(location);
+			}
+
+			buttonPrivacy.setTag(Constants.PRIVACY_PUBLIC);
+		}
+	}
+
+	public void draw() {
+
+		/* Visibility */
 		if (buttonPrivacy != null) {
-			buttonPrivacy.setTag(entity.visibility);
-			String value = (entity.visibility.equals(Constants.PRIVACY_PUBLIC))
+			String visibility = (String) buttonPrivacy.getTag();
+			String value = (visibility.equals(Constants.PRIVACY_PUBLIC))
 			               ? StringManager.getString(R.string.label_patch_privacy_public)
 			               : StringManager.getString(R.string.label_patch_privacy_private);
 			buttonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
 		/* Type */
-
-		if (buttonGroupType != null && entity.type != null) {
-			Integer id = R.id.radio_event;
-			if (entity.type.equals(Patch.Type.GROUP)) {
-				id = R.id.radio_group;
+		if (buttonPatchType != null) {
+			String type = (String) buttonPatchType.getTag();
+			if (type != null) {
+				Integer id = R.id.radio_event;
+				if (type.equals(PatchType.GROUP)) {
+					id = R.id.radio_group;
+				}
+				else if (type.equals(PatchType.PLACE)) {
+					id = R.id.radio_place;
+				}
+				else if (type.equals(PatchType.TRIP)) {
+					id = R.id.radio_trip;
+				}
+				buttonPatchType.check(id);
 			}
-			else if (entity.type.equals(Patch.Type.PLACE)) {
-				id = R.id.radio_place;
-			}
-			else if (entity.type.equals(Patch.Type.PROJECT)) {
-				id = R.id.radio_project;
-			}
-			buttonGroupType.check(id);
 		}
+
+		/* Location */
+		drawLocation();
+	}
+
+	public void drawLocation() {
+		/*
+		 * When creating a new patch we use the devices current location by default if
+		 * available. If a location isn't available for whatever reason we show the
+		 * map without a marker and say so in a label. From that point on, the only way
+		 * a patch gets a location is if the user sets one or it is linked to a place.
+		 *
+		 * When linked to a place, the patch location is set to a copy of the place
+		 * location. If the place link is later cleared, the patch location stays
+		 * unchanged.
+		 */
+		locationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
+
+		if (map != null) {
+
+			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			Location location = (Location) mapView.getTag();
+
+			if (location != null) {
+
+				locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+				if (location.provider != null) {
+					if (location.provider.equals(Constants.LOCATION_PROVIDER_USER)) {
+						locationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
+					}
+					else if (location.provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
+						if (inputState.equals(State.Editing)) {
+							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
+						}
+						else {
+							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google_new));
+						}
+					}
+				}
+
+				map.clear();
+				map.addMarker(new MarkerOptions()
+					.position(location.asLatLng())
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
+					.anchor(0.5f, 0.5f));
+
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(location.asLatLng(), 17f));
+				mapView.setVisibility(View.VISIBLE);
+				mapProgressBar.hide();
+				mapView.invalidate();
+			}
+		}
+	}
+
+	public void gather(SimpleMap parameters) {
+
+		Location location = (Location) mapView.getTag();
+		if (location != null) {
+			parameters.put("location", location);
+		}
+
+		parameters.put("type", buttonPatchType.getTag());
+		parameters.put("visibility", buttonPrivacy.getTag());
 	}
 
 	@Override protected boolean afterInsert(Entity insertedEntity) {
@@ -372,126 +417,22 @@ public class PatchEdit extends BaseEdit {
 		return false;       // We are handling the finish
 	}
 
-	@Override protected boolean afterUpdate() {
-	    /*
-	     * Only called if the update was successful. Called on main ui thread.
-	     * If proximity links are now invalid because the patch was manually moved
-	     * to a new location then clear all the links.
-		 */
-		if (proximityDisabled) {
-			clearProximity();
-			return false;
-		}
-		return true;
-	}
+	@Override protected boolean isValid() {
 
-	@Override protected boolean validate() {
-
-		gather();
 		if (entity.name == null) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-				, null
-				, StringManager.getString(R.string.error_missing_patch_name)
-				, null
-				, this
-				, android.R.string.ok
-				, null, null, null, null);
+			Dialogs.alert(R.string.error_missing_patch_name, this);
 			return false;
 		}
 
 		if (entity.type == null) {
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-				, null
-				, StringManager.getString(R.string.error_missing_patch_type)
-				, null
-				, this
-				, android.R.string.ok
-				, null, null, null, null);
+			Dialogs.alert(R.string.error_missing_patch_type, this);
 			return false;
 		}
 
 		return true;
 	}
 
-	@Override protected String getEntitySchema() {
-		return Constants.SCHEMA_ENTITY_PATCH;
-	}
-
-	@Override protected String getLinkType() {
-		return Constants.TYPE_LINK_PROXIMITY;
-	}
-
 	@Override protected int getLayoutId() {
 		return R.layout.edit_patch;
-	}
-
-	public void bindLocation() {
-		/*
-		 * When creating a new patch we use the devices current location by default if
-		 * available. If a location isn't available for whatever reason we show the
-		 * map without a marker and say so in a label. From that point on, the only way
-		 * a patch gets a location is if the user sets one or it is linked to a place.
-		 *
-		 * When linked to a place, the patch location is set to a copy of the place
-		 * location. If the place link is later cleared, the patch location stays
-		 * unchanged.
-		 */
-		locationLabel.setText(StringManager.getString(R.string.label_location_provider_none));
-
-		if (map != null) {
-			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-			if (entity.getLocation() != null) {
-
-				locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-				if (entity.getLocation().provider != null) {
-					if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_USER)) {
-						locationLabel.setText(StringManager.getString(R.string.label_location_provider_user));
-					}
-					else if (entity.getLocation().provider.equals(Constants.LOCATION_PROVIDER_GOOGLE)) {
-						if (editing) {
-							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google));
-						}
-						else {
-							locationLabel.setText(StringManager.getString(R.string.label_location_provider_google_new));
-						}
-					}
-				}
-
-				map.clear();
-				map.addMarker(new MarkerOptions()
-					.position(entity.getLocation().asLatLng())
-					.icon(BitmapDescriptorFactory.fromResource(R.drawable.img_patch_marker))
-					.anchor(0.5f, 0.5f));
-
-				map.moveCamera(CameraUpdateFactory.newLatLngZoom(entity.getLocation().asLatLng(), 17f));
-				mapView.setVisibility(View.VISIBLE);
-				mapProgressBar.hide();
-				mapView.invalidate();
-			}
-		}
-	}
-
-	private void clearProximity() {
-
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.Refreshing);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncClearEntityProximity");
-				return null; //DataController.getInstance().trackEntity(entity, null, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				busyController.hide(false);
-				UI.toast(StringManager.getString(updatedResId));
-				setResult(Activity.RESULT_OK);
-				finish();
-				AnimationManager.doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 }

@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Callback;
 
@@ -23,8 +23,9 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 
 	private static final Object lock = new Object();
 
-	protected Photo   photo;
+	public    Photo   photo;
 	protected Integer layoutResId;
+	public    boolean dirty;
 
 	public    PhotoCategory       category;
 	protected float               aspectRatio;
@@ -146,7 +147,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 				UI.setVisibility(setButton, VISIBLE);
 			}
 			else {
-				imageWidget.setImageWithEntity(photo, null);
+				imageWidget.setImageWithPhoto(photo, null, this);
 			}
 		}
 	}
@@ -157,13 +158,13 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 
 	private static final String                androidNamespace = "http://schemas.android.com/apk/res/android";
 	private static final ImageView.ScaleType[] sScaleTypeArray  = {
-			ImageView.ScaleType.MATRIX,
-			ImageView.ScaleType.FIT_XY,
-			ImageView.ScaleType.FIT_START,
-			ImageView.ScaleType.FIT_CENTER,
-			ImageView.ScaleType.FIT_END,
-			ImageView.ScaleType.CENTER,
-			ImageView.ScaleType.CENTER_CROP,
-			ImageView.ScaleType.CENTER_INSIDE
+		ImageView.ScaleType.MATRIX,
+		ImageView.ScaleType.FIT_XY,
+		ImageView.ScaleType.FIT_START,
+		ImageView.ScaleType.FIT_CENTER,
+		ImageView.ScaleType.FIT_END,
+		ImageView.ScaleType.CENTER,
+		ImageView.ScaleType.CENTER_CROP,
+		ImageView.ScaleType.CENTER_INSIDE
 	};
 }

@@ -26,7 +26,7 @@ import com.patchr.events.TrendQueryEvent;
 import com.patchr.model.Location;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.Beacon;
 import com.patchr.objects.CacheStamp;
 import com.patchr.objects.Cursor;
@@ -37,15 +37,15 @@ import com.patchr.objects.LinkOld;
 import com.patchr.objects.LinkOld.Direction;
 import com.patchr.objects.LinkSpecFactory;
 import com.patchr.objects.LinkSpecItem;
-import com.patchr.objects.LinkSpecType;
+import com.patchr.objects.enums.LinkSpecType;
 import com.patchr.objects.LinkSpecs;
 import com.patchr.objects.LocationOld;
 import com.patchr.objects.Patch;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.ServiceBase.UpdateScope;
 import com.patchr.objects.ServiceData;
 import com.patchr.objects.Shortcut;
-import com.patchr.objects.Suggest;
+import com.patchr.objects.enums.Suggest;
 import com.patchr.objects.User;
 import com.patchr.service.RequestType;
 import com.patchr.service.ResponseFormat;
@@ -77,7 +77,7 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public class DataController {
 
-	private        Number      activityDate;     // Monitored by nearby
+	public         Number      activityDate;     // Monitored by nearby
 	private        boolean     registering;
 	private static EntityStore entityStore;
 
@@ -590,7 +590,7 @@ public class DataController {
 		result.serviceResponse = NetworkManager.getInstance().request(serviceRequest);
 
 		/* Set to anonymous user regardless of success */
-		UserManager.shared().setCurrentUser(null, null, false);
+		UserManager.shared().setCurrentUser(null, null);
 
 		return result;
 	}
@@ -619,7 +619,7 @@ public class DataController {
 			final ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 			User user = serviceData.user;
 			user.session = serviceData.session;
-			//UserManager.shared().setCurrentUser(user, user.session, true);
+			//UserManager.shared().setCurrentUser(user, user.session);
 		}
 		return result;
 	}
@@ -728,15 +728,15 @@ public class DataController {
 			String jsonResponse = (String) result.serviceResponse.data;
 			ServiceData serviceData = (ServiceData) Json.jsonToObject(jsonResponse, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
 
-//			RealmEntity user = (RealmEntity) serviceData.user;
-//			user.session = serviceData.session;
-//			result.data = user;
+			//			RealmEntity user = (RealmEntity) serviceData.user;
+			//			user.session = serviceData.session;
+			//			result.data = user;
 			/*
 			 * Put image to S3 if we have one. Handles setting up the photo object on user
 			 */
 			if (bitmap != null && !bitmap.isRecycled()) {
 
-//				result.serviceResponse = storeImageAtS3(user, user.id, bitmap);
+				//				result.serviceResponse = storeImageAtS3(user, user.id, bitmap);
 
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
 					/*
@@ -902,12 +902,12 @@ public class DataController {
 			 * Optimization: Add soft 'create' link so user entity doesn't have to be refetched
 			 */
 			if (UserManager.shared().authenticated()) {
-//				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
-//				entityStore.fixupAddLink(UserManager.currentUser.id
-//					, insertedEntity.id
-//					, Constants.TYPE_LINK_CREATE
-//					, null
-//					, UserManager.currentUser, insertedEntity.getAsShortcut());
+				//				UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
+				//				entityStore.fixupAddLink(UserManager.currentUser.id
+				//					, insertedEntity.id
+				//					, Constants.TYPE_LINK_CREATE
+				//					, null
+				//					, UserManager.currentUser, insertedEntity.getAsShortcut());
 			}
 
 			result.data = insertedEntity;
@@ -1511,11 +1511,6 @@ public class DataController {
 
 	public static EntityStore getEntityCache() {
 		return entityStore;
-	}
-
-	public DataController setActivityDate(Number activityDate) {
-		this.activityDate = activityDate;
-		return this;
 	}
 
 	/*--------------------------------------------------------------------------------------------

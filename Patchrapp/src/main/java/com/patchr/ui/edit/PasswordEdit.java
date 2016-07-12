@@ -15,8 +15,9 @@ import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.ResponseCode;
+import com.patchr.objects.enums.State;
 import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -34,14 +35,14 @@ public class PasswordEdit extends BaseEdit {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void onClick(View view) {
-		if (view.getId() == R.id.submit_button) {
+		if (view.getId() == R.id.signup_button) {
 			submitAction();
 		}
 	}
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (editing) {
+		if (inputState.equals(State.Editing)) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 		}
 		return super.onCreateOptionsMenu(menu);
@@ -63,7 +64,7 @@ public class PasswordEdit extends BaseEdit {
 		if (this.processing) return;
 		this.processing = true;
 
-		if (validate()) {
+		if (isValid()) {
 			update();
 		}
 		else {
@@ -127,9 +128,8 @@ public class PasswordEdit extends BaseEdit {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	@Override protected boolean validate() {
+	@Override protected boolean isValid() {
 
-		gather();
 		if (passwordOld.getText().length() == 0) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null

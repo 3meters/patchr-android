@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.objects.enums;
 
 public class LinkSpecType {
 	public static int NO_LINKS               = 0;

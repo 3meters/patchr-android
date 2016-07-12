@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.objects.enums;
 
 public enum WifiApState {
 	WIFI_AP_STATE_DISABLING,

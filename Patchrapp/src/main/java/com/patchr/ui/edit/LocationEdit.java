@@ -23,7 +23,7 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.objects.LocationOld;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;

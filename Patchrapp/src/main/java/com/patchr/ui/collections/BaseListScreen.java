@@ -11,9 +11,9 @@ import com.patchr.R;
 import com.patchr.components.Logger;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.FetchMode;
-import com.patchr.objects.FetchStrategy;
 import com.patchr.objects.QuerySpec;
+import com.patchr.objects.enums.FetchMode;
+import com.patchr.objects.enums.FetchStrategy;
 import com.patchr.service.RestClient;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.views.BaseView;
@@ -65,13 +65,6 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	@Override protected void onStop() {
 		super.onStop();
 		listWidget.onStop();
-	}
-
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		if (entity != null && changeListener != null) {
-			entity.removeChangeListener(changeListener);
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -156,7 +149,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 				this.header.bind(this.entity);
 				this.changeListener = new RealmChangeListener() {
 					@Override public void onChange(Object element) {
-						header.invalidate();
+						header.draw();
 						supportInvalidateOptionsMenu();     // In case user authenticated
 					}
 				};
@@ -166,38 +159,44 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	}
 
 	public void fetch(final FetchMode mode) {
+		fetch(mode, true);
+	}
+
+	public void fetch(final FetchMode mode, Boolean cascade) {
 
 		if (this.header == null) {
 			listWidget.fetch(mode);
 		}
 		else {
-			if (processing) return;
+			if (!processing) {
 
-			processing = true;
-			Logger.v(this, "Fetching form entity: " + mode.name().toString());
-			FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
+				processing = true;
+				Logger.v(this, "Fetching form entity: " + mode.name().toString());
+				FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
-			AsyncTask.execute(() -> {
-				this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
-					.doOnTerminate(() -> {
-						if (this.busyController != null) {
-							this.busyController.hide(true);
-						}
-					})
-					.subscribe(
-						response -> {
+				AsyncTask.execute(() -> {
+					this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
+						.doOnTerminate(() -> {
 							processing = false;
-							if (this.entity == null) {
-								bind();
+							if (this.busyController != null) {
+								this.busyController.hide(true);
 							}
-							listWidget.fetch(mode);
-							supportInvalidateOptionsMenu();     // In case user authenticated
-						},
-						error -> {
-							processing = false;
-							Logger.e(this, error.getLocalizedMessage());
-						});
-			});
+						})
+						.subscribe(
+							response -> {
+								if (this.entity == null) {
+									bind();
+								}
+								if (cascade) {
+									listWidget.fetch(mode);
+								}
+								supportInvalidateOptionsMenu();     // In case user authenticated
+							},
+							error -> {
+								Logger.w(this, error.getLocalizedMessage());
+							});
+				});
+			}
 		}
 	}
 

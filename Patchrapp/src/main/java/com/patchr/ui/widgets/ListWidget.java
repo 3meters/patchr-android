@@ -22,9 +22,9 @@ import com.patchr.components.StringManager;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.FetchMode;
-import com.patchr.objects.FetchStrategy;
-import com.patchr.objects.QueryName;
+import com.patchr.objects.enums.FetchMode;
+import com.patchr.objects.enums.FetchStrategy;
+import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.QuerySpec;
 import com.patchr.service.ProxibaseResponse;
 import com.patchr.service.RestClient;
@@ -221,7 +221,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 					},
 					error -> {
 						processingQuery = false;
-						Logger.e(this, error.getLocalizedMessage());
+						Logger.w(this, error.getLocalizedMessage());
 					});
 		});
 	}

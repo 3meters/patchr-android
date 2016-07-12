@@ -124,7 +124,7 @@ public class MessageView extends BaseView {
 			}
 
 			/* User */
-			this.userPhotoView.setImageWithEntity(entity.creator.getPhoto(), entity.creator.name);
+			this.userPhotoView.setImageWithPhoto(entity.creator.getPhoto(), entity.creator.name, null);
 			setOrGone(this.userName, entity.creator.name);
 
 			/* Create date */
@@ -194,7 +194,7 @@ public class MessageView extends BaseView {
 		        /* Photo */
 				if (entity.getPhoto() != null) {
 					final Photo photo = entity.getPhoto();
-					this.photoView.setImageWithEntity(photo, null);
+					this.photoView.setImageWithPhoto(photo, null, null);
 					this.photoView.setTag(photo);
 					UI.setVisibility(this.photoView, VISIBLE);
 				}

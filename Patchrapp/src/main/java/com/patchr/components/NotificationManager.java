@@ -13,7 +13,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.objects.Notification;
-import com.patchr.objects.PhotoCategory;
+import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Reporting;
 import com.squareup.picasso.Picasso;

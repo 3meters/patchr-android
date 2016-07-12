@@ -101,7 +101,7 @@
 				tools:visibility="visible" />
 
 			<Button
-				android:id="@+id/submit_button"
+				android:id="@+id/signup_button"
 				style="@style/button_outlined"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/button_height"

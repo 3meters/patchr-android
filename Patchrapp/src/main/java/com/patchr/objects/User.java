@@ -2,6 +2,8 @@ package com.patchr.objects;
 
 import com.patchr.Constants;
 import com.patchr.model.PhoneNumber;
+import com.patchr.objects.enums.LinkDestination;
+import com.patchr.objects.enums.LinkType;
 import com.patchr.utilities.DateTime;
 
 import java.util.List;

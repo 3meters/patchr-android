@@ -30,7 +30,7 @@ import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.FetchMode;
+import com.patchr.objects.enums.FetchMode;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;

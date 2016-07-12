@@ -13,7 +13,7 @@ import android.widget.ViewAnimator;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.MemberStatus;
+import com.patchr.objects.enums.MemberStatus;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
@@ -33,7 +33,6 @@ public class PatchBannerView extends BaseView {
 	protected TextView     name;
 	protected TextView     type;
 	protected View         privacyGroup;
-	public    View         tuneButton;
 	protected View         membersButton;
 	public    ViewAnimator muteButton;
 	protected View         moreButton;
@@ -66,7 +65,6 @@ public class PatchBannerView extends BaseView {
 		this.name = (TextView) layout.findViewById(R.id.name);
 		this.type = (TextView) layout.findViewById(R.id.type);
 		this.privacyGroup = (View) layout.findViewById(R.id.privacy_group);
-		this.tuneButton = (View) layout.findViewById(R.id.tune_button);
 		this.membersButton = (View) layout.findViewById(R.id.members_button);
 		this.muteButton = (ViewAnimator) layout.findViewById(R.id.mute_button);
 		this.moreButton = (View) layout.findViewById(R.id.next_page_button);
@@ -80,58 +78,60 @@ public class PatchBannerView extends BaseView {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void databind(RealmEntity entity) {
+	public void draw() {
+
+		this.photoView.setImageWithEntity(entity, null);
+
+		setOrGone(this.name, entity.name);
+		setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+
+		privacyGroup.setVisibility((entity.visibility != null
+			&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
+
+		/* Members count */
+		if (entity.countMembers > 0) {
+			TextView watchingCount = (TextView) this.membersButton.findViewById(R.id.members_count);
+			TextView watchingLabel = (TextView) this.membersButton.findViewById(R.id.members_label);
+			if (watchingCount != null) {
+				String label = getResources().getQuantityString(R.plurals.label_watching, entity.countMembers, entity.countMembers);
+				watchingCount.setText(String.valueOf(entity.countMembers));
+				watchingLabel.setText(label);
+				UI.setVisibility(this.membersButton, View.VISIBLE);
+			}
+		}
+		else {
+			UI.setVisibility(this.membersButton, View.GONE);
+		}
+
+		/* Mute button */
+		this.muteButton.setDisplayedChild(0);
+		if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
+			UI.setVisibility(this.muteButton, View.GONE);
+		}
+		else {
+			ImageView image = (ImageView) this.muteButton.findViewById(R.id.mute_image);
+			if (entity.userMemberMuted) {
+				/* Sound is off */
+				image.setImageResource(R.drawable.ic_img_mute_off_dark);
+				image.setColorFilter(null);
+				image.setAlpha(0.5f);
+			}
+			else {
+				/* Sound is on */
+				image.setImageResource(R.drawable.ic_img_mute_dark);
+				final int color = Colors.getColor(R.color.brand_primary);
+				image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+				image.setAlpha(1.0f);
+			}
+			UI.setVisibility(this.muteButton, View.VISIBLE);
+		}
+	}
+
+	public void bind(RealmEntity entity) {
 
 		synchronized (lock) {
-
 			this.entity = entity;
-			this.photoView.setImageWithEntity(entity);
-
-			setOrGone(this.name, entity.name);
-			setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
-
-			privacyGroup.setVisibility((entity.visibility != null
-				&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
-
-			this.tuneButton.setVisibility(entity.isOwnedByCurrentUser() ? VISIBLE : GONE);
-
-			/* Members count */
-			if (entity.countMembers > 0) {
-				TextView watchingCount = (TextView) this.membersButton.findViewById(R.id.members_count);
-				TextView watchingLabel = (TextView) this.membersButton.findViewById(R.id.members_label);
-				if (watchingCount != null) {
-					String label = getResources().getQuantityString(R.plurals.label_watching, entity.countMembers, entity.countMembers);
-					watchingCount.setText(String.valueOf(entity.countMembers));
-					watchingLabel.setText(label);
-					UI.setVisibility(this.membersButton, View.VISIBLE);
-				}
-			}
-			else {
-				UI.setVisibility(this.membersButton, View.GONE);
-			}
-
-			/* Mute button */
-			this.muteButton.setDisplayedChild(0);
-			if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
-				UI.setVisibility(this.muteButton, View.GONE);
-			}
-			else {
-				ImageView image = (ImageView) this.muteButton.findViewById(R.id.mute_image);
-				if (entity.userMemberMuted) {
-					/* Sound is off */
-					image.setImageResource(R.drawable.ic_img_mute_off_dark);
-					image.setColorFilter(null);
-					image.setAlpha(0.5f);
-				}
-				else {
-					/* Sound is on */
-					image.setImageResource(R.drawable.ic_img_mute_dark);
-					final int color = Colors.getColor(R.color.brand_primary);
-					image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-					image.setAlpha(1.0f);
-				}
-				UI.setVisibility(this.muteButton, View.VISIBLE);
-			}
+			draw();
 		}
 	}
 }

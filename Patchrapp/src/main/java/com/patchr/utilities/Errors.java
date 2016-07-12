@@ -14,7 +14,7 @@ import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
-import com.patchr.objects.Command;
+import com.patchr.objects.enums.Command;
 import com.patchr.objects.ProxibaseError;
 import com.patchr.service.ServiceResponse;
 
@@ -76,7 +76,7 @@ public final class Errors {
 
 		/* Perform any follow-up actions. */
 		if (errAction == ErrorAction.LOGOUT) {
-			UserManager.shared().setCurrentUser(null, null, false);
+			UserManager.shared().setCurrentUser(null, null);
 			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
 		}
 		else if (errAction == ErrorAction.LOBBY) {

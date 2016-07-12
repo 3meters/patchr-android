@@ -23,18 +23,19 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.ModelResult;
 import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
-import com.patchr.components.UserManager;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.Beacon;
-import com.patchr.objects.Command;
 import com.patchr.objects.Entity;
 import com.patchr.objects.LinkOld;
-import com.patchr.objects.ResponseCode;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.ResponseCode;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
+import com.patchr.ui.PhotoSwitchboardScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.PhotoEditWidget;
@@ -59,7 +60,8 @@ public abstract class BaseEdit extends BaseScreen {
 	protected TextView        name;
 	protected TextView        description;
 	protected String          photoSource;
-	protected AsyncTask       taskService;
+
+	protected AsyncTask taskService;
 
 	protected Boolean brokenLink        = false;
 	protected Boolean proximityDisabled = false;        // Patch is only using location
@@ -69,13 +71,8 @@ public abstract class BaseEdit extends BaseScreen {
 	protected Integer insertedResId       = R.string.alert_inserted;
 	protected Integer updatedResId        = R.string.alert_updated;
 
-	/* Inputs */
-	public String parentId;
-	public String parentName;
-	public String entitySchema;
-
-	public Boolean editing = false;
-	public Boolean dirty   = false;
+	//public Boolean editing = false;
+	public Boolean dirty = false;
 
 	protected Integer dirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer dirtyExitMessageResId  = R.string.alert_dirty_exit_message;
@@ -134,8 +131,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 	public void onClick(View view) {
 		if (view.getId() == R.id.photo_set_button) {
-			gather();
-			Patchr.router.route(this, Command.PHOTO_PICK, entity, null);
+			setPhotoAction();
 		}
 		else if (view.getId() == R.id.photo_edit_button) {
 			editPhotoAction();
@@ -149,15 +145,10 @@ public abstract class BaseEdit extends BaseScreen {
 		/*
 		 * All photo selection sources and types end up here
 		 */
-		dirty = !Photo.same(entity.getPhoto(), photo);
+		dirty = !Photo.same(photoEditWidget.photo, photo);
 		if (dirty) {
-
-			entity.setPhoto(photo);
-			if (entity.getPhoto() != null) {
-				entity.getPhoto().store = true;
-			}
-
 			bindPhoto();
+			photoEditWidget.dirty = true;
 		}
 	}
 
@@ -176,7 +167,6 @@ public abstract class BaseEdit extends BaseScreen {
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void unpackIntent() {
-		super.unpackIntent();
 		/*
 		 * Intent inputs:
 		 * - Both: Edit_Only
@@ -185,12 +175,9 @@ public abstract class BaseEdit extends BaseScreen {
 		 */
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			this.entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
-			this.entitySchema = extras.getString(Constants.EXTRA_ENTITY_SCHEMA);    // Used by support like reporting
-			this.parentId = extras.getString(Constants.EXTRA_ENTITY_PARENT_ID);
-			this.parentName = extras.getString(Constants.EXTRA_ENTITY_PARENT_NAME);
+			entityId = extras.getString(Constants.EXTRA_ENTITY_ID);
+			inputState = extras.getString(Constants.EXTRA_STATE);
 		}
-		this.editing = (this.entity != null);
 	}
 
 	@Override public void initialize(Bundle savedInstanceState) {
@@ -202,10 +189,8 @@ public abstract class BaseEdit extends BaseScreen {
 
 		if (name != null) {
 			name.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					if (entity.name == null || !s.toString().equals(entity.name)) {
+				@Override public void afterTextChanged(Editable s) {
+					if (entity != null && (entity.name == null || !s.toString().equals(entity.name))) {
 						if (!firstDraw) {
 							dirty = true;
 						}
@@ -215,9 +200,7 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 		if (description != null) {
 			description.addTextChangedListener(new SimpleTextWatcher() {
-
-				@Override
-				public void afterTextChanged(Editable s) {
+				@Override public void afterTextChanged(Editable s) {
 					if (entity != null && (entity.description == null || !s.toString().equals(entity.description))) {
 						if (!firstDraw) {
 							dirty = true;
@@ -226,15 +209,41 @@ public abstract class BaseEdit extends BaseScreen {
 				}
 			});
 		}
+	}
 
-		/* Make new entity if we are not editing */
-		if (!editing && this.entity == null && getEntitySchema() != null) {
-			this.entity = new RealmEntity();
-			this.entity.schema = getEntitySchema();
+	public void bind() {
 
-			if (UserManager.shared().authenticated()) {
-				entity.creator = UserManager.currentUser;
-				entity.creatorId = UserManager.currentUser.id;
+		if (entityId != null && inputState.equals(State.Editing)) {
+			this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
+			if (this.entity != null) {
+				UI.setTextView(name, entity.name);
+				UI.setTextView(description, entity.description);
+				bindPhoto();
+				firstDraw = false;
+			}
+		}
+	}
+
+	protected void bindPhoto() {
+		photoEditWidget.bind(entity.getPhoto());
+	}
+
+	protected void gather(SimpleMap parameters) {
+
+		if (inputState.equals(State.Creating)) {
+			parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
+			parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
+			parameters.put("photo", photoEditWidget.photo); // Could be null
+		}
+		else if (inputState.equals(State.Editing)) {
+			if (name.getText().toString().equals(entity.name)) {
+				parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
+			}
+			if (description.getText().toString().equals(entity.description)) {
+				parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
+			}
+			if (photoEditWidget.dirty) {
+				parameters.put("photo", photoEditWidget.photo); // Could be null
 			}
 		}
 	}
@@ -246,9 +255,9 @@ public abstract class BaseEdit extends BaseScreen {
 			 * We assume that by accepting while creating a patch, the users intention is
 			 * to commit even if nothing is dirty.
 			 */
-			if (!this.editing || this.dirty) {
-				if (validate()) {   // validate also gathers
-					if (this.editing) {
+			if (!inputState.equals(State.Editing) || this.dirty) {
+				if (isValid()) {   // validate also gathers
+					if (inputState.equals(State.Editing)) {
 						update();
 					}
 					else {
@@ -275,23 +284,13 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	public void bind() {
-		if (this.entity != null) {
-			UI.setTextView(name, entity.name);
-			UI.setTextView(description, entity.description);
-			bindPhoto();
-			firstDraw = false;
-		}
-	}
-
-	protected void bindPhoto() {
-		photoEditWidget.bind(entity.getPhoto());
+	public void setPhotoAction() {
+		Intent intent = new Intent(this, PhotoSwitchboardScreen.class);
+		startActivityForResult(intent, Constants.ACTIVITY_PHOTO_PICK);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_TO);
 	}
 
 	public void editPhotoAction() {
-
-		/* Ensure photo logic has the latest property values */
-		gather();
 
 		/* Route it - editor loads image directly from s3 skipping imgix service  */
 		if (entity.getPhoto() != null) {
@@ -299,15 +298,15 @@ public abstract class BaseEdit extends BaseScreen {
 			Uri imageUri = Uri.parse(url);
 
 			Intent intent = new AdobeImageIntent.Builder(this)
-					.setData(imageUri)
-					.withOutputFormat(Bitmap.CompressFormat.JPEG)
-					.withOutputQuality(90)
-					.saveWithNoChanges(false)
-					.withOutputSize(MegaPixels.Mp5)
-					.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
-					.withVibrationEnabled(true)
-					.withAutoColorEnabled(true)
-					.build();
+				.setData(imageUri)
+				.withOutputFormat(Bitmap.CompressFormat.JPEG)
+				.withOutputQuality(90)
+				.saveWithNoChanges(false)
+				.withOutputSize(MegaPixels.Mp5)
+				.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
+				.withVibrationEnabled(true)
+				.withAutoColorEnabled(true)
+				.build();
 
 			startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);
 			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
@@ -315,18 +314,9 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	public void deletePhotoAction() {
-		dirty = (editing);
+		dirty = (inputState.equals(State.Editing));
 		entity.setPhoto(null);
 		bindPhoto();
-	}
-
-	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
-		if (parentId != null) {
-			if (links == null) {
-				links = new ArrayList<>();
-			}
-			links.add(new LinkOld(parentId, getLinkType(), this.entity.schema));
-		}
 	}
 
 	protected boolean afterInsert(Entity entity) {
@@ -337,7 +327,7 @@ public abstract class BaseEdit extends BaseScreen {
 		return true;
 	}
 
-	protected boolean validate() {
+	protected boolean isValid() {
 		return true;
 	}
 
@@ -373,10 +363,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.getPhoto().uriNative())
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-								.get();
+							.load(entity.getPhoto().uriNative())
+							.centerInside()
+							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+							.get();
 
 						if (isCancelled()) return null;
 					}
@@ -388,10 +378,10 @@ public abstract class BaseEdit extends BaseScreen {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.getPhoto().uriNative())
-									.centerInside()
-									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-									.get();
+								.load(entity.getPhoto().uriNative())
+								.centerInside()
+								.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+								.get();
 
 							if (isCancelled()) return null;
 						}
@@ -423,7 +413,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 				/* In case a derived class needs to augment the entity or add links before insert */
 				List<LinkOld> links = new ArrayList<>();
-				beforeInsert(entity, links);
+				//beforeInsert(entity, links);
 				if (isCancelled()) return null;
 
 				//ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
@@ -516,10 +506,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.getPhoto().uriNative())
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-								.get();
+							.load(entity.getPhoto().uriNative())
+							.centerInside()
+							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
+							.get();
 
 						if (isCancelled()) return null;
 					}
@@ -531,10 +521,10 @@ public abstract class BaseEdit extends BaseScreen {
 						System.gc();
 						try {
 							bitmap = Picasso.with(Patchr.applicationContext)
-									.load(entity.getPhoto().uriNative())
-									.centerInside()
-									.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-									.get();
+								.load(entity.getPhoto().uriNative())
+								.centerInside()
+								.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
+								.get();
 
 							if (isCancelled()) return null;
 						}
@@ -606,54 +596,27 @@ public abstract class BaseEdit extends BaseScreen {
 		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
-	protected void gather() {
-		if (entity != null && name != null) {
-			entity.name = Type.emptyAsNull(name.getText().toString().trim());
-		}
-		if (entity != null && description != null) {
-			entity.description = Type.emptyAsNull(description.getText().toString().trim());
-		}
-	}
-
-	protected String getLinkType() {
-		return null;
-	}
-
-	protected String getEntitySchema() {
-		return null;
-	}
-
 	protected void confirmDirtyExit() {
 
 		final AlertDialog dialog = Dialogs.alertDialog(null
-				, StringManager.getString(dirtyExitTitleResId)
-				, StringManager.getString(dirtyExitMessageResId)
-				, null
-				, BaseEdit.this
-				, dirtyExitPositiveResId
-				, android.R.string.cancel
-				, R.string.alert_dirty_discard
-				, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							submitAction();
-						}
-						else if (which == DialogInterface.BUTTON_NEUTRAL) {
-							cancelAction(true);
-						}
+			, StringManager.getString(dirtyExitTitleResId)
+			, StringManager.getString(dirtyExitMessageResId)
+			, null
+			, BaseEdit.this
+			, dirtyExitPositiveResId
+			, android.R.string.cancel
+			, R.string.alert_dirty_discard
+			, new DialogInterface.OnClickListener() {
+				@Override public void onClick(DialogInterface dialog, int which) {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						submitAction();
+					}
+					else if (which == DialogInterface.BUTTON_NEUTRAL) {
+						cancelAction(true);
 					}
 				}
-				, null);
+			}
+			, null);
 		dialog.setCanceledOnTouchOutside(false);
 	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Pickers
-	 *--------------------------------------------------------------------------------------------*/
-
-	/*--------------------------------------------------------------------------------------------
-	 * Services
-	 *--------------------------------------------------------------------------------------------*/
 }

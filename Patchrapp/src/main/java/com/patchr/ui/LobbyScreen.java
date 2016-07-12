@@ -43,12 +43,13 @@ import com.patchr.components.UserManager;
 import com.patchr.events.RegisterInstallEvent;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
-import com.patchr.objects.Command;
-import com.patchr.objects.Preference;
-import com.patchr.objects.ResponseCode;
-import com.patchr.objects.TransitionType;
 import com.patchr.objects.User;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.Preference;
+import com.patchr.objects.enums.ResponseCode;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.LoginEdit;
@@ -96,7 +97,7 @@ public class LobbyScreen extends AppCompatActivity {
 	protected BottomSheetLayout bottomSheetLayout;
 	protected Boolean restart    = false;
 	protected String  authType   = AuthType.Password;
-	protected String  authIntent = BaseScreen.State.Login;
+	protected String  authIntent = State.Login;
 	protected BusyController busyPresenter;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -204,28 +205,30 @@ public class LobbyScreen extends AppCompatActivity {
 
 		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
 			if (view.getId() == R.id.login_button) {
-				authIntent = BaseScreen.State.Login;
+				authIntent = State.Login;
 				verifyEmail(null);
 			}
-			else if (view.getId() == R.id.submit_button) {
-				authIntent = BaseScreen.State.Signup;
+			else if (view.getId() == R.id.signup_button) {
+				authIntent = State.Signup;
 				verifyEmail(null);
 			}
 			else if (view.getId() == R.id.user_button) {
-				authIntent = BaseScreen.State.Login;
+				authIntent = State.Login;
 				verifyEmail((String) UserManager.authIdentifierHint);
 			}
 		}
 		else {
 			if (view.getId() == R.id.login_button) {
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Login);
-				Patchr.router.route(this, Command.LOGIN, null, extras);
+				Intent intent = new Intent(this, LoginEdit.class);
+				intent.putExtra(Constants.EXTRA_STATE, State.Login);
+				startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
+				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 			}
-			else if (view.getId() == R.id.submit_button) {
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_ONBOARD_MODE, LoginEdit.OnboardMode.Signup);
-				Patchr.router.route(this, Command.LOGIN, null, extras);
+			else if (view.getId() == R.id.signup_button) {
+				Intent intent = new Intent(this, LoginEdit.class);
+				intent.putExtra(Constants.EXTRA_STATE, State.Signup);
+				startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
+				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 			}
 			else if (view.getId() == R.id.guest_button) {
 				Reporting.track(AnalyticsCategory.ACTION, "Entered as Guest");
@@ -415,7 +418,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 		final String jsonEntity = Json.objectToJson(entity);
 		Intent intent = new Intent(this, ProfileEdit.class);
-		intent.putExtra(Constants.EXTRA_STATE, BaseScreen.State.CompleteProfile);
+		intent.putExtra(Constants.EXTRA_STATE, State.CompleteProfile);
 		intent.putExtra(Constants.EXTRA_ENTITY, jsonEntity);
 		startActivityForResult(intent, Constants.ACTIVITY_COMPLETE_PROFILE);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
@@ -442,7 +445,7 @@ public class LobbyScreen extends AppCompatActivity {
 							authType = AuthType.Password;
 
 							Intent intent = new Intent(LobbyScreen.this, LoginEdit.class);
-							intent.putExtra(Constants.EXTRA_ONBOARD_MODE, UserManager.authTypeHint != null ? LoginEdit.OnboardMode.Login : LoginEdit.OnboardMode.Signup);
+							intent.putExtra(Constants.EXTRA_ONBOARD_MODE, UserManager.authTypeHint != null ? State.Login : State.Signup);
 							startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
 							AnimationManager.doOverridePendingTransition(LobbyScreen.this, TransitionType.FORM_TO);
 						}
@@ -521,7 +524,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 				busyPresenter.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (authIntent.equals(BaseScreen.State.Login)) {
+					if (authIntent.equals(State.Login)) {
 						if (UserManager.shared().provisional()) {
 							/* User meant to login but got a new account instead. */
 							Logger.i(this, "User tried to login but got new account instead");
@@ -556,7 +559,7 @@ public class LobbyScreen extends AppCompatActivity {
 							startHomeActivity();
 						}
 					}
-					else if (authIntent.equals(BaseScreen.State.Signup)) {
+					else if (authIntent.equals(State.Signup)) {
 						if (!UserManager.shared().provisional()) {
 							/* User meant to signup but got an existing account instead. */
 							Logger.i(this, "User tried to sign up but got an existing account instead");

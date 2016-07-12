@@ -20,7 +20,7 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Suggest;
+import com.patchr.objects.enums.Suggest;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.UI;
@@ -172,7 +172,7 @@ public class EntitySuggestController {
 							bindDropdown();
 						},
 						error -> {
-							Logger.e(this, error.getLocalizedMessage());
+							Logger.w(this, error.getLocalizedMessage());
 						});
 			});
 		}

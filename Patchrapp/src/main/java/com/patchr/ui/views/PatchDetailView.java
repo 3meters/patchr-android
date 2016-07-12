@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ViewAnimator;
 
 import com.patchr.R;
+import com.patchr.components.Logger;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.CacheStamp;
 import com.patchr.ui.components.AnimationFactory;
@@ -74,6 +75,10 @@ public class PatchDetailView extends BaseView implements View.OnClickListener {
 	}
 
 	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
@@ -81,10 +86,15 @@ public class PatchDetailView extends BaseView implements View.OnClickListener {
 
 		synchronized (lock) {
 			this.entity = entity;
-			this.bannerView.databind(entity);
-			this.infoView.databind(entity);
+			this.bannerView.bind(entity);
+			this.infoView.bind(entity);
 			this.bannerView.setOnClickListener(this);
 			this.infoView.setOnClickListener(this);
 		}
+	}
+
+	public void draw() {
+		this.bannerView.draw();
+		this.infoView.draw();
 	}
 }

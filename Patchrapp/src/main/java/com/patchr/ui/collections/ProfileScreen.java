@@ -11,12 +11,12 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.QueryName;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.views.UserDetailView;
-import com.patchr.utilities.Json;
 
 public class ProfileScreen extends BaseListScreen {
 
@@ -46,8 +46,11 @@ public class ProfileScreen extends BaseListScreen {
 	@Override public void onClick(View view) {
 
 		if (view.getId() == R.id.fab) {
-			final String jsonEntity = Json.objectToJson(this.entity);
-			startActivity(new Intent(this, ProfileEdit.class).putExtra(Constants.EXTRA_ENTITY, jsonEntity));
+			Intent intent = new Intent(this, ProfileEdit.class);
+			intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+			intent.putExtra(Constants.EXTRA_STATE, State.Editing);
+			startActivityForResult(intent, Constants.ACTIVITY_ENTITY_EDIT);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 		else if (view.getId() == R.id.member_of_button) {
 			Intent intent = new Intent(this, BaseListScreen.class);

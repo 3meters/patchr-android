@@ -17,7 +17,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
-import com.patchr.objects.Command;
+import com.patchr.objects.enums.Command;
 import com.patchr.objects.Entity;
 
 import java.util.concurrent.atomic.AtomicBoolean;

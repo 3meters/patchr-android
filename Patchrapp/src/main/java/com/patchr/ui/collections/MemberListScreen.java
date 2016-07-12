@@ -11,14 +11,14 @@ import com.patchr.components.DataController;
 import com.patchr.components.ModelResult;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
-import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.Entity;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 
-import static com.patchr.objects.FetchMode.AUTO;
+import static com.patchr.objects.enums.FetchMode.AUTO;
 
 /*
  * Just a veneer of commands to support BaseListScreen

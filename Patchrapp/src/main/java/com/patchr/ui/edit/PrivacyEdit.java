@@ -13,7 +13,7 @@ import android.widget.RadioGroup;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.TransitionType;
 
 @SuppressLint("Registered")
 public class PrivacyEdit extends BaseEdit {

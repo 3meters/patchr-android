@@ -18,9 +18,10 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
+import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.Document;
-import com.patchr.objects.ResponseCode;
+import com.patchr.objects.enums.ResponseCode;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.ui.widgets.ImageWidget;
@@ -99,18 +100,16 @@ public class ReportEdit extends BaseEdit {
 		this.report.type = "report";
 		this.report.name = "patchr";
 		this.report.data = new HashMap<String, Object>();
-
-		editing = false;
 	}
 
 	@Override public void bind() {
-		this.message.setText(StringManager.getString(R.string.label_report_message) + " " + entitySchema + "?");
+		this.message.setText(StringManager.getString(R.string.label_report_message) + " " + entity.schema + "?");
 		RealmEntity user = UserManager.currentUser;
-		this.userPhoto.setImageWithEntity(user);
+		this.userPhoto.setImageWithEntity(user, null);
 		this.userName.setText(user.name);
 	}
 
-	@Override protected void gather() {
+	@Override protected void gather(SimpleMap parameters) {
 		if (!TextUtils.isEmpty(description.getText().toString())) {
 			report.data.put("message", description.getText().toString().trim());
 		}
@@ -118,9 +117,8 @@ public class ReportEdit extends BaseEdit {
 		report.data.put("target", entityId);
 	}
 
-	@Override protected boolean validate() {
+	@Override protected boolean isValid() {
 
-		gather();
 		if (TextUtils.isEmpty(reportType)) {
 			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
 					, null
@@ -156,7 +154,7 @@ public class ReportEdit extends BaseEdit {
 
 				busyController.hide(true);
 				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", Utils.capitalize(entitySchema)));
+					Reporting.track(AnalyticsCategory.ACTION, "Sent Report", new Properties().putValue("target", Utils.capitalize(entity.schema)));
 					UI.toast(StringManager.getString(R.string.alert_report_sent));
 					finish();
 				}

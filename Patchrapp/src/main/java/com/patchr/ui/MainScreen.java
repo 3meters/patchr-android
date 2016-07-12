@@ -38,14 +38,16 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.AnalyticsCategory;
 import com.patchr.objects.CacheStamp;
-import com.patchr.objects.Command;
-import com.patchr.objects.QueryName;
 import com.patchr.objects.QuerySpec;
-import com.patchr.objects.Suggest;
-import com.patchr.objects.TransitionType;
+import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.QueryName;
+import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.Suggest;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.collections.SearchScreen;
+import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.fragments.EntityListFragment;
 import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
@@ -487,7 +489,7 @@ public class MainScreen extends BaseScreen {
 
 				configuredForAuthenticated = true;
 				RealmEntity user = UserManager.currentUser;
-				this.userPhoto.setImageWithEntity(user.getPhoto(), user.name);
+				this.userPhoto.setImageWithPhoto(user.getPhoto(), user.name, null);
 				this.userName.setText(user.name);
 				UI.setTextOrGone(this.userArea, user.area);
 				UI.setVisibility(this.userPhoto, View.VISIBLE);
@@ -536,7 +538,10 @@ public class MainScreen extends BaseScreen {
 			return;
 		}
 
-		Patchr.router.add(this, Constants.SCHEMA_ENTITY_PATCH, null, true);
+		Intent intent = new Intent(this, PatchEdit.class);
+		intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void searchAction() {

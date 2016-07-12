@@ -234,7 +234,7 @@
 						android:theme="@style/patchr_radio_button" />
 
 					<RadioButton
-						android:id="@+id/radio_project"
+						android:id="@+id/radio_trip"
 						android:layout_width="wrap_content"
 						android:layout_height="32dp"
 						android:onClick="onTypeButtonClick"

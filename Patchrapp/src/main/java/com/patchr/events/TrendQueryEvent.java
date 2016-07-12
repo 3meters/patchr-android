@@ -1,7 +1,7 @@
 package com.patchr.events;
 
 import com.patchr.Constants;
-import com.patchr.objects.ActionType;
+import com.patchr.objects.enums.ActionType;
 import com.patchr.objects.Cursor;
 
 @SuppressWarnings("ucd")
