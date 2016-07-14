@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import io.realm.annotations.Ignore;
-
 @SuppressWarnings("ucd")
 public class Photo {
 
@@ -28,10 +26,6 @@ public class Photo {
 	public Integer width;
 	public Integer height;
 	public String  source;
-
-	/* Local client */
-
-	@Ignore public Boolean store = false;   // Hint that photo needs to be stored.
 
 	public Photo() {
 		super();

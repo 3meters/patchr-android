@@ -6,6 +6,7 @@ import java.util.Map;
 
 import retrofit2.Response;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 import rx.Observable;
@@ -13,5 +14,7 @@ import rx.Observable;
 public interface BingApi {
 
 	@GET("{path}")
-	Observable<Response<Map<String, Object>>> get(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
+	Observable<Response<Map<String, Object>>> get(@Header("Authorization") String authorization
+		, @Path(value = "path", encoded = true) String path
+		, @QueryMap SimpleMap parameters);
 }

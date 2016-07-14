@@ -36,7 +36,6 @@ import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.PhotoSwitchboardScreen;
-import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -105,7 +104,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
 						final Photo photo = Patchr.gson.fromJson(jsonPhoto, Photo.class);
-						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entity.schema)));
+						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entitySchema)));
 						onPhotoSelected(photo);
 					}
 				}
@@ -121,7 +120,6 @@ public abstract class BaseEdit extends BaseScreen {
 					MediaManager.scanMedia(photoUri);
 
 					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
-					photo.store = true;
 					onPhotoSelected(photo);
 				}
 			}
@@ -316,12 +314,12 @@ public abstract class BaseEdit extends BaseScreen {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-					busyController.showHorizontalProgressBar(BaseEdit.this);
-				}
-				else {
-					busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
-				}
+//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+//					busyController.showHorizontalProgressBar(BaseEdit.this);
+//				}
+//				else {
+//					busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
+//				}
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -339,7 +337,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * photo from anywhere or a local photo from the device camera or gallery.
 				 */
 				Bitmap bitmap = null;
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+				if (entity.getPhoto() != null) {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)
@@ -465,12 +463,12 @@ public abstract class BaseEdit extends BaseScreen {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-					busyController.showHorizontalProgressBar(BaseEdit.this);
-				}
-				else {
-					busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
-				}
+//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+//					busyController.showHorizontalProgressBar(BaseEdit.this);
+//				}
+//				else {
+//					busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
+//				}
 			}
 
 			@Override protected Object doInBackground(Object... params) {
@@ -481,7 +479,7 @@ public abstract class BaseEdit extends BaseScreen {
 				 * photo from anywhere or a local photo from the device camera or gallery.
 				 */
 				Bitmap bitmap = null;
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+				if (entity.getPhoto() != null) {
 
 					try {
 						bitmap = Picasso.with(Patchr.applicationContext)

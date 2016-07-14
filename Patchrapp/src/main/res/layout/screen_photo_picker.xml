@@ -66,18 +66,12 @@
 				android:singleLine="true" />
 		</LinearLayout>
 
-		<com.patchr.ui.widgets.AirGridView
+		<android.support.v7.widget.RecyclerView
 			android:id="@+id/grid"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_below="@+id/search_group"
-			android:layout_centerHorizontal="true"
-			android:clipToPadding="false"
-			android:listSelector="@null"
-			android:numColumns="auto_fit"
-			android:padding="@dimen/grid_padding"
-			android:scrollbars="none"
-			android:stretchMode="columnWidth" />
+			android:layout_centerHorizontal="true" />
 
 		<com.patchr.ui.widgets.SquareButton
 			android:id="@+id/form_message"

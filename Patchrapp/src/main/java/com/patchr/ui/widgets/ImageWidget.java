@@ -307,7 +307,7 @@ public class ImageWidget extends FrameLayout {
 					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
 				}
 			}
-			creator.into(this.imageView);
+			creator.into(this.imageView, callback);
 		}
 		else {  /* url */
 
@@ -315,6 +315,7 @@ public class ImageWidget extends FrameLayout {
 			RequestCreator creator = Picasso
 				.with(Patchr.applicationContext)
 				.load(uri)
+				.noFade()
 				.networkPolicy(NetworkPolicy.OFFLINE)
 				.config(this.bitmapConfig);
 

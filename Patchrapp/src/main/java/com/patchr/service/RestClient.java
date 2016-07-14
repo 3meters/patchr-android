@@ -1,12 +1,14 @@
 package com.patchr.service;
 
 import android.os.Build;
+import android.util.Base64;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.parse.ParseInstallation;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.AndroidManager;
+import com.patchr.components.ContainerManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
@@ -24,6 +26,7 @@ import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.Suggest;
 import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +37,6 @@ import java.util.Map;
 
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -495,22 +497,35 @@ public class RestClient {
 	* Bing
 	*--------------------------------------------------------------------------------------------*/
 
-	public Observable<Response<Map<String, Object>>> loadSearchImages(String query, Integer limit, Integer offset) {
+	public Observable<BingResponse> loadSearchImages(String query, Integer limit, Integer offset) {
 
 		SimpleMap parameters = new SimpleMap();
-		parameters.put("Query", query);
-		parameters.put("Market", "en-US");
-		parameters.put("Adult", "Strict");
-		parameters.put("ImageFilters", "size=large");
+
+		String queryEncoded = Utils.encode(query);
+		parameters.put("Query", "'" + queryEncoded + "'");
+		parameters.put("Market", "'en-US'");
+		parameters.put("Adult", "'Strict'");
+		parameters.put("ImageFilters", "'size:large'");
 		parameters.put("$top", limit + 1);
 		parameters.put("$skip", offset);
-		parameters.put("$format", "size=large");
+		parameters.put("$format", "Json");
+
+		String password = ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY);
+		String token = "Basic " + Base64.encodeToString((":" + password).getBytes(), Base64.NO_WRAP);
 
 		if (!NetworkManager.getInstance().isConnected()) {
 			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
 		else {
-			return bingApi.get("Image", parameters)
+			return bingApi.get(token, "Image", parameters)
+				.map(responseMap -> {
+					BingResponse response = BingResponse.setPropertiesFromMap(new BingResponse(), responseMap);
+					if (response.count.intValue() > limit) {
+						response.more = true;
+						response.data.remove(response.data.size() - 1);
+					}
+					return response;
+				})
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread());
 		}

@@ -138,6 +138,7 @@ public class ProfileEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // handles name/photo
 
+		entitySchema = Constants.SCHEMA_ENTITY_USER;
 		title = (TextView) findViewById(R.id.title);
 		area = (EditText) findViewById(R.id.area);
 		email = (EditText) findViewById(R.id.email);
@@ -284,19 +285,19 @@ public class ProfileEdit extends BaseEdit {
 		taskService = new AsyncTask() {
 
 			@Override protected void onPreExecute() {
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-					busyController.showHorizontalProgressBar(ProfileEdit.this);
-				}
-				else {
-					busyController.show(BusyController.BusyAction.Update);
-				}
+//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+//					busyController.showHorizontalProgressBar(ProfileEdit.this);
+//				}
+//				else {
+//					busyController.show(BusyController.BusyAction.Update);
+//				}
 			}
 
 			@Override protected Object doInBackground(Object... params) {
 				Thread.currentThread().setName("AsyncInsertUser");
 
 				Bitmap bitmap = null;
-				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
+				if (entity.getPhoto() != null) {
 
 					/* Synchronous call to get the bitmap */
 					try {

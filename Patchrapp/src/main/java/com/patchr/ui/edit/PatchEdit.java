@@ -225,6 +225,7 @@ public class PatchEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
+		entitySchema = Constants.SCHEMA_ENTITY_PATCH;
 		insertProgressResId = R.string.progress_saving_patch;
 		insertedResId = R.string.alert_inserted_patch;
 

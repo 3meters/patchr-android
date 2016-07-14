@@ -72,8 +72,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 	public String inputState;
 
 	public String      entityId;
-	public RealmEntity entity; // Here to support broadly shared commands (report, edit, share, etc.)
-	public Realm       realm;  // Always on main thread
+	public RealmEntity entity;          // Here to support broadly shared commands (report, edit, share, etc.)
+	public String      entitySchema;    // Super classes need an easy way to determine schema when no entity yet.
+	public Realm       realm;           // Always on main thread
 
 	protected View     rootView;
 	public    Fragment currentFragment;
@@ -97,6 +98,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		getWindow().setBackgroundDrawable(UI.getDrawableForAttribute(this, R.attr.backgroundForm));
 
 		setupUI();
 

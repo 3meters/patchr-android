@@ -251,7 +251,6 @@ public class ShareEdit extends BaseEdit {
 
 											if (file != null && uri != null) {
 												photo = new Photo(uri.toString(), Photo.PhotoSource.file);
-												photo.store = true;
 											}
 											else {
 												UI.toast(StringManager.getString(R.string.error_storage_unmounted));
@@ -327,7 +326,6 @@ public class ShareEdit extends BaseEdit {
 
 								if (file != null && uri != null) {
 									photo = new Photo(uri.toString(), Photo.PhotoSource.file);
-									photo.store = true;
 								}
 								else {
 									UI.toast(StringManager.getString(R.string.error_storage_unmounted));

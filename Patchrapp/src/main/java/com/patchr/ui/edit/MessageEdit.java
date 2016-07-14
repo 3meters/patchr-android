@@ -107,6 +107,7 @@ public class MessageEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
+		entitySchema = Constants.SCHEMA_ENTITY_MESSAGE;
 		dirtyExitTitleResId = R.string.alert_dirty_exit_title_message;
 		dirtyExitMessageResId = R.string.alert_dirty_exit_message_message;
 		dirtyExitPositiveResId = R.string.alert_dirty_send;
