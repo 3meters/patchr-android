@@ -194,9 +194,8 @@ public class LoginEdit extends BaseEdit {
 					}
 					else {
 						/* Cherry pick validation errors */
-						if (response.error != null
-							&& (response.error.code.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND
-							|| response.error.code.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS)) {
+						if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND
+							|| response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 							Dialogs.alert(R.string.error_signin_failed, LoginEdit.this);
 						}
 						else {

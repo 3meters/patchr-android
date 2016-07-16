@@ -7,6 +7,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -54,7 +55,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 	}
 
-	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		if (getActivity() == null || getActivity().isFinishing()) return null;
 
 		View root = super.onCreateView(inflater, container, savedInstanceState);
@@ -107,7 +109,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
-	@Override public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		/*
 		 * Update the setting summaries when a shared pref is changed.
 		 */
@@ -138,7 +141,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 	}
 
-	@Override public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+	@Override
+	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 		super.onPreferenceTreeClick(preferenceScreen, preference);
 
 		/* If the user has clicked on a preference screen, set up the action bar */
@@ -213,7 +217,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override public boolean onPreferenceClick(Preference preference) {
-					Patchr.router.route(getActivity(), Command.FEEDBACK, null, null);
+					Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:feedback@patchr.com"));
+					email.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Patchr");
+					startActivity(Intent.createChooser(email, "Send feedback using:"));
 					return true;
 				}
 			});
@@ -230,7 +236,8 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-				@Override public boolean onPreferenceChange(Preference preference, Object newValue) {
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
 					Boolean enabled = (Boolean) newValue;
 					enableDeveloper(enabled);
 					return true;
@@ -242,14 +249,14 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		final Preference prefTagRefresh = findPreference(com.patchr.objects.enums.Preference.TAG_REFRESH);
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
-					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+				+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override public boolean onPreferenceClick(Preference preference) {
 					prefTagRefresh.setSummary("Refreshing...");
 					ContainerManager.getContainerHolder().refresh();
 					prefTagRefresh.setSummary("Last refresh: "
-							+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+						+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 					return true;
 				}
 			});

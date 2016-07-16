@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.patchr.R;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Notification;
+import com.patchr.objects.enums.NotificationType;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
@@ -98,22 +98,22 @@ public class NotificationView extends BaseView {
 			if (entity.type != null) {
 				UI.setVisibility(this.notificationType, View.GONE);
 				Integer drawableResId = null;
-				if (entity.type.equals(Notification.NotificationType.WATCH)) {
+				if (entity.type.equals(NotificationType.WATCH)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconWatch);
 				}
-				else if (entity.type.equals(Notification.NotificationType.PLACE)) {
+				else if (entity.type.equals(NotificationType.PLACE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconPatch);
 				}
-				else if (entity.type.equals(Notification.NotificationType.MESSAGE)) {
+				else if (entity.type.equals(NotificationType.MESSAGE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconMessage);
 				}
-				else if (entity.type.equals(Notification.NotificationType.MEDIA)) {
+				else if (entity.type.equals(NotificationType.MEDIA)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconMediaMessage);
 				}
-				else if (entity.type.equals(Notification.NotificationType.SHARE)) {
+				else if (entity.type.equals(NotificationType.SHARE)) {
 					drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconShare);
 				}
-				else if (entity.type.equals(Notification.NotificationType.LIKE)) {
+				else if (entity.type.equals(NotificationType.LIKE)) {
 					if (entity.event.equals("like_entity_patch")) {
 						drawableResId = UI.getResIdForAttribute(getContext(), R.attr.iconFavorite);
 					}

@@ -67,10 +67,15 @@ public class EntityListFragment extends Fragment {
 		 * fragment's view hierarchy instantiated.
 		 */
 		super.onActivityCreated(savedInstanceState);
-		View view = getView();
-		if (view != null) {
-			initialize(view);
-			this.listWidget.bind(this.querySpec, this.contextEntityId);   // Triggers display of cached entities
+		if (this.querySpec == null) {
+			getActivity().finish();
+		}
+		else {
+			View view = getView();
+			if (view != null) {
+				initialize(view);
+				this.listWidget.bind(this.querySpec, this.contextEntityId);   // Triggers display of cached entities
+			}
 		}
 	}
 

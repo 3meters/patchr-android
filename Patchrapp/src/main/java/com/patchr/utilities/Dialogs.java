@@ -17,8 +17,8 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.Command;
-import com.patchr.objects.Entity;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -320,7 +320,7 @@ public class Dialogs {
 		}
 	}
 
-	public static void locked(@NonNull final Activity activity, @NonNull Entity entity) {
+	public static void locked(@NonNull final Activity activity, @NonNull RealmEntity entity) {
 
 		String message = StringManager.getString(R.string.alert_entity_locked, entity.schema);
 		Dialogs.alertDialogSimple(activity, null, message);

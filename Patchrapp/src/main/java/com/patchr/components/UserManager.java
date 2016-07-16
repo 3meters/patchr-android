@@ -20,14 +20,12 @@ import com.patchr.R;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.Session;
-import com.patchr.objects.User;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.State;
 import com.patchr.service.ProxibaseResponse;
 import com.patchr.service.RestClient;
 import com.patchr.ui.LobbyScreen;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -61,7 +59,7 @@ public class UserManager {
 		if (authTypeHint != null) {
 			String jsonAuthUser = Patchr.settings.getString(StringManager.getString(R.string.setting_last_auth_user), null);
 			if (jsonAuthUser != null) {
-				authUserHint = (User) Json.jsonToObject(jsonAuthUser, Json.ObjectType.ENTITY);
+				authUserHint = Patchr.gson.fromJson(jsonAuthUser, RealmEntity.class);
 			}
 
 			if (authTypeHint.equals(LobbyScreen.AuthType.Email) || authTypeHint.equals(LobbyScreen.AuthType.Password)) {

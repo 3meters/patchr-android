@@ -105,7 +105,7 @@ public class RealmEntity extends RealmObject {
 	public RealmEntity creator;
 	public RealmEntity modifier;
 	public RealmEntity patch;
-	public Link        link;
+	public String      linkJson;
 	public String      reason;        // Search suggestions
 	public Float       score;         // Search suggestions
 
@@ -131,11 +131,7 @@ public class RealmEntity extends RealmObject {
 	@Ignore public String authType;
 	@Ignore public Intent intent;
 	@Ignore public Boolean personalized = true;
-	@Ignore public  Session     session;
-	@Ignore private PhoneNumber phone;
-	@Ignore private Photo       photo;
-	@Ignore private Location    location;
-	@Ignore private Photo       photoBig;
+	@Ignore public Session session;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
@@ -188,12 +184,10 @@ public class RealmEntity extends RealmObject {
 			if (map.get("photo") != null) {
 				String photoJson = Patchr.gson.toJson(map.get("photo"), SimpleMap.class);
 				entity.photoJson = photoJson;
-				entity.photo = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photo"));
 			}
 			if (map.get("location") != null) {
 				String locationJson = Patchr.gson.toJson(map.get("location"), SimpleMap.class);
 				entity.locationJson = locationJson;
-				entity.location = Location.setPropertiesFromMap(new Location(), (Map<String, Object>) map.get("location"));
 			}
 			if (map.get("patch") != null) {
 				entity.patch = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("patch"), true);
@@ -209,11 +203,12 @@ public class RealmEntity extends RealmObject {
 			}
 			if (map.get("link") != null) {
 				/*
-				 * This is the only place that uses the Link object. We use it to support watch link state and management.
+				 * This is the only place that uses a link. We use it to support watch link state and management.
 				 * Will get pulled in on a user for a list of users watching a patch and on patches when showing patches a
 				 * user is watching (let's us show that a watch request is pending/approved).
 				 */
-				entity.link = Link.setPropertiesFromMap(new Link(), (Map<String, Object>) map.get("link"));
+				String linkJson = Patchr.gson.toJson(map.get("link"), SimpleMap.class);
+				entity.linkJson = linkJson;
 			}
 
 			entity.countLikes = 0;
@@ -278,7 +273,6 @@ public class RealmEntity extends RealmObject {
 				if (map.get("phone") != null) {
 					String phoneJson = Patchr.gson.toJson(map.get("phone"), SimpleMap.class);
 					entity.phoneJson = phoneJson;
-					entity.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), (Map<String, Object>) map.get("phone"));
 				}
 
 				entity.patchesMember = 0;
@@ -359,7 +353,6 @@ public class RealmEntity extends RealmObject {
 				if (map.get("photoBig") != null) {
 					String photoJson = Patchr.gson.toJson(map.get("photoBig"), SimpleMap.class);
 					entity.photoBigJson = photoJson;
-					entity.photoBig = Photo.setPropertiesFromMap(new Photo(), (Map<String, Object>) map.get("photoBig"));
 				}
 			}
 			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
@@ -499,79 +492,65 @@ public class RealmEntity extends RealmObject {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public PhoneNumber getPhone() {
-		if (this.phone == null && this.phoneJson != null) {
-			this.phone = PhoneNumber.setPropertiesFromMap(new PhoneNumber(), Patchr.gson.fromJson(this.phoneJson, SimpleMap.class));
+		if (phoneJson != null) {
+			return PhoneNumber.setPropertiesFromMap(new PhoneNumber(), Patchr.gson.fromJson(this.phoneJson, SimpleMap.class));
 		}
-		return this.phone;
+		return null;
 	}
 
 	public Photo getPhoto() {
-		if (this.photo == null && this.photoJson != null) {
-			this.photo = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoJson, SimpleMap.class));
+		if (photoJson != null) {
+			return Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoJson, SimpleMap.class));
 		}
-		return this.photo;
+		return null;
 	}
 
 	public void setPhoto(Photo photo) {
 		if (photo == null) {
-			this.photo = null;
 			this.photoJson = null;
 		}
 		else {
-			this.photo = photo;
 			this.photoJson = Patchr.gson.toJson(photo, Photo.class);
 		}
 	}
 
-	public Photo getPhotoBig() {
-		if (this.photoBig == null && this.photoBigJson != null) {
-			this.photoBig = Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));
+	public Link getLink() {
+		if (linkJson != null) {
+			return Link.setPropertiesFromMap(new Link(), Patchr.gson.fromJson(this.linkJson, SimpleMap.class));
 		}
-		return this.photoBig;
+		return null;
+	}
+
+	public Photo getPhotoBig() {
+		if (photoBigJson != null) {
+			return Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));
+		}
+		return null;
 	}
 
 	public void setPhotoBig(Photo photo) {
 		if (photo == null) {
-			this.photoBig = null;
 			this.photoBigJson = null;
 		}
 		else {
-			this.photoBig = photo;
 			this.photoBigJson = Patchr.gson.toJson(photo, Photo.class);
 		}
 	}
 
+	public Location getLocation() {
+		if (locationJson != null) {
+			return Location.setPropertiesFromMap(new Location(), Patchr.gson.fromJson(this.locationJson, SimpleMap.class));
+		}
+		return null;
+	}
+
 	public void setLocation(Location location) {
 		if (location == null) {
-			this.location = null;
 			this.locationJson = null;
 		}
 		else {
-			this.location = location;
 			this.locationJson = Patchr.gson.toJson(location, Location.class);
 		}
-	}
-
-	public Location getLocation() {
-
-		Location _location = null;
-
-		if (this.location == null && this.locationJson != null) {
-			this.location = Location.setPropertiesFromMap(new Location(), Patchr.gson.fromJson(this.locationJson, SimpleMap.class));
-		}
-
-		if (this.location != null
-			&& this.location.lat != null
-			&& this.location.lng != null) {
-			return this.location;
-		}
-		else {
-			final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-			if (beacon != null && beacon.location != null && beacon.location.lat != null && beacon.location.lng != null) {
-				return beacon.location;
-			}
-		}
-		return null;
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -599,7 +578,7 @@ public class RealmEntity extends RealmObject {
 
 			/* Linked */
 			List<SimpleMap> linked = Arrays.asList(
-				new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_creator", "_id,name,photo,schema,type")).asMap(),
+				new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_owner", "_id,name,photo,schema,type")).asMap(),
 				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Content).setLimit(1).setFields("_id,name,photo,schema,type").asMap(),
 				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Share).setLimit(1).asMap(),
 				new LinkSpec().setTo(LinkDestination.Users).setType(LinkType.Share).setLimit(5).asMap());
@@ -611,7 +590,7 @@ public class RealmEntity extends RealmObject {
 			parameters.put("linkCount", linkCounts);
 
 			/* Refs */
-			parameters.put("refs", Maps.asMap("_creator", "_id,name,photo,schema,type"));
+			parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
 		}
 		else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 
@@ -619,7 +598,7 @@ public class RealmEntity extends RealmObject {
 			if (UserManager.shared().authenticated()) {
 				List<Map<String, Object>> links = Arrays.asList(
 					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
-					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_creator", UserManager.userId)).asMap());
+					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_owner", UserManager.userId)).asMap());
 				parameters.put("links", links);
 			}
 
@@ -631,7 +610,7 @@ public class RealmEntity extends RealmObject {
 			parameters.put("linkCount", linkCounts);
 
 			/* Refs */
-			parameters.put("refs", Maps.asMap("_creator", "_id,name,photo,schema,type"));
+			parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
 		}
 	}
 

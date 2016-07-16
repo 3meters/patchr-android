@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,18 +31,14 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
-import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.collections.PatchScreen;
@@ -51,7 +48,6 @@ import com.patchr.ui.components.MenuTint;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -171,7 +167,12 @@ public abstract class BaseScreen extends AppCompatActivity {
 			cancelAction(false);
 		}
 		else if (item.getItemId() == R.id.report) {
-			Patchr.router.route(this, Command.REPORT, entity, null);
+			String message = String.format("Report on patch id: %1$s\n\nPlease add some detail on why you are reporting this patch.\n", entityId);
+			Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:report@patchr.com"));
+			email.putExtra(Intent.EXTRA_SUBJECT, "Report on Patchr content");
+			email.putExtra(Intent.EXTRA_TEXT, message);
+			startActivity(Intent.createChooser(email, "Send report using:"));
+			return true;
 		}
 		else if (item.getItemId() == R.id.logout) {
 			UserManager.shared().logout();
@@ -364,13 +365,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 			, android.R.string.ok
 			, android.R.string.cancel
 			, null
-			, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						remove(toId);
-					}
+			, (dlg, which) -> {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					remove(toId);
 				}
 			}
 			, null);
@@ -407,39 +404,27 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	protected void remove(final String toId) {
 
-		new AsyncTask() {
+		processing = true;
+		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
 
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncRemoveEntity");
-				final ModelResult result = DataController.getInstance()
-					.removeLinks(entity.id, toId, Constants.TYPE_LINK_CONTENT, entity.schema, "remove_entity_message", NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				isCancelled();
-				return result;
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				busyController.hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
-					Logger.i(this, "Removed entity: " + entity.id);
-					/*
-					 * We either go back to a list or to radar.
-					 */
-					UI.toast(StringManager.getString(R.string.alert_removed));
-					finish();
-				}
-				else {
-					Errors.handleError(BaseScreen.this, result.serviceResponse);
-				}
-				processing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().deleteLink(entityId, toId, Constants.TYPE_LINK_CONTENT)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
+						Logger.i(this, "Removed entity: " + entity.id);
+						UI.toast(StringManager.getString(R.string.alert_removed));
+						setResult(Constants.RESULT_ENTITY_DELETED);
+						finish();
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 
 	public static void position(final View view, final View header, final Integer headerHeightProjected) {

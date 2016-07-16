@@ -16,26 +16,17 @@ import android.telephony.TelephonyManager;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.exceptions.ClientVersionException;
-import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.enums.ConnectedState;
-import com.patchr.objects.enums.ResponseCode;
-import com.patchr.objects.ServiceData;
 import com.patchr.objects.enums.WifiApState;
-import com.patchr.service.OkHttp;
-import com.patchr.service.RequestType;
-import com.patchr.service.ResponseFormat;
-import com.patchr.service.ServiceRequest;
-import com.patchr.service.ServiceResponse;
-import com.patchr.ui.MainScreen;
-import com.patchr.utilities.Errors;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -85,6 +76,8 @@ public class NetworkManager {
 	 * request such as a violation of the http protocol.
 	 */
 
+	private final OkHttpClient client = new OkHttpClient();
+
 	/* monitor platform changes */
 	private IntentFilter      mNetworkStateChangedFilter;
 	private BroadcastReceiver mNetworkStateIntentReceiver;
@@ -95,16 +88,13 @@ public class NetworkManager {
 	private WifiManager         mWifiManager;
 	private ConnectivityManager mConnectivityManager;
 	private ConnectedState mConnectedState = ConnectedState.NORMAL;
-	private OkHttp mOkClient;
 
 	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 	public static final int    WIFI_AP_STATE_ENABLED        = 3;
 	public static final String SERVICE_GROUP_TAG_DEFAULT    = "service";
 
-	private NetworkManager() {
-		mOkClient = new OkHttp();
-	}
+	private NetworkManager() {}
 
 	private static class NetworkManagerHolder {
 		public static final NetworkManager instance = new NetworkManager();
@@ -118,7 +108,6 @@ public class NetworkManager {
 
 		mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
 		mConnectivityManager = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
 		/*
 		 * Setting system properties. Okhttp picks these up for its connection pooling unless
 		 * we have passed in a custom connection pool object.
@@ -139,9 +128,7 @@ public class NetworkManager {
 			@Override
 			public void onReceive(final Context context, final Intent intent) {
 				if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-
 					boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-
 					if (noConnection) {
 						UI.toast("Lost network connection");
 					}
@@ -150,71 +137,67 @@ public class NetworkManager {
 		};
 	}
 
-	public ServiceResponse request(final ServiceRequest serviceRequest) {
-		/*
-		 * This is always being called from a background (non main) thread.
-		 */
-		if (checkConnectedState() != ConnectedState.NORMAL) {
-			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
-		}
+	//	public ServiceResponse request(final ServiceRequest serviceRequest) {
+	//		/*
+	//		 * This is always being called from a background (non main) thread.
+	//		 */
+	//		if (checkConnectedState() != ConnectedState.NORMAL) {
+	//			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
+	//		}
+	//
+	//		if (UserManager.shared().authenticated()
+	//			&& (serviceRequest.getRequestType() != RequestType.GET
+	//			&& serviceRequest.getRequestType() != RequestType.DELETE)) {
+	//			serviceRequest.getParameters().putString("user", UserManager.userId);
+	//			serviceRequest.getParameters().putString("session", UserManager.sessionKey);
+	//		}
+	//
+	//		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
+	//
+	//		/* Check for valid client version and also capture service status code */
+	//		serviceResponse = clientVersionCheck(serviceRequest, serviceResponse);
+	//
+	//		/* Single point to handle request failures. */
+	//		if (serviceResponse.responseCode == ResponseCode.FAILED && serviceRequest.getErrorCheck()) {
+	//			serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
+	//			if (serviceRequest.getStopwatch() != null) {
+	//				serviceRequest.getStopwatch().segmentTime("Service call failed");
+	//			}
+	//			if (serviceResponse.exception != null) {
+	//				Logger.w(this, "Service exception: " + serviceResponse.exception.getClass().getSimpleName());
+	//				Logger.w(this, "Service exception: " + serviceResponse.exception.getLocalizedMessage());
+	//			}
+	//			else {
+	//				Logger.w(this, "Service error: (code: " + String.valueOf(serviceResponse.statusCode) + ") " + serviceResponse.statusMessage);
+	//			}
+	//		}
+	//
+	//		return serviceResponse;
+	//	}
 
-		if (UserManager.shared().authenticated()
-			&& (serviceRequest.getRequestType() != RequestType.GET
-			&& serviceRequest.getRequestType() != RequestType.DELETE)) {
-			serviceRequest.getParameters().putString("user", UserManager.userId);
-			serviceRequest.getParameters().putString("session", UserManager.sessionKey);
-		}
-
-		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
-
-		/* Check for valid client version and also capture service status code */
-		serviceResponse = clientVersionCheck(serviceRequest, serviceResponse);
-
-		/* Single point to handle request failures. */
-		if (serviceResponse.responseCode == ResponseCode.FAILED && serviceRequest.getErrorCheck()) {
-			serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
-			if (serviceRequest.getStopwatch() != null) {
-				serviceRequest.getStopwatch().segmentTime("Service call failed");
-			}
-			if (serviceResponse.exception != null) {
-				Logger.w(this, "Service exception: " + serviceResponse.exception.getClass().getSimpleName());
-				Logger.w(this, "Service exception: " + serviceResponse.exception.getLocalizedMessage());
-			}
-			else {
-				Logger.w(this, "Service error: (code: " + String.valueOf(serviceResponse.statusCode) + ") " + serviceResponse.statusMessage);
-			}
-		}
-
-		return serviceResponse;
-	}
-
-	public ServiceResponse clientVersionCheck(ServiceRequest serviceRequest, ServiceResponse serviceResponse) {
-		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
-			&& !serviceRequest.getIgnoreResponseData()
-			&& serviceResponse.exception == null
-			&& serviceResponse.data != null) {
-			/*
-			 * We think anything json is coming from the Aircandi service (except Bing)
-			 */
-			ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-
-			if (serviceData.error != null && serviceData.error.code != null) {
-				serviceResponse.statusCodeService = serviceData.error.code.floatValue();
-			}
-
-			if (serviceData.clientMinVersions != null && serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
-				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
-					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
-				}
-			}
-		}
-		return serviceResponse;
-	}
-
-	public Response get(String path, String query) {
-		return mOkClient.get(path, query);
-	}
+	//	public ServiceResponse clientVersionCheck(ServiceRequest serviceRequest, ServiceResponse serviceResponse) {
+	//		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
+	//			&& !serviceRequest.getIgnoreResponseData()
+	//			&& serviceResponse.exception == null
+	//			&& serviceResponse.data != null) {
+	//			/*
+	//			 * We think anything json is coming from the Aircandi service (except Bing)
+	//			 */
+	//			ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
+	//
+	//			if (serviceData.error != null && serviceData.error.code != null) {
+	//				serviceResponse.statusCodeService = serviceData.error.code.floatValue();
+	//			}
+	//
+	//			if (serviceData.clientMinVersions != null && serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
+	//				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+	//				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
+	//					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
+	//				}
+	//			}
+	//		}
+	//		return serviceResponse;
+	//	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Connectivity routines
@@ -290,14 +273,25 @@ public class NetworkManager {
 
 	public boolean isInternetReachable() {
 
-		Response response = get(Constants.URI_WALLED_GARDEN, null);
-		boolean success = (response != null && response.isSuccessful() && response.code() == 204);
-		if (!success) {
+		Response response = null;
+		try {
+			response = get(Constants.URI_WALLED_GARDEN, null);
+			boolean success = (response != null && response.isSuccessful() && response.code() == 204);
+			if (!success) {
 			/* We assume a failure means most likely not a walled garden */
-			String message = "Reachability check returned false";
-			Reporting.breadcrumb(message);
+				String message = "Reachability check returned false";
+				Reporting.breadcrumb(message);
+			}
+			return success;
 		}
-		return success;
+		catch (IOException e) {
+			return false;
+		}
+	}
+
+	public Response get(String uri, String query) throws IOException {
+		Request request = new Request.Builder().url(uri).build();
+		return client.newCall(request).execute();
 	}
 
 	private String getNetworkTypeLabel(Integer type, Integer subType) {

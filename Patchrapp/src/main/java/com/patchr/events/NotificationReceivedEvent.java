@@ -1,11 +1,11 @@
 package com.patchr.events;
 
-import com.patchr.objects.Notification;
+import com.patchr.model.RealmEntity;
 
 public class NotificationReceivedEvent {
-	public final Notification notification;
+	public final RealmEntity notification;
 
-	public NotificationReceivedEvent(Notification notification) {
+	public NotificationReceivedEvent(RealmEntity notification) {
 		this.notification = notification;
 	}
 }

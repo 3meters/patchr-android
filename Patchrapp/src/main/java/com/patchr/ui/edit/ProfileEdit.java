@@ -1,7 +1,6 @@
 package com.patchr.ui.edit;
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -21,33 +20,25 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Logger;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.PhoneNumber;
+import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
-import com.patchr.objects.User;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
-import com.patchr.objects.enums.PhotoCategory;
-import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
-import com.squareup.picasso.Picasso;
-
-import java.io.IOException;
 
 public class ProfileEdit extends BaseEdit {
 
@@ -120,6 +111,16 @@ public class ProfileEdit extends BaseEdit {
 		else {
 			super.onClick(view);
 		}
+	}
+
+	@Override public void submitAction() {
+
+		if (!isValid()) return;
+		if (processing) return;
+
+		SimpleMap parameters = new SimpleMap();
+		gather(parameters);
+		post(parameters);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -228,28 +229,6 @@ public class ProfileEdit extends BaseEdit {
 		}
 	}
 
-	@Override public void submitAction() {
-		if (!processing) {
-
-			if (inputState != null && inputState.equals(State.CompleteProfile)) {
-				if (isValid()) {
-					processing = true;
-					this.entity.role = "user";
-					update();
-				}
-			}
-			else if (inputState != null && inputState.equals(State.Onboarding)) {
-				if (isValid()) {
-					processing = true;
-					register();
-				}
-			}
-			else {                      // Covers both editing and profile completion
-				super.submitAction();   // Validates and updates the user (only if dirty)
-			}
-		}
-	}
-
 	@Override protected void gather(SimpleMap parameters) {
 		super.gather(parameters); // Handles name, description, photo
 
@@ -261,11 +240,137 @@ public class ProfileEdit extends BaseEdit {
 		}
 	}
 
-	@Override protected boolean afterUpdate() {
-		/* So our persisted user is up-to-date. Only called if update call was successful. */
-		entity.session = UserManager.currentSession;
-		UserManager.shared().setCurrentUser(entity, UserManager.currentSession);  // Updates persisted user too
-		return true;
+	protected void post(SimpleMap parameters) {
+
+		processing = true;
+		String path = entity == null ? "data/patches" : String.format("data/patches/%1$s", entity.id);
+		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, ProfileEdit.this);
+
+		if (parameters.containsKey("photo")) {
+			busyController.showHorizontalProgressBar(ProfileEdit.this);
+		}
+		else {
+			busyController.show(BusyController.BusyAction.Update);
+		}
+
+		AsyncTask.execute(() -> {
+
+			if (parameters.containsKey("photo")) {
+				Photo photo = (Photo) parameters.get("photo");
+				if (photo != null) {
+					Photo photoFinal = postPhoto(photo);
+					parameters.put("photo", photoFinal);
+				}
+			}
+
+			if (inputState.equals(State.Onboarding)) {
+				subscription = RestClient.getInstance().signup(parameters)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
+
+							/* We automatically consider the user signed in. */
+							final RealmEntity user = response.data.get(0);
+							UserManager.shared().setCurrentUser(user, user.session);
+
+							Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
+							Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
+							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + user.name);
+
+							setResult(Constants.RESULT_USER_LOGGED_IN);
+							finish();
+							AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			}
+			else if (inputState.equals(State.CompleteProfile)) {
+				this.entity.role = "user";
+			}
+			else {
+				subscription = RestClient.getInstance().postEntity(path, parameters)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
+							entity.session = UserManager.currentSession;
+							UserManager.shared().setCurrentUser(entity, UserManager.currentSession);  // Updates persisted user too
+							finish();
+							AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			}
+		});
+	}
+
+	@Override protected void delete() {
+
+		final String userName = entity.name;
+
+		processing = true;
+		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
+		String path = String.format("user/%1$s?erase=true", entityId);
+
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().deleteEntity(path, entityId)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
+						Logger.i(this, "Deleted user: " + entity.id);
+						UserManager.shared().setCurrentUser(null, null);
+						UserManager.shared().discardAuthHints();
+						Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+						UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
+						finish();
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
+	}
+
+	@Override public void confirmDelete() {
+
+		final EditText textConfirm = new EditText(this);
+
+		textConfirm.addTextChangedListener(new SimpleTextWatcher() {
+			@Override public void afterTextChanged(Editable s) {
+				submitDelete.setEnabled(s.toString().equals("YES"));
+			}
+		});
+
+		AlertDialog.Builder builder = new AlertDialog.Builder((this));
+
+		int padding = UI.getRawPixelsForDisplayPixels(20f);
+
+		builder.setView(textConfirm, padding, 0, padding, 0);
+		builder.setTitle(R.string.alert_delete_account_title);
+		builder.setMessage(R.string.alert_delete_account_message);
+		builder.setPositiveButton("Delete", (dialog, which) -> {
+			delete();
+		});
+
+		builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+			/* do nothing */
+		});
+
+		AlertDialog dialog = builder.create();
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
+		submitDelete = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		submitDelete.setEnabled(false);
 	}
 
 	@Override protected boolean isValid() {
@@ -278,199 +383,7 @@ public class ProfileEdit extends BaseEdit {
 		return true;
 	}
 
-	protected void register() {
-
-		Logger.d(this, "Inserting user: " + entity.name);
-
-		taskService = new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-//					busyController.showHorizontalProgressBar(ProfileEdit.this);
-//				}
-//				else {
-//					busyController.show(BusyController.BusyAction.Update);
-//				}
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncInsertUser");
-
-				Bitmap bitmap = null;
-				if (entity.getPhoto() != null) {
-
-					/* Synchronous call to get the bitmap */
-					try {
-						bitmap = Picasso.with(Patchr.applicationContext)
-							.load(entity.getPhoto().uri(PhotoCategory.STANDARD))
-							.centerInside()
-							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-							.get();
-
-						if (isCancelled()) return null;
-					}
-					catch (OutOfMemoryError error) {
-						/*
-						 * We make attempt to recover by giving the vm another chance to
-						 * garbage collect plus reduce the image size in memory by 75%.
-						 */
-						System.gc();
-						try {
-							bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.getPhoto().uri(PhotoCategory.STANDARD))
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-								.get();
-
-							if (isCancelled()) return null;
-						}
-						catch (IOException ignore) {}
-					}
-					catch (IOException ignore) {
-						/*
-						 * This is where we are ignoring exceptions like our reset problem with picasso. This
-						 * can happen pulling an image from the network or from a local file.
-						 */
-						Reporting.breadcrumb("Picasso failed to load bitmap");
-						if (isCancelled()) return null;
-					}
-
-					if (bitmap == null) {
-						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
-						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyController.hide(true);
-						return result;
-					}
-				}
-
-				//				ModelResult result = DataController.getInstance().registerUser((User) entity
-				//						, (entity.photo != null) ? bitmap : null, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				ModelResult result = new ModelResult();
-
-				return !isCancelled() ? result : null;
-			}
-
-			@Override protected void onCancelled(Object response) {
-				/*
-				 * Stopping Points (interrupt was triggered on background thread)
-				 * - When task is pulled from queue (if waiting)
-				 * - Between service and s3 calls.
-				 * - During service calls assuming okhttp catches the interrupt.
-				 * - During image upload to s3 if CancelEvent is sent via bus.
-				 */
-				busyController.hide(true);
-				UI.toast(StringManager.getString(R.string.alert_cancelled));
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				busyController.hide(true);
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-					/* We automatically consider the user signed in. */
-					final User user = (User) result.data;
-					//UserManager.shared().setCurrentUser(user, user.session, false);
-
-					Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
-					Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
-					UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + user.name);
-
-					setResult(Constants.RESULT_USER_LOGGED_IN);
-					finish();
-					AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
-				}
-				else {
-					Errors.handleError(ProfileEdit.this, result.serviceResponse);
-					if (result.serviceResponse.errorResponse != null) {
-						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.setPhoto(null);
-							bindPhoto(null);
-						}
-					}
-				}
-				processing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	protected void deleteUser() {
-
-		final String userName = entity.name;
-
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncDeleteEntity");
-				return DataController.getInstance().deleteUser(entity.id, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				processing = false;
-				busyController.hide(true);
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
-					Logger.i(this, "Deleted user: " + entity.id);
-					UserManager.shared().setCurrentUser(null, null);
-					UserManager.shared().discardAuthHints();
-					Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
-					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
-					finish();
-				}
-				else {
-					Errors.handleError(ProfileEdit.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
 	@Override protected int getLayoutId() {
 		return R.layout.edit_profile;
-	}
-
-	@Override public void confirmDelete() {
-
-		final EditText textConfirm = new EditText(this);
-		textConfirm.addTextChangedListener(new SimpleTextWatcher() {
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				submitDelete.setEnabled(s.toString().equals("YES"));
-			}
-		});
-
-		AlertDialog.Builder builder = new AlertDialog.Builder((this));
-
-		int padding = UI.getRawPixelsForDisplayPixels(20f);
-
-		builder.setView(textConfirm, padding, 0, padding, 0);
-		builder.setTitle(R.string.alert_delete_account_title);
-		builder.setMessage(R.string.alert_delete_account_message);
-		builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-			@Override public void onClick(DialogInterface dialog, int which) {
-				deleteUser();
-			}
-		});
-
-		builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override public void onClick(DialogInterface dialog, int which) { /* do nothing */}
-		});
-
-		AlertDialog dialog = builder.create();
-		dialog.setCanceledOnTouchOutside(false);
-		dialog.show();
-		submitDelete = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		submitDelete.setEnabled(false);
 	}
 }

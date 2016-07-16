@@ -12,7 +12,8 @@ import android.text.Html;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.objects.Notification;
+import com.patchr.model.RealmEntity;
+import com.patchr.objects.enums.EventCategory;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Reporting;
@@ -30,8 +31,8 @@ public class NotificationManager {
 
 	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 	private Uri mSoundUri;
-	private Integer                   mNewNotificationCount = 0;
-	private Map<String, Notification> mNotifications        = new HashMap<>();
+	private Integer                  mNewNotificationCount = 0;
+	private Map<String, RealmEntity> mNotifications        = new HashMap<>();
 
 	private NotificationManager() {
 		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -50,11 +51,11 @@ public class NotificationManager {
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void broadcastNotification(final Notification notification) {
+	public void broadcastNotification(final RealmEntity notification) {
 		Dispatcher.getInstance().post(new NotificationReceivedEvent(notification));
 	}
 
-	public void statusNotification(final Notification notification, Context context) {
+	public void statusNotification(final RealmEntity notification, Context context) {
 	    /*
 		 * Small icon displays on left unless a large icon is specified
 		 * and then it moves to the right.
@@ -70,44 +71,44 @@ public class NotificationManager {
 		notification.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		PendingIntent pendingIntent = TaskStackBuilder
-				.create(Patchr.applicationContext)
-				.addNextIntent(new Intent(Patchr.applicationContext, MainScreen.class))
-				.addNextIntent(notification.intent)
-				.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
+			.create(Patchr.applicationContext)
+			.addNextIntent(new Intent(Patchr.applicationContext, MainScreen.class))
+			.addNextIntent(notification.intent)
+			.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		/* Default base notification configuration */
 
 		PendingIntent deleteIntent = PendingIntent.getBroadcast(Patchr.applicationContext
-				, 0
-				, new Intent(NOTIFICATION_DELETED_ACTION)
-				, 0);
+			, 0
+			, new Intent(NOTIFICATION_DELETED_ACTION)
+			, 0);
 
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patchr.applicationContext)
-				.setContentTitle(StringManager.getString(R.string.name_app))
-				.setContentText(Html.fromHtml(notification.summary))
-				.setDeleteIntent(deleteIntent)
-				.setNumber(mNewNotificationCount)
-				.setSmallIcon(R.drawable.ic_stat_notification)
-				.setAutoCancel(true)
-				.setPriority(NotificationCompat.PRIORITY_HIGH)
-				.setVibrate(new long[]{0, 400, 400, 400})
-				.setSound(mSoundUri)
-				.setOnlyAlertOnce(false)
-				.setContentIntent(pendingIntent)
-				.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE)
-				.setWhen(System.currentTimeMillis());
+			.setContentTitle(StringManager.getString(R.string.name_app))
+			.setContentText(Html.fromHtml(notification.summary))
+			.setDeleteIntent(deleteIntent)
+			.setNumber(mNewNotificationCount)
+			.setSmallIcon(R.drawable.ic_stat_notification)
+			.setAutoCancel(true)
+			.setPriority(NotificationCompat.PRIORITY_HIGH)
+			.setVibrate(new long[]{0, 400, 400, 400})
+			.setSound(mSoundUri)
+			.setOnlyAlertOnce(false)
+			.setContentIntent(pendingIntent)
+			.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE)
+			.setWhen(System.currentTimeMillis());
 
 		/* Large icon */
-		if (notification.photo != null) {
-			String url = notification.photo.uri(PhotoCategory.PROFILE);
+		if (notification.getPhoto() != null) {
+			String url = notification.getPhoto().uri(PhotoCategory.PROFILE);
 
 			try {
 				@SuppressWarnings("SuspiciousNameCombination")
 				Bitmap bitmap = Picasso.with(Patchr.applicationContext)
-				                               .load(url)
-				                               .centerCrop()
-				                               .resizeDimen(R.dimen.notification_tray_large_icon_width, R.dimen.notification_tray_large_icon_width)
-				                               .get();
+					.load(url)
+					.centerCrop()
+					.resizeDimen(R.dimen.notification_tray_large_icon_width, R.dimen.notification_tray_large_icon_width)
+					.get();
 
 				builder.setLargeIcon(bitmap);
 			}
@@ -125,36 +126,36 @@ public class NotificationManager {
 		}
 
 		/* Big photo or text - photo trumps text */
-		if (notification.photoBig != null) {
+		if (notification.getPhotoBig() != null) {
 			useBigPicture(builder, notification);
 		}
 		else if (notification.description != null) {
 			useBigText(builder, notification);
 		}
 		else {
-			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+			String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
 			mNotificationService.notify(tag, 0, builder.build());
 		}
 	}
 
-	public void useBigPicture(final NotificationCompat.Builder builder, final Notification notification) {
+	public void useBigPicture(final NotificationCompat.Builder builder, final RealmEntity notification) {
 
-		final String url = notification.photoBig.uri(PhotoCategory.STANDARD);
+		final String url = notification.getPhotoBig().uri(PhotoCategory.STANDARD);
 
 		try {
 			Bitmap bitmap = Picasso.with(Patchr.applicationContext)
-			                               .load(url)
-			                               .centerCrop()
-			                               .resizeDimen(R.dimen.notification_tray_big_picture_width, R.dimen.notification_tray_big_picture_height)
-			                               .get();
+				.load(url)
+				.centerCrop()
+				.resizeDimen(R.dimen.notification_tray_big_picture_width, R.dimen.notification_tray_big_picture_height)
+				.get();
 
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
-					.bigPicture(bitmap)
-					.setBigContentTitle(notification.name)
-					.setSummaryText(Html.fromHtml(notification.subtitle));
+				.bigPicture(bitmap)
+				.setBigContentTitle(notification.name)
+				.setSummaryText(Html.fromHtml(notification.subtitle));
 
 			builder.setStyle(style);
-			String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+			String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
 			mNotificationService.notify(tag, 0, builder.build());
 		}
 		catch (ConnectException e) {
@@ -165,16 +166,16 @@ public class NotificationManager {
 		}
 	}
 
-	public void useBigText(NotificationCompat.Builder builder, Notification notification) {
+	public void useBigText(NotificationCompat.Builder builder, RealmEntity notification) {
 
 		NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
-				.setBigContentTitle(notification.name)
-				.bigText(Html.fromHtml(notification.description))
-				.setSummaryText(Html.fromHtml(notification.subtitle));
+			.setBigContentTitle(notification.name)
+			.bigText(Html.fromHtml(notification.description))
+			.setSummaryText(Html.fromHtml(notification.subtitle));
 
 		builder.setStyle(style);
 
-		String tag = notification.getEventCategory().equals(Notification.EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
+		String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
 		mNotificationService.notify(tag, 0, builder.build());
 	}
 
@@ -202,7 +203,7 @@ public class NotificationManager {
 		mNewNotificationCount = newNotificationCount;
 	}
 
-	public Map<String, Notification> getNotifications() {
+	public Map<String, RealmEntity> getNotifications() {
 		return mNotifications;
 	}
 

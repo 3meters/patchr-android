@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.CacheStamp;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Utils;
 
@@ -22,7 +21,6 @@ public class PatchView extends BaseView {
 	private static final Object lock = new Object();
 
 	public    RealmEntity entity;
-	protected CacheStamp  cacheStamp;
 	protected Integer     layoutResId;
 
 	protected ViewGroup   layout;

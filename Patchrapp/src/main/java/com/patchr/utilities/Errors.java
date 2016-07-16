@@ -15,7 +15,7 @@ import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.Command;
-import com.patchr.objects.ProxibaseError;
+import com.patchr.service.ProxibaseError;
 import com.patchr.service.ServiceResponse;
 
 import org.apache.http.conn.ConnectTimeoutException;

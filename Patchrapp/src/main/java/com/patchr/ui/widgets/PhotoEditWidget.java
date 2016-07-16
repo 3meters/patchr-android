@@ -96,6 +96,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 	}
 
 	@Override public void onError() {
+		/* When handling callbacks, need to add offline/fetch cascade */
 		UI.toast(StringManager.getString(R.string.label_photo_missing));
 	}
 

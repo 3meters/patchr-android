@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,21 +28,25 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
+import com.patchr.components.Logger;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
-import com.patchr.objects.Entity;
+import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.PatchType;
 import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.InviteScreen;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -119,7 +124,7 @@ public class PatchEdit extends BaseEdit {
 		if (item.getItemId() == R.id.delete) {
 			confirmDelete();
 		}
-		else if (item.getItemId() == R.id.submit) {
+		else if (item.getItemId() == R.id.submit || item.getItemId() == R.id.next) {
 			submitAction();
 		}
 		else {
@@ -162,6 +167,16 @@ public class PatchEdit extends BaseEdit {
 	@Override protected void onSaveInstanceState(@NonNull Bundle outState) {
 		if (mapView != null) mapView.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override public void submitAction() {
+
+		if (!isValid()) return;
+		if (processing) return;
+
+		SimpleMap parameters = new SimpleMap();
+		gather(parameters);
+		post(parameters);
 	}
 
 	public void onCreateButtonClick(View view) {
@@ -392,6 +407,7 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	public void gather(SimpleMap parameters) {
+		super.gather(parameters);   // name, photo, description
 
 		Location location = (Location) mapView.getTag();
 		if (location != null) {
@@ -402,20 +418,43 @@ public class PatchEdit extends BaseEdit {
 		parameters.put("visibility", buttonPrivacy.getTag());
 	}
 
-	@Override protected boolean afterInsert(Entity insertedEntity) {
+	protected void post(SimpleMap parameters) {
 
-	    /* Only called if the insert was successful. Called on main ui thread. */
-		if (insertedResId != null && insertedResId != 0) {
-			UI.toast(StringManager.getString(insertedResId));
-		}
+		processing = true;
+		String path = entity == null ? "data/patches" : String.format("data/patches/%1$s", entity.id);
+		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, PatchEdit.this);
 
-		Bundle extras = new Bundle();
-		final String jsonEntity = Json.objectToJson(insertedEntity);
-		extras.putString(Constants.EXTRA_ENTITY, jsonEntity);
-		startActivity(new Intent(this, InviteScreen.class).putExtras(extras));
-		finish();
+		AsyncTask.execute(() -> {
 
-		return false;       // We are handling the finish
+			if (parameters.containsKey("photo")) {
+				Photo photo = (Photo) parameters.get("photo");
+				if (photo != null) {
+					Photo photoFinal = postPhoto(photo);
+					parameters.put("photo", photoFinal);
+				}
+			}
+
+			subscription = RestClient.getInstance().postEntity(path, parameters)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						if (inputState.equals(State.Creating)) {
+							UI.toast(StringManager.getString(insertedResId));
+							String entityId = response.data.get(0).id;
+							Intent intent = new Intent(this, InviteScreen.class)
+								.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+							startActivity(intent);
+						}
+						finish();
+						AnimationManager.doOverridePendingTransition(PatchEdit.this, TransitionType.FORM_BACK);
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 
 	@Override protected boolean isValid() {

@@ -1,6 +1,5 @@
 package com.patchr.ui.edit;
 
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,20 +12,16 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
-import com.patchr.components.S3;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
-import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
-import com.patchr.service.ServiceResponse;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,26 +159,10 @@ public class MessageEdit extends BaseEdit {
 		AsyncTask.execute(() -> {
 
 			if (parameters.containsKey("photo")) {
-
 				Photo photo = (Photo) parameters.get("photo");
-				Bitmap bitmap = Photo.getBitmapForPhoto(photo);
-				if (bitmap == null) {
-					processing = false;
-					busyController.hide(true);
-					Logger.w(this, "Failed to download bitmap from the network");
-					return;
-				}
-
-				/* Make sure the bitmap is less than or equal to the maximum size we want to persist. */
-				bitmap = UI.ensureBitmapScaleForS3(bitmap);
-
-				/* Push it to S3. It is always formatted/compressed as a jpeg. */
-				String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
-				ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
-
-				/* Update the photo object for the entity or user */
-				if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					parameters.put("photo", new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images));
+				if (photo != null) {
+					Photo photoFinal = postPhoto(photo);
+					parameters.put("photo", photoFinal);
 				}
 			}
 

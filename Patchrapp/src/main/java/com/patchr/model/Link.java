@@ -2,14 +2,13 @@ package com.patchr.model;
 
 import java.util.Map;
 
-import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class Link extends RealmObject {
+public class Link {
 
 	/* Service persisted fields */
 	@PrimaryKey
-	public String id;
+	public String  id;
 	public String  type;
 	public String  fromId;
 	public String  fromSchema;

@@ -4,6 +4,8 @@ import android.os.Build;
 import android.util.Base64;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.parse.ParseInstallation;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -60,10 +62,12 @@ public class RestClient {
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
 			OkHttpClient client = httpClient.build();
 
+			Gson gson = new GsonBuilder().serializeNulls().create();
+
 			Retrofit retrofitProxi = new Retrofit.Builder()
 				.baseUrl("https://api.aircandi.com/v1/")
 				.client(client)
-				.addConverterFactory(GsonConverterFactory.create())
+				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
 				.build();
 
@@ -72,7 +76,7 @@ public class RestClient {
 			Retrofit retrofitBing = new Retrofit.Builder()
 				.baseUrl("https://api.datamarket.azure.com/Bing/Search/v1/")
 				.client(client)
-				.addConverterFactory(GsonConverterFactory.create())
+				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
 				.build();
 
@@ -535,6 +539,16 @@ public class RestClient {
 	 * User and install
 	 *--------------------------------------------------------------------------------------------*/
 
+	public Observable<ProxibaseResponse> signup(SimpleMap data) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("data", data);
+		parameters.put("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
+		parameters.put("installId", Patchr.getInstance().getinstallId());
+
+		return postEntity("user/create", parameters);
+	}
+
 	public Observable<ProxibaseResponse> logout(String userId, String sessionKey) {
 
 		SimpleMap parameters = new SimpleMap();
@@ -557,6 +571,22 @@ public class RestClient {
 				String sessionKey = response.session.key;
 				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
 			})
+			.doOnNext(response -> {
+				RealmEntity user = response.data.get(0);
+				Session session = response.session;
+				UserManager.shared().setCurrentUser(user, session);
+			});
+	}
+
+	public Observable<ProxibaseResponse> tokenLogin(String token, String authType) {
+
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("authorization_code", token);
+		parameters.put("getEntities", true);
+		parameters.put("install", Patchr.getInstance().getinstallId());
+		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, parameters);
+
+		return post("auth/ak", parameters, null, null, true)
 			.doOnNext(response -> {
 				RealmEntity user = response.data.get(0);
 				Session session = response.session;

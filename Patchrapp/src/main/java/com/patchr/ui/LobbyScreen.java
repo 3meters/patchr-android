@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,25 +30,19 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.DataController;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.RegisterInstallEvent;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.User;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.Preference;
-import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.InsetViewTransformer;
 import com.patchr.ui.edit.LoginEdit;
@@ -57,8 +50,6 @@ import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -257,7 +248,7 @@ public class LobbyScreen extends AppCompatActivity {
 		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 
 		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
-			Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
+			//Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
 		}
 	}
 
@@ -328,7 +319,8 @@ public class LobbyScreen extends AppCompatActivity {
 				AppLinkData.fetchDeferredAppLinkData(this,
 					new AppLinkData.CompletionHandler() {
 
-						@Override public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+						@Override
+						public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
 							if (appLinkData != null) {
 								String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
 								if (targetUrlString != null) {
@@ -357,7 +349,6 @@ public class LobbyScreen extends AppCompatActivity {
 			@Override public void run() {
 
 				/* Always reset the entity cache */
-				DataController.getInstance().clearStore();
 				LocationManager.getInstance().stop();
 				LocationManager.getInstance().setAndroidLocationLocked(null);
 
@@ -416,7 +407,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 	public void completeProfile(RealmEntity entity) {
 
-		final String jsonEntity = Json.objectToJson(entity);
+		final String jsonEntity = Patchr.gson.toJson(entity);
 		Intent intent = new Intent(this, ProfileEdit.class);
 		intent.putExtra(Constants.EXTRA_STATE, State.CompleteProfile);
 		intent.putExtra(Constants.EXTRA_ENTITY, jsonEntity);
@@ -504,80 +495,71 @@ public class LobbyScreen extends AppCompatActivity {
 
 	public void loginUsingAuthCode(final String authorizationCode) {
 
-		new AsyncTask() {
+		busyPresenter.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LobbyScreen.this);
 
-			@Override protected void onPreExecute() {
-				busyPresenter.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LobbyScreen.this);
-			}
+		RestClient.getInstance().tokenLogin(authorizationCode, authType)
+			.subscribe(
+				response -> {
+					busyPresenter.hide(true);
+					if (response.isSuccessful()) {
+						if (authIntent.equals(State.Login)) {
+							if (UserManager.shared().provisional()) {
+								/* User meant to login but got a new account instead. */
+								Logger.i(this, "User tried to login but got new account instead");
+								final AlertDialog dialog = Dialogs.alertDialog(R.drawable.ic_launcher
+									, "Log in"
+									, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email)
+									, null
+									, LobbyScreen.this
+									, R.string.dialog_no_account_exists_positive
+									, R.string.dialog_no_account_exists_cancel
+									, null
+									, new DialogInterface.OnClickListener() {
 
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncLogin");
-				ModelResult result = DataController.getInstance().tokenLogin(authorizationCode
-					, authType
-					, LoginEdit.class.getSimpleName()
-					, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				busyPresenter.hide(true);
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (authIntent.equals(State.Login)) {
-						if (UserManager.shared().provisional()) {
-							/* User meant to login but got a new account instead. */
-							Logger.i(this, "User tried to login but got new account instead");
-							final AlertDialog dialog = Dialogs.alertDialog(R.drawable.ic_launcher
-								, "Log in"
-								, String.format("No account exists for %1$s. Enter the same email address you entered when you created your account.", UserManager.currentUser.email)
-								, null
-								, LobbyScreen.this
-								, R.string.dialog_no_account_exists_positive
-								, R.string.dialog_no_account_exists_cancel
-								, null
-								, new DialogInterface.OnClickListener() {
-
-									@Override public void onClick(DialogInterface dialog, int which) {
-										if (which == DialogInterface.BUTTON_POSITIVE) {
-											dialog.dismiss();
-										}
-										else if (which == DialogInterface.BUTTON_NEGATIVE) {
-											completeProfile(UserManager.currentUser);
-											dialog.dismiss();
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											if (which == DialogInterface.BUTTON_POSITIVE) {
+												dialog.dismiss();
+											}
+											else if (which == DialogInterface.BUTTON_NEGATIVE) {
+												completeProfile(UserManager.currentUser);
+												dialog.dismiss();
+											}
 										}
 									}
-								}
-								, null);
+									, null);
 
-							dialog.setCanceledOnTouchOutside(false);
-							dialog.show();
+								dialog.setCanceledOnTouchOutside(false);
+								dialog.show();
+							}
+							else {
+								Logger.i(this, "User logged in: " + UserManager.currentUser.name);
+								UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+								startHomeActivity();
+							}
 						}
-						else {
-							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
-							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-							startHomeActivity();
-						}
-					}
-					else if (authIntent.equals(State.Signup)) {
-						if (!UserManager.shared().provisional()) {
+						else if (authIntent.equals(State.Signup)) {
+							if (!UserManager.shared().provisional()) {
 							/* User meant to signup but got an existing account instead. */
-							Logger.i(this, "User tried to sign up but got an existing account instead");
-							Logger.i(this, "User logged in: " + UserManager.currentUser.name);
-							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-							startHomeActivity();
-							finish();
-						}
-						else {
-							completeProfile(UserManager.currentUser);
+								Logger.i(this, "User tried to sign up but got an existing account instead");
+								Logger.i(this, "User logged in: " + UserManager.currentUser.name);
+								UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+								startHomeActivity();
+								finish();
+							}
+							else {
+								completeProfile(UserManager.currentUser);
+							}
 						}
 					}
-				}
-				else {
-					Errors.handleError(LobbyScreen.this, result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+					else {
+						Logger.w(this, response.error.message);
+					}
+				},
+				error -> {
+					busyPresenter.hide(true);
+					Logger.w(this, error.getLocalizedMessage());
+				});
 	}
 
 	private void showButtons() {
@@ -595,9 +577,9 @@ public class LobbyScreen extends AppCompatActivity {
 			TextView userAuthIdentifier = (TextView) findViewById(R.id.user_auth_identifier);
 			UI.setVisibility(authButton, View.GONE);
 			UI.setVisibility(guestButton, View.GONE);
-			if (UserManager.authUserHint != null && ((User) UserManager.authUserHint).name != null) {
+			if (UserManager.authUserHint != null && ((RealmEntity) UserManager.authUserHint).name != null) {
 				UI.setImageWithEntity(userPhoto, (RealmEntity) UserManager.authUserHint);
-				UI.setTextView(userName, String.format("Log in as %1$s", ((User) UserManager.authUserHint).name));
+				UI.setTextView(userName, String.format("Log in as %1$s", ((RealmEntity) UserManager.authUserHint).name));
 				UI.setTextView(userAuthIdentifier, (String) UserManager.authIdentifierHint);
 			}
 			else {

@@ -6,9 +6,9 @@ import java.util.Map;
  * @author Jayma
  */
 @SuppressWarnings("ucd")
-public class Session extends ServiceBase {
+public class Session {
 
-	private static final long   serialVersionUID = 127428776257201066L;
+	private static final long serialVersionUID = 127428776257201066L;
 
 	public String key;
 
@@ -20,7 +20,6 @@ public class Session extends ServiceBase {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
-		session = (Session) ServiceBase.setPropertiesFromMap(session, map);
 		session.key = (String) map.get("key");
 		session.expirationDate = (Number) map.get("expirationDate");
 

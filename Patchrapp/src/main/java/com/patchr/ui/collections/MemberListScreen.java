@@ -5,17 +5,14 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
-import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.components.DataController;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
+import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
+import com.patchr.model.Link;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.Entity;
-import com.patchr.objects.enums.ResponseCode;
+import com.patchr.service.RestClient;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 
 import static com.patchr.objects.enums.FetchMode.AUTO;
@@ -32,7 +29,7 @@ public class MemberListScreen extends BaseListScreen {
 
 	public void onClick(View view) {
 		if (view.getId() == R.id.remove_button) {
-			final Entity entity = (Entity) view.getTag();
+			final RealmEntity entity = (RealmEntity) view.getTag();
 			removeRequestAction(entity);
 		}
 		else {
@@ -44,15 +41,17 @@ public class MemberListScreen extends BaseListScreen {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public void removeRequestAction(final Entity entity) {
+	public void removeRequestAction(final RealmEntity entity) {
 
-		Integer messageResId = entity.linkEnabled
+		Link link = entity.getLink();
+
+		Integer messageResId = link.enabled
 		                       ? R.string.dialog_decline_approved_private_message
 		                       : R.string.dialog_decline_requested_private_message;
-		Integer okResId = entity.linkEnabled
+		Integer okResId = link.enabled
 		                  ? R.string.dialog_decline_approved_private_ok
 		                  : R.string.dialog_decline_requested_private_ok;
-		Integer cancelResId = entity.linkEnabled
+		Integer cancelResId = link.enabled
 		                      ? R.string.dialog_decline_approved_private_cancel
 		                      : R.string.dialog_decline_requested_private_cancel;
 
@@ -70,7 +69,7 @@ public class MemberListScreen extends BaseListScreen {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
-						removeRequest(entity.id);
+						removeRequest(link.id);
 						dialog.dismiss();
 					}
 					else if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -84,36 +83,21 @@ public class MemberListScreen extends BaseListScreen {
 		declineDialog.show();
 	}
 
-	public void removeRequest(final String fromId) {
+	public void removeRequest(final String linkId) {
 
-		final String actionEvent = "declined_watch_entity";
-
-		new AsyncTask() {
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncWatchEntity");
-				return DataController.getInstance().deleteLink(fromId
-					, entity.id
-					, Constants.TYPE_LINK_MEMBER
-					, false
-					, entity.schema
-					, actionEvent, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				if (isFinishing()) return;
-				ModelResult result = (ModelResult) response;
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
-					fetch(AUTO);
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-						&& result.serviceResponse.statusCodeService != Constants.SERVICE_STATUS_CODE_FORBIDDEN_DUPLICATE) {
-						Errors.handleError(MemberListScreen.this, result.serviceResponse);
-					}
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().deleteLinkById(linkId)
+				.subscribe(
+					response -> {
+						Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
+						realm.executeTransaction(realm -> {
+							entity.linkJson = null;
+						});
+						fetch(AUTO);
+					},
+					error -> {
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 }

@@ -8,7 +8,6 @@ import com.patchr.Patchr;
 import com.patchr.components.BranchProvider;
 import com.patchr.components.LocationManager;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.ProximityController;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.WifiApState;
@@ -42,9 +41,6 @@ public class Reporting {
 			Bugsnag.addToTab("location", "age_in_secs", "--");
 			Bugsnag.addToTab("location", "provider", "No locked location");
 		}
-
-		/* Proximity */
-		Bugsnag.addToTab("proximity", "beacons_visible", ProximityController.getInstance().getWifiList().size());
 
 		/* Wifi state */
 

@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 
+import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
 import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -32,9 +33,7 @@ import com.google.gson.Gson;
 import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
-import com.patchr.components.ActivityRecognitionManager;
 import com.patchr.components.ContainerManager;
-import com.patchr.components.DataController;
 import com.patchr.components.Foreground;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
@@ -129,11 +128,18 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
 
+		/* Init Creative Sdk */
+		AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
+
 		AsyncTask.execute(() -> {
 
 			/* Make sure setting defaults are initialized */
 			PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+
+			/* Start preloading assets */
+			Intent cdsIntent = AdobeImageIntent.createCdsInitIntent(getBaseContext(), "CDS");
+			startService(cdsIntent);
 
 			/* Make sure unique id is initialized */
 			initializeInstallInfo();
@@ -188,9 +194,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			/* Stash gson */
 			gson = new Gson();
 
-			/* Warmup DataController */
-			DataController.getInstance().warmup();
-
 			/* Warmup media manager */
 			MediaManager.warmup();
 
@@ -199,9 +202,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			/* Must come after managers are initialized */
 			UserManager.shared().loginAuto();
-
-			/* Start activity recognition */
-			ActivityRecognitionManager.getInstance().initialize(applicationContext);
 		});
 	}
 
@@ -280,9 +280,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			String accessKey = container.getString(AWS_ACCESS_KEY);
 			String secretKey = container.getString(AWS_SECRET_KEY);
 			awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-
-			/* Init Creative Sdk */
-			AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
 		}
 	}
 

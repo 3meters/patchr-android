@@ -38,7 +38,6 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.CacheStamp;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
@@ -85,7 +84,6 @@ public class MainScreen extends BaseScreen {
 	protected TextView    userArea;
 	protected TextView    authIdentifierLabel;
 	protected TextView    authIdentifier;
-	protected CacheStamp  cacheStamp;
 
 	protected DrawerLayout          drawerLayout;
 	protected ActionBarDrawerToggle drawerToggle;
@@ -636,12 +634,6 @@ public class MainScreen extends BaseScreen {
 
 				nextFragmentTag = currentFragmentTag;
 				Patchr.router.route(this, Command.SETTINGS, null, null);
-				return;
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_FEEDBACK)) {
-
-				nextFragmentTag = currentFragmentTag;
-				Patchr.router.route(this, Command.FEEDBACK, null, null);
 				return;
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {

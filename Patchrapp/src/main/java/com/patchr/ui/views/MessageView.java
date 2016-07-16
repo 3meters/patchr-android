@@ -124,8 +124,8 @@ public class MessageView extends BaseView {
 			}
 
 			/* User */
-			this.userPhotoView.setImageWithPhoto(entity.creator.getPhoto(), entity.creator.name, null);
-			setOrGone(this.userName, entity.creator.name);
+			this.userPhotoView.setImageWithPhoto(entity.owner.getPhoto(), entity.owner.name, null);
+			setOrGone(this.userName, entity.owner.name);
 
 			/* Create date */
 			String dateFormatted = null;

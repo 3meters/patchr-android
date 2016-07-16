@@ -12,9 +12,8 @@ import com.patchr.BuildConfig;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.RealmEntity;
-import com.patchr.objects.CacheStamp;
 import com.patchr.model.PhoneNumber;
+import com.patchr.model.RealmEntity;
 import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
@@ -25,7 +24,6 @@ public class UserDetailView extends BaseView {
 	private static final Object lock = new Object();
 
 	public    RealmEntity user;
-	protected CacheStamp  cacheStamp;
 	protected ViewGroup   layout;
 
 	protected Integer  layoutResId   = R.layout.view_profile_header;

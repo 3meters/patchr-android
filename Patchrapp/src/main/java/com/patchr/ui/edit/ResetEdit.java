@@ -1,6 +1,5 @@
 package com.patchr.ui.edit;
 
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -15,22 +14,16 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.DataController;
 import com.patchr.components.Logger;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
-import com.patchr.objects.enums.ResponseCode;
-import com.patchr.objects.ServiceData;
-import com.patchr.objects.User;
+import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -38,8 +31,6 @@ import com.patchr.utilities.Utils;
 import java.util.Locale;
 
 public class ResetEdit extends BaseEdit {
-
-	private User user;
 
 	private String  inputToken;
 	private String  inputUserName;
@@ -232,140 +223,112 @@ public class ResetEdit extends BaseEdit {
 	}
 
 	protected void validateEmail() {
-		if (this.processing) return;
-		this.processing = true;
 
-		Logger.d(this, "Verifying email for password reset");
+		if (!this.processing) {
+			this.processing = true;
 
-		final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
+			Logger.d(this, "Verifying email for password reset");
+			final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+			UI.hideSoftInput(ResetEdit.this.emailField);
 
-		new AsyncTask() {
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().validEmail(email)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
 
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
-				UI.hideSoftInput(ResetEdit.this.emailField);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncRequestPasswordReset");
-				ModelResult result = DataController.getInstance().validateEmail(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				processing = false;
-				busyController.hide(false);
-
-				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					Errors.handleError(ResetEdit.this, result.serviceResponse);
-				}
-				else {
-					ServiceData serviceData = (ServiceData) result.serviceResponse.data;
-					if (serviceData.count.intValue() != 0) {
-						title.setText(R.string.form_title_reset_request_reset);
-						submitButton.setText("Send password reset email");
-						emailField.setEnabled(false);
-						emailValidated = true;
-					}
-					else {
-						Dialogs.alert("Email address not found.", ResetEdit.this);
-					}
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+							if (response.data != null && response.count.intValue() != 0) {
+								title.setText(R.string.form_title_reset_request_reset);
+								submitButton.setText("Send password reset email");
+								emailField.setEnabled(false);
+								emailValidated = true;
+							}
+							else {
+								Dialogs.alert("Email address not found.", ResetEdit.this);
+							}
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			});
+		}
 	}
 
 	protected void resetEmail() {
 
-		if (this.processing) return;
-		this.processing = true;
+		if (!this.processing) {
+			this.processing = true;
 
-		Logger.d(this, "Requesting password reset email");
+			Logger.d(this, "Requesting password reset email");
+			final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
+			UI.hideSoftInput(ResetEdit.this.emailField);
 
-		final String email = this.emailField.getText().toString().trim().toLowerCase(Locale.US);
-
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
-				UI.hideSoftInput(ResetEdit.this.emailField);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncRequestPasswordReset");
-				ModelResult result = DataController.getInstance().requestPasswordReset(email, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				processing = false;
-				busyController.hide(false);
-
-				if (result.serviceResponse.responseCode != ResponseCode.SUCCESS) {
-					Errors.handleError(ResetEdit.this, result.serviceResponse);
-				}
-				else {
-					resetRequested = true;
-					title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
-					submitButton.setText("Finished");
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().requestPasswordReset(email)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
+							resetRequested = true;
+							title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
+							submitButton.setText("Finished");
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			});
+		}
 	}
 
 	protected void resetPassword() {
 
-		if (this.processing) return;
-		this.processing = true;
+		if (!this.processing) {
+			this.processing = true;
 
-		Logger.d(this, "Resetting password for: " + inputUserName);
+			Logger.d(this, "Resetting password for: " + inputUserName);
+			final String password = this.passwordField.getText().toString();
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
+			UI.hideSoftInput(ResetEdit.this.emailField);
 
-		final String password = this.passwordField.getText().toString();
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().resetPassword(password, inputToken)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
 
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-				busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncResetPassword");
-				ModelResult result = DataController.getInstance().resetPassword(password, inputToken, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				return result;
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				processing = false;
-				busyController.hide(true);
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
-					Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
-					navigateToMain();
-				}
-				else {
-					if (result.serviceResponse.statusCodeService != null
-						&& result.serviceResponse.statusCodeService == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
-						Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, new DialogInterface.OnClickListener() {
-							@Override public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								Patchr.router.route(ResetEdit.this, Command.PASSWORD_RESET, null, null);
-								finish();
+							if (response.isSuccessful()) {
+								Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
+								Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
+								navigateToMain();
 							}
+							else {
+								if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+									Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, (dlg, which) -> {
+										dlg.dismiss();
+										Patchr.router.route(ResetEdit.this, Command.PASSWORD_RESET, null, null);
+										finish();
+									});
+								}
+								else {
+									Logger.w(this, response.serviceMessage);
+								}
+							}
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Logger.w(this, error.getLocalizedMessage());
 						});
-					}
-					else {
-						Errors.handleError(ResetEdit.this, result.serviceResponse);
-					}
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+			});
+		}
 	}
 
 	protected void navigateToMain() {

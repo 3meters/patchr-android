@@ -9,9 +9,7 @@ import android.widget.Button;
 import android.widget.ViewAnimator;
 
 import com.patchr.R;
-import com.patchr.components.Logger;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.CacheStamp;
 import com.patchr.ui.components.AnimationFactory;
 
 @SuppressWarnings("ucd")
@@ -20,7 +18,6 @@ public class PatchDetailView extends BaseView implements View.OnClickListener {
 	private static final Object lock = new Object();
 
 	public    RealmEntity entity;
-	protected CacheStamp  cacheStamp;
 	protected Integer     layoutResId;
 
 	protected ViewGroup       layout;

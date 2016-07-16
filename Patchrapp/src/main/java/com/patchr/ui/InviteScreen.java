@@ -18,7 +18,7 @@ import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.Message;
+import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.utilities.Reporting;
@@ -77,7 +77,7 @@ public class InviteScreen extends BaseScreen {
 			final IntentBuilder intentBuilder = new IntentBuilder(this, ShareEdit.class);
 			final Intent intent = intentBuilder.build();
 
-			intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
+			intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Invite);
 			intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 			intent.putExtra(Constants.EXTRA_SHARE_ID, this.patch.id);
 			intent.putExtra(Constants.EXTRA_SHARE_PATCH, this.patchJson);

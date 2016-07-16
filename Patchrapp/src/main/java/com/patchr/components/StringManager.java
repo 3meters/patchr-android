@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.patchr.Patchr;
-import com.patchr.objects.Entity;
 
 @SuppressWarnings("ucd")
 public class StringManager {
@@ -25,25 +24,25 @@ public class StringManager {
 	@NonNull
 	public static String getString(int resId) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
-				, Patchr.applicationContext
-				, Patchr.applicationContext.getResources()
-				, null);
+			, Patchr.applicationContext
+			, Patchr.applicationContext.getResources()
+			, null);
 	}
 
 	@NonNull
 	public static String getString(String string) {
 		return getString(string
-				, Patchr.applicationContext
-				, Patchr.applicationContext.getResources()
-				, null);
+			, Patchr.applicationContext
+			, Patchr.applicationContext.getResources()
+			, null);
 	}
 
 	@NonNull
 	public static String getString(int resId, Context context, Resources resources) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
-				, context
-				, resources
-				, null);
+			, context
+			, resources
+			, null);
 	}
 
 	/*
@@ -52,25 +51,25 @@ public class StringManager {
 	@NonNull
 	public static String getString(int resId, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
-				, Patchr.applicationContext
-				, Patchr.applicationContext.getResources()
-				, schema);
+			, Patchr.applicationContext
+			, Patchr.applicationContext.getResources()
+			, schema);
 	}
 
 	@NonNull
 	public static String getString(String string, String schema) {
 		return getString(string
-				, Patchr.applicationContext
-				, Patchr.applicationContext.getResources()
-				, schema);
+			, Patchr.applicationContext
+			, Patchr.applicationContext.getResources()
+			, schema);
 	}
 
 	@NonNull
 	public static String getString(int resId, Context context, Resources resources, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
-				, context
-				, resources
-				, schema);
+			, context
+			, resources
+			, schema);
 	}
 
 	@NonNull
@@ -91,11 +90,6 @@ public class StringManager {
 			stringBuilder.replace(start, end + 1, resources.getString(tokenResId));
 		}
 
-		if (schema != null) {
-			return stringBuilder.toString().replace("[@schema]", Entity.getLabelForSchema(schema));
-		}
-		else {
-			return stringBuilder.toString();
-		}
+		return stringBuilder.toString();
 	}
 }

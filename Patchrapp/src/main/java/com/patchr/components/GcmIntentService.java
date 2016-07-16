@@ -9,12 +9,7 @@ import com.google.android.gms.gcm.GcmListenerService;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Entity;
-import com.patchr.objects.Notification;
-import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Json;
-
-import java.util.LinkedHashMap;
+import com.patchr.objects.SimpleMap;
 
 @SuppressLint("Registered")
 public class GcmIntentService extends GcmListenerService {
@@ -38,7 +33,7 @@ public class GcmIntentService extends GcmListenerService {
 			String data = extras.getString("data");
 			if (isEntity(data)) {
 
-				@SuppressWarnings("ConstantConditions") Notification notification = (Notification) Json.jsonToObject(data, Json.ObjectType.ENTITY);
+				@SuppressWarnings("ConstantConditions") RealmEntity notification = Patchr.gson.fromJson (data, RealmEntity.class);
 
 				RealmEntity currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
@@ -54,10 +49,10 @@ public class GcmIntentService extends GcmListenerService {
 				}
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */
-				String targetSchema = Entity.getSchemaForId(notification.targetId);
-				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
-				}
+				String targetSchema = RealmEntity.getSchemaForId(notification.targetId);
+//				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+//					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
+//				}
 
 				/* Track */
 				NotificationManager.getInstance().getNotifications().put(notification.id, notification);
@@ -76,7 +71,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * - Action requests like join request, join approval, message share, patch invite.
 				 */
 				if (background) {
-					if (notification.priority.intValue() == Notification.Priority.ONE) {
+					if (notification.priority.intValue() == 1) {
 						/*
 						 * Build intent that can be used in association with the notification
 						 * - Intents route directly to the activity if the application is already running.
@@ -101,7 +96,7 @@ public class GcmIntentService extends GcmListenerService {
 				 */
 
 				else {
-					if (notification.priority.intValue() == Notification.Priority.ONE) {
+					if (notification.priority.intValue() == 1) {
 						/* Chirp */
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);   // Won't play if user turned off sounds
 
@@ -122,7 +117,7 @@ public class GcmIntentService extends GcmListenerService {
 	@SuppressWarnings("unchecked")
 	protected Boolean isEntity(String json) {
 		if (json != null) {
-			LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) Json.jsonToObject(json, Json.ObjectType.OBJECT);
+			SimpleMap map = Patchr.gson.fromJson(json, SimpleMap.class);
 			if (map.get("schema") != null) {
 				return true;
 			}

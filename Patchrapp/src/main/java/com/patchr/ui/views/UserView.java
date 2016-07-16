@@ -19,18 +19,16 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.DataController;
-import com.patchr.components.ModelResult;
-import com.patchr.components.NetworkManager;
+import com.patchr.components.Logger;
+import com.patchr.components.MediaManager;
 import com.patchr.components.UserManager;
+import com.patchr.model.Link;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.MemberStatus;
-import com.patchr.objects.enums.ResponseCode;
-import com.patchr.objects.Shortcut;
-import com.patchr.objects.User;
+import com.patchr.objects.enums.UserRole;
+import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -150,15 +148,16 @@ public class UserView extends BaseView implements View.OnClickListener {
 				setOrGone(this.email, entity.email);
 			}
 
-			if (patch != null && entity.link != null) {
+			Link link = entity.getLink();
+			if (patch != null && link != null) {
 				this.patch = patch;
 				if (entity.id.equals(patch.ownerId)) {
-					setOrGone(this.role, User.Role.OWNER);
+					setOrGone(this.role, UserRole.OWNER);
 				}
 				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)) {
 					this.removeButton.setTag(entity);
-					this.enableSwitch.setChecked(entity.link.enabled);
-					this.enableLabel.setText(entity.link.enabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+					this.enableSwitch.setChecked(link.enabled);
+					this.enableLabel.setText(link.enabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
 					UI.setVisibility(this.editGroup, VISIBLE);
 				}
 			}
@@ -167,42 +166,24 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 	public void approveMember(final RealmEntity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
 
-		final String actionEvent = (enabled ? "approve" : "unapprove") + "_watch_entity";
-		final Shortcut toShortcut = new Shortcut();
-		toShortcut.schema = Constants.SCHEMA_ENTITY_PATCH;
+		String entityId = entity.id;
 
-		new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncStatusUpdate");
-				return DataController.getInstance().insertLink(linkId
-					, fromId
-					, toId
-					, Constants.TYPE_LINK_MEMBER
-					, enabled
-					, toShortcut, actionEvent, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT, null
-				);
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				if (((Activity) getContext()).isFinishing()) return;
-				ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
-					Realm realm = Realm.getDefaultInstance();
-					realm.executeTransaction(realmEntity -> {
-						entity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().enableLinkById(entityId, linkId, enabled)
+				.subscribe(
+					response -> {
+						if (((Activity) getContext()).isFinishing()) return;
+						Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
+						Realm realm = Realm.getDefaultInstance();
+						realm.executeTransaction(realmEntity -> {
+							entity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
+						});
+						realm.close();
+						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+					},
+					error -> {
+						Logger.w(this, error.getLocalizedMessage());
 					});
-					realm.close();
-				}
-				else {
-					Errors.handleError((Activity) getContext(), result.serviceResponse);
-				}
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
+		});
 	}
 }

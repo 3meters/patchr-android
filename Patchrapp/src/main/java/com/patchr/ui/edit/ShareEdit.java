@@ -23,12 +23,10 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Entity;
-import com.patchr.objects.LinkOld;
-import com.patchr.objects.Message.MessageType;
 import com.patchr.objects.Recipient;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.Suggest;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.views.MessageView;
@@ -45,7 +43,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.List;
 
 public class ShareEdit extends BaseEdit {
 
@@ -102,8 +99,8 @@ public class ShareEdit extends BaseEdit {
 
 	public void onClick(View view) {
 		if (view.getTag() != null) {
-			if (view.getTag() instanceof Entity) {
-				final Entity entity = (Entity) view.getTag();
+			if (view.getTag() instanceof RealmEntity) {
+				final RealmEntity entity = (RealmEntity) view.getTag();
 				recipientsField.deleteText();
 				recipientsField.addObject(new Recipient(entity.id, entity.name, null));
 				dirty = true;
@@ -214,10 +211,10 @@ public class ShareEdit extends BaseEdit {
 				case Constants.SCHEMA_ENTITY_MESSAGE:
 					//this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
 					if (this.shareEntity.patch != null) {
-						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to the \'%3$s\' patch.", UserManager.userName, this.shareEntity.creator.name, this.shareEntity.patch.name);
+						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to the \'%3$s\' patch.", UserManager.userName, this.shareEntity.owner.name, this.shareEntity.patch.name);
 					}
 					else {
-						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to a patch.", UserManager.userName, this.shareEntity.creator.name);
+						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to a patch.", UserManager.userName, this.shareEntity.owner.name);
 					}
 					UI.setVisibility(shareHolder, View.VISIBLE);
 					break;
@@ -416,30 +413,24 @@ public class ShareEdit extends BaseEdit {
 				messageResId = R.string.error_missing_share_to;
 			}
 
-			Dialogs.alertDialog(android.R.drawable.ic_dialog_alert
-				, null
-				, StringManager.getString(messageResId)
-				, null
-				, this
-				, android.R.string.ok
-				, null, null, null, null);
+			Dialogs.alert(StringManager.getString(messageResId), this);
 			return false;
 		}
 
 		return true;
 	}
 
-	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
-	    /* Called on background thread. */
-		if (inputShareEntityId != null) {
-			links.add(new LinkOld(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
-		}
-		for (Recipient recipient : this.recipientsField.getObjects()) {
-			links.add(new LinkOld(recipient.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
-		}
-	}
+//	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
+//	    /* Called on background thread. */
+//		if (inputShareEntityId != null) {
+//			links.add(new LinkOld(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
+//		}
+//		for (Recipient recipient : this.recipientsField.getObjects()) {
+//			links.add(new LinkOld(recipient.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
+//		}
+//	}
 
-	protected boolean afterInsert(Entity entity) {
+	protected boolean afterInsert(RealmEntity entity) {
 		if (inputShareType != null) {
 			if (inputShareType.equals(MessageType.Invite)) {
 				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));

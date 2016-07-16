@@ -34,18 +34,16 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.DataQueryResultEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Message;
 import com.patchr.objects.QuerySpec;
-import com.patchr.objects.enums.ActionType;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.FetchMode;
 import com.patchr.objects.enums.LinkType;
 import com.patchr.objects.enums.MemberStatus;
+import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
@@ -263,28 +261,6 @@ public class PatchScreen extends BaseListScreen {
 				justApproved = true;
 			}
 			fetch(FetchMode.AUTO);
-		}
-	}
-
-	@Subscribe public void onDataResult(final DataQueryResultEvent event) {
-
-		/* Can be called on background thread */
-		if (event.tag.equals(System.identityHashCode(this))
-			&& (event.entity == null || event.entity.id.equals(entityId))) {
-
-			if (event.error == null) {
-				Logger.v(this, "Data result accepted: " + event.actionType.name());
-				if (event.actionType == ActionType.ACTION_LINK_INSERT_MEMBER) {
-					UI.toast("You are now a member of this patch");
-					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
-					fetch(FetchMode.MANUAL);
-				}
-				else if (event.actionType == ActionType.ACTION_LINK_DELETE_MEMBER) {
-					UI.toast("You have left this patch");
-					MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
-					fetch(FetchMode.MANUAL);
-				}
-			}
 		}
 	}
 
@@ -547,7 +523,7 @@ public class PatchScreen extends BaseListScreen {
 						 */
 					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
 					final Intent intent = intentBuilder.build();
-					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, Message.MessageType.Invite);
+					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Invite);
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
 					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
@@ -590,6 +566,7 @@ public class PatchScreen extends BaseListScreen {
 							entity.userMemberStatus = MemberStatus.NonMember;
 						});
 						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
+						UI.toast("You have left this patch");
 						fetch(FetchMode.AUTO);
 					},
 					error -> {
@@ -609,6 +586,7 @@ public class PatchScreen extends BaseListScreen {
 									entity.userMemberStatus = MemberStatus.Member;
 									entity.countMembers++;
 									Reporting.track(AnalyticsCategory.EDIT, "Joined patch");
+									UI.toast("You are now a member of this patch");
 								}
 								else {
 									entity.userMemberStatus = MemberStatus.Pending;

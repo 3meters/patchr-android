@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -261,72 +262,74 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private void fetchImages(final String queryText) {
 
-		RestClient.getInstance().loadSearchImages(this.searchText, PAGE_SIZE, skip)
-			.map(response -> {
-				List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
-				for (ImageResult imageResult : response.data) {
+		AsyncTask.execute(() -> {
+			RestClient.getInstance().loadSearchImages(this.searchText, PAGE_SIZE, skip)
+				.map(response -> {
+					List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
+					for (ImageResult imageResult : response.data) {
 
-					Boolean usable = false;
-					if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
-						&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
-						&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
-						usable = true;
-					}
+						Boolean usable = false;
+						if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
+							&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
+							&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
+							usable = true;
+						}
 
-					if (usable) {
-						usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
-					}
+						if (usable) {
+							usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
+						}
 
-					if (usable) {
-						for (ImageResult image : images) {
-							if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
-								usable = false;
-								break;
+						if (usable) {
+							for (ImageResult image : images) {
+								if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
+									usable = false;
+									break;
+								}
 							}
+						}
+
+						if (usable) {
+							imagesFiltered.add(imageResult);
 						}
 					}
 
-					if (usable) {
-						imagesFiltered.add(imageResult);
-					}
-				}
+					response.data = imagesFiltered;
+					return response;
+				})
+				.subscribe(
+					response -> {
+						busyController.hide(false);
+						List<ImageResult> moreImages = (ArrayList<ImageResult>) response.data;
 
-				response.data = imagesFiltered;
-				return response;
-			})
-			.subscribe(
-				response -> {
-					busyController.hide(false);
-					List<ImageResult> moreImages = (ArrayList<ImageResult>) response.data;
+						if (moreImages.size() > 0) {
+							Integer positionStart = images.size();
+							images.addAll(moreImages);
+							adapter.notifyItemRangeChanged(positionStart, images.size() - 1);
+							Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(skip), String.valueOf(images.size())));
+						}
 
-					if (moreImages.size() > 0) {
-						Integer positionStart = images.size();
-						images.addAll(moreImages);
-						adapter.notifyItemRangeChanged(positionStart, images.size() - 1);
-						Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(skip), String.valueOf(images.size())));
-					}
+						if (images.size() == 0) {
+							emptyController.setText(StringManager.getString(R.string.empty_photo_search) + " " + this.searchText);
+							emptyController.show(true);
+						}
 
-					if (images.size() == 0) {
-						emptyController.setText(StringManager.getString(R.string.empty_photo_search) + " " + this.searchText);
-						emptyController.show(true);
-					}
-
-					if (response.more) {
-						skip = skip + PAGE_SIZE;
-						recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
-							@Override public void onLoadMore(int page, int totalItemsCount) {
-								if (!processing) {
-									recyclerView.removeOnScrollListener(this);
-									fetchImages(queryText);
+						if (response.more) {
+							skip = skip + PAGE_SIZE;
+							recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
+								@Override public void onLoadMore(int page, int totalItemsCount) {
+									if (!processing) {
+										recyclerView.removeOnScrollListener(this);
+										fetchImages(queryText);
+									}
 								}
-							}
-						});
-					}
-				},
-				error -> {
-					busyController.hide(false);
-					Logger.w(this, error.getLocalizedMessage());
-				});
+							});
+						}
+					},
+					error -> {
+						busyController.hide(false);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 
 	/*--------------------------------------------------------------------------------------------

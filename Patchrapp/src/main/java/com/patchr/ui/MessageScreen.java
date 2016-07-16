@@ -1,14 +1,12 @@
 package com.patchr.ui;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.text.TextUtils;
@@ -26,20 +24,17 @@ import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.LinkDeleteEvent;
-import com.patchr.events.LinkInsertEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Message.MessageType;
-import com.patchr.objects.enums.ActionType;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.FetchMode;
 import com.patchr.objects.enums.FetchStrategy;
+import com.patchr.objects.enums.LinkType;
+import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
@@ -53,18 +48,14 @@ import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
-
-import java.util.Locale;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
-import io.realm.RealmChangeListener;
 import rx.Subscription;
 
 @SuppressWarnings("ConstantConditions")
@@ -74,13 +65,14 @@ public class MessageScreen extends BaseScreen {
 	protected ImageWidget       photoView;
 	protected View              holderUser;
 	protected View              holderPatch;
-	protected TextView          description;
+	protected TextView          descriptionView;
 	protected ImageWidget       patchPhotoView;
 	protected TextView          patchName;
 	protected ImageWidget       userPhotoView;
 	protected TextView          userName;
 	protected TextView          createdDate;
 	protected ViewGroup         buttonToolbar;
+	protected ViewAnimator      likeAnimator;
 
 	protected ViewGroup shareHolder;
 	protected ViewGroup shareView;
@@ -89,7 +81,6 @@ public class MessageScreen extends BaseScreen {
 
 	public String              parentId;
 	public Subscription        subscription;
-	public RealmChangeListener changeListener;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -100,13 +91,6 @@ public class MessageScreen extends BaseScreen {
 		super.onResume();
 		if (!isFinishing()) {
 			fetch(FetchMode.AUTO);
-		}
-	}
-
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		if (entity != null && changeListener != null) {
-			entity.removeChangeListener(changeListener);
 		}
 	}
 
@@ -183,9 +167,9 @@ public class MessageScreen extends BaseScreen {
 	}
 
 	public void editAction() {
-		Intent intent = new Intent(this, MessageEdit.class);
-		intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
-		intent.putExtra(Constants.EXTRA_STATE, State.Editing);
+		Intent intent = new Intent(this, MessageEdit.class)
+			.putExtra(Constants.EXTRA_ENTITY_ID, entityId)
+			.putExtra(Constants.EXTRA_STATE, State.Editing);
 		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_EDIT);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
@@ -216,6 +200,8 @@ public class MessageScreen extends BaseScreen {
 			UserManager.shared().showGuestGuard(this, "Sign up for a free account to like messages and more.");
 			return;
 		}
+
+		like(!entity.userLikes);
 	}
 
 	public void likeListAction() {
@@ -264,13 +250,14 @@ public class MessageScreen extends BaseScreen {
 		photoView = (ImageWidget) findViewById(R.id.photo);
 		holderUser = findViewById(R.id.holder_user);
 		holderPatch = findViewById(R.id.patch_group);
-		description = (TextView) findViewById(R.id.description);
+		descriptionView = (TextView) findViewById(R.id.description);
 		patchPhotoView = (ImageWidget) findViewById(R.id.patch_photo);
 		patchName = (TextView) findViewById(R.id.patch_name);
 		userPhotoView = (ImageWidget) findViewById(R.id.user_photo);
 		userName = (TextView) findViewById(R.id.user_name);
 		createdDate = (TextView) findViewById(R.id.created_date);
 		buttonToolbar = (ViewGroup) findViewById(R.id.button_toolbar);
+		likeAnimator = (ViewAnimator) findViewById(R.id.like_button);
 
 		shareHolder = (ViewGroup) findViewById(R.id.share_holder);
 		shareView = (ViewGroup) findViewById(R.id.share_entity);
@@ -279,36 +266,6 @@ public class MessageScreen extends BaseScreen {
 
 		bottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottomsheet);
 		bottomSheetLayout.setPeekOnDismiss(true);
-	}
-
-	@Override public void confirmDelete() {
-
-		String message = StringManager.getString(R.string.alert_delete_message_message_no_name);
-		if (entity.type != null && entity.type.equals(MessageType.Post)) {
-			//			Link linkPlace = entity.getParentLink(Constants.TYPE_LINK_CONTENT, Constants.SCHEMA_ENTITY_PATCH);
-			//			if (linkPlace != null) {
-			//				message = String.format(StringManager.getString(R.string.alert_delete_message_message), linkPlace.shortcut.name);
-			//			}
-		}
-		final AlertDialog dialog = Dialogs.alertDialog(null
-			, StringManager.getString(R.string.alert_delete_message_title)
-			, message
-			, null
-			, this
-			, android.R.string.ok
-			, android.R.string.cancel
-			, null
-			, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						delete();
-					}
-				}
-			}
-			, null);
-		dialog.setCanceledOnTouchOutside(false);
 	}
 
 	@Override protected int getLayoutId() {
@@ -321,13 +278,10 @@ public class MessageScreen extends BaseScreen {
 		if (entity != null) {
 			draw();
 			supportInvalidateOptionsMenu();     // In case user authenticated
-			this.changeListener = new RealmChangeListener() {
-				@Override public void onChange(Object element) {
-					draw();
-					supportInvalidateOptionsMenu();     // In case user authenticated
-				}
-			};
-			this.entity.addChangeListener(this.changeListener);
+			this.entity.addChangeListener(element -> {
+				draw();
+				supportInvalidateOptionsMenu();     // In case user authenticated
+			});
 		}
 	}
 
@@ -398,14 +352,14 @@ public class MessageScreen extends BaseScreen {
 		}
 
 		/* User holder */
-		if (holderUser != null && entity.creator != null) {
-			holderUser.setTag(entity.creator);
+		if (holderUser != null && entity.owner != null) {
+			holderUser.setTag(entity.owner);
 		}
 
 		/* User photo */
 		if (userPhotoView != null) {
-			if (entity.creator != null) {
-				userPhotoView.setImageWithEntity(entity.creator, null);
+			if (entity.owner != null) {
+				userPhotoView.setImageWithEntity(entity.owner, null);
 				UI.setVisibility(userPhotoView, View.VISIBLE);
 			}
 			else {
@@ -415,8 +369,8 @@ public class MessageScreen extends BaseScreen {
 
 		/* User name */
 		if (userName != null) {
-			if (entity.creator != null && entity.creator.name != null && entity.creator.name.length() > 0) {
-				userName.setText(entity.creator.name);
+			if (entity.owner != null && entity.owner.name != null && entity.owner.name.length() > 0) {
+				userName.setText(entity.owner.name);
 				UI.setVisibility(userName, View.VISIBLE);
 			}
 			else {
@@ -436,10 +390,10 @@ public class MessageScreen extends BaseScreen {
 		}
 
 		/* Message text */
-		if (description != null) {
-			description.setText(null);
+		if (descriptionView != null) {
+			descriptionView.setText(null);
 
-			description.setOnLongClickListener(view -> {
+			descriptionView.setOnLongClickListener(view -> {
 				TextView textView = (TextView) view;
 				String text = (String) textView.getText().toString();
 
@@ -454,11 +408,11 @@ public class MessageScreen extends BaseScreen {
 			});
 
 			if (!TextUtils.isEmpty(entity.description)) {
-				description.setText(Html.fromHtml(entity.description));
-				UI.setVisibility(description, View.VISIBLE);
+				descriptionView.setText(Html.fromHtml(entity.description));
+				UI.setVisibility(descriptionView, View.VISIBLE);
 			}
 			else {
-				UI.setVisibility(description, View.GONE);
+				UI.setVisibility(descriptionView, View.GONE);
 			}
 		}
 
@@ -521,7 +475,7 @@ public class MessageScreen extends BaseScreen {
 		}
 		else {
 
-			/* A message without a share */
+			/* Photo */
 			if (entity.getPhoto() != null) {
 				final Photo photo = entity.getPhoto();
 				photoView.setImageWithPhoto(photo, null, null);
@@ -538,14 +492,13 @@ public class MessageScreen extends BaseScreen {
 			UI.setVisibility(buttonToolbar, View.VISIBLE);
 
 			/* Like button coloring */
-			ViewAnimator like = (ViewAnimator) findViewById(R.id.like_button);
-			if (like != null) {
-				like.setDisplayedChild(0);
+			if (likeAnimator != null) {
+				likeAnimator.setDisplayedChild(0);
 				if (!entity.isVisibleToCurrentUser()) {
-					UI.setVisibility(like, View.GONE);
+					UI.setVisibility(likeAnimator, View.GONE);
 				}
 				else {
-					ImageView image = (ImageView) like.findViewById(R.id.like_image);
+					ImageView image = (ImageView) likeAnimator.findViewById(R.id.like_image);
 					if (entity.userLikes) {
 						final int color = Colors.getColor(R.color.brand_primary);
 						image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
@@ -555,7 +508,7 @@ public class MessageScreen extends BaseScreen {
 						image.setColorFilter(null);
 						image.setAlpha(0.5f);
 					}
-					UI.setVisibility(like, View.VISIBLE);
+					UI.setVisibility(likeAnimator, View.VISIBLE);
 				}
 			}
 
@@ -582,51 +535,40 @@ public class MessageScreen extends BaseScreen {
 
 	public void like(final boolean activate) {
 
-		runOnUiThread(new Runnable() {
-			@Override public void run() {
-				ViewAnimator animator = (ViewAnimator) findViewById(R.id.like_button);
-				if (animator != null) {
-					animator.setDisplayedChild(1);  // Turned off in drawButtons
-				}
-			}
-		});
+		likeAnimator.setDisplayedChild(1);  // Turned off in drawButtons
 
 		if (UserManager.shared().authenticated()) {
 			UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 		}
 
 		if (activate) {
-
-			/* Used as part of link management */
-			//			Shortcut fromShortcut = UserManager.currentUser.getAsShortcut();
-			//			Shortcut toShortcut = entity.getAsShortcut();
-
-			LinkInsertEvent insertEvent = new LinkInsertEvent();
-			insertEvent.fromId = UserManager.currentUser.id;
-			insertEvent.toId = entity.id;
-			insertEvent.type = Constants.TYPE_LINK_LIKE;
-			insertEvent.enabled = true;
-			//			insertEvent.fromShortcut = fromShortcut;
-			//			insertEvent.toShortcut = toShortcut;
-			insertEvent.actionEvent = "like_entity_" + entity.schema.toLowerCase(Locale.US);
-			insertEvent.skipCache = false;
-			insertEvent.actionType = ActionType.ACTION_LINK_INSERT_LIKE;
-			insertEvent.tag = System.identityHashCode(this);
-
-			Dispatcher.getInstance().post(insertEvent);
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().insertLink(UserManager.userId, entityId, LinkType.Like)
+					.subscribe(
+						response -> {
+							processing = false;
+							fetch(FetchMode.MANUAL);
+						},
+						error -> {
+							processing = false;
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			});
 		}
 		else {
-
-			LinkDeleteEvent deleteEvent = new LinkDeleteEvent();
-			deleteEvent.fromId = UserManager.currentUser.id;
-			deleteEvent.toId = entity.id;
-			deleteEvent.type = Constants.TYPE_LINK_LIKE;
-			deleteEvent.schema = entity.schema;
-			deleteEvent.actionEvent = "unlike_entity_" + entity.schema.toLowerCase(Locale.US);
-			deleteEvent.actionType = ActionType.ACTION_LINK_DELETE_LIKE;
-			deleteEvent.tag = System.identityHashCode(this);
-
-			Dispatcher.getInstance().post(deleteEvent);
+			String linkId = entity.userLikesId;
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().deleteLinkById(linkId)
+					.subscribe(
+						response -> {
+							processing = false;
+							fetch(FetchMode.MANUAL);
+						},
+						error -> {
+							processing = false;
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			});
 		}
 	}
 

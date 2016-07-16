@@ -22,14 +22,12 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
-import com.patchr.components.ProximityController;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
-import com.patchr.objects.CacheStamp;
 import com.patchr.objects.enums.FetchMode;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -46,7 +44,6 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	protected AtomicBoolean locationDialogShot = new AtomicBoolean(false);
 	protected AsyncTask  taskPatchesNearLocation;
 	protected AsyncTask  taskPatchesByProximity;
-	private   CacheStamp cacheStamp;
 
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -56,7 +53,6 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	@Override public void onStart() {
 		bindActionButton(); // User might have logged in/out while gone
 		Dispatcher.getInstance().register(this);
-		Dispatcher.getInstance().unregister(ProximityController.getInstance()); /* Start foreground activity recognition - stop proximity manager from background recognition */
 		super.onStart();
 	}
 
@@ -70,10 +66,6 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 		/* Stop location updates */
 		Dispatcher.getInstance().unregister(this);
 		LocationManager.getInstance().stop();
-
-		/* Start background activity recognition with proximity manager as the listener. */
-		ProximityController.getInstance().setLastBeaconInstallUpdate(null);
-		Dispatcher.getInstance().register(ProximityController.getInstance());
 	}
 
 	/*--------------------------------------------------------------------------------------------

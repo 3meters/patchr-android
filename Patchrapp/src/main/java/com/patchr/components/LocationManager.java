@@ -21,7 +21,6 @@ import com.patchr.Patchr;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.LocationOld;
 import com.patchr.objects.enums.Preference;
 import com.patchr.objects.enums.ResponseCode;
 import com.patchr.utilities.Errors;
@@ -266,7 +265,7 @@ public class LocationManager implements
 			|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
 	}
 
-	@NonNull public ModelResult getAddressForLocation(final LocationOld location) {
+	@NonNull public ModelResult getAddressForLocation(final Location location) {
 		/*
 		 * Can trigger network access so should be called on a background thread.
 		 */
@@ -297,8 +296,10 @@ public class LocationManager implements
 			if (addresses != null && addresses.size() > 0) {
 				Address geolookup = addresses.get(0);
 				if (geolookup.hasLatitude() && geolookup.hasLongitude()) {
-					LocationOld location = new LocationOld(geolookup.getLatitude(), geolookup.getLongitude());
-					location.accuracy = 25;
+					Location location = new Location();
+					location.lat = geolookup.getLatitude();
+					location.lng = geolookup.getLongitude();
+					location.accuracy = 25.0f;
 					result.data = location;
 				}
 				else {

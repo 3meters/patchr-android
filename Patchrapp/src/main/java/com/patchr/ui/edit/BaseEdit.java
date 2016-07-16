@@ -18,39 +18,27 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Dispatcher;
+import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
-import com.patchr.components.ModelResult;
-import com.patchr.components.ProximityController;
+import com.patchr.components.S3;
 import com.patchr.components.StringManager;
-import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.Beacon;
-import com.patchr.objects.Entity;
-import com.patchr.objects.LinkOld;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.ServiceResponse;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.PhotoSwitchboardScreen;
 import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
-import com.squareup.picasso.Picasso;
-
-import org.greenrobot.eventbus.Subscribe;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import rx.Subscription;
 
@@ -75,16 +63,6 @@ public abstract class BaseEdit extends BaseScreen {
 	protected Integer dirtyExitTitleResId    = R.string.alert_dirty_exit_title;
 	protected Integer dirtyExitMessageResId  = R.string.alert_dirty_exit_message;
 	protected Integer dirtyExitPositiveResId = R.string.alert_dirty_save;
-
-	@Override protected void onStart() {
-		super.onStart();
-		Dispatcher.getInstance().register(this);
-	}
-
-	@Override protected void onStop() {
-		Dispatcher.getInstance().unregister(this);
-		super.onStop();
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -195,12 +173,6 @@ public abstract class BaseEdit extends BaseScreen {
      * Notifications
      *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (taskService != null) {
-			taskService.cancel(true);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -270,20 +242,37 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	protected boolean afterInsert(Entity entity) {
-		return true;
-	}
+	protected Photo postPhoto(Photo photo) {
 
-	protected boolean afterUpdate() {
-		return true;
+		Bitmap bitmap = Photo.getBitmapForPhoto(photo);
+		if (bitmap == null) {
+			processing = false;
+			busyController.hide(true);
+			Logger.w(this, "Failed to download bitmap from the network");
+			return null;
+		}
+		/* Make sure the bitmap is less than or equal to the maximum size we want to persist. */
+		bitmap = UI.ensureBitmapScaleForS3(bitmap);
+
+		/* Push it to S3. It is always formatted/compressed as a jpeg. */
+		String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
+		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
+
+		/* Update the photo object for the entity or user */
+		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
+			Photo photoFinal = new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
+			return photoFinal;
+		}
+
+		return null;
 	}
 
 	protected boolean isDirty() {
 		if (inputState.equals(State.Creating)) {
-			if (name != null && TextUtils.isEmpty(name.getText().toString())) {
+			if (name != null && !TextUtils.isEmpty(name.getText().toString())) {
 				return true;
 			}
-			if (description != null && TextUtils.isEmpty(description.getText().toString())) {
+			if (description != null && !TextUtils.isEmpty(description.getText().toString())) {
 				return true;
 			}
 			if (photoEditWidget != null && photoEditWidget.photo != null) {
@@ -307,270 +296,6 @@ public abstract class BaseEdit extends BaseScreen {
 
 	protected boolean isValid() {
 		return true;
-	}
-
-	protected void insert() {
-
-		taskService = new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-//					busyController.showHorizontalProgressBar(BaseEdit.this);
-//				}
-//				else {
-//					busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, BaseEdit.this);
-//				}
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncInsertUpdateEntity");
-
-				List<Beacon> beacons = null;
-
-				/* We only send beacons if a patch is being inserted */
-				if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH) && !proximityDisabled) {
-					beacons = ProximityController.getInstance().getStrongestBeacons(Constants.PROXIMITY_BEACON_COVERAGE);
-				}
-
-				/*
-				 * Entity has a photo that needs to be stored in s3. Usually either a user
-				 * photo from anywhere or a local photo from the device camera or gallery.
-				 */
-				Bitmap bitmap = null;
-				if (entity.getPhoto() != null) {
-
-					try {
-						bitmap = Picasso.with(Patchr.applicationContext)
-							.load(entity.getPhoto().uriNative())
-							.centerInside()
-							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-							.get();
-
-						if (isCancelled()) return null;
-					}
-					catch (OutOfMemoryError error) {
-						/*
-						 * We make attempt to recover by giving the vm another chance to
-						 * garbage collect plus reduce the image size in memory by 75%.
-						 */
-						System.gc();
-						try {
-							bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.getPhoto().uriNative())
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-								.get();
-
-							if (isCancelled()) return null;
-						}
-						catch (OutOfMemoryError err) {
-							/* Give up and log it */
-							Reporting.breadcrumb("OutOfMemoryError: uri: " + entity.getPhoto().uriNative());
-							throw err;
-						}
-						catch (IOException ignore) { }
-					}
-					catch (IOException ignore) {
-						/*
-						 * This is where we are ignoring exceptions like our reset problem with picasso. This
-						 * can happen pulling an image from the network or from a local file.
-						 */
-						Reporting.breadcrumb("Picasso failed to load bitmap");
-						if (isCancelled()) return null;
-					}
-
-					if (bitmap == null) {
-						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
-						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyController.hide(true);
-						return result;
-					}
-				}
-
-				/* In case a derived class needs to augment the entity or add links before insert */
-				List<LinkOld> links = new ArrayList<>();
-				//beforeInsert(entity, links);
-				if (isCancelled()) return null;
-
-				//ModelResult result = DataController.getInstance().insertEntity(entity, links, beacons, bitmap, true, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				if (isCancelled()) return null;
-
-				/* Don't allow cancel if we made it this far */
-				busyController.hide(true);
-
-				return null;
-			}
-
-			@Override protected void onCancelled(Object response) {
-				/*
-				 * Triggered by call to task.cancel() and guarantess that onPostExecute will not
-				 * be called. If using task.cancel(true) and the task is running then AsyncTask
-				 * will call interrupt on the thread which in turn will be picked up
-				 * by okhttp before it begins the next blocking operation.
-				 *
-				 * Stopping Points (interrupt was triggered on background thread)
-				 * - When task is pulled from queue (if waiting)
-				 * - Between service and s3 calls.
-				 * - During service calls assuming okhttp catches the interrupt.
-				 * - During image upload to s3 if CancelEvent is sent via bus.
-				 */
-				busyController.hide(true);
-				UI.toast(StringManager.getString(R.string.alert_cancelled));
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-
-					Entity insertedEntity = (Entity) result.data;
-					entity.id = insertedEntity.id;
-
-					if (entity.type == null || !entity.type.equals("share")) { // Shares covered in afterInsert()
-						Reporting.track(AnalyticsCategory.EDIT, "Created " + Utils.capitalize(entity.schema));
-					}
-					/*
-					 * In case a derived class needs to do something after a successful insert
-					 */
-					if (afterInsert(insertedEntity)) { // Returns true if OK to finish
-						if (insertedResId != null && insertedResId != 0) {
-							UI.toast(StringManager.getString(insertedResId));
-						}
-						final Intent intent = new Intent();
-						intent.putExtra(Constants.EXTRA_ENTITY_SCHEMA, insertedEntity.schema);
-						finish();
-						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);
-					}
-				}
-				else {
-					Errors.handleError(BaseEdit.this, result.serviceResponse);
-					if (result.serviceResponse.errorResponse != null) {
-						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.setPhoto(null);
-							bindPhoto(null);
-						}
-					}
-				}
-				processing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
-	}
-
-	protected void update() {
-
-		taskService = new AsyncTask() {
-
-			@Override protected void onPreExecute() {
-//				if (entity.getPhoto() != null && Type.isTrue(entity.getPhoto().store)) {
-//					busyController.showHorizontalProgressBar(BaseEdit.this);
-//				}
-//				else {
-//					busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_updating, BaseEdit.this);
-//				}
-			}
-
-			@Override protected Object doInBackground(Object... params) {
-				Thread.currentThread().setName("AsyncInsertUpdateEntity");
-
-				/*
-				 * Entity has a photo that needs to be stored in s3. Usually either a user
-				 * photo from anywhere or a local photo from the device camera or gallery.
-				 */
-				Bitmap bitmap = null;
-				if (entity.getPhoto() != null) {
-
-					try {
-						bitmap = Picasso.with(Patchr.applicationContext)
-							.load(entity.getPhoto().uriNative())
-							.centerInside()
-							.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-							.get();
-
-						if (isCancelled()) return null;
-					}
-					catch (OutOfMemoryError error) {
-						/*
-						 * We make attempt to recover by giving the vm another chance to
-						 * garbage collect plus reduce the image size in memory by 75%.
-						 */
-						System.gc();
-						try {
-							bitmap = Picasso.with(Patchr.applicationContext)
-								.load(entity.getPhoto().uriNative())
-								.centerInside()
-								.resize(Constants.IMAGE_DIMENSION_REDUCED, Constants.IMAGE_DIMENSION_REDUCED)
-								.get();
-
-							if (isCancelled()) return null;
-						}
-						catch (IOException ignore) {}
-					}
-					catch (IOException ignore) {
-						/*
-						 * This is where we are ignoring exceptions like our reset problem with picasso. This
-						 * can happen pulling an image from the network or from a local file.
-						 */
-						Reporting.breadcrumb("Picasso failed to load bitmap");
-						if (isCancelled()) return null;
-					}
-
-					if (bitmap == null) {
-						ModelResult result = new ModelResult();
-						result.serviceResponse.responseCode = ResponseCode.FAILED;
-						result.serviceResponse.errorResponse = new Errors.ErrorResponse(Errors.ErrorActionType.TOAST, StringManager.getString(R.string.error_image_unusable));
-						result.serviceResponse.errorResponse.clearPhoto = true;
-						busyController.hide(true);
-						return result;
-					}
-				}
-
-				//ModelResult result = DataController.getInstance().updateEntity(entity, bitmap, NetworkManager.SERVICE_GROUP_TAG_DEFAULT);
-				ModelResult result = new ModelResult();
-				if (isCancelled()) return null;
-
-				/* Don't allow cancel if we made it this far */
-				busyController.hide(true);
-
-				return result;
-			}
-
-			@Override protected void onCancelled(Object response) {
-				/*
-				 * Stopping Points (interrupt was triggered on background thread)
-				 * - When task is pulled from queue (if waiting)
-				 * - Between service and s3 calls.
-				 * - During service calls assuming okhttp catches the interrupt.
-				 * - During image upload to s3 if CancelEvent is sent via bus.
-				 */
-				busyController.hide(true);
-				UI.toast(StringManager.getString(R.string.alert_cancelled));
-			}
-
-			@Override protected void onPostExecute(Object response) {
-				final ModelResult result = (ModelResult) response;
-
-				if (result.serviceResponse.responseCode == ResponseCode.SUCCESS) {
-					if (afterUpdate()) {  // Primary current use is for patch to cleanup proximity links if needed
-						Reporting.track(AnalyticsCategory.EDIT, "Updated " + Utils.capitalize(entity.schema));
-						UI.toast(StringManager.getString(updatedResId));
-						finish();
-						AnimationManager.doOverridePendingTransition(BaseEdit.this, TransitionType.FORM_BACK);
-					}
-				}
-				else {
-					Errors.handleError(BaseEdit.this, result.serviceResponse);
-					if (result.serviceResponse.errorResponse != null) {
-						if (result.serviceResponse.errorResponse.clearPhoto) {
-							entity.setPhoto(null);
-							bindPhoto(null);
-						}
-					}
-				}
-				processing = false;
-			}
-		}.executeOnExecutor(Constants.EXECUTOR);
 	}
 
 	protected void confirmDirtyExit() {

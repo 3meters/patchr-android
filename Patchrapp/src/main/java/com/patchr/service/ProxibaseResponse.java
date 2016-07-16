@@ -1,7 +1,6 @@
 package com.patchr.service;
 
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.ProxibaseError;
 import com.patchr.objects.Session;
 import com.patchr.utilities.Type;
 
@@ -28,6 +27,8 @@ public class ProxibaseResponse {
 
 	public Number httpCode = 200;
 	public String httpMessage;
+	public Number serviceCode = 200;
+	public String serviceMessage;
 
 	public static ProxibaseResponse setPropertiesFromMap(ProxibaseResponse response, Response<Map<String, Object>> responseMap) {
 		/*
@@ -74,6 +75,11 @@ public class ProxibaseResponse {
 			}
 		}
 
+		response.httpCode = responseMap.code();
+		response.httpMessage = responseMap.message();
+		response.serviceCode = responseMap.code();
+		response.serviceMessage = responseMap.message();
+
 		if (map.get("entity") != null) {    // Not a fully decorated entity
 			response.entity = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("entity"), true);
 		}
@@ -82,6 +88,10 @@ public class ProxibaseResponse {
 		}
 		if (map.get("error") != null) {
 			response.error = ProxibaseError.setPropertiesFromMap(new ProxibaseError(), (Map<String, Object>) map.get("error"));
+			if (response.error != null) {
+				response.serviceCode = response.error.code;
+				response.serviceMessage = response.error.message;
+			}
 		}
 		if (map.get("session") != null) {
 			response.session = Session.setPropertiesFromMap(new Session(), (Map<String, Object>) map.get("session"));

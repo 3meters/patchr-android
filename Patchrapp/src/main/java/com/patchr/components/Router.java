@@ -28,7 +28,6 @@ import com.patchr.ui.collections.PatchScreen;
 import com.patchr.ui.collections.PhotoSearchScreen;
 import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.collections.SearchScreen;
-import com.patchr.ui.edit.FeedbackEdit;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.MessageEdit;
@@ -36,7 +35,6 @@ import com.patchr.ui.edit.PasswordEdit;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.PrivacyEdit;
 import com.patchr.ui.edit.ProfileEdit;
-import com.patchr.ui.edit.ReportEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
@@ -152,28 +150,6 @@ public class Router {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, SettingsScreen.class);
 			((Activity) activity).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_PREFERENCES);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.FEEDBACK) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, FeedbackEdit.class);
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.REPORT) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching report requires entity");
-			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, ReportEdit.class);
-			if (extras == null) {
-				extras = new Bundle();
-			}
-			extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entity.schema);
-			intentBuilder.setEntityId(entity.id).addExtras(extras);
-			activity.startActivity(intentBuilder.build());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 

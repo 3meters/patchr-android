@@ -1,13 +1,12 @@
 package com.patchr.model;
 
-import com.patchr.objects.ServiceObject;
 import com.patchr.utilities.Type;
 
 import java.io.Serializable;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
-public class PhoneNumber extends ServiceObject implements Cloneable, Serializable {
+public class PhoneNumber implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = 4979315562693226999L;
 

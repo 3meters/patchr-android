@@ -20,12 +20,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.objects.LocationOld;
+import com.patchr.model.Location;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
-import com.patchr.utilities.Json;
 import com.patchr.utilities.UI;
 
 /*
@@ -34,13 +34,13 @@ import com.patchr.utilities.UI;
  */
 public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChangeListener {
 
-	protected MapView     mapView;
-	protected GoogleMap   map;
-	protected LocationOld originalLocation;
-	protected String      title;
-	protected Marker      marker;
-	protected boolean     dirty;
-	protected boolean     positionDrawn = false;
+	protected MapView   mapView;
+	protected GoogleMap map;
+	protected Location  originalLocation;
+	protected String    title;
+	protected Marker    marker;
+	protected boolean   dirty;
+	protected boolean positionDrawn = false;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -104,7 +104,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 			title = extras.getString(Constants.EXTRA_TITLE);
 			final String json = extras.getString(Constants.EXTRA_LOCATION);
 			if (json != null) {
-				originalLocation = (LocationOld) Json.jsonToObject(json, Json.ObjectType.AIR_LOCATION);
+				originalLocation = (Location) Patchr.gson.fromJson(json, Location.class);
 			}
 		}
 	}
@@ -154,9 +154,11 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 
 		final Intent intent = new Intent();
 		CameraPosition position = map.getCameraPosition();
-		LocationOld location = new LocationOld(position.target.latitude, position.target.longitude);
-		location.accuracy = 1;
-		String json = Json.objectToJson(location);
+		Location location = new Location();
+		location.lat = position.target.latitude;
+		location.lng = position.target.longitude;
+		location.accuracy = 1.0f;
+		String json = Patchr.gson.toJson(location);
 		intent.putExtra(Constants.EXTRA_LOCATION, json);
 		setResult(Activity.RESULT_OK, intent);
 		finish();

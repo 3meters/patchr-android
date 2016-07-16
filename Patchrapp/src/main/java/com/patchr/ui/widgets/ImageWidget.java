@@ -315,8 +315,6 @@ public class ImageWidget extends FrameLayout {
 			RequestCreator creator = Picasso
 				.with(Patchr.applicationContext)
 				.load(uri)
-				.noFade()
-				.networkPolicy(NetworkPolicy.OFFLINE)
 				.config(this.bitmapConfig);
 
 			if (transform != null) {
@@ -327,32 +325,44 @@ public class ImageWidget extends FrameLayout {
 				}
 			}
 
-			if (callback != null) {
-				creator.into(this.imageView, callback);
-			}
-			else {
-				creator.into(this.imageView, new Callback() {
+			creator.networkPolicy(NetworkPolicy.OFFLINE);
+			creator.into(this.imageView, new Callback() {
 
-					@Override public void onSuccess() {}
+				@Override public void onSuccess() {
+					if (callback != null) {
+						callback.onSuccess();
+					}
+				}
 
-					@Override public void onError() {
-						RequestCreator creator = Picasso
-							.with(Patchr.applicationContext)
-							.load(uri)
-							.config(bitmapConfig);
+				@Override public void onError() {
+					RequestCreator creator = Picasso
+						.with(Patchr.applicationContext)
+						.load(uri)
+						.config(bitmapConfig);
 
-						if (transform != null) {
-							creator.transform(transform);
-							if (shape.equals("rounded")) {
-								creator.centerCrop();
-								creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+					if (transform != null) {
+						creator.transform(transform);
+						if (shape.equals("rounded")) {
+							creator.centerCrop();
+							creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+						}
+					}
+
+					creator.into(imageView, new Callback() {
+						@Override public void onSuccess() {
+							if (callback != null) {
+								callback.onSuccess();
 							}
 						}
 
-						creator.into(imageView);
-					}
-				});
-			}
+						@Override public void onError() {
+							if (callback != null) {
+								callback.onError();
+							}
+						}
+					});
+				}
+			});
 		}
 	}
 

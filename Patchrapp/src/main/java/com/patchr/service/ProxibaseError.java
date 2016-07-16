@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.service;
 
 import com.patchr.exceptions.ServiceException;
 
@@ -12,8 +12,8 @@ import java.util.Map;
 public class ProxibaseError {
 
 	public String       name;
-	public Number       code;           // Status code from the service (200, 403, etc.)
-	public Number       status;         // Status code from the network stack (403.11, etc)
+	public Number       code;           // Status code from the service (403.11, etc)
+	public Number       status;         // Status code from the network (200, 403, etc.)
 	public String       message;        // Technical error message
 	public String       description;    // Curated message to show user
 	public String       errors;
