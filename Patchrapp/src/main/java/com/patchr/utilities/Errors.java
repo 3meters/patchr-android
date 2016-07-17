@@ -14,7 +14,6 @@ import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.GcmRegistrationIOException;
 import com.patchr.exceptions.ServiceException;
-import com.patchr.objects.enums.Command;
 import com.patchr.service.ProxibaseError;
 import com.patchr.service.ServiceResponse;
 
@@ -77,12 +76,12 @@ public final class Errors {
 		/* Perform any follow-up actions. */
 		if (errAction == ErrorAction.LOGOUT) {
 			UserManager.shared().setCurrentUser(null, null);
-			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+			UI.routeLobby(Patchr.applicationContext);
 		}
 		else if (errAction == ErrorAction.LOBBY) {
 			/* Mostly because a more current client version is required. */
 			if (activity != null && !activity.getClass().getSimpleName().equals("LobbyScreen")) {
-				Patchr.router.route(activity, Command.LOBBY, null, null);
+				UI.routeLobby(activity);
 			}
 		}
 	}

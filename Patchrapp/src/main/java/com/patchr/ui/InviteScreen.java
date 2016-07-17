@@ -22,6 +22,7 @@ import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.utilities.Reporting;
+import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
 
 public class InviteScreen extends BaseScreen {
@@ -123,7 +124,7 @@ public class InviteScreen extends BaseScreen {
 	}
 
 	@Override public void submitAction() {
-		Patchr.router.browse(this, patch.id, null, true);
+		UI.browseEntity(patch.id, this);
 		finish();
 	}
 

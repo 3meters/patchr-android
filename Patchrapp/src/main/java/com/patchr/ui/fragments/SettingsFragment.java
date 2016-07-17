@@ -192,7 +192,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				@Override public boolean onPreferenceClick(Preference preference) {
 					if (UserManager.shared().authenticated()) {
 						UserManager.shared().logout();
-						Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+						UI.routeLobby(Patchr.applicationContext);
 					}
 					else {
 						Patchr.router.route(getActivity(), Command.LOGIN, null, null);

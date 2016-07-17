@@ -155,22 +155,6 @@
 
 		</LinearLayout>
 
-		<Button
-			android:id="@+id/guest_button"
-			style="@style/button_link"
-			android:layout_width="228dp"
-			android:layout_height="@dimen/button_height"
-			android:layout_alignParentBottom="true"
-			android:layout_centerHorizontal="true"
-			android:layout_marginBottom="96dp"
-			android:gravity="center"
-			android:onClick="onClick"
-			android:text="@string/lobby_button_guest"
-			android:textColor="@color/white"
-			android:textSize="18sp"
-			android:visibility="invisible"
-			tools:visibility="visible" />
-
 	</RelativeLayout>
 
 </com.flipboard.bottomsheet.BottomSheetLayout>

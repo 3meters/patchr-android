@@ -10,6 +10,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
+import com.patchr.utilities.UI;
 
 @SuppressLint("Registered")
 public class GcmIntentService extends GcmListenerService {
@@ -33,7 +34,7 @@ public class GcmIntentService extends GcmListenerService {
 			String data = extras.getString("data");
 			if (isEntity(data)) {
 
-				@SuppressWarnings("ConstantConditions") RealmEntity notification = Patchr.gson.fromJson (data, RealmEntity.class);
+				@SuppressWarnings("ConstantConditions") RealmEntity notification = Patchr.gson.fromJson(data, RealmEntity.class);
 
 				RealmEntity currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
@@ -50,9 +51,9 @@ public class GcmIntentService extends GcmListenerService {
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */
 				String targetSchema = RealmEntity.getSchemaForId(notification.targetId);
-//				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-//					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
-//				}
+				//				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				//					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
+				//				}
 
 				/* Track */
 				NotificationManager.getInstance().getNotifications().put(notification.id, notification);
@@ -82,9 +83,10 @@ public class GcmIntentService extends GcmListenerService {
 							Bundle extrasOut = new Bundle();
 							extrasOut.putBoolean(Constants.EXTRA_REFRESH_FROM_SERVICE, true);
 							extrasOut.putString(Constants.EXTRA_NOTIFICATION_ID, notification.id);
-							notification.intent = Patchr.router.browse(Patchr.applicationContext, notification.targetId, extrasOut, false);
+							notification.intent = UI.browseEntity(notification.targetId, Patchr.applicationContext, true);
+							notification.intent.putExtras(extrasOut);
 						}
-					    /*
+						/*
 					     * Send notification - includes sound notification
 					     */
 						NotificationManager.getInstance().statusNotification(notification, Patchr.applicationContext);

@@ -168,7 +168,7 @@ public class ProfileEdit extends BaseEdit {
 			}
 		}
 		else {
-			if (inputState != null && inputState.equals(State.Onboarding)) {
+			if (inputState != null && inputState.equals(State.Creating)) {
 				entity = new RealmEntity();
 				entity.email = inputEmail;
 				entity.password = inputPassword;
@@ -213,7 +213,7 @@ public class ProfileEdit extends BaseEdit {
 			}
 		}
 		else {
-			if (this.inputState != null && this.inputState.equals(State.Onboarding)) {
+			if (this.inputState != null && this.inputState.equals(State.Creating)) {
 				UI.setTextView(this.email, this.inputEmail);
 				this.email.setEnabled(false);
 				this.photoEditWidget.bind(null);
@@ -232,11 +232,16 @@ public class ProfileEdit extends BaseEdit {
 	@Override protected void gather(SimpleMap parameters) {
 		super.gather(parameters); // Handles name, description, photo
 
-		if (email != null) {
-			parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
+		if (inputState.equals(State.Creating)) {
+			if (email != null) {
+				parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
+			}
+			if (area != null) {
+				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
+			}
 		}
-		if (area != null) {
-			parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
+		else if (inputState.equals(State.Editing)) {
+
 		}
 	}
 
@@ -263,7 +268,7 @@ public class ProfileEdit extends BaseEdit {
 				}
 			}
 
-			if (inputState.equals(State.Onboarding)) {
+			if (inputState.equals(State.Creating)) {
 				subscription = RestClient.getInstance().signup(parameters)
 					.subscribe(
 						response -> {
@@ -287,9 +292,6 @@ public class ProfileEdit extends BaseEdit {
 							busyController.hide(true);
 							Logger.w(this, error.getLocalizedMessage());
 						});
-			}
-			else if (inputState.equals(State.CompleteProfile)) {
-				this.entity.role = "user";
 			}
 			else {
 				subscription = RestClient.getInstance().postEntity(path, parameters)
@@ -329,7 +331,7 @@ public class ProfileEdit extends BaseEdit {
 						Logger.i(this, "Deleted user: " + entity.id);
 						UserManager.shared().setCurrentUser(null, null);
 						UserManager.shared().discardAuthHints();
-						Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+						UI.routeLobby(Patchr.applicationContext);
 						UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
 						finish();
 					},

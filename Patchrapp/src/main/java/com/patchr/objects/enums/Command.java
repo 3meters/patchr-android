@@ -4,8 +4,6 @@ public class Command {
 
 	public static int UNKNOWN           = 0;
 	public static int EDIT              = 3;
-	public static int PHOTO             = 7;
-	public static int HOME              = 10;
 	public static int SETTINGS          = 11;
 	public static int FEEDBACK          = 13;
 	public static int REPORT            = 14;
@@ -20,9 +18,7 @@ public class Command {
 	public static int SETTINGS_WIFI     = 26;
 	public static int PASSWORD_CHANGE   = 29;
 	public static int PASSWORD_RESET    = 30;
-	public static int LOBBY             = 31;
 	public static int PHOTO_PICK        = 32;
-	public static int PHOTO_FROM_CAMERA = 35;
 	public static int PHOTO_SEARCH      = 36;
 	public static int TUNE              = 39;
 	public static int ABOUT             = 43;

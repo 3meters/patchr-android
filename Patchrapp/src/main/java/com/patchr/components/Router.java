@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 
@@ -16,122 +15,25 @@ import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.AboutScreen;
 import com.patchr.ui.BaseScreen;
-import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.MainScreen;
 import com.patchr.ui.MapScreen;
-import com.patchr.ui.MessageScreen;
-import com.patchr.ui.PhotoScreen;
 import com.patchr.ui.SettingsScreen;
 import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.collections.MemberListScreen;
-import com.patchr.ui.collections.PatchScreen;
 import com.patchr.ui.collections.PhotoSearchScreen;
-import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.collections.SearchScreen;
 import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
-import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PasswordEdit;
-import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.PrivacyEdit;
-import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
-import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.fragments.MapListFragment;
-import com.patchr.utilities.Utils;
 
 public class Router {
 
-	public Intent add(Context context, String schema, Bundle extras, Boolean start) {
-		/*
-		 * Not used to route when creating an invite or share.
-		 */
-		Class<?> newClass = null;
-		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
-			newClass = PatchEdit.class;
-		}
-		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(schema)) {
-			newClass = MessageEdit.class;
-		}
-
-		Utils.guard(newClass != null, "Could not set edit class for unknown schema");
-
-		IntentBuilder intentBuilder = new IntentBuilder(context, newClass);
-		intentBuilder.setEntitySchema(schema).addExtras(extras);
-		Intent intent = intentBuilder.build();
-
-		if (start) {
-			((Activity) context).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_ENTITY_INSERT);
-			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
-		}
-
-		return intent;
-	}
-
-	public Intent browse(Context context, String entityId, Bundle extras, Boolean start) {
-
-		String schema = RealmEntity.getSchemaForId(entityId);
-		Class<?> browseClass = MessageScreen.class;
-		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
-			browseClass = PatchScreen.class;
-		}
-		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
-			browseClass = ProfileScreen.class;
-		}
-
-		IntentBuilder intentBuilder = new IntentBuilder(context, browseClass);
-		intentBuilder.setEntityId(entityId).addExtras(extras);
-		Intent intent = intentBuilder.build();
-
-		if (start) {
-			context.startActivity(intent);
-			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
-		}
-
-		return intent;
-	}
-
-	public Intent edit(Context context, RealmEntity entity, Bundle extras, Boolean start) {
-
-		Class<?> editClass = MessageEdit.class;
-		if (Constants.SCHEMA_ENTITY_PATCH.equals(entity.schema)) {
-			editClass = PatchEdit.class;
-		}
-		else if (Constants.SCHEMA_ENTITY_USER.equals(entity.schema)) {
-			editClass = ProfileEdit.class;
-		}
-		else if (Constants.SCHEMA_ENTITY_MESSAGE.equals(entity.schema) && entity.type != null && entity.type.equals("share")) {
-			editClass = ShareEdit.class;
-		}
-
-		IntentBuilder intentBuilder = new IntentBuilder(context, editClass);
-		intentBuilder.setEntityId(entity.id).addExtras(extras);
-		Intent intent = intentBuilder.build();
-
-		if (start) {
-			((Activity) context).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_ENTITY_EDIT);
-			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
-		}
-
-		return intent;
-	}
-
 	public void route(final Context activity, Integer route, RealmEntity entity, Bundle extras) {
 
-		if (route == Command.HOME) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, MainScreen.class);
-			Intent intent = intentBuilder.build();
-
-			intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-			activity.startActivity(intent);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.VIEW_TO);
-		}
-
-		else if (route == Command.MAP) {
+		if (route == Command.MAP) {
 
 			if (entity == null) {
 				throw new IllegalArgumentException("Dispatching map requires entity");
@@ -160,17 +62,6 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Command.PHOTO) {
-		    /*
-			 * Single photo to show and it has already been serialized into the extras bundle.
-			 */
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoScreen.class);
-			intentBuilder.setExtras(extras);
-			Intent intent = intentBuilder.build();
-			activity.startActivity(intent);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
 		else if (route == Command.VIEW_AS_LIST) {
 
 			Fragment fragment = ((MainScreen) activity).getCurrentFragment();
@@ -194,15 +85,6 @@ public class Router {
 			intentBuilder.addExtras(extras);
 			Intent intent = intentBuilder.build();
 			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.SIGNUP) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, ProfileEdit.class);
-			intentBuilder.addExtras(extras);
-			Intent intent = intentBuilder.build();
-			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_SIGNUP);
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
@@ -287,30 +169,6 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Command.LOBBY) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, LobbyScreen.class);
-			final Intent intent = intentBuilder.build();
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			if (activity instanceof BaseScreen) {
-				((BaseScreen) activity).setResult(Activity.RESULT_CANCELED);
-			}
-			activity.startActivity(intent);
-			if (activity instanceof Activity) {
-				((Activity) activity).finish();
-				AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_BACK);
-			}
-		}
-
-		else if (route == Command.PHOTO_FROM_CAMERA) {
-
-			IntentBuilder intentBuilder = new IntentBuilder(MediaStore.ACTION_IMAGE_CAPTURE);
-			intentBuilder.addExtras(extras);
-			((Activity) activity).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_PHOTO_MAKE);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
 		else if (route == Command.PHOTO_SEARCH) {
 
 			IntentBuilder intentBuilder = new IntentBuilder(activity, PhotoSearchScreen.class);
@@ -374,30 +232,30 @@ public class Router {
 
 	public Integer routeForMenuId(int itemId) {
 
-		if (itemId == R.id.edit)
+		if (itemId == R.id.delete)
+			return Command.DELETE;
+		else if (itemId == R.id.edit)
 			return Command.EDIT;
-		else if (itemId == R.id.login)
-			return Command.LOGIN;
-		else if (itemId == R.id.report)
-			return Command.REPORT;
-		else if (itemId == R.id.submit)
-			return Command.SUBMIT;
 		else if (itemId == R.id.invite)
 			return Command.SHARE;
+		else if (itemId == R.id.login)
+			return Command.LOGIN;
+		else if (itemId == R.id.map)
+			return Command.MAP;
+		else if (itemId == R.id.navigate)
+			return Command.NAVIGATE;
+		else if (itemId == R.id.remove)
+			return Command.REMOVE;
+		else if (itemId == R.id.report)
+			return Command.REPORT;
+		else if (itemId == R.id.search)
+			return Command.SEARCH;
 		else if (itemId == R.id.share)
 			return Command.SHARE;
 		else if (itemId == R.id.share_photo)
 			return Command.SHARE;
-		else if (itemId == R.id.delete)
-			return Command.DELETE;
-		else if (itemId == R.id.remove)
-			return Command.REMOVE;
-		else if (itemId == R.id.navigate)
-			return Command.NAVIGATE;
-		else if (itemId == R.id.search)
-			return Command.SEARCH;
-		else if (itemId == R.id.map)
-			return Command.MAP;
+		else if (itemId == R.id.submit)
+			return Command.SUBMIT;
 		else if (itemId == R.id.view_as_list)
 			return Command.VIEW_AS_LIST;
 		else if (itemId == R.id.view_as_map)

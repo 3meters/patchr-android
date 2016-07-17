@@ -1,7 +1,9 @@
 package com.patchr.utilities;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -21,12 +23,24 @@ import android.widget.Toast;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.FontManager;
+import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.PhotoCategory;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.ui.BaseScreen;
+import com.patchr.ui.LobbyScreen;
+import com.patchr.ui.MainScreen;
+import com.patchr.ui.MessageScreen;
+import com.patchr.ui.PhotoScreen;
+import com.patchr.ui.collections.PatchScreen;
+import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.widgets.ImageWidget;
+
+import io.realm.Realm;
 
 @SuppressWarnings("ucd")
 public class UI {
@@ -179,6 +193,84 @@ public class UI {
 	/*--------------------------------------------------------------------------------------------
 	 * Display
 	 *--------------------------------------------------------------------------------------------*/
+
+	public static void routeHome(Context context) {
+
+		final IntentBuilder intentBuilder = new IntentBuilder(context, MainScreen.class);
+		Intent intent = intentBuilder.build();
+
+		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		context.startActivity(intent);
+		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.VIEW_TO);
+	}
+
+	public static void routeLobby(Context context) {
+
+		final IntentBuilder intentBuilder = new IntentBuilder(context, LobbyScreen.class);
+		final Intent intent = intentBuilder.build();
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		if (context instanceof BaseScreen) {
+			((BaseScreen) context).setResult(Activity.RESULT_CANCELED);
+		}
+		context.startActivity(intent);
+		if (context instanceof Activity) {
+			((Activity) context).finish();
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_BACK);
+		}
+	}
+
+	public static Intent browseEntity(String entityId, Activity activity) {
+		return browseEntity(entityId, activity, false);
+	}
+
+	public static Intent browseEntity(String entityId, Context context, Boolean intentOnly) {
+
+		String targetId = entityId;
+
+		Realm realm = Realm.getDefaultInstance();
+		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+		realm.close();
+
+		if (entity != null) {
+			if (entity.shortcutForId != null)
+				targetId = entity.shortcutForId;
+			if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+				targetId = entity.targetId;
+			}
+		}
+
+		String schema = RealmEntity.getSchemaForId(targetId);
+
+		Class<?> browseClass = MessageScreen.class;
+		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
+			browseClass = PatchScreen.class;
+		}
+		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
+			browseClass = ProfileScreen.class;
+		}
+
+		Intent intent = new Intent(context, browseClass);
+		intent.putExtra(Constants.EXTRA_ENTITY_ID, targetId);
+
+		if (!intentOnly) {
+			context.startActivity(intent);
+			AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.FORM_TO);
+		}
+
+		return intent;
+	}
+
+	public static void browsePhoto(Photo photo, Activity activity) {
+		final String jsonPhoto = Patchr.gson.toJson(photo);
+		Intent intent = new Intent(activity, PhotoScreen.class);
+		intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
+		activity.startActivity(intent);
+		AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+	}
 
 	public static void toast(final String message) {
 		toast(message, Toast.LENGTH_SHORT, 0);

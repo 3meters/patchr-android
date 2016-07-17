@@ -28,7 +28,6 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.ui.IconGenerator;
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
@@ -38,6 +37,7 @@ import com.patchr.model.Location;
 import com.patchr.model.RealmEntity;
 import com.patchr.ui.components.AirClusterRenderer;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.UI;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -166,7 +166,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	}
 
 	@Override public void onClusterItemInfoWindowClick(EntityItem entityItem) {
-		Patchr.router.browse(getActivity(), entityItem.entity.id, null, true);
+		UI.browseEntity(entityItem.entity.id, getActivity());
 	}
 
 	/*--------------------------------------------------------------------------------------------

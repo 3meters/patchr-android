@@ -307,7 +307,9 @@ public class ResetEdit extends BaseEdit {
 							if (response.isSuccessful()) {
 								Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
 								Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
-								navigateToMain();
+								UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+								UI.routeHome(this);
+								finish();
 							}
 							else {
 								if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
@@ -329,11 +331,5 @@ public class ResetEdit extends BaseEdit {
 						});
 			});
 		}
-	}
-
-	protected void navigateToMain() {
-		UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-		Patchr.router.route(this, Command.HOME, null, null);
-		finish();
 	}
 }

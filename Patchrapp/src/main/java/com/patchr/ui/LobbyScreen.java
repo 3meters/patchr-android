@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +23,6 @@ import com.facebook.accountkit.ui.AccountKitConfiguration.AccountKitConfiguratio
 import com.facebook.accountkit.ui.LoginType;
 import com.facebook.applinks.AppLinkData;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.BuildConfig;
 import com.patchr.Constants;
@@ -37,8 +37,6 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.Preference;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
@@ -50,7 +48,6 @@ import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
 import java.util.Map;
@@ -221,10 +218,6 @@ public class LobbyScreen extends AppCompatActivity {
 				startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
 				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 			}
-			else if (view.getId() == R.id.guest_button) {
-				Reporting.track(AnalyticsCategory.ACTION, "Entered as Guest");
-				startHomeActivity();
-			}
 		}
 	}
 
@@ -248,7 +241,20 @@ public class LobbyScreen extends AppCompatActivity {
 		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 
 		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
-			//Dispatcher.getInstance().post(new RegisterInstallEvent());  // Sets install registered flag only if successful
+			AsyncTask.execute(() -> {
+				RestClient.getInstance().registerInstall()
+					.subscribe(
+						response -> {
+							if (response.isSuccessful()) {
+								SharedPreferences.Editor editor = Patchr.settings.edit();
+								editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true).apply();
+								editor.apply();
+							}
+						},
+						error -> {
+							Logger.w(this, error.getLocalizedMessage());
+						});
+			});
 		}
 	}
 
@@ -265,24 +271,23 @@ public class LobbyScreen extends AppCompatActivity {
 				Map metadata = branchUniversalObject.getMetadata();
 
 				if (linkProperties.getFeature().equals("reset_password")) {
-					Bundle extras = new Bundle();
-					extras.putString(Constants.EXTRA_RESET_TOKEN, (String) metadata.get("token"));
-					extras.putString(Constants.EXTRA_RESET_USER_NAME, (String) metadata.get("userName"));
-					extras.putString(Constants.EXTRA_RESET_USER_PHOTO, (String) metadata.get("userPhoto"));
-					startActivity(new Intent(LobbyScreen.this, ResetEdit.class).putExtras(extras));
+					Intent intent = new Intent(this, ResetEdit.class);
+					intent.putExtra(Constants.EXTRA_RESET_TOKEN, (String) metadata.get("token"));
+					intent.putExtra(Constants.EXTRA_RESET_USER_NAME, (String) metadata.get("userName"));
+					intent.putExtra(Constants.EXTRA_RESET_USER_PHOTO, (String) metadata.get("userPhoto"));
+					startActivity(intent);
 					finish();
 					return;
 				}
 
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
-				extras.putString(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
-				extras.putString(Constants.EXTRA_REFERRER_NAME, (String) metadata.get("referrerName"));
-				extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
-				extras.putBoolean(Constants.EXTRA_SHOW_REFERRER_WELCOME, true);
-
-				Patchr.router.browse(LobbyScreen.this, (String) metadata.get("entityId"), extras, true);
-
+				Intent intent = UI.browseEntity((String) metadata.get("entityId"), LobbyScreen.this, true);
+				intent.putExtra(Constants.EXTRA_ENTITY_SCHEMA, (String) metadata.get("entitySchema"));
+				intent.putExtra(Constants.EXTRA_ENTITY_ID, (String) metadata.get("entityId"));
+				intent.putExtra(Constants.EXTRA_REFERRER_NAME, (String) metadata.get("referrerName"));
+				intent.putExtra(Constants.EXTRA_REFERRER_PHOTO_URL, (String) metadata.get("referrerPhotoUrl"));
+				intent.putExtra(Constants.EXTRA_SHOW_REFERRER_WELCOME, true);
+				startActivity(intent);
+				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 				finish();
 				return;
 			}
@@ -316,74 +321,67 @@ public class LobbyScreen extends AppCompatActivity {
 				proceed();
 			}
 			else {
-				AppLinkData.fetchDeferredAppLinkData(this,
-					new AppLinkData.CompletionHandler() {
+				AppLinkData.fetchDeferredAppLinkData(this, (appLinkData) -> {
+					if (appLinkData != null) {
+						String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
+						if (targetUrlString != null) {
+							Logger.i(this, "Facebook deferred applink target url: " + targetUrlString);
+							UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
 
-						@Override
-						public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-							if (appLinkData != null) {
-								String targetUrlString = appLinkData.getArgumentBundle().getString("target_url");
-								if (targetUrlString != null) {
-									Logger.i(this, "Facebook deferred applink target url: " + targetUrlString);
-									UrlQuerySanitizer sanitizer = new UrlQuerySanitizer(targetUrlString);
-
-									routeDeepLink(sanitizer.getValue("entityId")
-										, sanitizer.getValue("entitySchema")
-										, sanitizer.getValue("referrerName").replaceAll("_", " ")
-										, sanitizer.getValue("referrerPhotoUrl"));
-									finish();
-									return;
-								}
-							}
-							proceed();
+							routeDeepLink(sanitizer.getValue("entityId")
+								, sanitizer.getValue("entitySchema")
+								, sanitizer.getValue("referrerName").replaceAll("_", " ")
+								, sanitizer.getValue("referrerPhotoUrl"));
+							finish();
+							return;
 						}
-					});
+					}
+					proceed();
+				});
 			}
 		}
 	}
 
 	protected void proceed() {
 
-		runOnUiThread(new Runnable() {
+		runOnUiThread(() -> {
+			/* Always reset the entity cache */
+			LocationManager.getInstance().stop();
+			LocationManager.getInstance().setAndroidLocationLocked(null);
 
-			@Override public void run() {
+			/* Restart notification tracking */
+			NotificationManager.getInstance().setNewNotificationCount(0);
 
-				/* Always reset the entity cache */
-				LocationManager.getInstance().stop();
-				LocationManager.getInstance().setAndroidLocationLocked(null);
-
-				/* Restart notification tracking */
-				NotificationManager.getInstance().setNewNotificationCount(0);
-
-				if (Patchr.applicationUpdateRequired) {
-					updateRequired();
-					return;
+			if (Patchr.applicationUpdateRequired) {
+				updateRequired();
+				return;
+			}
+			/*
+			 * Check to make sure play services are working properly. This call will finish
+			 * the activity if play services are missing and can't be installed or if the user
+			 * refuses to install them. If play services can be fixed, then resume will be
+			 * called again.
+			 */
+			if (AndroidManager.checkPlayServices(LobbyScreen.this)) {
+				if (UserManager.shared().authenticated() && !UserManager.shared().provisional()) {
+					startHomeActivity();
 				}
-				/*
-				 * Check to make sure play services are working properly. This call will finish
-				 * the activity if play services are missing and can't be installed or if the user
-				 * refuses to install them. If play services can be fixed, then resume will be
-				 * called again.
-				 */
-				if (AndroidManager.checkPlayServices(LobbyScreen.this)) {
-					if (UserManager.shared().authenticated() && !UserManager.shared().provisional()) {
-						startHomeActivity();
-					}
-					else {
-						showButtons();
-					}
+				else {
+					showButtons();
 				}
 			}
 		});
 	}
 
 	protected void routeDeepLink(String entityId, String entitySchema, String referrerName, String referrerPhotoUrl) {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_ENTITY_SCHEMA, entitySchema);
-		extras.putString(Constants.EXTRA_ENTITY_ID, entityId);
-		extras.putString(Constants.EXTRA_REFERRER_NAME, referrerName);
-		extras.putString(Constants.EXTRA_REFERRER_PHOTO_URL, referrerPhotoUrl);
-		Patchr.router.browse(this, entityId, extras, true);
+
+		Intent intent = UI.browseEntity(entityId, LobbyScreen.this, true);
+		intent.putExtra(Constants.EXTRA_ENTITY_SCHEMA, entitySchema);
+		intent.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
+		intent.putExtra(Constants.EXTRA_REFERRER_NAME, referrerName);
+		intent.putExtra(Constants.EXTRA_REFERRER_PHOTO_URL, referrerPhotoUrl);
+		startActivity(intent);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	protected void startHomeActivity() {
@@ -396,7 +394,7 @@ public class LobbyScreen extends AppCompatActivity {
 			this.startActivity(Patchr.sendIntent);
 		}
 		else {
-			Patchr.router.route(this, Command.HOME, null, null);
+			UI.routeHome(this);
 		}
 
 		finish();
@@ -409,7 +407,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 		final String jsonEntity = Patchr.gson.toJson(entity);
 		Intent intent = new Intent(this, ProfileEdit.class);
-		intent.putExtra(Constants.EXTRA_STATE, State.CompleteProfile);
+		intent.putExtra(Constants.EXTRA_STATE, State.Creating);
 		intent.putExtra(Constants.EXTRA_ENTITY, jsonEntity);
 		startActivityForResult(intent, Constants.ACTIVITY_COMPLETE_PROFILE);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
@@ -421,25 +419,20 @@ public class LobbyScreen extends AppCompatActivity {
 
 			@Override public boolean onMenuItemClick(final MenuItem item) {
 
-				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
+				bottomSheetLayout.addOnSheetDismissedListener( bottomSheetLayout -> {
+					if (item.getItemId() == R.id.login_using_phone) {
+						verifyPhoneNumber();
+					}
+					else if (item.getItemId() == R.id.login_using_email) {
+						verifyEmail(null);
+					}
+					else if (item.getItemId() == R.id.login_using_password) {
 
-					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
-
-						if (item.getItemId() == R.id.login_using_phone) {
-							verifyPhoneNumber();
-						}
-						else if (item.getItemId() == R.id.login_using_email) {
-							verifyEmail(null);
-						}
-						else if (item.getItemId() == R.id.login_using_password) {
-
-							authType = AuthType.Password;
-
-							Intent intent = new Intent(LobbyScreen.this, LoginEdit.class);
-							intent.putExtra(Constants.EXTRA_ONBOARD_MODE, UserManager.authTypeHint != null ? State.Login : State.Signup);
-							startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
-							AnimationManager.doOverridePendingTransition(LobbyScreen.this, TransitionType.FORM_TO);
-						}
+						authType = AuthType.Password;
+						Intent intent = new Intent(LobbyScreen.this, LoginEdit.class);
+						intent.putExtra(Constants.EXTRA_ONBOARD_MODE, UserManager.authTypeHint != null ? State.Login : State.Signup);
+						startActivityForResult(intent, Constants.ACTIVITY_LOGIN);
+						AnimationManager.doOverridePendingTransition(LobbyScreen.this, TransitionType.FORM_TO);
 					}
 				});
 
@@ -514,20 +507,15 @@ public class LobbyScreen extends AppCompatActivity {
 									, R.string.dialog_no_account_exists_positive
 									, R.string.dialog_no_account_exists_cancel
 									, null
-									, new DialogInterface.OnClickListener() {
-
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											if (which == DialogInterface.BUTTON_POSITIVE) {
-												dialog.dismiss();
-											}
-											else if (which == DialogInterface.BUTTON_NEGATIVE) {
-												completeProfile(UserManager.currentUser);
-												dialog.dismiss();
-											}
+									, (dlg, which) -> {
+										if (which == DialogInterface.BUTTON_POSITIVE) {
+											dlg.dismiss();
 										}
-									}
-									, null);
+										else if (which == DialogInterface.BUTTON_NEGATIVE) {
+											completeProfile(UserManager.currentUser);
+											dlg.dismiss();
+										}
+									}, null);
 
 								dialog.setCanceledOnTouchOutside(false);
 								dialog.show();
@@ -540,7 +528,7 @@ public class LobbyScreen extends AppCompatActivity {
 						}
 						else if (authIntent.equals(State.Signup)) {
 							if (!UserManager.shared().provisional()) {
-							/* User meant to signup but got an existing account instead. */
+								/* User meant to signup but got an existing account instead. */
 								Logger.i(this, "User tried to sign up but got an existing account instead");
 								Logger.i(this, "User logged in: " + UserManager.currentUser.name);
 								UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);

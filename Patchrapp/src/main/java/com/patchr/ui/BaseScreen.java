@@ -35,14 +35,11 @@ import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
-import com.patchr.ui.collections.PatchScreen;
-import com.patchr.ui.collections.ProfileScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.MenuTint;
 import com.patchr.ui.widgets.AirProgressBar;
@@ -176,7 +173,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		}
 		else if (item.getItemId() == R.id.logout) {
 			UserManager.shared().logout();
-			Patchr.router.route(Patchr.applicationContext, Command.LOBBY, null, null);
+			UI.routeLobby(Patchr.applicationContext);
 		}
 		else {
 			/* Handles: login, browse, map */
@@ -258,36 +255,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 				}
 			});
 		}
-	}
-
-	public void navigateToPhoto(Photo photo) {
-		final String jsonPhoto = Patchr.gson.toJson(photo);
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_PHOTO, jsonPhoto);
-		Patchr.router.route(this, Command.PHOTO, null, extras);
-	}
-
-	public void navigateToEntity(RealmEntity entity) {
-
-		String targetId = entity.shortcutForId != null ? entity.shortcutForId : entity.id;
-		if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-			targetId = entity.targetId;
-		}
-
-		String schema = RealmEntity.getSchemaForId(targetId);
-
-		Class<?> browseClass = MessageScreen.class;
-		if (Constants.SCHEMA_ENTITY_PATCH.equals(schema)) {
-			browseClass = PatchScreen.class;
-		}
-		else if (Constants.SCHEMA_ENTITY_USER.equals(schema)) {
-			browseClass = ProfileScreen.class;
-		}
-
-		Intent intent = new Intent(this, browseClass);
-		intent.putExtra(Constants.EXTRA_ENTITY_ID, targetId);
-		startActivity(intent);
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	protected void configureStandardMenuItems(Menu menu) {

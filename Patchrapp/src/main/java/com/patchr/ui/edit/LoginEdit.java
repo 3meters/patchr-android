@@ -216,11 +216,12 @@ public class LoginEdit extends BaseEdit {
 					busyController.hide(true);
 					if (response.isSuccessful()) {
 						if (response.count.intValue() == 0) {
-							Bundle extras = new Bundle();
-							extras.putString(Constants.EXTRA_STATE, State.Onboarding);
-							extras.putString(Constants.EXTRA_EMAIL, email);
-							extras.putString(Constants.EXTRA_PASSWORD, password.getText().toString());
-							Patchr.router.route(this, Command.SIGNUP, null, extras);
+							Intent intent = new Intent(this, ProfileEdit.class);
+							intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+							intent.putExtra(Constants.EXTRA_EMAIL, email);
+							intent.putExtra(Constants.EXTRA_PASSWORD, password.getText().toString());
+							startActivityForResult(intent, Constants.ACTIVITY_SIGNUP);
+							AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 						}
 						else {
 							UI.toast("Email has already been used.");

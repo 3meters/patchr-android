@@ -648,21 +648,26 @@ public class RestClient {
 
 	public Observable<ProxibaseResponse> registerInstall() {
 
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("installId", Patchr.getInstance().getinstallId());
-		parameters.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
-		parameters.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
-		parameters.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
-		parameters.put("clientPackageName", Patchr.applicationContext.getPackageName());
-		parameters.put("deviceName", AndroidManager.getInstance().getDeviceName());
-		parameters.put("deviceType", "android");
-		parameters.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
-
-		if (parameters.get("parseInstallId") == null) {
-			throw new IllegalStateException("parseInstallId cannot be null");
+		if (!NetworkManager.getInstance().isConnected()) {
+			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
+		else {
+			SimpleMap parameters = new SimpleMap();
+			parameters.put("installId", Patchr.getInstance().getinstallId());
+			parameters.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
+			parameters.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
+			parameters.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
+			parameters.put("clientPackageName", Patchr.applicationContext.getPackageName());
+			parameters.put("deviceName", AndroidManager.getInstance().getDeviceName());
+			parameters.put("deviceType", "android");
+			parameters.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
 
-		return post("do/registerInstall", parameters, null, null, false);
+			if (parameters.get("parseInstallId") == null) {
+				throw new IllegalStateException("parseInstallId cannot be null");
+			}
+
+			return post("do/registerInstall", parameters, null, null, false);
+		}
 	}
 
 	public Observable<ProxibaseResponse> updateProximity(@NotNull final Location location) {

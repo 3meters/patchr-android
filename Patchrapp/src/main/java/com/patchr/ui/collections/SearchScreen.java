@@ -14,6 +14,7 @@ import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.utilities.Colors;
+import com.patchr.utilities.UI;
 
 public class SearchScreen extends BaseScreen {
 
@@ -34,11 +35,11 @@ public class SearchScreen extends BaseScreen {
 		if (view.getTag() != null) {
 			if (view.getTag() instanceof Photo) {
 				Photo photo = (Photo) view.getTag();
-				navigateToPhoto(photo);
+				UI.browsePhoto(photo, this);
 			}
 			else if (view.getTag() instanceof RealmEntity) {
 				final RealmEntity entity = (RealmEntity) view.getTag();
-				navigateToEntity(entity);
+				UI.browseEntity(entity.id, this);
 			}
 		}
 	}
