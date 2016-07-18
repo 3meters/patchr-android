@@ -193,6 +193,6 @@ public class MessageEdit extends BaseEdit {
 	}
 
 	@Override protected int getLayoutId() {
-		return R.layout.edit_post;
+		return R.layout.edit_message;
 	}
 }

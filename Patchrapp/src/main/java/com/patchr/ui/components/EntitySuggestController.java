@@ -148,7 +148,7 @@ public class EntitySuggestController {
 			AsyncTask.execute(() -> {
 				this.subscription = RestClient.getInstance().suggest(chars.toString().trim()
 					, suggestScope
-					, UserManager.shared().authenticated() ? UserManager.currentUser.id : null
+					, UserManager.currentUser.id
 					, LocationManager.getInstance().getLocationLocked()
 					, LIMIT)
 					.doOnTerminate(() -> {

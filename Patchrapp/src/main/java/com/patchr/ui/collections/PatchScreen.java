@@ -28,10 +28,8 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
 import com.patchr.components.FacebookProvider;
-import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
-import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.NotificationReceivedEvent;
@@ -39,7 +37,6 @@ import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.FetchMode;
 import com.patchr.objects.enums.LinkType;
 import com.patchr.objects.enums.MemberStatus;
@@ -85,7 +82,6 @@ public class PatchScreen extends BaseListScreen {
 	protected boolean         showReferrerWelcome;
 	protected String          referrerName;
 	protected String          referrerPhotoUrl;
-	protected boolean         authenticatedForInvite;
 	protected boolean         autoJoin;
 	protected boolean         justApproved;               // Set in onMessage via notification
 
@@ -96,10 +92,10 @@ public class PatchScreen extends BaseListScreen {
 		if (entity != null) {
 			if (referrerName != null) {     // Active invitation
 				if (this.bottomSheetLayout.isSheetShowing()) {
-					if (UserManager.shared().authenticated() && !entity.userMemberStatus.equals(MemberStatus.NonMember)) {
+					if (!entity.userMemberStatus.equals(MemberStatus.NonMember)) {
 						this.bottomSheetLayout.dismissSheet();
 					}
-					else if (UserManager.shared().authenticated() != authenticatedForInvite) {
+					else {
 						showInviteWelcome(1000);
 					}
 				}
@@ -121,17 +117,14 @@ public class PatchScreen extends BaseListScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (UserManager.shared().authenticated()) {
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_edit, menu);
+		getMenuInflater().inflate(R.menu.menu_delete, menu);
 
-			/* Shown for owner */
-			getMenuInflater().inflate(R.menu.menu_edit, menu);
-			getMenuInflater().inflate(R.menu.menu_delete, menu);
-
-			/* Shown for everyone */
-			getMenuInflater().inflate(R.menu.menu_invite, menu);
-			getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
-			getMenuInflater().inflate(R.menu.menu_report, menu);        // base
-		}
+		/* Shown for everyone */
+		getMenuInflater().inflate(R.menu.menu_invite, menu);
+		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		getMenuInflater().inflate(R.menu.menu_login, menu);         // base
 		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
@@ -225,7 +218,7 @@ public class PatchScreen extends BaseListScreen {
 					finish();
 				}
 			}
-			else if (resultCode == Constants.RESULT_USER_LOGGED_IN && UserManager.shared().authenticated()) {
+			else if (resultCode == Constants.RESULT_USER_LOGGED_IN) {
 				this.listWidget.onRefresh();
 			}
 			else if (requestCode == Constants.ACTIVITY_ENTITY_INSERT) {
@@ -274,12 +267,8 @@ public class PatchScreen extends BaseListScreen {
 
 	public void addAction() {
 
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to post messages and more.");
-			return;
-		}
-
-		if (entity != null && MenuManager.canUserAdd(entity)) {
+		/* Add action not accessible if user can't add */
+		if (entity != null) {
 			Intent intent = new Intent(this, MessageEdit.class);
 			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
 			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_NAME, entity.name);
@@ -290,12 +279,6 @@ public class PatchScreen extends BaseListScreen {
 	}
 
 	private void inviteAction() {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to send patch invites and more.");
-			return;
-		}
-
 		if (entity != null) {
 			share();
 		}
@@ -304,11 +287,6 @@ public class PatchScreen extends BaseListScreen {
 	protected void joinAction() {
 
 		if (entity == null) return;
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to watch patches and more.");
-			return;
-		}
 
 		/* Cancel request */
 		if (entity.userMemberStatus.equals(MemberStatus.Member)) {
@@ -521,11 +499,11 @@ public class PatchScreen extends BaseListScreen {
 						/*
 						 * Go to patchr share directly but looks just like an external share
 						 */
-					final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
-					final Intent intent = intentBuilder.build();
+					final Intent intent = new Intent(activity, ShareEdit.class);
+					intent.putExtra(Constants.EXTRA_STATE, State.Creating);
 					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Invite);
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
+					intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
 					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 					intent.setAction(Intent.ACTION_SEND);
 					activity.startActivity(intent);
@@ -723,42 +701,22 @@ public class PatchScreen extends BaseListScreen {
 					imageView.setVisibility(View.GONE);
 				}
 
-				if (UserManager.shared().authenticated()) {
-
-					authenticatedForInvite = true;
-					if (entity.userMemberStatus.equals(MemberStatus.Member)) {
-						buttonGroup.setVisibility(View.GONE);
-						member.setText("You are a member of this patch!");
-					}
-					else if (entity.userMemberStatus.equals(MemberStatus.Pending)) {
-						buttonGroup.setVisibility(View.GONE);
-						member.setText("Requested");
-					}
-					else {
-						member.setVisibility(View.GONE);
-						button2.setVisibility(View.GONE);
-						button1.setText("JOIN");
-						button1.setOnClickListener(new View.OnClickListener() {
-							@Override public void onClick(View view) {
-								bottomSheetLayout.dismissSheet();
-								joinAction();
-							}
-						});
-					}
+				if (entity.userMemberStatus.equals(MemberStatus.Member)) {
+					buttonGroup.setVisibility(View.GONE);
+					member.setText("You are a member of this patch!");
+				}
+				else if (entity.userMemberStatus.equals(MemberStatus.Pending)) {
+					buttonGroup.setVisibility(View.GONE);
+					member.setText("Requested");
 				}
 				else {
-					authenticatedForInvite = false;
 					member.setVisibility(View.GONE);
-					button1.setText("LOG IN");
+					button2.setVisibility(View.GONE);
+					button1.setText("JOIN");
 					button1.setOnClickListener(new View.OnClickListener() {
-						@Override public void onClick(View v) {
-							Patchr.router.route(PatchScreen.this, Command.LOGIN, null, null);
-						}
-					});
-					button2.setText("SIGN UP");
-					button2.setOnClickListener(new View.OnClickListener() {
-						@Override public void onClick(View v) {
-							Patchr.router.route(PatchScreen.this, Command.SIGNUP, null, null);
+						@Override public void onClick(View view) {
+							bottomSheetLayout.dismissSheet();
+							joinAction();
 						}
 					});
 				}

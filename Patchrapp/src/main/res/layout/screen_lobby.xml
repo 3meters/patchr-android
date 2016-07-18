@@ -1,161 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.flipboard.bottomsheet.BottomSheetLayout
-
-	android:id="@+id/bottomsheet"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:context=".ui.LobbyScreen">
 
-	<RelativeLayout
+	<ImageView
+		android:id="@+id/image_background"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		tools:context=".ui.LobbyScreen">
+		android:scaleType="centerCrop"
+		android:src="@drawable/patchr_splash" />
+
+	<ImageView
+		android:id="@+id/logo_startup"
+		android:layout_width="72dp"
+		android:layout_height="72dp"
+		android:layout_centerInParent="true"
+		android:src="@drawable/ic_img_patch_dark"
+		android:visibility="visible" />
+
+	<LinearLayout
+		android:id="@+id/dialog"
+		android:layout_width="228dp"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:alpha="0"
+		android:orientation="vertical"
+		android:paddingBottom="96dp"
+		android:visibility="visible"
+		tools:alpha="1"
+		tools:ignore="UselessParent"
+		tools:visibility="visible">
 
 		<ImageView
-			android:id="@+id/image_background"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:scaleType="centerCrop"
-			android:src="@drawable/patchr_splash" />
-
-		<ImageView
-			android:id="@+id/logo_startup"
+			android:id="@+id/logo"
 			android:layout_width="72dp"
 			android:layout_height="72dp"
-			android:layout_centerInParent="true"
-			android:src="@drawable/ic_img_patch_dark"
-			android:visibility="visible" />
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="4dp"
+			android:src="@drawable/ic_img_patch_dark" />
 
-		<LinearLayout
-			android:id="@+id/dialog"
-			android:layout_width="228dp"
+		<TextView
+			android:id="@+id/name"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:alpha="0"
-			android:orientation="vertical"
-			android:paddingBottom="96dp"
-			android:visibility="visible"
-			tools:alpha="1"
-			tools:ignore="UselessParent"
-			tools:visibility="visible">
+			android:layout_gravity="center_horizontal"
+			android:layout_marginBottom="8dp"
+			android:gravity="center"
+			android:text="@string/name_app"
+			android:textColor="@color/white"
+			android:textSize="48sp" />
 
-			<ImageView
-				android:id="@+id/logo"
-				android:layout_width="72dp"
-				android:layout_height="72dp"
-				android:layout_gravity="center_horizontal"
-				android:layout_marginTop="4dp"
-				android:src="@drawable/ic_img_patch_dark" />
+		<Button
+			android:id="@+id/login_button"
+			style="@style/button_raised"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/button_height"
+			android:layout_marginBottom="8dp"
+			android:background="@drawable/bg_outlined_white"
+			android:onClick="onClick"
+			android:text="@string/lobby_button_login"
+			android:textAllCaps="false"
+			android:textColor="@color/white"
+			android:textSize="16sp" />
 
-			<TextView
-				android:id="@+id/name"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
-				android:layout_marginBottom="8dp"
-				android:gravity="center"
-				android:text="@string/name_app"
-				android:textColor="@color/white"
-				android:textSize="48sp" />
+		<Button
+			android:id="@+id/signup_button"
+			style="@style/button_raised"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/button_height"
+			android:layout_marginBottom="8dp"
+			android:background="@drawable/bg_outlined_white"
+			android:onClick="onClick"
+			android:text="@string/lobby_button_signup"
+			android:textAllCaps="false"
+			android:textColor="@color/white"
+			android:textSize="16sp" />
 
-			<FrameLayout
-				android:id="@+id/user_group"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="8dp"
-				android:background="@drawable/bg_outlined_translucent">
+	</LinearLayout>
 
-				<LinearLayout
-					android:id="@+id/user_button"
-					style="@style/button_featured"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:background="?android:attr/selectableItemBackground"
-					android:clickable="true"
-					android:onClick="onClick"
-					android:orientation="vertical"
-					android:padding="12dp">
-
-					<com.patchr.ui.widgets.ImageWidget
-						android:id="@+id/user_photo"
-						android:layout_width="@dimen/image_small"
-						android:layout_height="@dimen/image_small"
-						android:layout_gravity="center_horizontal"
-						android:layout_marginBottom="4dp"
-						app:category="profile"
-						app:shape="round" />
-
-					<TextView
-						android:id="@+id/user_name"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:ellipsize="end"
-						android:fontFamily="sans-serif"
-						android:singleLine="true"
-						android:textColor="@color/white"
-						tools:text="Log in as Aliza Wenk" />
-
-					<TextView
-						android:id="@+id/user_auth_identifier"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_horizontal"
-						android:ellipsize="end"
-						android:singleLine="true"
-						android:textColor="@color/white_80_pcnt"
-						android:textSize="14sp"
-						tools:text="aliza@3meters.com" />
-
-				</LinearLayout>
-
-			</FrameLayout>
-
-			<Button
-				android:id="@+id/auth_button"
-				style="@style/button_raised"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/button_height"
-				android:layout_marginBottom="8dp"
-				android:background="@drawable/bg_outlined_white"
-				android:onClick="onClick"
-				android:text="@string/lobby_button_passwordless"
-				android:textAllCaps="false"
-				android:textColor="@color/white"
-				android:textSize="16sp" />
-
-			<Button
-				android:id="@+id/login_button"
-				style="@style/button_raised"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/button_height"
-				android:layout_marginBottom="8dp"
-				android:background="@drawable/bg_outlined_white"
-				android:onClick="onClick"
-				android:text="@string/lobby_button_login"
-				android:textAllCaps="false"
-				android:textColor="@color/white"
-				android:textSize="16sp" />
-
-			<Button
-				android:id="@+id/signup_button"
-				style="@style/button_raised"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/button_height"
-				android:layout_marginBottom="8dp"
-				android:background="@drawable/bg_outlined_white"
-				android:onClick="onClick"
-				android:text="@string/lobby_button_signup"
-				android:textAllCaps="false"
-				android:textColor="@color/white"
-				android:textSize="16sp" />
-
-		</LinearLayout>
-
-	</RelativeLayout>
-
-</com.flipboard.bottomsheet.BottomSheetLayout>
-
+</RelativeLayout>

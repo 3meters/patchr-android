@@ -6,6 +6,9 @@
 	<string name="name_app" tools:ignore="UnusedResources">Patchr</string>
 	<string name="name_app_lowercase" tools:ignore="UnusedResources">patchr</string>
 	<string name="name_company" tools:ignore="UnusedResources">3meters LLC.</string>
+	<string name="id_package" tools:ignore="UnusedResources">com.patchr.android</string>
+	<string name="id_referrer" tools:ignore="UnusedResources">com.patchr.android</string>
+	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
 
 	<!--
 		We get complete substitution with the following exceptions
@@ -21,32 +24,24 @@
 	<string name="container_singular_lowercase" tools:ignore="UnusedResources">patch</string>
 	<string name="container_plural_lowercase" tools:ignore="UnusedResources">patches</string>
 
-	<!-- Identifiers -->
-
-	<string name="parse_app_id" tools:ignore="UnusedResources">EonZJ4FXEADijslgqXCkg37sOGpB7AB9lDYxoHtz</string>
-	<string name="parse_client_key" tools:ignore="UnusedResources">5QRFlRQ3j7gkxyJ2cBYbHTK98WRQhoHCnHdpEKSD</string>
-	<string name="id_gcm_sender" tools:ignore="UnusedResources">657673071389</string>
-	<string name="id_package" tools:ignore="UnusedResources">com.patchr.android</string>
-	<string name="id_referrer" tools:ignore="UnusedResources">com.patchr.android</string>
-	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
-
 	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
-
 	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.patchr.components.GcmIntentService</string>
 
-	<!-- Facebook -->
+	<!-- Identifiers -->
 
+	<string name="parse_app_id">EonZJ4FXEADijslgqXCkg37sOGpB7AB9lDYxoHtz</string>
+	<string name="parse_client_key">5QRFlRQ3j7gkxyJ2cBYbHTK98WRQhoHCnHdpEKSD</string>
+	<string name="gcm_sender_id">657673071389</string>
 	<string name="facebook_app_id">894654857249670</string>
-	<string name="account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
-	<string name="ak_login_protocol_scheme">ak894654857249670</string>
-
-	<!-- Adobe Creative Sdk -->
+	<string name="facebook_account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
+	<string name="facebook_account_kit_login_protocol_scheme">ak894654857249670</string>
+	<string name="tag_manager_container_id">GTM-MV8KBB</string>
+	<string name="bugsnag_api_key">0534f3bc03870084ba38d79ed1d5abea</string>
+	<string name="branch_sdk_key">key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3</string>
+	<string name="google_maps_api_key">AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA</string>
 
 	<string name="creative_sdk_client_id">6f4074ec11634bd78eb00909102844ec</string>
-
-	<!-- Tag manager -->
-
-	<string name="id_container">GTM-MV8KBB</string>
+	<string name="creative_sdk_client_key">7af6a808-0568-477e-88c2-63fa6e8ef617</string>
 
 	<!-- Splash -->
 

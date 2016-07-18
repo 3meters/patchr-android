@@ -274,18 +274,13 @@ public abstract class BaseScreen extends AppCompatActivity {
 			menuItem.setVisible(MenuManager.showAction(Command.REMOVE, entity));
 		}
 
-		menuItem = menu.findItem(R.id.login);
-		if (menuItem != null) {
-			menuItem.setVisible(!UserManager.shared().authenticated());
-		}
-
 		menuItem = menu.findItem(R.id.logout);
 		if (menuItem != null) {
-			menuItem.setVisible(UserManager.shared().authenticated());
+			menuItem.setVisible(true);
 		}
 
 		menuItem = menu.findItem(R.id.navigate);
-		if (menuItem != null && UserManager.shared().authenticated()) {
+		if (menuItem != null) {
 			menuItem.setVisible(entity.getLocation() != null);
 		}
 

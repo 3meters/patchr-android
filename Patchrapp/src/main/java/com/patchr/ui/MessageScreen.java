@@ -24,7 +24,6 @@ import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -79,8 +78,8 @@ public class MessageScreen extends BaseScreen {
 	protected ViewGroup shareRecipientsHolder;
 	protected TextView  shareRecipients;
 
-	public String              parentId;
-	public Subscription        subscription;
+	public String       parentId;
+	public Subscription subscription;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -121,16 +120,14 @@ public class MessageScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (UserManager.shared().authenticated()) {
-			/* Shown for owner */
-			getMenuInflater().inflate(R.menu.menu_edit, menu);
-			getMenuInflater().inflate(R.menu.menu_delete, menu);
-			getMenuInflater().inflate(R.menu.menu_remove, menu);
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_edit, menu);
+		getMenuInflater().inflate(R.menu.menu_delete, menu);
+		getMenuInflater().inflate(R.menu.menu_remove, menu);
 
-			/* Shown for everyone */
-			getMenuInflater().inflate(R.menu.menu_share_message, menu);
-			getMenuInflater().inflate(R.menu.menu_report, menu);        // base
-		}
+		/* Shown for everyone */
+		getMenuInflater().inflate(R.menu.menu_share_message, menu);
+		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -183,25 +180,15 @@ public class MessageScreen extends BaseScreen {
 	}
 
 	public void shareAction() {
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share messages and more.");
-			return;
-		}
 		share();
 	}
 
 	public void likeAction() {
 
-		if (processing) return;
-		processing = true;
-
-		if (!UserManager.shared().authenticated()) {
-			processing = false;
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to like messages and more.");
-			return;
+		if (!processing) {
+			processing = true;
+			like(!entity.userLikes);
 		}
-
-		like(!entity.userLikes);
 	}
 
 	public void likeListAction() {
@@ -294,20 +281,18 @@ public class MessageScreen extends BaseScreen {
 
 		AsyncTask.execute(() -> {
 			this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
-				.doOnTerminate(() -> {
-					if (this.busyController != null) {
-						this.busyController.hide(true);
-					}
-				})
 				.subscribe(
 					response -> {
 						processing = false;
+						busyController.hide(true);
 						executed = true;
 						if (this.entity == null) {
 							bind();
 						}
 					},
 					error -> {
+						processing = false;
+						busyController.hide(true);
 						Logger.w(this, error.getLocalizedMessage());
 					});
 		});
@@ -452,7 +437,7 @@ public class MessageScreen extends BaseScreen {
 				else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 					patchName.setText(StringManager.getString(R.string.label_message_shared));
 					MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-					//messageView.bind(shareEntity, null);
+					messageView.bind(shareEntity, null);
 					CardView cardView = (CardView) shareView;
 					int padding = UI.getRawPixelsForDisplayPixels(8f);
 					cardView.setContentPadding(padding, padding, padding, padding);
@@ -537,9 +522,7 @@ public class MessageScreen extends BaseScreen {
 
 		likeAnimator.setDisplayedChild(1);  // Turned off in drawButtons
 
-		if (UserManager.shared().authenticated()) {
-			UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
-		}
+		UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 
 		if (activate) {
 			AsyncTask.execute(() -> {
@@ -585,14 +568,12 @@ public class MessageScreen extends BaseScreen {
 
 					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
 						if (item.getItemId() == R.id.share_using_patchr) {
-							/*
-							 * Go to patchr share directly but looks just like an external share
-							 */
-							final IntentBuilder intentBuilder = new IntentBuilder(activity, ShareEdit.class);
-							final Intent intent = intentBuilder.build();
+							/* Go to patchr share directly but looks just like an external share*/
+							final Intent intent = new Intent(activity, ShareEdit.class);
+							intent.putExtra(Constants.EXTRA_STATE, State.Creating);
 							intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
 							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-							intent.putExtra(Constants.EXTRA_SHARE_ID, entityId);
+							intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
 							intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 							intent.setAction(Intent.ACTION_SEND);
 							activity.startActivity(intent);
@@ -673,7 +654,7 @@ public class MessageScreen extends BaseScreen {
 					builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), ownerName, patchName, url));
 
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, entityId);
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
 					builder.startChooser();

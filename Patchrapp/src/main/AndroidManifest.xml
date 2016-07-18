@@ -79,29 +79,25 @@
 
 		<meta-data
 			android:name="com.google.android.maps.v2.API_KEY"
-			android:value="AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA" />
+			android:value="@string/google_maps_api_key" />
 		<meta-data
 			android:name="com.google.android.gms.version"
 			android:value="@integer/google_play_services_version" />
 		<meta-data
-			android:name="com.aviary.android.feather.v1.API_KEY"
-			android:value="6f4074ec11634bd78eb00909102844ec" />
-		<meta-data
 			android:name="io.branch.sdk.BranchKey"
-			android:value="key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3" />
+			android:value="@string/branch_sdk_key" />
 		<meta-data
 			android:name="io.branch.sdk.TestMode"
 			android:value="false" />
 		<meta-data
 			android:name="com.bugsnag.android.API_KEY"
-			android:value="0534f3bc03870084ba38d79ed1d5abea" />
-
+			android:value="@string/bugsnag_api_key" />
 		<meta-data
 			android:name="com.facebook.sdk.ApplicationId"
 			android:value="@string/facebook_app_id" />
 		<meta-data
 			android:name="com.facebook.accountkit.ClientToken"
-			android:value="@string/account_kit_client_token" />
+			android:value="@string/facebook_account_kit_client_token" />
 		<meta-data
 			android:name="com.facebook.accountkit.ApplicationName"
 			android:value="@string/name_app" />
@@ -121,6 +117,11 @@
 		<service android:name="com.parse.PushService" />
 
 		<service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+
+		<service
+			android:name="com.google.android.gms.analytics.AnalyticsService"
+			android:enabled="true"
+			android:exported="false" />
 
 		<!-- Receivers -->
 
@@ -156,11 +157,6 @@
 				<action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
 			</intent-filter>
 		</receiver>
-
-		<service
-			android:name="com.google.android.gms.analytics.AnalyticsService"
-			android:enabled="true"
-			android:exported="false" />
 
 		<!--
 			Optionally, register CampaignTrackingReceiver and CampaignTrackingService to enable
@@ -316,7 +312,7 @@
 			android:windowSoftInputMode="stateHidden" />
 
 		<activity
-			android:name=".ui.InviteScreen"
+			android:name=".ui.InviteSwitchboardScreen"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateHidden" />
 
@@ -426,7 +422,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 
-				<data android:scheme="@string/ak_login_protocol_scheme" />
+				<data android:scheme="@string/facebook_account_kit_login_protocol_scheme" />
 			</intent-filter>
 		</activity>
 	</application>

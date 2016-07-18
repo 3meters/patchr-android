@@ -13,15 +13,14 @@ public class MenuManager {
 				return false;
 			}
 		}
-		return (UserManager.shared().authenticated() && entity.isOwnedByCurrentUser());
+		return (entity.isOwnedByCurrentUser());
 	}
 
 	public static Boolean canUserDelete(RealmEntity entity) {
-		return UserManager.shared().authenticated() && entity != null && (entity.isOwnedByCurrentUser());
+		return (entity != null && (entity.isOwnedByCurrentUser()));
 	}
 
 	public static Boolean canUserRemoveFromPatch(RealmEntity entity) {
-		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
 		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
 
@@ -30,23 +29,12 @@ public class MenuManager {
 				&& !entity.ownerId.equals(UserManager.currentUser.id);
 	}
 
-	public static Boolean canUserAdd(RealmEntity entity) {
-		if (!UserManager.shared().authenticated()) return false;
-		if (entity == null) return true;
-
-		/* Current user is owner */
-		if (entity.isOwnedByCurrentUser()) return true;
-
-		return true;
-	}
-
 	public static Boolean canUserShare(RealmEntity entity) {
 		/*
 		 * Must be owner or member to share a private patch. Anyone
 		 * can share a public patch. For messages, we assume that if
 		 * you can see the message you have the ability to share it.
 		 */
-		if (!UserManager.shared().authenticated()) return false;
 		if (entity == null) return false;
 
 		if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,12 +38,12 @@ import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
-import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.FetchStrategy;
 import com.patchr.objects.enums.PatchType;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
-import com.patchr.ui.InviteScreen;
+import com.patchr.ui.InviteSwitchboardScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
@@ -205,11 +206,23 @@ public class PatchEdit extends BaseEdit {
 	}
 
 	public void onPrivacyBuilderClick(View view) {
-		Patchr.router.route(this, Command.PRIVACY_EDIT, entity, null);
+
+		final Intent intent = new Intent(this, PrivacyEdit.class);
+		intent.putExtra(Constants.EXTRA_PRIVACY, (String) buttonPrivacy.getTag());
+		startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_TO);
 	}
 
 	public void onLocationBuilderClick(View view) {
-		Patchr.router.route(this, Command.LOCATION_EDIT, entity, null);
+
+		Intent intent = new Intent(this, LocationEdit.class);
+		if (mapView.getTag() != null) {
+			Location location = (Location) mapView.getTag();
+			String locationJson = Patchr.gson.toJson(location);
+			intent.putExtra(Constants.EXTRA_LOCATION, locationJson);
+		}
+		startActivityForResult(intent, Constants.ACTIVITY_LOCATION_EDIT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_TO);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -435,6 +448,10 @@ public class PatchEdit extends BaseEdit {
 			}
 
 			subscription = RestClient.getInstance().postEntity(path, parameters)
+				.flatMap(response -> {
+					String entityId = response.data.get(0).id;
+					return RestClient.getInstance().fetchEntity(entityId, FetchStrategy.IgnoreCache);
+				})
 				.subscribe(
 					response -> {
 						processing = false;
@@ -442,7 +459,7 @@ public class PatchEdit extends BaseEdit {
 						if (inputState.equals(State.Creating)) {
 							UI.toast(StringManager.getString(insertedResId));
 							String entityId = response.data.get(0).id;
-							Intent intent = new Intent(this, InviteScreen.class)
+							Intent intent = new Intent(this, InviteSwitchboardScreen.class)
 								.putExtra(Constants.EXTRA_ENTITY_ID, entityId);
 							startActivity(intent);
 						}
@@ -457,14 +474,39 @@ public class PatchEdit extends BaseEdit {
 		});
 	}
 
+	protected boolean isDirty() {
+
+		if (inputState.equals(State.Creating)) {
+			if (buttonPrivacy != null && !buttonPrivacy.getTag().equals(Constants.PRIVACY_PUBLIC)) {
+				return true;
+			}
+			if (buttonPatchType != null && buttonPatchType.getTag() != null) {
+				return true;
+			}
+		}
+		else if (inputState.equals(State.Editing)) {
+			if (buttonPrivacy != null && !buttonPrivacy.getTag().equals(entity.visibility)) {
+				return true;
+			}
+			if (buttonPatchType != null && !buttonPatchType.getTag().equals(entity.type)) {
+				return true;
+			}
+			if (mapView != null && !entity.getLocation().sameAs((Location) mapView.getTag())) {
+				return true;
+			}
+		}
+
+		return super.isDirty();
+	}
+
 	@Override protected boolean isValid() {
 
-		if (entity.name == null) {
+		if (TextUtils.isEmpty(name.getText().toString().trim())) {
 			Dialogs.alert(R.string.error_missing_patch_name, this);
 			return false;
 		}
 
-		if (entity.type == null) {
+		if (buttonPatchType.getTag() == null) {
 			Dialogs.alert(R.string.error_missing_patch_type, this);
 			return false;
 		}

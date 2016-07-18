@@ -22,7 +22,6 @@ import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
-import com.facebook.accountkit.AccountKit;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -117,13 +116,14 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 		/* Must have this so activity rerouting works. */
 		applicationContext = getApplicationContext();
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+		gson = new Gson();
 
 		Logger.i(this, "First run configuration");
 
 		Foreground.init(this);
 
 		/* Inject configuration */
-		openContainer(StringManager.getString(R.string.id_container));
+		openContainer(StringManager.getString(R.string.tag_manager_container_id));
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
@@ -138,7 +138,7 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
 			/* Start preloading assets */
-			Intent cdsIntent = AdobeImageIntent.createCdsInitIntent(getBaseContext(), "CDS");
+			Intent cdsIntent = AdobeImageIntent.createCdsInitIntent(getApplicationContext(), "CDS");
 			startService(cdsIntent);
 
 			/* Make sure unique id is initialized */
@@ -153,11 +153,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			/* Turn on facebook */
 			FacebookSdk.sdkInitialize(this);
-
-			/* Turn on account kit */
-			if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-				AccountKit.initialize(applicationContext);
-			}
 
 			/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
 			snapshotPreferences();
@@ -191,9 +186,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			Realm.setDefaultConfiguration(config);
 
-			/* Stash gson */
-			gson = new Gson();
-
 			/* Warmup media manager */
 			MediaManager.warmup();
 
@@ -215,7 +207,7 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 	}
 
 	@Override public String getClientSecret() {
-		return "7af6a808-0568-477e-88c2-63fa6e8ef617";
+		return StringManager.getString(R.string.creative_sdk_client_key);
 	}
 
 	@Override public String getBillingKey() {

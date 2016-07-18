@@ -12,11 +12,10 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int      LOG_LEVEL       = Patchr.debuggable ? Log.VERBOSE : Log.DEBUG;
-	public static final int      ERROR_LEVEL     = Log.VERBOSE;
-	public static final Executor EXECUTOR        = AsyncTask.SERIAL_EXECUTOR;
-	public static final String   FACEBOOK_APP_ID = "894654857249670";
-	public static final boolean  ANIMATE_IMAGES  = true;
+	public static final int      LOG_LEVEL      = Patchr.debuggable ? Log.VERBOSE : Log.DEBUG;
+	public static final int      ERROR_LEVEL    = Log.VERBOSE;
+	public static final Executor EXECUTOR       = AsyncTask.SERIAL_EXECUTOR;
+	public static final boolean  ANIMATE_IMAGES = true;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID = "com.patchr.EXTRA_PARENT_ENTITY_ID";
@@ -53,7 +52,7 @@ public class Constants {
 	public static final String EXTRA_TO_MODE                     = "com.patchr.EXTRA_TO_MODE";
 	public static final String EXTRA_TO_EDITABLE                 = "com.patchr.EXTRA_TO_EDITABLE";
 	public static final String EXTRA_SHARE_SOURCE                = "com.patchr.EXTRA_SHARE_SOURCE";
-	public static final String EXTRA_SHARE_ID                    = "com.patchr.EXTRA_SHARE_ID";
+	public static final String EXTRA_SHARE_ENTITY_ID             = "com.patchr.EXTRA_SHARE_ID";
 	public static final String EXTRA_SHARE_SCHEMA                = "com.patchr.EXTRA_SHARE_SCHEMA";
 	public static final String EXTRA_SHARE_PATCH                 = "com.patchr.EXTRA_SHARE_PATCH";
 	public static final String EXTRA_PRE_APPROVED                = "com.patchr.EXTRA_PRE_APPROVED";
@@ -291,14 +290,14 @@ public class Constants {
 	public static final boolean SUPPORTS_LOLLIPOP           = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 
 	/* Install id */
-	public static final String  INSTALL_TYPE_RANDOM     = "random_uuid";
-	public static final String  INSTALL_TYPE_ANDROID_ID = "android_id";
-	public static final String  INSTALL_TYPE_SERIAL     = "serial_num";
+	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";
+	public static final String INSTALL_TYPE_ANDROID_ID = "android_id";
+	public static final String INSTALL_TYPE_SERIAL     = "serial_num";
 
-//	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
-//	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
-	public static       boolean DEV_ENABLED = false;
-	public static       boolean STAGING_ENABLED = false;
+	//	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
+	//	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
+	public static boolean DEV_ENABLED     = false;
+	public static boolean STAGING_ENABLED = false;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants

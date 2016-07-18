@@ -50,6 +50,14 @@ public class Location {
 		return fromLocation.distanceTo(toLocation);
 	}
 
+	public boolean sameAs(Object obj) {
+		if (obj == null) return false;
+		if (!((Object) this).getClass().equals(obj.getClass())) return false;
+		final Location other = (Location) obj;
+		return (this.lat.doubleValue() == other.lat.doubleValue()
+			&& this.lng.doubleValue() == other.lng.doubleValue());
+	}
+
 	public LatLng asLatLng() {
 		return new LatLng(this.lat, this.lng);
 	}

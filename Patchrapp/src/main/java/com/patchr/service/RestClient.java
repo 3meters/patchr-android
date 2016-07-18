@@ -16,6 +16,7 @@ import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
 import com.patchr.exceptions.NoNetworkException;
+import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Location;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
@@ -32,6 +33,7 @@ import com.patchr.utilities.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -62,7 +64,7 @@ public class RestClient {
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
 			OkHttpClient client = httpClient.build();
 
-			Gson gson = new GsonBuilder().serializeNulls().create();
+			Gson gson = new GsonBuilder().serializeNulls().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).create();
 
 			Retrofit retrofitProxi = new Retrofit.Builder()
 				.baseUrl("https://api.aircandi.com/v1/")
@@ -93,12 +95,7 @@ public class RestClient {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy) {
-		if (UserManager.shared().authenticated()) {
-			return fetchEntity(id, strategy, UserManager.userId, UserManager.sessionKey);
-		}
-		else {
-			return fetchEntity(id, strategy, null, null);
-		}
+		return fetchEntity(id, strategy, UserManager.userId, UserManager.sessionKey);
 	}
 
 	public Observable<ProxibaseResponse> fetchEntity(String id, FetchStrategy strategy, final String usingUserId, final String usingSession) {
@@ -602,12 +599,12 @@ public class RestClient {
 		return get("find/users", parameters, false);
 	}
 
-	public Observable<ProxibaseResponse> updatePassword(final String userId, final String password, final String passwordNew) {
+	public Observable<ProxibaseResponse> updatePassword(final String userId, final String passwordOld, final String passwordNew) {
 
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("userId", userId);
-		parameters.put("oldPassword", password);
-		parameters.put("newPassword", password);
+		parameters.put("oldPassword", passwordOld);
+		parameters.put("newPassword", passwordNew);
 		parameters.put("installId", Patchr.getInstance().getinstallId());
 		addSessionParameters(parameters);
 
@@ -652,19 +649,22 @@ public class RestClient {
 			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
 		else {
-			SimpleMap parameters = new SimpleMap();
-			parameters.put("installId", Patchr.getInstance().getinstallId());
-			parameters.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
-			parameters.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
-			parameters.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
-			parameters.put("clientPackageName", Patchr.applicationContext.getPackageName());
-			parameters.put("deviceName", AndroidManager.getInstance().getDeviceName());
-			parameters.put("deviceType", "android");
-			parameters.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
+			SimpleMap install = new SimpleMap();
+			install.put("installId", Patchr.getInstance().getinstallId());
+			install.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
+			install.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
+			install.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
+			install.put("clientPackageName", Patchr.applicationContext.getPackageName());
+			install.put("deviceName", AndroidManager.getInstance().getDeviceName());
+			install.put("deviceType", "android");
+			install.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
 
-			if (parameters.get("parseInstallId") == null) {
+			if (install.get("parseInstallId") == null) {
 				throw new IllegalStateException("parseInstallId cannot be null");
 			}
+
+			SimpleMap parameters = new SimpleMap();
+			parameters.put("install", install);
 
 			return post("do/registerInstall", parameters, null, null, false);
 		}
@@ -692,6 +692,12 @@ public class RestClient {
 		else {
 			return proxiApi.post(path, parameters)
 				.map(responseMap -> {
+					if (!responseMap.isSuccessful()) {
+						ServiceException exception = new ServiceException();
+						exception.code = responseMap.code();
+						exception.message = responseMap.message();
+						throw exception;
+					}
 					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 					if (response.error != null) {
 						throw response.error.asException();
@@ -798,10 +804,8 @@ public class RestClient {
 	}
 
 	private void addSessionParameters(SimpleMap parameters) {
-		if (UserManager.shared().authenticated()) {
-			parameters.put("user", UserManager.userId);
-			parameters.put("session", UserManager.sessionKey);
-		}
+		parameters.put("user", UserManager.userId);
+		parameters.put("session", UserManager.sessionKey);
 	}
 
 	private void addQueryParameter(SimpleMap parameters, FetchStrategy strategy, String id) {

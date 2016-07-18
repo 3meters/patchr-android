@@ -268,29 +268,31 @@ public abstract class BaseEdit extends BaseScreen {
 	}
 
 	protected boolean isDirty() {
-		if (inputState.equals(State.Creating)) {
-			if (name != null && !TextUtils.isEmpty(name.getText().toString())) {
-				return true;
-			}
-			if (description != null && !TextUtils.isEmpty(description.getText().toString())) {
-				return true;
-			}
-			if (photoEditWidget != null && photoEditWidget.photo != null) {
-				return true;
-			}
-		}
-		else if (inputState.equals(State.Editing)) {
-			if (name != null && !entity.name.equals(name.getText().toString())) {
-				return true;
-			}
-			if (description != null && !entity.description.equals(description.getText().toString())) {
-				return true;
-			}
-			if (photoEditWidget != null && photoEditWidget.dirty) {
-				return true;
-			}
-		}
 
+		if (inputState != null) {
+			if (inputState.equals(State.Creating)) {
+				if (name != null && !TextUtils.isEmpty(name.getText().toString())) {
+					return true;
+				}
+				if (description != null && !TextUtils.isEmpty(description.getText().toString())) {
+					return true;
+				}
+				if (photoEditWidget != null && photoEditWidget.photo != null) {
+					return true;
+				}
+			}
+			else if (inputState.equals(State.Editing)) {
+				if (name != null && !entity.name.equals(name.getText().toString())) {
+					return true;
+				}
+				if (description != null && !entity.description.equals(description.getText().toString())) {
+					return true;
+				}
+				if (photoEditWidget != null && photoEditWidget.dirty) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 

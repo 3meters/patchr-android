@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
+import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -27,7 +29,11 @@ import com.patchr.objects.Recipient;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.MessageType;
+import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.Suggest;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
+import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.EntitySuggestController;
 import com.patchr.ui.views.MessageView;
 import com.patchr.ui.views.PatchView;
@@ -43,6 +49,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShareEdit extends BaseEdit {
 
@@ -50,7 +58,6 @@ public class ShareEdit extends BaseEdit {
 	private String      inputShareEntitySchema;
 	private String      inputShareSource;        // Package name of the sharing host app
 	private String      inputShareType;          // Share or invite
-	private RealmEntity inputShareEntity;
 
 	private RealmEntity shareEntity;
 	private String      descriptionDefault;
@@ -64,15 +71,6 @@ public class ShareEdit extends BaseEdit {
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Intent intent = getIntent();
-		if (intent.getAction() != null
-			&& intent.getAction().equals(Intent.ACTION_SEND)
-			&& !UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to share using Patchr and more.");
-			return;
-		}
-
 		bind();
 	}
 
@@ -89,7 +87,7 @@ public class ShareEdit extends BaseEdit {
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
 		if (item.getItemId() == R.id.submit) {
-			super.submitAction();
+			submitAction();
 		}
 		else {
 			return super.onOptionsItemSelected(item);
@@ -97,7 +95,7 @@ public class ShareEdit extends BaseEdit {
 		return true;
 	}
 
-	public void onClick(View view) {
+	@Override public void onClick(View view) {
 		if (view.getTag() != null) {
 			if (view.getTag() instanceof RealmEntity) {
 				final RealmEntity entity = (RealmEntity) view.getTag();
@@ -109,13 +107,14 @@ public class ShareEdit extends BaseEdit {
 		}
 	}
 
-	protected void onPhotoCanceled() {
-		bindPhoto(null);
-	}
+	@Override public void submitAction() {
 
-	public void onCancelPhotoButtonClick(View view) {
-		entity.setPhoto(null);
-		onPhotoCanceled();
+		if (!isValid()) return;
+		if (processing) return;
+
+		SimpleMap parameters = new SimpleMap();
+		gather(parameters);
+		post(parameters);
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -127,101 +126,94 @@ public class ShareEdit extends BaseEdit {
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			String shareJson = extras.getString(Constants.EXTRA_SHARE_PATCH);
-			if (shareJson != null) {
-				this.inputShareEntity = Patchr.gson.fromJson(shareJson, RealmEntity.class);
-			}
-			this.inputShareType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
-			this.inputShareEntityId = extras.getString(Constants.EXTRA_SHARE_ID);
-			this.inputShareEntitySchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
-			this.inputShareSource = extras.getString(Constants.EXTRA_SHARE_SOURCE);
+			inputShareType = extras.getString(Constants.EXTRA_MESSAGE_TYPE);
+			inputShareEntityId = extras.getString(Constants.EXTRA_SHARE_ENTITY_ID);
+			inputShareEntitySchema = extras.getString(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
+			inputShareSource = extras.getString(Constants.EXTRA_SHARE_SOURCE);
 		}
 	}
 
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
-		this.entity.type = "share";
+		if (inputState == null) {
+			inputState = State.Creating;    // Not set when called via android sharing
+		}
 
-		this.userPhoto = (ImageWidget) findViewById(R.id.user_photo);
-		this.shareEntityView = (ViewGroup) findViewById(R.id.share_entity);
-		this.listView = (RecyclerView) findViewById(R.id.results_list);
+		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
+		shareEntityView = (ViewGroup) findViewById(R.id.share_entity);
+		listView = (RecyclerView) findViewById(R.id.results_list);
 		ViewGroup shareHolder = (ViewGroup) findViewById(R.id.share_holder);
 
-		this.recipientsField = (RecipientsCompletionView) findViewById(R.id.recipients);
-		this.recipientsField.setLineSpacing((int) UI.getRawPixelsForDisplayPixels(4f), 1f);
-		this.recipientsField.setPrefix(" To: ");
-		this.recipientsField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		recipientsField = (RecipientsCompletionView) findViewById(R.id.recipients);
+		recipientsField.setLineSpacing((int) UI.getRawPixelsForDisplayPixels(4f), 1f);
+		recipientsField.setPrefix(" To: ");
+		recipientsField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override public void onFocusChange(View v, boolean hasFocus) {
 				listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
 			}
 		});
 
-		this.entitySuggest = new EntitySuggestController(this);
-		this.entitySuggest.searchInput = this.recipientsField;
-		this.entitySuggest.busyPresenter = this.busyController;
-		this.entitySuggest.suggestScope = Suggest.Users;
-		this.entitySuggest.recyclerView = this.listView;
-		this.entitySuggest.initialize();
+		entitySuggest = new EntitySuggestController(this);
+		entitySuggest.searchInput = recipientsField;
+		entitySuggest.busyPresenter = busyController;
+		entitySuggest.suggestScope = Suggest.Users;
+		entitySuggest.recyclerView = listView;
+		entitySuggest.initialize();
 
 		Intent intent = getIntent();
 
 		if (inputShareType != null) {
 			if (inputShareType.equals(MessageType.Invite)) {
-				this.actionBarTitle.setText(R.string.screen_title_invite);
-				this.dirtyExitTitleResId = R.string.alert_dirty_invite_exit_title;
-				this.dirtyExitMessageResId = R.string.alert_dirty_invite_exit_message;
-				this.dirtyExitPositiveResId = R.string.alert_dirty_invite;
-				this.insertProgressResId = R.string.progress_inviting;
-				this.insertedResId = R.string.alert_invited;
-				this.description.setHint(R.string.hint_invite_description);
+				actionBarTitle.setText(R.string.screen_title_invite);
+				dirtyExitTitleResId = R.string.alert_dirty_invite_exit_title;
+				dirtyExitMessageResId = R.string.alert_dirty_invite_exit_message;
+				dirtyExitPositiveResId = R.string.alert_dirty_invite;
+				insertProgressResId = R.string.progress_inviting;
+				insertedResId = R.string.alert_invited;
+				description.setHint(R.string.hint_invite_description);
 			}
 			else if (inputShareType.equals(MessageType.Share)) {
-				this.actionBarTitle.setText(R.string.screen_title_share);
-				this.dirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
-				this.dirtyExitMessageResId = R.string.alert_dirty_share_exit_message;
-				this.dirtyExitPositiveResId = R.string.alert_dirty_share;
-				this.insertProgressResId = R.string.progress_sharing;
-				this.insertedResId = R.string.alert_shared;
-				this.description.setHint(R.string.hint_share_description);
+				actionBarTitle.setText(R.string.screen_title_share);
+				dirtyExitTitleResId = R.string.alert_dirty_share_exit_title;
+				dirtyExitMessageResId = R.string.alert_dirty_share_exit_message;
+				dirtyExitPositiveResId = R.string.alert_dirty_share;
+				insertProgressResId = R.string.progress_sharing;
+				insertedResId = R.string.alert_shared;
+				description.setHint(R.string.hint_share_description);
 			}
 		}
 
 		/* Try to determine if it from us */
-		Boolean selfSend = (this.inputShareSource != null && this.inputShareSource.equals(getPackageName()));
+		Boolean selfSend = (inputShareSource != null && inputShareSource.equals(getPackageName()));
 
-		UI.setVisibility(this.photoEditWidget, View.GONE);
+		UI.setVisibility(photoEditWidget, View.GONE);
 		UI.setVisibility(shareHolder, View.GONE);
 
 		if (selfSend) {
 
-			switch (this.inputShareEntitySchema) {
+			switch (inputShareEntitySchema) {
 
 				case Constants.SCHEMA_ENTITY_PATCH:
-					if (this.inputShareEntity != null) {
-						this.shareEntity = this.inputShareEntity;
-					}
-					else {
-						//this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
-					}
-					this.descriptionDefault = String.format("%1$s invited you to the \'%2$s\' patch.", UserManager.userName, this.shareEntity.name);
+					shareEntity = realm.where(RealmEntity.class).equalTo("id", inputShareEntityId).findFirst();
+					descriptionDefault = String.format("%1$s invited you to the \'%2$s\' patch.", UserManager.userName, shareEntity.name);
 					UI.setVisibility(shareHolder, View.VISIBLE);
 					break;
 
 				case Constants.SCHEMA_ENTITY_MESSAGE:
-					//this.shareEntity = DataController.getStoreEntity(this.inputShareEntityId);
-					if (this.shareEntity.patch != null) {
-						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to the \'%3$s\' patch.", UserManager.userName, this.shareEntity.owner.name, this.shareEntity.patch.name);
+					shareEntity = realm.where(RealmEntity.class).equalTo("id", inputShareEntityId).findFirst();
+					if (shareEntity.patch != null) {
+						descriptionDefault = String.format("%1$s shared %2$s\'s message posted to the \'%3$s\' patch.", UserManager.userName, shareEntity.owner.name, shareEntity.patch.name);
 					}
 					else {
-						this.descriptionDefault = String.format("%1$s shared %2$s\'s message posted to a patch.", UserManager.userName, this.shareEntity.owner.name);
+						descriptionDefault = String.format("%1$s shared %2$s\'s message posted to a patch.", UserManager.userName, shareEntity.owner.name);
 					}
 					UI.setVisibility(shareHolder, View.VISIBLE);
 					break;
 
 				case Constants.SCHEMA_ENTITY_PICTURE:
-					UI.setVisibility(this.photoEditWidget, View.VISIBLE);
-					this.descriptionDefault = String.format("%1$s shared a photo.", UserManager.userName);
+					UI.setVisibility(photoEditWidget, View.VISIBLE);
+					descriptionDefault = String.format("%1$s shared a photo.", UserManager.userName);
 
 					/* Check for a photo */
 					if (intent.getType() != null) {
@@ -288,8 +280,8 @@ public class ShareEdit extends BaseEdit {
 			if (intent.getType().equals("text/plain") || intent.getStringExtra(Intent.EXTRA_TEXT) != null) {
 				String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
 				if (sharedText != null) {
-					this.dirty = true;
-					this.entity.description = sharedText;
+					dirty = true;
+					entity.description = sharedText;
 				}
 			}
 
@@ -301,7 +293,7 @@ public class ShareEdit extends BaseEdit {
 			if (intent.getType().contains("image/") || intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
 
 				final Uri photoUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-				UI.setVisibility(this.photoEditWidget, View.VISIBLE);
+				UI.setVisibility(photoEditWidget, View.VISIBLE);
 				if (photoUri != null) {
 
 					new AsyncTask() {
@@ -356,8 +348,8 @@ public class ShareEdit extends BaseEdit {
 			ClipData.Item item = intent.getClipData().getItemAt(0);
 			String sharedText = (String) item.coerceToStyledText(this);
 			if (sharedText != null) {
-				this.dirty = true;
-				this.entity.description = sharedText;
+				dirty = true;
+				entity.description = sharedText;
 			}
 		}
 	}
@@ -368,7 +360,7 @@ public class ShareEdit extends BaseEdit {
          */
 		super.bind();
 
-		//UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
+		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 
 		if (this.description != null) {
 			this.description.setMinLines(3);
@@ -385,7 +377,7 @@ public class ShareEdit extends BaseEdit {
 			}
 			else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 				MessageView messageView = new MessageView(this, R.layout.view_message_attachment);
-				//messageView.bind(shareEntity, null);
+				messageView.bind(shareEntity, null);
 				CardView cardView = (CardView) shareEntityView;
 				int padding = UI.getRawPixelsForDisplayPixels(8f);
 				cardView.setContentPadding(padding, padding, padding, padding);
@@ -395,10 +387,71 @@ public class ShareEdit extends BaseEdit {
 	}
 
 	@Override public void gather(SimpleMap parameters) {
-		super.gather(parameters);
-		if (TextUtils.isEmpty(this.description.getText())) {
-			this.entity.description = this.descriptionDefault;
+		super.gather(parameters); // Name, photo, description
+
+		parameters.put("type", Constants.TYPE_LINK_SHARE);
+
+		if (TextUtils.isEmpty(description.getText())) {
+			parameters.put("description", descriptionDefault);
 		}
+
+		List<SimpleMap> links = new ArrayList<SimpleMap>();
+
+		if (inputShareEntityId != null) {
+			SimpleMap link = new SimpleMap();
+			link.put("type", Constants.TYPE_LINK_SHARE);
+			link.put("_to", inputShareEntityId);
+			links.add(link);
+		}
+
+		for (Recipient recipient : this.recipientsField.getObjects()) {
+			SimpleMap link = new SimpleMap();
+			link.put("type", Constants.TYPE_LINK_SHARE);
+			link.put("_to", recipient.id);
+			links.add(link);
+		}
+
+		parameters.put("links", links);
+	}
+
+	protected void post(SimpleMap parameters) {
+
+		processing = true;
+		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
+		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, ShareEdit.this);
+
+		AsyncTask.execute(() -> {
+
+			if (parameters.containsKey("photo")) {
+				Photo photo = (Photo) parameters.get("photo");
+				if (photo != null) {
+					Photo photoFinal = postPhoto(photo);
+					parameters.put("photo", photoFinal);
+				}
+			}
+
+			subscription = RestClient.getInstance().postEntity(path, parameters)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						if (inputShareType != null) {
+							if (inputShareType.equals(MessageType.Invite)) {
+								Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));
+							}
+							else if (inputShareType.equals(MessageType.Share)) {
+								Reporting.track(AnalyticsCategory.EDIT, "Shared Message", new Properties().putValue("network", "Patchr"));
+							}
+						}
+						finish();
+						AnimationManager.doOverridePendingTransition(ShareEdit.this, TransitionType.FORM_BACK);
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Logger.w(this, error.getLocalizedMessage());
+					});
+		});
 	}
 
 	@Override protected boolean isValid() {
@@ -417,28 +470,6 @@ public class ShareEdit extends BaseEdit {
 			return false;
 		}
 
-		return true;
-	}
-
-//	protected void beforeInsert(RealmEntity entity, List<LinkOld> links) {
-//	    /* Called on background thread. */
-//		if (inputShareEntityId != null) {
-//			links.add(new LinkOld(inputShareEntityId, Constants.TYPE_LINK_SHARE, inputShareEntitySchema));  // To support showing the shared entity with the message
-//		}
-//		for (Recipient recipient : this.recipientsField.getObjects()) {
-//			links.add(new LinkOld(recipient.id, Constants.TYPE_LINK_SHARE, Constants.SCHEMA_ENTITY_USER));
-//		}
-//	}
-
-	protected boolean afterInsert(RealmEntity entity) {
-		if (inputShareType != null) {
-			if (inputShareType.equals(MessageType.Invite)) {
-				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));
-			}
-			else if (inputShareType.equals(MessageType.Share)) {
-				Reporting.track(AnalyticsCategory.EDIT, "Shared Message", new Properties().putValue("network", "Patchr"));
-			}
-		}
 		return true;
 	}
 

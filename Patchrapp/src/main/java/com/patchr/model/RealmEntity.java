@@ -365,10 +365,7 @@ public class RealmEntity extends RealmObject {
 	}
 
 	public Boolean isOwnedByCurrentUser() {
-		Boolean owned = (ownerId != null
-			&& UserManager.shared().authenticated()
-			&& ownerId.equals(UserManager.currentUser.id));
-		return owned;
+		return (ownerId != null && ownerId.equals(UserManager.currentUser.id));
 	}
 
 	public Boolean isVisibleToCurrentUser() {
@@ -570,16 +567,14 @@ public class RealmEntity extends RealmObject {
 		else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 
 			/* Links */
-			if (UserManager.shared().authenticated()) {
-				List<SimpleMap> links = Arrays.asList(
-					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).setFields("_id,type,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap());
-				parameters.put("links", links);
-			}
+			List<SimpleMap> links = Arrays.asList(
+				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).setFields("_id,type,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap());
+			parameters.put("links", links);
 
 			/* Linked */
 			List<SimpleMap> linked = Arrays.asList(
-				new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_owner", "_id,name,photo,schema,type")).asMap(),
 				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Content).setLimit(1).setFields("_id,name,photo,schema,type").asMap(),
+				new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_owner", "_id,name,photo,schema,type")).asMap(),
 				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Share).setLimit(1).asMap(),
 				new LinkSpec().setTo(LinkDestination.Users).setType(LinkType.Share).setLimit(5).asMap());
 			parameters.put("linked", linked);
@@ -595,12 +590,10 @@ public class RealmEntity extends RealmObject {
 		else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 
 			/* Links */
-			if (UserManager.shared().authenticated()) {
-				List<Map<String, Object>> links = Arrays.asList(
-					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
-					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_owner", UserManager.userId)).asMap());
-				parameters.put("links", links);
-			}
+			List<Map<String, Object>> links = Arrays.asList(
+				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
+				new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_owner", UserManager.userId)).asMap());
+			parameters.put("links", links);
 
 			/* Link counts */
 			List<Map<String, Object>> linkCounts = Arrays.asList(

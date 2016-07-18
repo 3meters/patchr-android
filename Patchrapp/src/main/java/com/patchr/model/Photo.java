@@ -22,10 +22,10 @@ public class Photo {
 
 	private static final GooglePlusProxy imageResizer = new GooglePlusProxy();
 
-	public String  prefix;
-	public Integer width;
-	public Integer height;
-	public String  source;
+	public           String  prefix;
+	public           Integer width;
+	public           Integer height;
+	public           String  source;
 
 	public Photo() {
 		super();

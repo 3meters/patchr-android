@@ -1,5 +1,6 @@
 package com.patchr.ui.edit;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -12,14 +13,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
@@ -167,8 +168,8 @@ public class ResetEdit extends BaseEdit {
 			userName.setText(inputUserName);
 		}
 		else {
-			if (UserManager.authIdentifierHint != null) {
-				this.emailField.setText((String) UserManager.authIdentifierHint);
+			if (UserManager.currentUser.email != null) {
+				this.emailField.setText(UserManager.currentUser.email);
 			}
 		}
 	}
@@ -315,7 +316,9 @@ public class ResetEdit extends BaseEdit {
 								if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
 									Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, (dlg, which) -> {
 										dlg.dismiss();
-										Patchr.router.route(ResetEdit.this, Command.PASSWORD_RESET, null, null);
+										Intent intent = new Intent(this, ResetEdit.class);
+										startActivityForResult(intent, Constants.ACTIVITY_RESET_AND_SIGNIN);
+										AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO);
 										finish();
 									});
 								}

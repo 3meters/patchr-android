@@ -37,7 +37,6 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 	protected MapView   mapView;
 	protected GoogleMap map;
 	protected Location  originalLocation;
-	protected String    title;
 	protected Marker    marker;
 	protected boolean   dirty;
 	protected boolean positionDrawn = false;
@@ -72,14 +71,14 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_save, menu);
+		getMenuInflater().inflate(R.menu.menu_submit, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
 		if (item.getItemId() == R.id.submit) {
-			this.submitAction();
+			submitAction();
 		}
 		else {
 			return super.onOptionsItemSelected(item);
@@ -101,7 +100,6 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			title = extras.getString(Constants.EXTRA_TITLE);
 			final String json = extras.getString(Constants.EXTRA_LOCATION);
 			if (json != null) {
 				originalLocation = (Location) Patchr.gson.fromJson(json, Location.class);

@@ -1,5 +1,6 @@
 package com.patchr.ui;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -7,8 +8,10 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
+import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
-import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.TransitionType;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -47,15 +50,24 @@ public class AboutScreen extends BaseScreen {
 	}
 
 	public void termsAction() {
-		Patchr.router.route(this, Command.TERMS, null, null);
+		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
+		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
+		startActivity(intentBuilder.build());
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void privacyPolicyAction() {
-		Patchr.router.route(this, Command.PRIVACY, null, null);
+		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
+		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
+		startActivity(intentBuilder.build());
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void legalAction() {
-		Patchr.router.route(this, Command.LEGAL, null, null);
+		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
+		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
+		startActivity(intentBuilder.build());
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	/*--------------------------------------------------------------------------------------------

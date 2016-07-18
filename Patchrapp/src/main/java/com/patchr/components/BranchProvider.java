@@ -90,7 +90,7 @@ public class BranchProvider {
 					builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
 
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, activity.getPackageName());
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ID, entity.id);
+					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entity.id);
 					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
 					activity.startActivityForResult(builder.createChooserIntent(), Constants.ACTIVITY_SHARE);

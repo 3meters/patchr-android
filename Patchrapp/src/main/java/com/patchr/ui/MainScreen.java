@@ -16,10 +16,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -35,7 +33,6 @@ import com.patchr.components.UserManager;
 import com.patchr.events.LocationAllowedEvent;
 import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.model.PhoneNumber;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
@@ -68,7 +65,6 @@ import io.realm.RealmResults;
 public class MainScreen extends BaseScreen {
 
 	protected Number pauseDate;
-	protected Boolean configuredForAuthenticated = UserManager.shared().authenticated();
 
 	protected ListWidget notificationList;
 	protected String     nextFragmentTag;
@@ -156,9 +152,7 @@ public class MainScreen extends BaseScreen {
 		getMenuInflater().inflate(R.menu.menu_view_as_map, menu);
 		getMenuInflater().inflate(R.menu.menu_view_as_list, menu);
 		getMenuInflater().inflate(R.menu.menu_search, menu);
-		if (UserManager.shared().authenticated()) {
-			getMenuInflater().inflate(R.menu.menu_notifications, menu);
-		}
+		getMenuInflater().inflate(R.menu.menu_notifications, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -300,9 +294,7 @@ public class MainScreen extends BaseScreen {
 				this.userArea = (TextView) this.drawerLeftHeader.findViewById(R.id.user_area);
 				this.authIdentifier = (TextView) this.drawerLeftHeader.findViewById(R.id.auth_identifier);
 				this.authIdentifierLabel = (TextView) this.drawerLeftHeader.findViewById(R.id.auth_identifier_label);
-				if (UserManager.shared().authenticated()) {
-					this.drawerLeftHeader.setTag(UserManager.currentUser);
-				}
+				this.drawerLeftHeader.setTag(UserManager.currentUser);
 			}
 
 			this.drawerLeft.setNavigationItemSelectedListener(item -> {
@@ -329,11 +321,6 @@ public class MainScreen extends BaseScreen {
 				drawerLayout.closeDrawers();
 				return true;
 			});
-		}
-
-		if (!UserManager.shared().authenticated()) {
-			((ViewGroup) drawerRight.getParent()).removeView(drawerRight);
-			drawerRight = null;
 		}
 
 		if (drawerLayout != null) {
@@ -460,11 +447,9 @@ public class MainScreen extends BaseScreen {
 				}
 			});
 
-			if (UserManager.shared().authenticated()) {
-				View view = MenuItemCompat.getActionView(notifications);
-				notificationsBadgeGroup = view.findViewById(R.id.badge_group);
-				notificationsBadgeCount = (TextView) view.findViewById(R.id.badge_count);
-			}
+			View view = MenuItemCompat.getActionView(notifications);
+			notificationsBadgeGroup = view.findViewById(R.id.badge_group);
+			notificationsBadgeCount = (TextView) view.findViewById(R.id.badge_count);
 		}
 	}
 
@@ -480,62 +465,23 @@ public class MainScreen extends BaseScreen {
 
 		/* In case the user was edited from the drawer */
 		if (drawerLeft.getHeaderView(0) != null) {
-			if (UserManager.shared().authenticated()) {
-				if (!configuredForAuthenticated) {
-					supportInvalidateOptionsMenu();
-				}
+			RealmEntity user = UserManager.currentUser;
+			this.userPhoto.setImageWithPhoto(user.getPhoto(), user.name, null);
+			this.userName.setText(user.name);
+			UI.setTextOrGone(this.userArea, user.area);
+			UI.setVisibility(this.userPhoto, View.VISIBLE);
+			UI.setVisibility(this.authIdentifier, View.VISIBLE);
+			UI.setVisibility(this.authIdentifierLabel, View.VISIBLE);
 
-				configuredForAuthenticated = true;
-				RealmEntity user = UserManager.currentUser;
-				this.userPhoto.setImageWithPhoto(user.getPhoto(), user.name, null);
-				this.userName.setText(user.name);
-				UI.setTextOrGone(this.userArea, user.area);
-				UI.setVisibility(this.userPhoto, View.VISIBLE);
-				UI.setVisibility(this.authIdentifier, View.VISIBLE);
-				UI.setVisibility(this.authIdentifierLabel, View.VISIBLE);
+			UI.setTextOrGone(this.authIdentifier, user.email);
 
-				if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-					if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-						UI.setTextOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
-					}
-					else {
-						UI.setTextOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
-					}
-				}
-				else {
-					UI.setTextOrGone(this.authIdentifier, user.email);
-				}
-
-				this.drawerLeftHeader.setTag(user);
-				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
-				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
-			}
-			else {
-
-				if (configuredForAuthenticated) {
-					supportInvalidateOptionsMenu();
-				}
-
-				configuredForAuthenticated = false;
-				UI.setVisibility(this.userPhoto, View.GONE);
-				UI.setVisibility(this.userArea, View.GONE);
-				UI.setVisibility(this.authIdentifier, View.GONE);
-				UI.setVisibility(this.authIdentifierLabel, View.GONE);
-				this.userName.setText("Guest");
-				this.drawerLeftHeader.setTag(null);
-				drawerLeft.getMenu().findItem(R.id.item_member).setVisible(false);
-				drawerLeft.getMenu().findItem(R.id.item_own).setVisible(false);
-			}
+			this.drawerLeftHeader.setTag(user);
+			drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
+			drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
 		}
 	}
 
 	public void addAction() {
-
-		if (!UserManager.shared().authenticated()) {
-			UserManager.shared().showGuestGuard(this, "Sign up for a free account to make patches and more.");
-			return;
-		}
-
 		Intent intent = new Intent(this, PatchEdit.class);
 		intent.putExtra(Constants.EXTRA_STATE, State.Creating);
 		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);

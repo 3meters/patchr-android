@@ -28,13 +28,11 @@ public class ProfileScreen extends BaseListScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (UserManager.shared().authenticated()) {
-			/* Shown for owner */
-			getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
+		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_logout, menu);    // base
 
-			/* Shown for everyone */
-			getMenuInflater().inflate(R.menu.menu_report, menu);    // base
-		}
+		/* Shown for everyone */
+		getMenuInflater().inflate(R.menu.menu_report, menu);    // base
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -81,7 +79,7 @@ public class ProfileScreen extends BaseListScreen {
 
 		super.initialize(savedInstanceState);
 
-		this.isCurrentUser = UserManager.shared().authenticated() && UserManager.currentUser.id.equals(this.entityId);
+		this.isCurrentUser = UserManager.currentUser.id.equals(this.entityId);
 		this.fab = (FloatingActionButton) this.header.findViewById(R.id.fab); /* Override */
 	}
 

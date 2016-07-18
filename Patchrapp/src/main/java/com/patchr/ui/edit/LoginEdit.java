@@ -15,7 +15,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.enums.Command;
+import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
@@ -62,10 +62,7 @@ public class LoginEdit extends BaseEdit {
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (item.getItemId() == R.id.submit) {
-			submitAction();
-		}
-		else if (item.getItemId() == R.id.login) {
+		if (item.getItemId() == R.id.next || item.getItemId() == R.id.login) {
 			submitAction();
 		}
 		else {
@@ -79,7 +76,9 @@ public class LoginEdit extends BaseEdit {
 			submitAction();
 		}
 		else if (view.getId() == R.id.forgot_password_button) {
-			Patchr.router.route(this, Command.PASSWORD_RESET, null, null);
+			Intent intent = new Intent(this, ResetEdit.class);
+			startActivityForResult(intent, Constants.ACTIVITY_RESET_AND_SIGNIN);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 	}
 
@@ -113,8 +112,9 @@ public class LoginEdit extends BaseEdit {
 	}
 
 	@Override public void bind() {
-		if (UserManager.authIdentifierHint != null) {
-			this.email.setText((String) UserManager.authIdentifierHint);
+		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+		if (email != null) {
+			this.email.setText(email);
 			password.requestFocus();
 		}
 	}
@@ -174,17 +174,14 @@ public class LoginEdit extends BaseEdit {
 
 	private void login() {
 
+		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this);
 		final String email = this.email.getText().toString().toLowerCase(Locale.US);
 		final String password = this.password.getText().toString();
 
 		this.subscription = UserManager.shared().login(email, password)
-			.doOnSubscribe(() -> busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this))
-			.doOnTerminate(() -> busyController.hide(true))  // Before either onCompleted or onError
-			.doOnError(throwable -> {
-				Logger.w(this, "Service call failed");      // onCompleted will not be called
-			})
 			.subscribe(
 				response -> {
+					busyController.hide(true);
 					if (response.isSuccessful()) {
 						Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
@@ -202,6 +199,15 @@ public class LoginEdit extends BaseEdit {
 							Errors.handleError(LoginEdit.this, response.error);
 						}
 					}
+				},
+				error -> {
+					busyController.hide(true);
+					String message = error.getLocalizedMessage();
+					if (error instanceof ServiceException) {
+						message = ((ServiceException)error).message;
+					}
+					Logger.w(this, message);
+					UI.toast(message);
 				});
 	}
 
@@ -217,7 +223,7 @@ public class LoginEdit extends BaseEdit {
 					if (response.isSuccessful()) {
 						if (response.count.intValue() == 0) {
 							Intent intent = new Intent(this, ProfileEdit.class);
-							intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+							intent.putExtra(Constants.EXTRA_STATE, State.Signup);
 							intent.putExtra(Constants.EXTRA_EMAIL, email);
 							intent.putExtra(Constants.EXTRA_PASSWORD, password.getText().toString());
 							startActivityForResult(intent, Constants.ACTIVITY_SIGNUP);

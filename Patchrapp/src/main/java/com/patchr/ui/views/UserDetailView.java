@@ -8,13 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.patchr.BuildConfig;
 import com.patchr.R;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.PhoneNumber;
 import com.patchr.model.RealmEntity;
-import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.UI;
 
@@ -26,8 +23,8 @@ public class UserDetailView extends BaseView {
 	public    RealmEntity user;
 	protected ViewGroup   layout;
 
-	protected Integer  layoutResId   = R.layout.view_profile_header;
-	private   Boolean  isCurrentUser = false;
+	protected Integer layoutResId   = R.layout.view_profile_header;
+	private   Boolean isCurrentUser = false;
 
 	public ImageWidget          userPhoto;
 	public TextView             userName;
@@ -92,18 +89,7 @@ public class UserDetailView extends BaseView {
 		UI.setVisibility(this.authIdentifierLabel, GONE);
 		if (this.isCurrentUser) {
 			UI.setVisibility(this.authIdentifierLabel, VISIBLE);
-
-			if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-					setOrGone(this.authIdentifier, ((PhoneNumber) UserManager.authIdentifierHint).number);
-				}
-				else {
-					setOrGone(this.authIdentifier, (String) UserManager.authIdentifierHint);
-				}
-			}
-			else {
-				setOrGone(this.authIdentifier, user.email);
-			}
+			setOrGone(this.authIdentifier, user.email);
 		}
 
 		this.fab.setVisibility(this.isCurrentUser ? VISIBLE : GONE);
@@ -126,7 +112,7 @@ public class UserDetailView extends BaseView {
 	public void bind(RealmEntity user) {
 		synchronized (lock) {
 			this.user = user;
-			this.isCurrentUser = (UserManager.shared().authenticated() && UserManager.currentUser.id.equals(this.user.id));
+			this.isCurrentUser = (UserManager.currentUser.id.equals(this.user.id));
 			draw();
 		}
 	}

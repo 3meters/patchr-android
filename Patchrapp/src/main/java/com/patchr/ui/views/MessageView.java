@@ -71,143 +71,142 @@ public class MessageView extends BaseView {
 
 	protected void initialize() {
 
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+		layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
 
-		this.userPhotoView = (ImageWidget) layout.findViewById(R.id.user_photo);
-		this.photoView = (ImageWidget) layout.findViewById(R.id.photo);
-		this.patchName = (TextView) layout.findViewById(R.id.patch_name);
-		this.userName = (TextView) layout.findViewById(R.id.user_name);
-		this.createdDate = (TextView) layout.findViewById(R.id.created_date);
-		this.description = (TextView) layout.findViewById(R.id.description);
-		this.likesCount = (TextView) layout.findViewById(R.id.likes_count);
-		this.likesLabel = (TextView) layout.findViewById(R.id.likes_label);
-		this.shareRecipients = (TextView) layout.findViewById(R.id.share_recipients);
-		this.likesButton = (ViewGroup) layout.findViewById(R.id.likes_button);
-		this.shareHolder = (ViewGroup) layout.findViewById(R.id.share_holder);
-		this.shareView = (ViewGroup) layout.findViewById(R.id.share_entity);
-		this.shareRecipientsHolder = (ViewGroup) layout.findViewById(R.id.share_recipients_holder);
-		this.shareRecipients = (TextView) layout.findViewById(R.id.share_recipients);
-		this.footerGroup = layout.findViewById(R.id.footer_group);
-		this.patchGroup = layout.findViewById(R.id.patch_group);
+		userPhotoView = (ImageWidget) layout.findViewById(R.id.user_photo);
+		photoView = (ImageWidget) layout.findViewById(R.id.photo);
+		patchName = (TextView) layout.findViewById(R.id.patch_name);
+		userName = (TextView) layout.findViewById(R.id.user_name);
+		createdDate = (TextView) layout.findViewById(R.id.created_date);
+		description = (TextView) layout.findViewById(R.id.description);
+		likesCount = (TextView) layout.findViewById(R.id.likes_count);
+		likesLabel = (TextView) layout.findViewById(R.id.likes_label);
+		likesButton = (ViewGroup) layout.findViewById(R.id.likes_button);
+		shareHolder = (ViewGroup) layout.findViewById(R.id.share_holder);
+		shareView = (ViewGroup) layout.findViewById(R.id.share_entity);
+		shareRecipientsHolder = (ViewGroup) layout.findViewById(R.id.share_recipients_holder);
+		shareRecipients = (TextView) layout.findViewById(R.id.share_recipients);
+		footerGroup = layout.findViewById(R.id.footer_group);
+		patchGroup = layout.findViewById(R.id.patch_group);
 	}
 
-	public void bind(RealmEntity entity, Map options) {
+	public void bind(RealmEntity message, Map options) {
 
 		synchronized (lock) {
 
-			this.entity = entity;
+			this.entity = message;
 
 			/* Options */
 			if (options != null) {
 				if (options.containsKey("hide_patch_name")) {
-					this.hidePatchName = (Boolean) options.get("hide_patch_name");
+					hidePatchName = (Boolean) options.get("hide_patch_name");
 				}
 			}
 
-			Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));
+			Boolean share = (message.type != null && message.type.equals(Constants.TYPE_LINK_SHARE));
 
 			/* Patch context */
 			patchGroup.setVisibility(GONE);
 			if (!share) {
 				if (!hidePatchName) {
-					RealmEntity parentEntity = entity.patch;
+					RealmEntity parentEntity = message.patch;
 					if (parentEntity == null) {
-						if (entity.patchId != null) {
+						if (message.patchId != null) {
 							/* TODO */
 						}
 					}
 					if (parentEntity != null) {
-						setOrGone(this.patchName, parentEntity.name);
+						setOrGone(patchName, parentEntity.name);
 						patchGroup.setVisibility(VISIBLE);
 					}
 				}
 			}
 
 			/* User */
-			this.userPhotoView.setImageWithPhoto(entity.owner.getPhoto(), entity.owner.name, null);
-			setOrGone(this.userName, entity.owner.name);
+			userPhotoView.setImageWithPhoto(message.owner.getPhoto(), message.owner.name, null);
+			setOrGone(userName, message.owner.name);
 
 			/* Create date */
 			String dateFormatted = null;
-			if (entity.createdDate != null) {
-				dateFormatted = DateTime.intervalCompact(entity.createdDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
+			if (message.createdDate != null) {
+				dateFormatted = DateTime.intervalCompact(message.createdDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
 			}
-			setOrGone(this.createdDate, dateFormatted);
-			setOrGone(this.description, entity.description);
+			setOrGone(createdDate, dateFormatted);
+			setOrGone(description, message.description);
 
 			/* Shared entity */
 
-			UI.setVisibility(this.photoView, GONE);
-			UI.setVisibility(this.shareHolder, GONE);
-			UI.setVisibility(this.shareRecipientsHolder, GONE);
-			UI.setVisibility(this.footerGroup, GONE);
+			UI.setVisibility(photoView, GONE);
+			UI.setVisibility(shareHolder, GONE);
+			UI.setVisibility(shareRecipientsHolder, GONE);
+			UI.setVisibility(footerGroup, GONE);
 
 			if (share) {
 
 				RealmEntity shareEntity = null;
-				if (entity.patch != null) {
-					shareEntity = entity.patch;
+				if (message.patch != null) {
+					shareEntity = message.patch;
 				}
-				else if (entity.message != null) {
-					shareEntity = entity.message;
+				else if (message.message != null) {
+					shareEntity = message.message;
 				}
 
 				if (shareEntity != null) {
 
-					this.shareView.removeAllViews();
+					shareView.removeAllViews();
 
 					if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						PatchView patchView = new PatchView(getContext(), R.layout.view_patch_attachment);
 						patchView.bind(shareEntity);
-						CardView cardView = (CardView) this.shareView;
+						CardView cardView = (CardView) shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(0f);
 						cardView.setContentPadding(padding, padding, padding, padding);
-						this.shareView.setTag(shareEntity);
-						this.shareView.addView(patchView);
-						setOrGone(this.patchName, StringManager.getString(R.string.label_message_invite));
+						shareView.setTag(shareEntity);
+						shareView.addView(patchView);
+						setOrGone(patchName, StringManager.getString(R.string.label_message_invite));
 					}
 					else if (shareEntity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
 						MessageView messageView = new MessageView(getContext(), R.layout.view_message_attachment);
 						messageView.bind(shareEntity, null);
-						CardView cardView = (CardView) this.shareView;
+						CardView cardView = (CardView) shareView;
 						int padding = UI.getRawPixelsForDisplayPixels(8f);
 						cardView.setContentPadding(padding, padding, padding, padding);
-						this.shareView.setTag(shareEntity);
-						this.shareView.addView(messageView);
-						setOrGone(this.patchName, StringManager.getString(R.string.label_message_shared));
+						shareView.setTag(shareEntity);
+						shareView.addView(messageView);
+						setOrGone(patchName, StringManager.getString(R.string.label_message_shared));
 					}
 
-					UI.setVisibility(this.shareHolder, VISIBLE);
+					UI.setVisibility(shareHolder, VISIBLE);
 				}
 
 				/* Show share recipients */
 
-				UI.setVisibility(this.shareRecipientsHolder, View.VISIBLE);
+				UI.setVisibility(shareRecipientsHolder, View.VISIBLE);
 				StringBuilder recipientsString = new StringBuilder();
-				for (RealmEntity recipient : entity.recipients) {
+				for (RealmEntity recipient : message.recipients) {
 					recipientsString.append(recipient.name);
 				}
-				this.shareRecipients.setText(recipientsString);
+				shareRecipients.setText(recipientsString);
 			}
 			else {
 
 		        /* Photo */
-				if (entity.getPhoto() != null) {
-					final Photo photo = entity.getPhoto();
-					this.photoView.setImageWithPhoto(photo, null, null);
-					this.photoView.setTag(photo);
-					UI.setVisibility(this.photoView, VISIBLE);
+				if (message.getPhoto() != null) {
+					final Photo photo = message.getPhoto();
+					photoView.setImageWithPhoto(photo, null, null);
+					photoView.setTag(photo);
+					UI.setVisibility(photoView, VISIBLE);
 				}
 
 		        /* Likes */
-				UI.setVisibility(this.footerGroup, VISIBLE);
-				UI.setVisibility(this.likesButton, GONE);
+				UI.setVisibility(footerGroup, VISIBLE);
+				UI.setVisibility(likesButton, GONE);
 
-				if (entity.countLikes != null && entity.countLikes > 0) {
-					String label = getContext().getResources().getQuantityString(R.plurals.label_likes, entity.countLikes, entity.countLikes);
-					this.likesCount.setText(String.valueOf(entity.countLikes));
-					this.likesLabel.setText(label);
-					UI.setVisibility(this.likesButton, VISIBLE);
+				if (likesCount != null && message.countLikes != null && message.countLikes > 0) {
+					String label = getContext().getResources().getQuantityString(R.plurals.label_likes, message.countLikes, message.countLikes);
+					likesCount.setText(String.valueOf(message.countLikes));
+					likesLabel.setText(label);
+					UI.setVisibility(likesButton, VISIBLE);
 				}
 			}
 		}

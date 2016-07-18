@@ -12,7 +12,6 @@ import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.State;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Dialogs;
@@ -23,7 +22,7 @@ import com.patchr.utilities.UI;
 public class PasswordEdit extends BaseEdit {
 
 	private EditText passwordOld;
-	private EditText password;
+	private EditText passwordNew;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -37,9 +36,7 @@ public class PasswordEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (inputState.equals(State.Editing)) {
-			getMenuInflater().inflate(R.menu.menu_save, menu);
-		}
+		getMenuInflater().inflate(R.menu.menu_save, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -56,14 +53,15 @@ public class PasswordEdit extends BaseEdit {
 
 	@Override public void submitAction() {
 
-		if (this.processing) return;
-		this.processing = true;
+		if (!this.processing) {
+			this.processing = true;
 
-		if (isValid()) {
-			update();
-		}
-		else {
-			this.processing = false;
+			if (isValid()) {
+				update();
+			}
+			else {
+				this.processing = false;
+			}
 		}
 	}
 
@@ -75,17 +73,17 @@ public class PasswordEdit extends BaseEdit {
 		super.initialize(savedInstanceState);
 
 		passwordOld = (EditText) findViewById(R.id.password_old);
-		password = (EditText) findViewById(R.id.password);
+		passwordNew = (EditText) findViewById(R.id.password);
 	}
 
 	protected void update() {
 
 		final String passwordOld = this.passwordOld.getText().toString();
-		final String password = this.password.getText().toString();
+		final String passwordNew = this.passwordNew.getText().toString();
 		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 
 		AsyncTask.execute(() -> {
-			RestClient.getInstance().updatePassword(UserManager.userId, passwordOld, password)
+			RestClient.getInstance().updatePassword(UserManager.userId, passwordOld, passwordNew)
 				.subscribe(
 					response -> {
 						busyController.hide(true);
@@ -108,12 +106,12 @@ public class PasswordEdit extends BaseEdit {
 			return false;
 		}
 
-		if (password.getText().length() == 0) {
+		if (passwordNew.getText().length() == 0) {
 			Dialogs.alert(R.string.error_missing_password_new, this);
 			return false;
 		}
 
-		if (password.getText().length() < 6) {
+		if (passwordNew.getText().length() < 6) {
 			Dialogs.alert(R.string.error_missing_password_weak, this);
 			return false;
 		}

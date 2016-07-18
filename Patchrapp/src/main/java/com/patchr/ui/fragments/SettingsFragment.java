@@ -14,7 +14,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
@@ -29,10 +28,12 @@ import com.github.machinarius.preferencefragment.PreferenceFragment;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.TransitionType;
+import com.patchr.ui.AboutScreen;
 import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
@@ -169,7 +170,9 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
-					Patchr.router.route(getActivity(), Command.ABOUT, null, null);
+					Intent intent = new Intent(getActivity(), AboutScreen.class);
+					getActivity().startActivity(intent);
+					AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.FORM_TO);
 					return true;
 				}
 			});
@@ -178,37 +181,17 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		/* Listen for signin/out click */
 		pref = findPreference("Pref_Signin_Signout");
 		if (pref != null) {
-			if (UserManager.shared().authenticated()) {
-				pref.setTitle(StringManager.getString(R.string.pref_signout_title));
-				pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
-			}
-			else {
-				pref.setTitle(StringManager.getString(R.string.pref_signin_title));
-				pref.setSummary(StringManager.getString(R.string.pref_signin_summary));
-			}
+			pref.setTitle(StringManager.getString(R.string.pref_signout_title));
+			pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
 
 			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 				@Override public boolean onPreferenceClick(Preference preference) {
-					if (UserManager.shared().authenticated()) {
-						UserManager.shared().logout();
-						UI.routeLobby(Patchr.applicationContext);
-					}
-					else {
-						Patchr.router.route(getActivity(), Command.LOGIN, null, null);
-					}
+					UserManager.shared().logout();
+					UI.routeLobby(Patchr.applicationContext);
 					return true;
 				}
 			});
-		}
-
-		if (!UserManager.shared().authenticated()) {
-			PreferenceScreen screen = (PreferenceScreen) findPreference("Pref_Main_Screen");
-			if (screen != null) {
-				PreferenceCategory category = (PreferenceCategory) screen.findPreference("Pref_General_Category");
-				screen.removePreference(category);
-			}
-			return;
 		}
 
 		/* Listen for feedback click */

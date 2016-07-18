@@ -3,7 +3,6 @@ package com.patchr.components;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -13,7 +12,6 @@ import com.patchr.R;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.TransitionType;
-import com.patchr.ui.AboutScreen;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.MainScreen;
 import com.patchr.ui.MapScreen;
@@ -22,11 +20,7 @@ import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.collections.MemberListScreen;
 import com.patchr.ui.collections.PhotoSearchScreen;
 import com.patchr.ui.collections.SearchScreen;
-import com.patchr.ui.edit.LocationEdit;
 import com.patchr.ui.edit.LoginEdit;
-import com.patchr.ui.edit.PasswordEdit;
-import com.patchr.ui.edit.PrivacyEdit;
-import com.patchr.ui.edit.ResetEdit;
 import com.patchr.ui.fragments.MapListFragment;
 
 public class Router {
@@ -52,13 +46,6 @@ public class Router {
 
 			final IntentBuilder intentBuilder = new IntentBuilder(activity, SettingsScreen.class);
 			((Activity) activity).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_PREFERENCES);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.ABOUT) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, AboutScreen.class);
-			activity.startActivity(intentBuilder.build());
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
@@ -88,30 +75,6 @@ public class Router {
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
-		else if (route == Command.TERMS) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.PRIVACY) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.LEGAL) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
 		else if (route == Command.SETTINGS_LOCATION) {
 
 			activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -123,50 +86,6 @@ public class Router {
 			activity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 			((Activity) activity).finish();
-		}
-
-		else if (route == Command.PRIVACY_EDIT) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching privacy edit requires entity");
-			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PrivacyEdit.class);
-			final Intent intent = intentBuilder.build();
-			intent.putExtra(Constants.EXTRA_PRIVACY, entity.visibility);
-
-			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.BUILDER_TO);
-		}
-
-		else if (route == Command.LOCATION_EDIT) {
-
-			if (entity == null) {
-				throw new IllegalArgumentException("Dispatching location edit requires entity");
-			}
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, LocationEdit.class);
-			final Intent intent = intentBuilder.build();
-
-			if (entity.locationJson != null) {
-				intent.putExtra(Constants.EXTRA_LOCATION, entity.locationJson);
-				intent.putExtra(Constants.EXTRA_TITLE, entity.name);
-			}
-
-			((Activity) activity).startActivityForResult(intent, Constants.ACTIVITY_LOCATION_EDIT);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.BUILDER_TO);
-		}
-
-		else if (route == Command.PASSWORD_CHANGE) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, PasswordEdit.class);
-			activity.startActivity(intentBuilder.build());
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-		}
-
-		else if (route == Command.PASSWORD_RESET) {
-
-			final IntentBuilder intentBuilder = new IntentBuilder(activity, ResetEdit.class);
-			((Activity) activity).startActivityForResult(intentBuilder.build(), Constants.ACTIVITY_RESET_AND_SIGNIN);
-			AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 		}
 
 		else if (route == Command.PHOTO_SEARCH) {

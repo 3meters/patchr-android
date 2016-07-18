@@ -59,9 +59,7 @@ public class PhotoScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (UserManager.shared().authenticated()) {
-			getMenuInflater().inflate(R.menu.menu_share_photo, menu);
-		}
+		getMenuInflater().inflate(R.menu.menu_share_photo, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -81,7 +79,8 @@ public class PhotoScreen extends BaseScreen {
 		return true;
 	}
 
-	@Override public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
@@ -173,16 +172,10 @@ public class PhotoScreen extends BaseScreen {
 
 		ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(this);
 		builder.setType("image/jpeg").setStream(MediaManager.getSharePathUri());
-		if (UserManager.shared().authenticated()) {
-			builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), UserManager.currentUser.name));
-		}
-		else {
-			builder.setSubject(StringManager.getString(R.string.label_photo_share_subject_guest));
-		}
-
+		builder.setSubject(String.format(StringManager.getString(R.string.label_photo_share_subject), UserManager.currentUser.name));
 		builder.getIntent()
-				.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName())
-				.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
+			.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName())
+			.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PICTURE);
 
 		builder.startChooser();
 	}
@@ -197,23 +190,24 @@ public class PhotoScreen extends BaseScreen {
 				@Override public void run() {
 
 					final AlertDialog dialog = Dialogs.alertDialog(null
-							, StringManager.getString(R.string.alert_permission_storage_title)
-							, StringManager.getString(R.string.alert_permission_storage_message)
-							, null
-							, PhotoScreen.this
-							, R.string.alert_permission_storage_positive
-							, R.string.alert_permission_storage_negative
-							, null
-							, new DialogInterface.OnClickListener() {
+						, StringManager.getString(R.string.alert_permission_storage_title)
+						, StringManager.getString(R.string.alert_permission_storage_message)
+						, null
+						, PhotoScreen.this
+						, R.string.alert_permission_storage_positive
+						, R.string.alert_permission_storage_negative
+						, null
+						, new DialogInterface.OnClickListener() {
 
-								@SuppressLint("InlinedApi") @Override public void onClick(DialogInterface dialog, int which) {
-									if (which == DialogInterface.BUTTON_POSITIVE) {
-										ActivityCompat.requestPermissions(PhotoScreen.this
-												, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-												, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-									}
+							@SuppressLint("InlinedApi") @Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									ActivityCompat.requestPermissions(PhotoScreen.this
+										, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+										, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 								}
-							}, null);
+							}
+						}, null);
 					dialog.setCanceledOnTouchOutside(false);
 				}
 			});
@@ -224,8 +218,8 @@ public class PhotoScreen extends BaseScreen {
 			 * We get a callback when permission request is complete.
 			 */
 			ActivityCompat.requestPermissions(this
-					, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-					, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+				, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+				, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 		}
 	}
 }

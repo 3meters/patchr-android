@@ -42,8 +42,8 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	private Number  entityModelBeaconDate;
 	private boolean atLeastOneLocationProcessed;
 	protected AtomicBoolean locationDialogShot = new AtomicBoolean(false);
-	protected AsyncTask  taskPatchesNearLocation;
-	protected AsyncTask  taskPatchesByProximity;
+	protected AsyncTask taskPatchesNearLocation;
+	protected AsyncTask taskPatchesByProximity;
 
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -160,13 +160,8 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 				rule.setVisibility(View.GONE);
 			}
 
-			if (!UserManager.shared().authenticated()) {
-				alertButton.setText(R.string.button_alert_radar_anonymous);
-			}
-			else {
-				Boolean patched = (UserManager.currentUser.patchesOwned != null && UserManager.currentUser.patchesOwned > 0);
-				alertButton.setText(patched ? R.string.button_alert_radar : R.string.button_alert_radar_no_patch);
-			}
+			Boolean patched = (UserManager.currentUser.patchesOwned != null && UserManager.currentUser.patchesOwned > 0);
+			alertButton.setText(patched ? R.string.button_alert_radar : R.string.button_alert_radar_no_patch);
 		}
 	}
 

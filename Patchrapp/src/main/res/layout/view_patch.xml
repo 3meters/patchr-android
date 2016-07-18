@@ -96,7 +96,7 @@
 						android:textAllCaps="true"
 						android:textSize="14sp"
 						android:textColor="?attr/textColorSecondary"
-						tools:text="Chat Patch" />
+						tools:text="Event Patch" />
 
 					<LinearLayout
 						android:id="@+id/privacy_group"

@@ -1,6 +1,8 @@
 package com.patchr.ui.edit;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -15,24 +17,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.PhoneNumber;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
-import com.patchr.ui.LobbyScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
@@ -67,16 +66,7 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			if (inputState != null && inputState.equals(State.CompleteProfile)) {
-				getMenuInflater().inflate(R.menu.menu_signup, menu);
-			}
-			else if (inputState.equals(State.Editing)) {
-				getMenuInflater().inflate(R.menu.menu_save, menu);
-				getMenuInflater().inflate(R.menu.menu_delete, menu);
-			}
-		}
-		else if (inputState.equals(State.Editing)) {
+		if (inputState.equals(State.Editing)) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
@@ -100,10 +90,15 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override public void onClick(View view) {
 		if (view.getId() == R.id.change_password_button) {
-			Patchr.router.route(this, Command.PASSWORD_CHANGE, null, null);
+			Intent intent = new Intent(this, PasswordEdit.class);
+			startActivity(intent);
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 		else if (view.getId() == R.id.terms_button) {
-			Patchr.router.route(this, Command.TERMS, null, null);
+			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
+			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
+			startActivity(intentBuilder.build());
+			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 		else if (view.getId() == R.id.signup_button) {
 			submitAction();
@@ -149,35 +144,15 @@ public class ProfileEdit extends BaseEdit {
 		termsButton = (Button) findViewById(R.id.terms_button);
 		changePasswordButton = (Button) findViewById(R.id.change_password_button);
 
-		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			email.setVisibility(View.GONE);
-			authIdentifierLabel.setVisibility(View.VISIBLE);
-			authIdentifier.setVisibility(View.VISIBLE);
+		if (inputState != null && inputState.equals(State.Signup)) {
+			entity = new RealmEntity();
+			entity.email = inputEmail;
+			entity.password = inputPassword;
+			title.setText(R.string.form_title_profile_signup);
+			area.setVisibility(View.GONE);
+			submitButton.setVisibility(View.VISIBLE);
+			termsButton.setVisibility(View.VISIBLE);
 			changePasswordButton.setVisibility(View.GONE);
-
-			if (inputState != null && inputState.equals(State.CompleteProfile)) {
-				title.setText("Make your account more personal");
-				authIdentifierLabel.setText(R.string.label_auth_identifier_onboarding);
-				area.setVisibility(View.GONE);
-				submitButton.setVisibility(View.VISIBLE);
-				submitButton.setText("Create account");
-				termsButton.setVisibility(View.VISIBLE);
-			}
-			else {
-				authIdentifierLabel.setText(R.string.label_auth_identifier);
-			}
-		}
-		else {
-			if (inputState != null && inputState.equals(State.Creating)) {
-				entity = new RealmEntity();
-				entity.email = inputEmail;
-				entity.password = inputPassword;
-				title.setText(R.string.form_title_profile_signup);
-				area.setVisibility(View.GONE);
-				submitButton.setVisibility(View.VISIBLE);
-				termsButton.setVisibility(View.VISIBLE);
-				changePasswordButton.setVisibility(View.GONE);
-			}
 		}
 
 		name.setImeOptions(EditorInfo.IME_ACTION_GO);
@@ -196,35 +171,17 @@ public class ProfileEdit extends BaseEdit {
 	@Override public void bind() {
 		super.bind();
 
-		if (BuildConfig.ACCOUNT_KIT_ENABLED) {
-			if (UserManager.authTypeHint != null) {
-				if (UserManager.authTypeHint.equals(LobbyScreen.AuthType.PhoneNumber)) {
-					authIdentifier.setText(((PhoneNumber) UserManager.authIdentifierHint).number);
-				}
-				else {
-					authIdentifier.setText((String) UserManager.authIdentifierHint);
-				}
-			}
-
-			if (inputState == null || !inputState.equals(State.CompleteProfile)) {
-				if (this.area != null && !TextUtils.isEmpty(entity.area)) {
-					this.area.setText(entity.area);
-				}
-			}
+		if (this.inputState != null && this.inputState.equals(State.Signup)) {
+			UI.setTextView(this.email, this.inputEmail);
+			this.email.setEnabled(false);
+			this.photoEditWidget.bind(null);
 		}
 		else {
-			if (this.inputState != null && this.inputState.equals(State.Creating)) {
-				UI.setTextView(this.email, this.inputEmail);
-				this.email.setEnabled(false);
-				this.photoEditWidget.bind(null);
+			if (this.area != null && !TextUtils.isEmpty(entity.area)) {
+				this.area.setText(entity.area);
 			}
-			else {
-				if (this.area != null && !TextUtils.isEmpty(entity.area)) {
-					this.area.setText(entity.area);
-				}
-				if (this.email != null && !TextUtils.isEmpty(entity.email)) {
-					this.email.setText(entity.email);
-				}
+			if (this.email != null && !TextUtils.isEmpty(entity.email)) {
+				this.email.setText(entity.email);
 			}
 		}
 	}
@@ -232,7 +189,7 @@ public class ProfileEdit extends BaseEdit {
 	@Override protected void gather(SimpleMap parameters) {
 		super.gather(parameters); // Handles name, description, photo
 
-		if (inputState.equals(State.Creating)) {
+		if (inputState.equals(State.Signup)) {
 			if (email != null) {
 				parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
 			}
@@ -240,15 +197,20 @@ public class ProfileEdit extends BaseEdit {
 				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
 			}
 		}
-		else if (inputState.equals(State.Editing)) {
-
+		else {
+			if (email != null && !email.getText().toString().equals(entity.email)) {
+				parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
+			}
+			if (area != null && !area.getText().toString().equals(entity.area)) {
+				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
+			}
 		}
 	}
 
 	protected void post(SimpleMap parameters) {
 
 		processing = true;
-		String path = entity == null ? "data/patches" : String.format("data/patches/%1$s", entity.id);
+		String path = entity == null ? "data/users" : String.format("data/users/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, ProfileEdit.this);
 
 		if (parameters.containsKey("photo")) {
@@ -268,7 +230,7 @@ public class ProfileEdit extends BaseEdit {
 				}
 			}
 
-			if (inputState.equals(State.Creating)) {
+			if (inputState.equals(State.Signup)) {
 				subscription = RestClient.getInstance().signup(parameters)
 					.subscribe(
 						response -> {
@@ -299,8 +261,6 @@ public class ProfileEdit extends BaseEdit {
 						response -> {
 							processing = false;
 							busyController.hide(true);
-							entity.session = UserManager.currentSession;
-							UserManager.shared().setCurrentUser(entity, UserManager.currentSession);  // Updates persisted user too
 							finish();
 							AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
 						},
@@ -330,7 +290,6 @@ public class ProfileEdit extends BaseEdit {
 						Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
 						Logger.i(this, "Deleted user: " + entity.id);
 						UserManager.shared().setCurrentUser(null, null);
-						UserManager.shared().discardAuthHints();
 						UI.routeLobby(Patchr.applicationContext);
 						UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
 						finish();
@@ -357,6 +316,7 @@ public class ProfileEdit extends BaseEdit {
 
 		int padding = UI.getRawPixelsForDisplayPixels(20f);
 
+		//noinspection deprecation
 		builder.setView(textConfirm, padding, 0, padding, 0);
 		builder.setTitle(R.string.alert_delete_account_title);
 		builder.setMessage(R.string.alert_delete_account_message);
@@ -377,9 +337,16 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (this.entity.name == null) {
+		if (name == null) {
 			Dialogs.alert(R.string.error_missing_fullname, this);
 			return false;
+		}
+
+		if (inputState.equals(State.Editing)) {
+			if (email == null) {
+				Dialogs.alert(R.string.error_missing_email, this);
+				return false;
+			}
 		}
 
 		return true;
