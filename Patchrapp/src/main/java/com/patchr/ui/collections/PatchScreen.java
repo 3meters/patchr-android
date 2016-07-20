@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,12 +29,14 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.NotificationReceivedEvent;
+import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
@@ -43,6 +47,7 @@ import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TaskStatus;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.MapScreen;
@@ -53,6 +58,7 @@ import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
+import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -84,6 +90,12 @@ public class PatchScreen extends BaseListScreen {
 	protected String          referrerPhotoUrl;
 	protected boolean         autoJoin;
 	protected boolean         justApproved;               // Set in onMessage via notification
+	protected Snackbar        snackbar;
+
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Dispatcher.getInstance().register(this);
+	}
 
 	@Override public void onResume() {
 		super.onResume();
@@ -109,6 +121,23 @@ public class PatchScreen extends BaseListScreen {
 			joinAction();
 			autoJoin = false;
 		}
+
+		AsyncTask.execute(() -> {
+			int count = Patchr.jobManager.count();
+			if (count > 0) {
+				showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)));
+			}
+			else {
+				if (snackbar != null && snackbar.isShownOrQueued()) {
+					snackbar.dismiss();
+				}
+			}
+		});
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -254,6 +283,26 @@ public class PatchScreen extends BaseListScreen {
 				justApproved = true;
 			}
 			fetch(FetchMode.AUTO);
+		}
+	}
+
+	@Subscribe public void onTaskStatusReceived(final TaskStatusEvent event) {
+		/* Refresh the list because something happened with the list parent. */
+		if (this.entityId.equals(event.parentId)) {
+			if (event.status == TaskStatus.PENDING) {
+				showSnackbar("Message waiting");
+			}
+			if (event.status == TaskStatus.STARTED) {
+				showSnackbar("Sending");
+			}
+			if (event.status == TaskStatus.SUCCESS) {
+				if (snackbar != null && snackbar.isShownOrQueued()) {
+					snackbar.dismiss();
+				}
+			}
+			if (event.status == TaskStatus.FAILED) {
+				showSnackbar("Send failed");
+			}
 		}
 	}
 
@@ -668,6 +717,17 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 		});
+	}
+
+	private void showSnackbar(String text) {
+		if (snackbar == null) {
+			snackbar = Snackbar.make(rootView, "Snackbar", Snackbar.LENGTH_INDEFINITE);
+			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
+		}
+		snackbar.setText(text);
+		if (!snackbar.isShown()) {
+			snackbar.show();
+		}
 	}
 
 	private void showInviteWelcome(int delay) {

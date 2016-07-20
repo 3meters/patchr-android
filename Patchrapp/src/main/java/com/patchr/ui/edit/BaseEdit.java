@@ -226,7 +226,7 @@ public abstract class BaseEdit extends BaseScreen {
 				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.photo != null) {
-				parameters.put("photo", photoEditWidget.photo); // Could be null
+				parameters.put("photo", photoEditWidget.photo.asMap()); // Could be null
 			}
 		}
 		else if (inputState.equals(State.Editing)) {
@@ -237,7 +237,7 @@ public abstract class BaseEdit extends BaseScreen {
 				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.dirty) {
-				parameters.put("photo", photoEditWidget.photo); // Could be null
+				parameters.put("photo", photoEditWidget.photo != null ? photoEditWidget.photo.asMap() : null); // Could be null
 			}
 		}
 	}

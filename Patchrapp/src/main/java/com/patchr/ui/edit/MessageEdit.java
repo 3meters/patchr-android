@@ -155,61 +155,11 @@ public class MessageEdit extends BaseEdit {
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, MessageEdit.this);
 
-		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, parameters));
-
-//		Bundle bundle = new Bundle();
-//		bundle.putString("path", path);
-//		bundle.putString("paramsJson", Patchr.gson.toJson(parameters));
-//
-//		Task task = new OneoffTask.Builder()
-//			.setService(RestTaskService.class)
-//			.setExecutionWindow(0, 5)
-//			.setTag(TaskTag.POST_ENTITY)
-//			.setExtras(bundle)
-//			.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-//			.setRequiresCharging(false)
-//			.setPersisted(false)
-//			.build();
-//
-//		GcmNetworkManager.getInstance(this).schedule(task);
+		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, parameters, null, inputParentId));
 
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
-
-		//		AsyncTask.execute(() -> {
-//
-//			if (parameters.containsKey("photo")) {
-//				Photo photo = (Photo) parameters.get("photo");
-//				if (photo != null) {
-//					Photo photoFinal = postPhotoToS3(photo);
-//					parameters.put("photo", photoFinal);
-//				}
-//			}
-//
-//			subscription = RestClient.getInstance().postEntity(path, parameters)
-//				.subscribe(
-//					response -> {
-//						processing = false;
-//						busyController.hide(true);
-//						finish();
-//						AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
-//					},
-//					error -> {
-//						processing = false;
-//						busyController.hide(true);
-//						Logger.w(this, error.getLocalizedMessage());
-//					});
-//		});
 	}
-
-//	public void createJob(String path, SimpleMap parameters) {
-//		realm.executeTransaction((realm) -> {
-//			EntityPost post = new EntityPost();
-//			post.path = path;
-//			post.paramsJson = Patchr.gson.toJson(parameters);
-//			realm.copyToRealm(post);
-//		});
-//	}
 
 	@Override protected boolean isValid() {
 

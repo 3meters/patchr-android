@@ -7,6 +7,7 @@ import android.util.TypedValue;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
+import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
@@ -22,10 +23,10 @@ public class Photo {
 
 	private static final GooglePlusProxy imageResizer = new GooglePlusProxy();
 
-	public           String  prefix;
-	public           Integer width;
-	public           Integer height;
-	public           String  source;
+	public String  prefix;
+	public Integer width;
+	public Integer height;
+	public String  source;
 
 	public Photo() {
 		super();
@@ -146,6 +147,15 @@ public class Photo {
 		}
 		else
 			return rawResourceName;
+	}
+
+	public SimpleMap asMap() {
+		SimpleMap map = new SimpleMap();
+		map.put("prefix", prefix);
+		map.put("source", source);
+		map.put("width", width);
+		map.put("height", height);
+		return map;
 	}
 
 	public boolean sameAs(Object obj) {

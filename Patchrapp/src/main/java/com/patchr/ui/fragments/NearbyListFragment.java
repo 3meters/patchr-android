@@ -151,7 +151,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 		}
 		else {
 			UI.toast(StringManager.getString(R.string.alert_location_services_disabled));
-			showSnackbar();
+			showSnackbar(R.string.alert_location_permission_denied);
 		}
 	}
 
@@ -170,20 +170,17 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 		}
 	}
 
-	private void showSnackbar() {
+	private void showSnackbar(int textResId) {
 		if (getView() != null) {
 			Snackbar snackbar = Snackbar.make(getView(), "Snackbar", Snackbar.LENGTH_LONG);
 			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
-			snackbar.setText(R.string.alert_location_permission_denied)
-				.setAction("Settings", new View.OnClickListener() {
-					@Override public void onClick(View view) {
-						Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-						Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-						intent.setData(uri);
-						startActivityForResult(intent, 100);
-					}
-				})
-				.show();
+			snackbar.setText(textResId)
+				.setAction("Settings", view -> {
+					Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+					Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+					intent.setData(uri);
+					startActivityForResult(intent, 100);
+				}).show();
 		}
 	}
 

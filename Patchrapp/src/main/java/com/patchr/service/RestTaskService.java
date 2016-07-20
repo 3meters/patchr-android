@@ -7,9 +7,7 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.S3;
-import com.patchr.events.TaskDoneEvent;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
@@ -42,9 +40,6 @@ public class RestTaskService extends GcmTaskService {
 			SimpleMap parameters = Patchr.gson.fromJson(paramsJson, SimpleMap.class);
 			result = postEntity(path, parameters);
 		}
-
-		/* Post event */
-		Dispatcher.getInstance().post(new TaskDoneEvent(tag, result == GcmNetworkManager.RESULT_SUCCESS ? ResponseCode.SUCCESS : ResponseCode.FAILED));
 
 		return result;
 	}
