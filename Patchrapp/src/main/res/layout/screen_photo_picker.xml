@@ -55,6 +55,7 @@
 				android:layout_width="0dp"
 				android:layout_height="@dimen/form_field_height"
 				android:layout_weight="1"
+				android:fontFamily="sans-serif-light"
 				android:completionThreshold="1"
 				android:drawableLeft="?attr/iconSearch"
 				android:drawablePadding="10dp"

@@ -6,9 +6,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,7 +25,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
@@ -37,7 +34,6 @@ import com.patchr.objects.enums.TransitionType;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.patchr.utilities.Utils;
 
 public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageChooserListener {
 
@@ -119,23 +115,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
 					if (json != null) {
 						final Photo photo = Patchr.gson.fromJson(json, Photo.class);
-						/* Download image and save to file */
-						AsyncTask.execute(() -> {
-							Bitmap bitmap = Photo.getBitmapForPhoto(photo);
-							if (bitmap == null) {
-								Logger.w(this, "Failed to download bitmap from the network");
-							}
-							else {
-								String filename = Utils.md5(photo.prefix) + ".jpg";
-								if (MediaManager.copyBitmapToInternalStorage(this, bitmap, filename)) {
-									String path = String.format("file://%1$s/%2$s", getFilesDir(), filename);
-									Photo photoSaved = new Photo(path, Photo.PhotoSource.file);
-									submitAction(photoSaved);
-									return;
-								}
-								Logger.w(this, "Failed to save bitmap to internal storage");
-							}
-						});
+						submitAction(photo);
 					}
 				}
 			}
@@ -147,6 +127,21 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	public void submitAction(Photo photo) {
+		final Intent intent = new Intent();
+		final String jsonPhoto = Patchr.gson.toJson(photo);
+		intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
+		setResult(Activity.RESULT_OK, intent);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
+	}
+
+	public void cancelAction(Boolean force) {
+		setResult(Activity.RESULT_CANCELED);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
 	@Override public void onImageChosen(final ChosenImage chosenImage) {
@@ -180,6 +175,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		});
 	}
 
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -209,21 +205,6 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 				photoFromCamera();
 				break;
 		}
-	}
-
-	public void submitAction(Photo photo) {
-		final Intent intent = new Intent();
-		final String jsonPhoto = Patchr.gson.toJson(photo);
-		intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
-		setResult(Activity.RESULT_OK, intent);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
-	}
-
-	public void cancelAction(Boolean force) {
-		setResult(Activity.RESULT_CANCELED);
-		finish();
-		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_BACK);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)

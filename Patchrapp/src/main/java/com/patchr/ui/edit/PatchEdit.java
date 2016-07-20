@@ -425,7 +425,7 @@ public class PatchEdit extends BaseEdit {
 
 		Location location = (Location) mapView.getTag();
 		if (location != null) {
-			parameters.put("location", location);
+			parameters.put("location", location.asMap());
 		}
 
 		parameters.put("type", buttonPatchType.getTag());

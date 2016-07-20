@@ -1,6 +1,7 @@
 package com.patchr.model;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.patchr.objects.SimpleMap;
 
 import java.util.Map;
 
@@ -11,9 +12,9 @@ public class Location {
 	private static final android.location.Location fromLocation     = new android.location.Location("from");
 	private static final android.location.Location toLocation       = new android.location.Location("to");
 
-	public Double  lat;
-	public Double  lng;
-	public Double  altitude;
+	public Double lat;
+	public Double lng;
+	public Double altitude;
 	public Float  accuracy;
 	public Float  bearing;
 	public Float  speed;
@@ -48,6 +49,18 @@ public class Location {
 		toLocation.setLongitude(location.lng.doubleValue());
 
 		return fromLocation.distanceTo(toLocation);
+	}
+
+	public SimpleMap asMap() {
+		SimpleMap map = new SimpleMap();
+		map.put("lat", lat);
+		map.put("lng", lng);
+		map.put("altitude", altitude);
+		map.put("accuracy", accuracy);
+		map.put("bearing", bearing);
+		map.put("speed", speed);
+		map.put("provider", provider);
+		return map;
 	}
 
 	public boolean sameAs(Object obj) {

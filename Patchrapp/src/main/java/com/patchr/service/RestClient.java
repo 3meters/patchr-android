@@ -15,6 +15,7 @@ import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
+import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Location;
@@ -718,8 +719,14 @@ public class RestClient {
 						throw exception;
 					}
 					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (response.clientMinVersions != null && response.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
+						Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+						if ((Integer) response.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
+							throw new ClientVersionException();
+						}
+					}
 					if (response.error != null) {
-						throw response.error.asException();
+						throw response.error.asException(); // ServiceException
 					}
 					else if (updateRealm && !response.noop && response.data.size() > 0) {
 						updateRealm(response, queryId, skip);

@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -22,15 +20,9 @@ import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Preference;
-import com.patchr.objects.enums.ResponseCode;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 @SuppressWarnings("ucd")
 public class LocationManager implements
@@ -263,56 +255,6 @@ public class LocationManager implements
 	@NonNull public Boolean isLocationAccessEnabled() {
 		return (mLocationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 			|| mLocationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
-	}
-
-	@NonNull public ModelResult getAddressForLocation(final Location location) {
-		/*
-		 * Can trigger network access so should be called on a background thread.
-		 */
-		Thread.currentThread().setName("AsyncAddressForLocation");
-		ModelResult result = new ModelResult();
-		Geocoder geocoder = new Geocoder(Patchr.applicationContext, Locale.getDefault());
-
-		try {
-			result.data = geocoder.getFromLocation(location.lat.doubleValue(), location.lng.doubleValue(), 1);
-		}
-		catch (IOException e) {
-			result.serviceResponse.responseCode = ResponseCode.FAILED;
-			result.serviceResponse.exception = e;
-			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
-		}
-
-		return result;
-	}
-
-	@NonNull public ModelResult getLocationFromAddress(String address) {
-		/*
-		 * Can trigger network access so should be called on a background thread.
-		 */
-		ModelResult result = new ModelResult();
-		try {
-			Geocoder geocoder = new Geocoder(Patchr.applicationContext, Locale.getDefault());
-			List<Address> addresses = geocoder.getFromLocationName(address, 1);
-			if (addresses != null && addresses.size() > 0) {
-				Address geolookup = addresses.get(0);
-				if (geolookup.hasLatitude() && geolookup.hasLongitude()) {
-					Location location = new Location();
-					location.lat = geolookup.getLatitude();
-					location.lng = geolookup.getLongitude();
-					location.accuracy = 25.0f;
-					result.data = location;
-				}
-				else {
-					result.serviceResponse.responseCode = ResponseCode.FAILED;
-				}
-			}
-		}
-		catch (IOException exception) {
-			result.serviceResponse.responseCode = ResponseCode.FAILED;
-			result.serviceResponse.exception = exception;
-			result.serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, result.serviceResponse);
-		}
-		return result;
 	}
 
 	/*--------------------------------------------------------------------------------------------

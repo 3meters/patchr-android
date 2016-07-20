@@ -17,7 +17,6 @@ import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.PostEntityJob;
-import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -153,10 +152,7 @@ public class MessageEdit extends BaseEdit {
 
 		processing = true;
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
-		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, MessageEdit.this);
-
 		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, parameters, null, inputParentId));
-
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
 	}

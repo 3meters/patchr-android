@@ -124,14 +124,16 @@ public class PatchScreen extends BaseListScreen {
 
 		AsyncTask.execute(() -> {
 			int count = Patchr.jobManager.count();
-			if (count > 0) {
-				showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)));
-			}
-			else {
-				if (snackbar != null && snackbar.isShownOrQueued()) {
-					snackbar.dismiss();
+			runOnUiThread(() -> {
+				if (count > 0) {
+					showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)));
 				}
-			}
+				else {
+					if (snackbar.isShownOrQueued()) {
+						snackbar.dismiss();
+					}
+				}
+			});
 		});
 	}
 
@@ -286,7 +288,8 @@ public class PatchScreen extends BaseListScreen {
 		}
 	}
 
-	@Subscribe public void onTaskStatusReceived(final TaskStatusEvent event) {
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onTaskStatusReceived(final TaskStatusEvent event) {
 		/* Refresh the list because something happened with the list parent. */
 		if (this.entityId.equals(event.parentId)) {
 			if (event.status == TaskStatus.PENDING) {
@@ -400,9 +403,11 @@ public class PatchScreen extends BaseListScreen {
 	}
 
 	@Override public void initialize(Bundle savedInstanceState) {
-		this.header = new PatchDetailView(this);
-		this.querySpec = QuerySpec.Factory(QueryName.MessagesForPatch);
-		this.actionView = (ViewGroup) header.findViewById(R.id.action_group);
+		header = new PatchDetailView(this);
+		querySpec = QuerySpec.Factory(QueryName.MessagesForPatch);
+		actionView = (ViewGroup) header.findViewById(R.id.action_group);
+		snackbar = Snackbar.make(rootView.findViewById(R.id.coordinator), "Snackbar", Snackbar.LENGTH_INDEFINITE);
+		snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
 
 		super.initialize(savedInstanceState);
 
@@ -720,10 +725,6 @@ public class PatchScreen extends BaseListScreen {
 	}
 
 	private void showSnackbar(String text) {
-		if (snackbar == null) {
-			snackbar = Snackbar.make(rootView, "Snackbar", Snackbar.LENGTH_INDEFINITE);
-			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
-		}
 		snackbar.setText(text);
 		if (!snackbar.isShown()) {
 			snackbar.show();

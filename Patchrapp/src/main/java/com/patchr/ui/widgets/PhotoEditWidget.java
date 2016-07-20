@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +12,15 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.Logger;
+import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.squareup.picasso.Callback;
 
 @SuppressWarnings("ucd")
@@ -133,8 +138,6 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 
 		synchronized (lock) {
 
-			this.photo = photo;
-
 			UI.setVisibility(setButton, GONE);
 			UI.setVisibility(editButton, GONE);
 			UI.setVisibility(deleteButton, GONE);
@@ -148,7 +151,34 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 				UI.setVisibility(setButton, VISIBLE);
 			}
 			else {
-				imageWidget.setImageWithPhoto(photo, null, this);
+				/* Convert external uri to file uri */
+				if (photo.source.equals(Photo.PhotoSource.generic)) {
+					/* Download image and save to file */
+					AsyncTask.execute(() -> {
+						Bitmap bitmap = Photo.getBitmapForPhoto(photo);
+						if (bitmap == null) {
+							Logger.w(this, "Failed to download bitmap from the network");
+						}
+						else {
+							String filename = Utils.md5(photo.prefix) + ".jpg";
+							if (MediaManager.copyBitmapToInternalStorage(getContext(), bitmap, filename)) {
+								String path = String.format("file://%1$s/%2$s", getContext().getFilesDir(), filename);
+								Photo photoSaved = new Photo(path, Photo.PhotoSource.file);
+								this.photo = photoSaved;
+								Patchr.mainThreadHandler.post(() -> {
+									imageWidget.setImageWithPhoto(photoSaved, null, this);
+								});
+								return;
+							}
+							Logger.w(this, "Failed to save bitmap to internal storage");
+						}
+					});
+
+				}
+				else {
+					this.photo = photo;
+					imageWidget.setImageWithPhoto(photo, null, this);
+				}
 			}
 		}
 	}

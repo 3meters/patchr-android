@@ -3,7 +3,6 @@ package com.patchr.service;
 import android.support.annotation.NonNull;
 
 import com.patchr.objects.enums.ResponseCode;
-import com.patchr.utilities.Errors.ErrorResponse;
 
 @SuppressWarnings("ucd")
 public class ServiceResponse {
@@ -27,7 +26,6 @@ public class ServiceResponse {
 	public Integer contentHeightScaled = 0;
 	@NonNull
 	public Integer contentWidthScaled  = 0;
-	public ErrorResponse errorResponse;
 	public String        activityName;
 	public Object        tag;
 

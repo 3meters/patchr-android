@@ -15,7 +15,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
@@ -196,18 +195,13 @@ public class LoginEdit extends BaseEdit {
 							Dialogs.alert(R.string.error_signin_failed, LoginEdit.this);
 						}
 						else {
-							Errors.handleError(LoginEdit.this, response.error);
+							Errors.handleError(LoginEdit.this, response.error.asException());
 						}
 					}
 				},
 				error -> {
 					busyController.hide(true);
-					String message = error.getLocalizedMessage();
-					if (error instanceof ServiceException) {
-						message = ((ServiceException)error).message;
-					}
-					Logger.w(this, message);
-					UI.toast(message);
+					Errors.handleError(LoginEdit.this, error);
 				});
 	}
 
@@ -236,7 +230,7 @@ public class LoginEdit extends BaseEdit {
 				},
 				error -> {
 					busyController.hide(true);
-					Logger.w(this, error.getLocalizedMessage());
+					Errors.handleError(LoginEdit.this, error);
 				});
 	}
 }
