@@ -29,6 +29,7 @@ import com.patchr.events.LocationDeniedEvent;
 import com.patchr.events.LocationUpdatedEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.FetchMode;
+import com.patchr.service.RestClient;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -39,11 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NearbyListFragment extends EntityListFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-	private Number  entityModelBeaconDate;
 	private boolean atLeastOneLocationProcessed;
 	protected AtomicBoolean locationDialogShot = new AtomicBoolean(false);
-	protected AsyncTask taskPatchesNearLocation;
-	protected AsyncTask taskPatchesByProximity;
 
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -57,7 +55,14 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	}
 
 	@Override protected void doOnResume() {
-		activateNearby(FetchMode.AUTO);
+		if (listWidget.query != null
+			&& RestClient.getInstance().activityDateInsertDeletePatch > listWidget.query.activityDate) {
+			activateNearby(FetchMode.MANUAL);
+		}
+		else {
+			listWidget.draw();
+			activateNearby(FetchMode.AUTO);
+		}
 	}
 
 	@Override public void onStop() {

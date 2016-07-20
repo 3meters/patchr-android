@@ -155,8 +155,8 @@ public class ProfileEdit extends BaseEdit {
 			changePasswordButton.setVisibility(View.GONE);
 		}
 
-		name.setImeOptions(EditorInfo.IME_ACTION_GO);
-		name.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		nameView.setImeOptions(EditorInfo.IME_ACTION_GO);
+		nameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
 			@Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
@@ -225,7 +225,7 @@ public class ProfileEdit extends BaseEdit {
 			if (parameters.containsKey("photo")) {
 				Photo photo = (Photo) parameters.get("photo");
 				if (photo != null) {
-					Photo photoFinal = postPhoto(photo);
+					Photo photoFinal = postPhotoToS3(photo);
 					parameters.put("photo", photoFinal);
 				}
 			}
@@ -337,7 +337,7 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (name == null) {
+		if (nameView == null) {
 			Dialogs.alert(R.string.error_missing_fullname, this);
 			return false;
 		}

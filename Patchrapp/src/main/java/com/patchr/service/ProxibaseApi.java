@@ -4,6 +4,7 @@ import com.patchr.objects.SimpleMap;
 
 import java.util.Map;
 
+import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -17,6 +18,9 @@ public interface ProxibaseApi {
 
 	@POST("{path}")
 	Observable<Response<Map<String, Object>>> post(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
+
+	@POST("{path}")
+	Call<Response<Map<String, Object>>> postCall(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
 
 	@DELETE("{path}")
 	Observable<Response<Map<String, Object>>> delete(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);

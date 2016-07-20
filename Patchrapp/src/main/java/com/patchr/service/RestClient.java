@@ -28,6 +28,7 @@ import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.Suggest;
 import com.patchr.ui.MainScreen;
+import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Utils;
 
@@ -41,6 +42,8 @@ import java.util.Map;
 
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -50,9 +53,10 @@ import rx.schedulers.Schedulers;
 
 public class RestClient {
 
-	private static ProxibaseApi proxiApi;
+	public static  ProxibaseApi proxiApi;
 	private static BingApi      bingApi;
 	private static RestClient instance = new RestClient();
+	public Long activityDateInsertDeletePatch;
 
 	public static RestClient getInstance() {
 		return instance;
@@ -60,6 +64,8 @@ public class RestClient {
 
 	private RestClient() {
 		try {
+			activityDateInsertDeletePatch = DateTime.nowDate().getTime();
+
 			/* Configure http client */
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
 			OkHttpClient client = httpClient.build();
@@ -408,6 +414,19 @@ public class RestClient {
 		addSessionParameters(parameters);
 
 		return post(path, parameters, null, null, false);
+	}
+
+	public Call<Response<Map<String, Object>>> postEntityCall(final String path, SimpleMap data) {
+
+		SimpleMap parameters = data;
+		if (!data.containsKey("data")) {
+			parameters = new SimpleMap();
+			parameters.put("data", data);
+		}
+
+		addSessionParameters(parameters);
+
+		return proxiApi.postCall(path, parameters);
 	}
 
 	public Observable<ProxibaseResponse> deleteEntity(final String path, final String objectId) {
@@ -767,7 +786,7 @@ public class RestClient {
 	 * Helpers
 	 *--------------------------------------------------------------------------------------------*/
 
-	private void updateRealm(@NotNull ProxibaseResponse response, String queryId, Integer skip) {
+	public void updateRealm(@NotNull ProxibaseResponse response, String queryId, Integer skip) {
 
 		Query realmQuery = null;
 		Realm realm = Realm.getDefaultInstance();
@@ -777,6 +796,7 @@ public class RestClient {
 			realmQuery = realm.where(Query.class).equalTo("id", queryId).findFirst();
 			realmQuery.more = (response.more != null && response.more);
 			realmQuery.executed = true;
+			realmQuery.activityDate = DateTime.nowDate().getTime();
 
 			if (skip != null && skip == 0) {
 				realmQuery.entities.clear();

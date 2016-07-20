@@ -1,6 +1,5 @@
 package com.patchr.ui.edit;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -9,15 +8,15 @@ import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Logger;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
-import com.patchr.service.RestClient;
+import com.patchr.service.PostEntityJob;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
@@ -113,8 +112,8 @@ public class MessageEdit extends BaseEdit {
 		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		photoEditAnimator = (ViewAnimator) findViewById(R.id.photo_edit_animator);
 
-		if (description != null) {
-			description.setCompoundDrawables(null, null, null, null);  // Remove the clear button
+		if (descriptionView != null) {
+			descriptionView.setCompoundDrawables(null, null, null, null);  // Remove the clear button
 		}
 
 		actionBarTitle.setText(inputState.equals(State.Editing) ? "Edit message" : "Message");
@@ -156,35 +155,65 @@ public class MessageEdit extends BaseEdit {
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, MessageEdit.this);
 
-		AsyncTask.execute(() -> {
+		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, parameters));
 
-			if (parameters.containsKey("photo")) {
-				Photo photo = (Photo) parameters.get("photo");
-				if (photo != null) {
-					Photo photoFinal = postPhoto(photo);
-					parameters.put("photo", photoFinal);
-				}
-			}
+//		Bundle bundle = new Bundle();
+//		bundle.putString("path", path);
+//		bundle.putString("paramsJson", Patchr.gson.toJson(parameters));
+//
+//		Task task = new OneoffTask.Builder()
+//			.setService(RestTaskService.class)
+//			.setExecutionWindow(0, 5)
+//			.setTag(TaskTag.POST_ENTITY)
+//			.setExtras(bundle)
+//			.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+//			.setRequiresCharging(false)
+//			.setPersisted(false)
+//			.build();
+//
+//		GcmNetworkManager.getInstance(this).schedule(task);
 
-			subscription = RestClient.getInstance().postEntity(path, parameters)
-				.subscribe(
-					response -> {
-						processing = false;
-						busyController.hide(true);
-						finish();
-						AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
-					},
-					error -> {
-						processing = false;
-						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+		finish();
+		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
+
+		//		AsyncTask.execute(() -> {
+//
+//			if (parameters.containsKey("photo")) {
+//				Photo photo = (Photo) parameters.get("photo");
+//				if (photo != null) {
+//					Photo photoFinal = postPhotoToS3(photo);
+//					parameters.put("photo", photoFinal);
+//				}
+//			}
+//
+//			subscription = RestClient.getInstance().postEntity(path, parameters)
+//				.subscribe(
+//					response -> {
+//						processing = false;
+//						busyController.hide(true);
+//						finish();
+//						AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
+//					},
+//					error -> {
+//						processing = false;
+//						busyController.hide(true);
+//						Logger.w(this, error.getLocalizedMessage());
+//					});
+//		});
 	}
+
+//	public void createJob(String path, SimpleMap parameters) {
+//		realm.executeTransaction((realm) -> {
+//			EntityPost post = new EntityPost();
+//			post.path = path;
+//			post.paramsJson = Patchr.gson.toJson(parameters);
+//			realm.copyToRealm(post);
+//		});
+//	}
 
 	@Override protected boolean isValid() {
 
-		if (photoEditWidget.photo == null && TextUtils.isEmpty(description.getText().toString().trim())) {
+		if (photoEditWidget.photo == null && TextUtils.isEmpty(descriptionView.getText().toString().trim())) {
 			Dialogs.alert(R.string.error_missing_message_content, this);
 			return false;
 		}

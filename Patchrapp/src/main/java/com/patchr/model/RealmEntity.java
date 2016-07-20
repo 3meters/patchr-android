@@ -380,93 +380,22 @@ public class RealmEntity extends RealmObject {
 		return (isRestricted() && !isOwnedByCurrentUser());
 	}
 
-	public String getBeaconId() {
-		final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-		if (beacon != null) return beacon.id;
-		return null;
-	}
-
 	public Long idAsLong() {
 		return Long.parseLong(this.id.replaceAll("[^0-9]", "").substring(1));
 	}
 
-	public RealmEntity getActiveBeacon(String type, Boolean primaryOnly) {
-		return null;
-	}
-
-	public RealmEntity getParent(String type, String targetSchema) {
-		return null;
-	}
-
-	public Boolean hasActiveProximity() {
-		return false;
-	}
-
 	public Float getDistance(Boolean refresh) {
 
-		if (schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-			if (refresh || this.distance == null) {
+		if (refresh || distance == null) {
+			distance = null;
+			final Location entityLocation = getLocation();
+			final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
 
-				this.distance = -1f;
-
-				if (this.signal.intValue() >= -40) {
-					this.distance = 1f;
-				}
-				else if (this.signal.intValue() >= -50) {
-					this.distance = 2f;
-				}
-				else if (this.signal.intValue() >= -55) {
-					this.distance = 3f;
-				}
-				else if (this.signal.intValue() >= -60) {
-					this.distance = 5f;
-				}
-				else if (this.signal.intValue() >= -65) {
-					this.distance = 7f;
-				}
-				else if (this.signal.intValue() >= -70) {
-					this.distance = 10f;
-				}
-				else if (this.signal.intValue() >= -75) {
-					this.distance = 15f;
-				}
-				else if (this.signal.intValue() >= -80) {
-					this.distance = 20f;
-				}
-				else if (this.signal.intValue() >= -85) {
-					this.distance = 30f;
-				}
-				else if (this.signal.intValue() >= -90) {
-					this.distance = 40f;
-				}
-				else if (this.signal.intValue() >= -95) {
-					this.distance = 60f;
-				}
-				else {
-					this.distance = 80f;
-				}
+			if (entityLocation != null && deviceLocation != null) {
+				distance = deviceLocation.distanceTo(entityLocation);
 			}
-
-			return this.distance * LocationManager.FeetToMetersConversion;
 		}
-		else {
-			if (refresh || distance == null) {
-				distance = null;
-				final RealmEntity beacon = getActiveBeacon(Constants.TYPE_LINK_PROXIMITY, true);
-				if (beacon != null) {
-					distance = beacon.getDistance(refresh);  // Estimate based on signal strength
-				}
-				else {
-					final Location entityLocation = getLocation();
-					final Location deviceLocation = LocationManager.getInstance().getLocationLocked();
-
-					if (entityLocation != null && deviceLocation != null) {
-						distance = deviceLocation.distanceTo(entityLocation);
-					}
-				}
-			}
-			return distance;
-		}
+		return distance;
 	}
 
 	public String getTriggerCategory() {

@@ -89,14 +89,14 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	public ListWidget(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.view_entity_list;
+		layoutResId = R.layout.view_entity_list;
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ListWidget, defStyle, 0);
 
-		this.pagingDisabled = ta.getBoolean(R.styleable.ListWidget_pagingDisabled, false);
-		this.cacheDisabled = ta.getBoolean(R.styleable.ListWidget_cacheDisabled, false);
-		this.fetchOnResumeDisabled = ta.getBoolean(R.styleable.ListWidget_fetchOnResumeDisabled, false);
-		this.restartAtTop = ta.getBoolean(R.styleable.ListWidget_restartAtTop, false);
+		pagingDisabled = ta.getBoolean(R.styleable.ListWidget_pagingDisabled, false);
+		cacheDisabled = ta.getBoolean(R.styleable.ListWidget_cacheDisabled, false);
+		fetchOnResumeDisabled = ta.getBoolean(R.styleable.ListWidget_fetchOnResumeDisabled, false);
+		restartAtTop = ta.getBoolean(R.styleable.ListWidget_restartAtTop, false);
 
 		ta.recycle();
 
@@ -129,15 +129,15 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	public void onStop() {
 		Dispatcher.getInstance().unregister(this);
-		if (this.subscription != null && !this.subscription.isUnsubscribed()) {
-			this.subscription.unsubscribe();
+		if (subscription != null && !subscription.isUnsubscribed()) {
+			subscription.unsubscribe();
 		}
 	}
 
 	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 
 		/* Restart at top of list */
-		if (this.restartAtTop) {
+		if (restartAtTop) {
 			scrollToTop();
 		}
 	}
@@ -147,7 +147,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
-		if (this.querySpec != null && this.querySpec.name.equals(QueryName.NotificationsForUser)) {
+		if (querySpec != null && querySpec.name.equals(QueryName.NotificationsForUser)) {
 			adapter.notifyDataSetChanged();
 		}
 	}
@@ -158,33 +158,33 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	protected void initialize() {
 
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+		layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
 
-		this.emptyMessageView = layout.findViewById(R.id.list_message);
-		this.progressBar = (AirProgressBar) layout.findViewById(R.id.list_progress);
-		this.recyclerView = (RecyclerView) layout.findViewById(R.id.entity_list);
-		this.swipeRefresh = (SwipeRefreshLayout) layout.findViewById(R.id.swipe);
-		this.listGroup = layout.findViewById(R.id.list_group);
+		emptyMessageView = layout.findViewById(R.id.list_message);
+		progressBar = (AirProgressBar) layout.findViewById(R.id.list_progress);
+		recyclerView = (RecyclerView) layout.findViewById(R.id.entity_list);
+		swipeRefresh = (SwipeRefreshLayout) layout.findViewById(R.id.swipe);
+		listGroup = layout.findViewById(R.id.list_group);
 
-		if (this.swipeRefresh != null) {
-			this.swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
-			this.swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
-			this.swipeRefresh.setOnRefreshListener(this);
-			this.swipeRefresh.setRefreshing(false);
-			this.swipeRefresh.setEnabled(true);
+		if (swipeRefresh != null) {
+			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
+			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
+			swipeRefresh.setOnRefreshListener(this);
+			swipeRefresh.setRefreshing(false);
+			swipeRefresh.setEnabled(true);
 		}
 
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-		this.busyController = new BusyController(this.progressBar, this.swipeRefresh);
-		this.emptyController = new EmptyController(this.emptyMessageView);
+		busyController = new BusyController(progressBar, swipeRefresh);
+		emptyController = new EmptyController(emptyMessageView);
 
-		if (this.header != null) {
-			this.emptyController.positionBelow(this.header, null);
-			this.busyController.positionBelow(this.header, null);
+		if (header != null) {
+			emptyController.positionBelow(header, null);
+			busyController.positionBelow(header, null);
 		}
 
-		this.recyclerView.addOnScrollListener(new ListScrollListener() {
+		recyclerView.addOnScrollListener(new ListScrollListener() {
 			@Override public void onMoved(int distance) {
 				if (busyController.swipeRefreshLayout != null) {
 					busyController.swipeRefreshLayout.setEnabled(distance == 0);
@@ -207,16 +207,16 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 		final Integer skip = (mode == FetchMode.PAGING && query.more) ? entities.size() : 0;
 
 		AsyncTask.execute(() -> {
-			this.subscription = RestClient.getInstance().fetchListItems(strategy, this.querySpec, this.contextEntityId, skip)
+			subscription = RestClient.getInstance().fetchListItems(strategy, querySpec, contextEntityId, skip)
 				.subscribe(
 					response -> {
-						this.busyController.hide(true);
+						busyController.hide(true);
 						processingQuery = false;
 						executed = true;
 						fetchQueryItemsComplete(mode, response, skip);
 					},
 					error -> {
-						this.busyController.hide(true);
+						busyController.hide(true);
 						processingQuery = false;
 						Logger.w(this, error.getLocalizedMessage());
 					});
@@ -226,7 +226,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	private void fetchQueryItemsComplete(FetchMode mode, ProxibaseResponse response, Integer skip) {
 
 		/* Add load more trigger if more is available */
-		if (query.more && !this.pagingDisabled) {
+		if (query.more && !pagingDisabled) {
 			recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
 				@Override public void onLoadMore(int page, int totalItemsCount) {
 					if (!processingQuery) {
@@ -256,56 +256,56 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 			this.querySpec = querySpec;
 			this.contextEntityId = contextEntityId;
 			if (contextEntityId != null) {
-				this.contextEntity = realm.where(RealmEntity.class).equalTo("id", this.contextEntityId).findFirst();
+				contextEntity = realm.where(RealmEntity.class).equalTo("id", contextEntityId).findFirst();
 			}
 
-			this.query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
-			if (this.query == null) {
+			query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
+			if (query == null) {
 				Query realmQuery = new Query();
 				realmQuery.id = querySpec.getId(contextEntityId);
 				realm.beginTransaction();
-				this.query = realm.copyToRealm(realmQuery);
+				query = realm.copyToRealm(realmQuery);
 				realm.commitTransaction();
 			}
 
-			this.entities = this.query.entities
+			entities = query.entities
 				.sort(querySpec.sortField, querySpec.sortAscending ? Sort.ASCENDING : Sort.DESCENDING);
 
-			this.entities.addChangeListener(results -> {
-				if (this.entities.size() == 0) {
-					this.emptyController.show(true);
+			entities.addChangeListener(results -> {
+				if (entities.size() == 0) {
+					emptyController.show(true);
 				}
 				else {
-					this.emptyController.hide(true);
+					emptyController.hide(true);
 				}
 			});
 
 			/* Both paths will trigger the ui to display any data available in the cache. */
-			if (this.adapter == null) {
-				this.adapter = new RealmArrayAdapter(getContext(), this.entities);
-				this.adapter.header = this.header;
-				this.adapter.listItemResId = querySpec.listItemResId;
-				this.adapter.contextEntity = this.contextEntity;
-				this.recyclerView.setAdapter(this.adapter);
+			if (adapter == null) {
+				adapter = new RealmArrayAdapter(getContext(), entities);
+				adapter.header = header;
+				adapter.listItemResId = querySpec.listItemResId;
+				adapter.contextEntity = contextEntity;
+				recyclerView.setAdapter(adapter);
 			}
 			else {
-				this.adapter.header = this.header;
-				this.adapter.data = this.entities;
+				adapter.header = header;
+				adapter.data = entities;
 			}
-			this.emptyController.setText(StringManager.getString(querySpec.getListEmptyMessage()));
+			emptyController.setText(StringManager.getString(querySpec.getListEmptyMessage()));
 		}
 	}
 
 	public void draw() {
-		this.adapter.notifyDataSetChanged();
+		adapter.notifyDataSetChanged();
 	}
 
 	public RealmResults<RealmEntity> getEntities() {
-		return this.entities;
+		return entities;
 	}
 
 	public void scrollToTop() {
-		RecyclerView.LayoutManager layoutManager = this.recyclerView.getLayoutManager();
+		RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 		if (layoutManager instanceof LinearLayoutManager) {
 			((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(0, 0);
 		}
@@ -313,8 +313,8 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	public void setHeader(View header) {
 		this.header = header;
-		this.emptyController.positionBelow(this.header, null);
-		this.busyController.positionBelow(this.header, null);
+		emptyController.positionBelow(header, null);
+		busyController.positionBelow(header, null);
 	}
 
 	public void setRealm(Realm realm) {

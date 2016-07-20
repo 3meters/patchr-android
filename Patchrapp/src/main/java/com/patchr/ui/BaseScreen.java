@@ -44,6 +44,7 @@ import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.MenuTint;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
+import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -350,6 +351,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 					response -> {
 						processing = false;
 						busyController.hide(true);
+						if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+							RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
+						}
 						Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
 						Logger.i(this, "Deleted entity: " + entityId);
 						UI.toast(StringManager.getString(R.string.alert_deleted));

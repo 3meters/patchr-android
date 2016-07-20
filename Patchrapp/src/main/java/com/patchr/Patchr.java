@@ -20,6 +20,8 @@ import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
 import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.birbit.android.jobqueue.JobManager;
+import com.birbit.android.jobqueue.config.Configuration;
 import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
@@ -64,6 +66,7 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 	public static Context           applicationContext;
 	public static Gson              gson;
 	public static SharedPreferences settings;
+	public static JobManager        jobManager;
 
 	public static Handler   mainThreadHandler         = new Handler(Looper.getMainLooper());
 	public static Router    router                    = new Router();
@@ -185,6 +188,14 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 				.build();
 
 			Realm.setDefaultConfiguration(config);
+
+			Configuration.Builder builder = new Configuration.Builder(this)
+				.minConsumerCount(1)
+				.maxConsumerCount(3)
+				.loadFactor(3)
+				.consumerKeepAlive(120);
+
+			jobManager = new JobManager(builder.build());
 
 			/* Warmup media manager */
 			MediaManager.warmup();

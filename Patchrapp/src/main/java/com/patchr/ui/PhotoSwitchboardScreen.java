@@ -6,7 +6,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +27,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
@@ -34,6 +37,7 @@ import com.patchr.objects.enums.TransitionType;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageChooserListener {
 
@@ -85,7 +89,8 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		}
 	}
 
-	@Override public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
@@ -114,7 +119,23 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 					final String json = extras.getString(Constants.EXTRA_PHOTO);
 					if (json != null) {
 						final Photo photo = Patchr.gson.fromJson(json, Photo.class);
-						submitAction(photo);
+						/* Download image and save to file */
+						AsyncTask.execute(() -> {
+							Bitmap bitmap = Photo.getBitmapForPhoto(photo);
+							if (bitmap == null) {
+								Logger.w(this, "Failed to download bitmap from the network");
+							}
+							else {
+								String filename = Utils.md5(photo.prefix) + ".jpg";
+								if (MediaManager.copyBitmapToInternalStorage(this, bitmap, filename)) {
+									String path = String.format("file://%1$s/%2$s", getFilesDir(), filename);
+									Photo photoSaved = new Photo(path, Photo.PhotoSource.file);
+									submitAction(photoSaved);
+									return;
+								}
+								Logger.w(this, "Failed to save bitmap to internal storage");
+							}
+						});
 					}
 				}
 			}
@@ -129,16 +150,12 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 	}
 
 	@Override public void onImageChosen(final ChosenImage chosenImage) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (chosenImage != null) {
-					final Uri photoUri = Uri.parse("file://" + chosenImage.getFilePathOriginal());
-					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
-					submitAction(photo);
-				}
+		runOnUiThread(() -> {
+			if (chosenImage != null) {
+				final Uri photoUri = Uri.parse("file://" + chosenImage.getFilePathOriginal());
+				MediaManager.scanMedia(photoUri);
+				Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
+				submitAction(photo);
 			}
 		});
 	}
@@ -147,26 +164,18 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 	    /*
 	     * Error trying to pick or take a photo
 		 */
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				UI.toast(reason);
-			}
+		runOnUiThread(() -> {
+			UI.toast(reason);
 		});
 	}
 
 	@Override public void onImagesChosen(final ChosenImages chosenImages) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (chosenImages != null && chosenImages.size() > 0) {
-					final Uri photoUri = Uri.parse("file://" + chosenImages.getImage(0).getFilePathOriginal());
-					MediaManager.scanMedia(photoUri);
-					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
-					submitAction(photo);
-				}
+		runOnUiThread(() -> {
+			if (chosenImages != null && chosenImages.size() > 0) {
+				final Uri photoUri = Uri.parse("file://" + chosenImages.getImage(0).getFilePathOriginal());
+				MediaManager.scanMedia(photoUri);
+				Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);
+				submitAction(photo);
 			}
 		});
 	}
@@ -226,29 +235,29 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 				@Override
 				public void run() {
 					final AlertDialog dialog = Dialogs.alertDialog(null
-							, StringManager.getString(R.string.alert_permission_storage_title)
-							, StringManager.getString(R.string.alert_permission_storage_message)
-							, null
-							, PhotoSwitchboardScreen.this
-							, R.string.alert_permission_storage_positive
-							, R.string.alert_permission_storage_negative
-							, null
-							, new DialogInterface.OnClickListener() {
+						, StringManager.getString(R.string.alert_permission_storage_title)
+						, StringManager.getString(R.string.alert_permission_storage_message)
+						, null
+						, PhotoSwitchboardScreen.this
+						, R.string.alert_permission_storage_positive
+						, R.string.alert_permission_storage_negative
+						, null
+						, new DialogInterface.OnClickListener() {
 
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									if (which == DialogInterface.BUTTON_POSITIVE) {
-										if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-											ActivityCompat.requestPermissions(PhotoSwitchboardScreen.this
-													, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-													, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-										}
-										else {
-											cancelAction(false);
-										}
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (which == DialogInterface.BUTTON_POSITIVE) {
+									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+										ActivityCompat.requestPermissions(PhotoSwitchboardScreen.this
+											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+									}
+									else {
+										cancelAction(false);
 									}
 								}
-							}, null);
+							}
+						}, null);
 					dialog.setCanceledOnTouchOutside(false);
 				}
 			});
@@ -259,8 +268,8 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 				 * Parent activity will broadcast an event when permission request is complete.
 				 */
 			ActivityCompat.requestPermissions(this
-					, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-					, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+				, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+				, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 		}
 	}
 
@@ -271,8 +280,8 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			if (directory != null) {
 				//noinspection deprecation
 				imageChooserManager = new ImageChooserManager(this
-						, ChooserType.REQUEST_PICK_PICTURE
-						, false);
+					, ChooserType.REQUEST_PICK_PICTURE
+					, false);
 				imageChooserManager.setImageChooserListener(this);
 				imageChooserManager.choose();
 			}
@@ -292,9 +301,9 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			if (directory != null) {
 				//noinspection deprecation
 				imageChooserManager = new ImageChooserManager(this
-						, ChooserType.REQUEST_CAPTURE_PICTURE
-						, directory
-						, false);
+					, ChooserType.REQUEST_CAPTURE_PICTURE
+					, directory
+					, false);
 
 				imageChooserManager.setImageChooserListener(this);
 				imageChooserManager.choose();

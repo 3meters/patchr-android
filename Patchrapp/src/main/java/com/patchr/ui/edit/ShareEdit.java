@@ -54,10 +54,10 @@ import java.util.List;
 
 public class ShareEdit extends BaseEdit {
 
-	private String      inputShareEntityId;
-	private String      inputShareEntitySchema;
-	private String      inputShareSource;        // Package name of the sharing host app
-	private String      inputShareType;          // Share or invite
+	private String inputShareEntityId;
+	private String inputShareEntitySchema;
+	private String inputShareSource;        // Package name of the sharing host app
+	private String inputShareType;          // Share or invite
 
 	private RealmEntity shareEntity;
 	private String      descriptionDefault;
@@ -148,10 +148,8 @@ public class ShareEdit extends BaseEdit {
 		recipientsField = (RecipientsCompletionView) findViewById(R.id.recipients);
 		recipientsField.setLineSpacing((int) UI.getRawPixelsForDisplayPixels(4f), 1f);
 		recipientsField.setPrefix(" To: ");
-		recipientsField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override public void onFocusChange(View v, boolean hasFocus) {
-				listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-			}
+		recipientsField.setOnFocusChangeListener((view, hasFocus) -> {
+			listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
 		});
 
 		entitySuggest = new EntitySuggestController(this);
@@ -171,7 +169,7 @@ public class ShareEdit extends BaseEdit {
 				dirtyExitPositiveResId = R.string.alert_dirty_invite;
 				insertProgressResId = R.string.progress_inviting;
 				insertedResId = R.string.alert_invited;
-				description.setHint(R.string.hint_invite_description);
+				descriptionView.setHint(R.string.hint_invite_description);
 			}
 			else if (inputShareType.equals(MessageType.Share)) {
 				actionBarTitle.setText(R.string.screen_title_share);
@@ -180,7 +178,7 @@ public class ShareEdit extends BaseEdit {
 				dirtyExitPositiveResId = R.string.alert_dirty_share;
 				insertProgressResId = R.string.progress_sharing;
 				insertedResId = R.string.alert_shared;
-				description.setHint(R.string.hint_share_description);
+				descriptionView.setHint(R.string.hint_share_description);
 			}
 		}
 
@@ -362,8 +360,8 @@ public class ShareEdit extends BaseEdit {
 
 		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 
-		if (this.description != null) {
-			this.description.setMinLines(3);
+		if (this.descriptionView != null) {
+			this.descriptionView.setMinLines(3);
 		}
 
 		if (!this.inputShareEntitySchema.equals(Constants.SCHEMA_ENTITY_PICTURE)) {
@@ -391,7 +389,7 @@ public class ShareEdit extends BaseEdit {
 
 		parameters.put("type", Constants.TYPE_LINK_SHARE);
 
-		if (TextUtils.isEmpty(description.getText())) {
+		if (TextUtils.isEmpty(descriptionView.getText())) {
 			parameters.put("description", descriptionDefault);
 		}
 
@@ -425,7 +423,7 @@ public class ShareEdit extends BaseEdit {
 			if (parameters.containsKey("photo")) {
 				Photo photo = (Photo) parameters.get("photo");
 				if (photo != null) {
-					Photo photoFinal = postPhoto(photo);
+					Photo photoFinal = postPhotoToS3(photo);
 					parameters.put("photo", photoFinal);
 				}
 			}

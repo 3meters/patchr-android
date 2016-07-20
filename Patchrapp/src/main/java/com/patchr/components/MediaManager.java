@@ -55,7 +55,7 @@ public class MediaManager {
 	public static void playSound(Integer soundResId, Float multiplier, Integer loops) {
 		if (soundPool != null && loaded) {
 			if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_sound_effects)
-					, Booleans.getBoolean(R.bool.pref_sound_effects_default))) {
+				, Booleans.getBoolean(R.bool.pref_sound_effects_default))) {
 
 				/* Getting the user sound settings */
 				float actualVolume = (float) audioManager.getStreamVolume(streamType);
@@ -71,7 +71,7 @@ public class MediaManager {
 
 	public static Boolean canCaptureWithCamera() {
 		return AndroidManager.isIntentAvailable(Patchr.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
-				&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+			&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
 	public static void scanMedia(File file) {
@@ -145,5 +145,26 @@ public class MediaManager {
 			Reporting.logException(e);
 		}
 		return file;
+	}
+
+	public static boolean copyBitmapToInternalStorage(Context context, Bitmap bitmap, String filename) {
+
+		try {
+			FileOutputStream outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+			outputStream.flush();
+			outputStream.close();
+			return true;
+		}
+		catch (FileNotFoundException e) {
+			Reporting.logException(e);
+		}
+		catch (IOException e) {
+			Reporting.logException(e);
+		}
+		catch (Exception e) {
+			Reporting.logException(e);
+		}
+		return false;
 	}
 }

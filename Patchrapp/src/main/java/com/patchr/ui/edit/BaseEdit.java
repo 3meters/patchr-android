@@ -45,8 +45,8 @@ import rx.Subscription;
 public abstract class BaseEdit extends BaseScreen {
 
 	protected PhotoEditWidget photoEditWidget;
-	protected TextView        name;
-	protected TextView        description;
+	protected TextView        nameView;
+	protected TextView        descriptionView;
 	protected String          photoSource;
 
 	protected AsyncTask    taskService;
@@ -144,8 +144,8 @@ public abstract class BaseEdit extends BaseScreen {
 	public void editPhotoAction() {
 
 		/* Route it - editor loads image directly from s3 skipping imgix service  */
-		if (entity.getPhoto() != null) {
-			final String url = entity.getPhoto().uriNative();
+		if (photoEditWidget.photo != null) {
+			final String url = photoEditWidget.photo.uriNative();
 			Uri imageUri = Uri.parse(url);
 
 			Intent intent = new AdobeImageIntent.Builder(this)
@@ -194,8 +194,8 @@ public abstract class BaseEdit extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		name = (TextView) findViewById(R.id.name);
-		description = (TextView) findViewById(R.id.description);
+		nameView = (TextView) findViewById(R.id.name);
+		descriptionView = (TextView) findViewById(R.id.description);
 		photoEditWidget = (PhotoEditWidget) findViewById(R.id.photo_edit);
 	}
 
@@ -204,8 +204,8 @@ public abstract class BaseEdit extends BaseScreen {
 		if (entityId != null && inputState.equals(State.Editing)) {
 			entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 			if (entity != null) {
-				UI.setTextView(name, entity.name);
-				UI.setTextView(description, entity.description);
+				UI.setTextView(nameView, entity.name);
+				UI.setTextView(descriptionView, entity.description);
 				bindPhoto(entity.getPhoto());
 				firstDraw = false;
 			}
@@ -219,22 +219,22 @@ public abstract class BaseEdit extends BaseScreen {
 	protected void gather(SimpleMap parameters) {
 
 		if (inputState.equals(State.Creating)) {
-			if (name != null) {
-				parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
+			if (nameView != null) {
+				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
 			}
-			if (description != null) {
-				parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
+			if (descriptionView != null) {
+				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.photo != null) {
 				parameters.put("photo", photoEditWidget.photo); // Could be null
 			}
 		}
 		else if (inputState.equals(State.Editing)) {
-			if (name != null && !name.getText().toString().equals(entity.name)) {
-				parameters.put("name", Type.emptyAsNull(name.getText().toString().trim()));
+			if (nameView != null && !nameView.getText().toString().equals(entity.name)) {
+				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
 			}
-			if (description != null && !description.getText().toString().equals(entity.description)) {
-				parameters.put("description", Type.emptyAsNull(description.getText().toString().trim()));
+			if (descriptionView != null && !descriptionView.getText().toString().equals(entity.description)) {
+				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.dirty) {
 				parameters.put("photo", photoEditWidget.photo); // Could be null
@@ -242,7 +242,7 @@ public abstract class BaseEdit extends BaseScreen {
 		}
 	}
 
-	protected Photo postPhoto(Photo photo) {
+	protected Photo postPhotoToS3(Photo photo) {
 
 		Bitmap bitmap = Photo.getBitmapForPhoto(photo);
 		if (bitmap == null) {
@@ -271,10 +271,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 		if (inputState != null) {
 			if (inputState.equals(State.Creating)) {
-				if (name != null && !TextUtils.isEmpty(name.getText().toString())) {
+				if (nameView != null && !TextUtils.isEmpty(nameView.getText().toString())) {
 					return true;
 				}
-				if (description != null && !TextUtils.isEmpty(description.getText().toString())) {
+				if (descriptionView != null && !TextUtils.isEmpty(descriptionView.getText().toString())) {
 					return true;
 				}
 				if (photoEditWidget != null && photoEditWidget.photo != null) {
@@ -282,10 +282,10 @@ public abstract class BaseEdit extends BaseScreen {
 				}
 			}
 			else if (inputState.equals(State.Editing)) {
-				if (name != null && !entity.name.equals(name.getText().toString())) {
+				if (nameView != null && !Type.equal(entity.name, nameView.getText().toString())) {
 					return true;
 				}
-				if (description != null && !entity.description.equals(description.getText().toString())) {
+				if (descriptionView != null && !Type.equal(entity.description, descriptionView.getText().toString())) {
 					return true;
 				}
 				if (photoEditWidget != null && photoEditWidget.dirty) {

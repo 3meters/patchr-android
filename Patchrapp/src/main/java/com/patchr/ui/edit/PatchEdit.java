@@ -47,6 +47,7 @@ import com.patchr.ui.InviteSwitchboardScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
+import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
 
@@ -442,7 +443,7 @@ public class PatchEdit extends BaseEdit {
 			if (parameters.containsKey("photo")) {
 				Photo photo = (Photo) parameters.get("photo");
 				if (photo != null) {
-					Photo photoFinal = postPhoto(photo);
+					Photo photoFinal = postPhotoToS3(photo);
 					parameters.put("photo", photoFinal);
 				}
 			}
@@ -457,6 +458,7 @@ public class PatchEdit extends BaseEdit {
 						processing = false;
 						busyController.hide(true);
 						if (inputState.equals(State.Creating)) {
+							RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
 							UI.toast(StringManager.getString(insertedResId));
 							String entityId = response.data.get(0).id;
 							Intent intent = new Intent(this, InviteSwitchboardScreen.class)
@@ -501,7 +503,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (TextUtils.isEmpty(name.getText().toString().trim())) {
+		if (TextUtils.isEmpty(nameView.getText().toString().trim())) {
 			Dialogs.alert(R.string.error_missing_patch_name, this);
 			return false;
 		}
