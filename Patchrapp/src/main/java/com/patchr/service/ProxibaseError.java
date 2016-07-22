@@ -39,8 +39,8 @@ public class ProxibaseError {
 		return error;
 	}
 
-	public ServiceException asException() {
-		ServiceException exception = new ServiceException();
+	public ServiceException asServiceException() {
+		ServiceException exception = new ServiceException(this.message);
 		exception.name = this.name;
 		exception.code = this.code;
 		exception.status = this.status;

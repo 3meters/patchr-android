@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -46,11 +45,13 @@ import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 import io.realm.Realm;
+import rx.Subscription;
 
 public abstract class BaseScreen extends AppCompatActivity {
 
@@ -75,7 +76,8 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	public    Boolean firstDraw  = true;
 	protected Boolean processing = false;
-	protected boolean executed;
+	protected Subscription subscription;
+	protected boolean      executed;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -99,7 +101,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		/* Party on! */
 		this.realm = Realm.getDefaultInstance();
 		initialize(savedInstanceState);
-		didInitialize();
 
 		String screenName = getScreenName();
 		if (screenName != null) {
@@ -138,6 +139,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 		super.onDestroy();
 		if (!this.realm.isClosed()) {
 			this.realm.close();
+		}
+		if (subscription != null && !subscription.isUnsubscribed()) {
+			subscription.unsubscribe();
 		}
 	}
 
@@ -197,13 +201,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		AnimationManager.doOverridePendingTransition(this, getTransitionBack(TransitionType.FORM_BACK));
 	}
 
-	public void onFetchComplete() {
-		processing = false;
-		if (busyController != null) {
-			busyController.hide(false);
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -225,8 +222,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		 */
 		Utils.guard(this.rootView != null, "Root view cannot be null");
 	}
-
-	public void didInitialize() {}
 
 	public void setupUI() {
 
@@ -307,6 +302,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
 						delete();
 					}
+					else {
+						processing = false;
+					}
 				}
 			}
 			, null);
@@ -332,6 +330,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					remove(toId);
 				}
+				else {
+					processing = false;
+				}
 			}
 			, null);
 		dialog.setCanceledOnTouchOutside(false);
@@ -339,58 +340,52 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	protected void delete() {
 
-		processing = true;
 		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting, BaseScreen.this);
 		String collection = RealmEntity.getCollectionForSchema(entity.schema);
 		String schema = entity.schema;
 		String path = String.format("data/%1$s/%2$s", collection, entityId);
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().deleteEntity(path, entityId)
-				.subscribe(
-					response -> {
-						processing = false;
-						busyController.hide(true);
-						if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-							RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
-						}
-						Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
-						Logger.i(this, "Deleted entity: " + entityId);
-						UI.toast(StringManager.getString(R.string.alert_deleted));
-						setResult(Constants.RESULT_ENTITY_DELETED);
-						finish();
-					},
-					error -> {
-						processing = false;
-						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+		subscription = RestClient.getInstance().deleteEntity(path, entityId)
+			.subscribe(
+				response -> {
+					processing = false;
+					busyController.hide(true);
+					if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+						RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
+					}
+					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+					Logger.i(this, "Deleted entity: " + entityId);
+					UI.toast(StringManager.getString(R.string.alert_deleted));
+					setResult(Constants.RESULT_ENTITY_DELETED);
+					finish();
+				},
+				error -> {
+					processing = false;
+					busyController.hide(true);
+					Errors.handleError(this, error);
+				});
 	}
 
 	protected void remove(final String toId) {
 
-		processing = true;
 		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_removing, BaseScreen.this);
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().deleteLink(entityId, toId, Constants.TYPE_LINK_CONTENT)
-				.subscribe(
-					response -> {
-						processing = false;
-						busyController.hide(true);
-						Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
-						Logger.i(this, "Removed entity: " + entity.id);
-						UI.toast(StringManager.getString(R.string.alert_removed));
-						setResult(Constants.RESULT_ENTITY_DELETED);
-						finish();
-					},
-					error -> {
-						processing = false;
-						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+		subscription = RestClient.getInstance().deleteLink(entityId, toId, Constants.TYPE_LINK_CONTENT)
+			.subscribe(
+				response -> {
+					processing = false;
+					busyController.hide(true);
+					Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
+					Logger.i(this, "Removed entity: " + entity.id);
+					UI.toast(StringManager.getString(R.string.alert_removed));
+					setResult(Constants.RESULT_ENTITY_DELETED);
+					finish();
+				},
+				error -> {
+					processing = false;
+					busyController.hide(true);
+					Errors.handleError(this, error);
+				});
 	}
 
 	public static void position(final View view, final View header, final Integer headerHeightProjected) {

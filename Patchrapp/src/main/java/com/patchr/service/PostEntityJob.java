@@ -12,7 +12,6 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.S3;
 import com.patchr.events.TaskStatusEvent;
-import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.ResponseCode;
@@ -77,14 +76,11 @@ public class PostEntityJob extends Job {
 			}
 		}
 
-		Call<Response<Map<String, Object>>> call = RestClient.getInstance().postEntityCall(path, data);
-		Response<Response<Map<String, Object>>> responseMap = call.execute();
+		Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, data);
+		Response<Map<String, Object>> responseMap = call.execute();
 
 		if (!responseMap.isSuccessful()) {
-			ServiceException exception = new ServiceException();
-			exception.code = responseMap.code();
-			exception.message = responseMap.message();
-			throw exception;
+			RestClient.getInstance().throwServiceException(responseMap.errorBody());
 		}
 	}
 

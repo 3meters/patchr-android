@@ -76,7 +76,7 @@ public class InviteSwitchboardScreen extends BaseScreen {
 		if (id == R.id.patchr_button) {
 			/* Go to patchr share directly but looks just like an external share*/
 			final Intent intent = new Intent(this, ShareEdit.class);
-			intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+			intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
 			intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Invite);
 			intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 			intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);

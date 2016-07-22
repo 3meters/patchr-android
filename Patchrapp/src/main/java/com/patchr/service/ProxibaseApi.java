@@ -20,7 +20,7 @@ public interface ProxibaseApi {
 	Observable<Response<Map<String, Object>>> post(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
 
 	@POST("{path}")
-	Call<Response<Map<String, Object>>> postCall(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
+	Call<Map<String, Object>> postCall(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
 
 	@DELETE("{path}")
 	Observable<Response<Map<String, Object>>> delete(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);

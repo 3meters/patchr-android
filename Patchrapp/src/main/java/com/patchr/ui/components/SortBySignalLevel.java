@@ -1,4 +1,4 @@
-package com.patchr.objects;
+package com.patchr.ui.components;
 
 import com.patchr.Constants;
 import com.patchr.model.RealmEntity;

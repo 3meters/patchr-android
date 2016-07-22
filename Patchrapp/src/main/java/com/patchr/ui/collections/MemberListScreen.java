@@ -1,18 +1,17 @@
 package com.patchr.ui.collections;
 
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import com.patchr.R;
-import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.model.Link;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.service.RestClient;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 
 import static com.patchr.objects.enums.FetchMode.AUTO;
@@ -85,10 +84,12 @@ public class MemberListScreen extends BaseListScreen {
 
 	public void removeRequest(final String linkId) {
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().deleteLinkById(linkId)
+		if (!processing) {
+			processing = true;
+			subscription = RestClient.getInstance().deleteLinkById(linkId)
 				.subscribe(
 					response -> {
+						processing = false;
 						Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
 						realm.executeTransaction(realm -> {
 							entity.linkJson = null;
@@ -96,8 +97,9 @@ public class MemberListScreen extends BaseListScreen {
 						fetch(AUTO);
 					},
 					error -> {
-						Logger.w(this, error.getLocalizedMessage());
+						processing = false;
+						Errors.handleError(this, error);
 					});
-		});
+		}
 	}
 }

@@ -18,11 +18,11 @@ import com.patchr.service.RestClient;
 import com.patchr.ui.BaseScreen;
 import com.patchr.ui.views.BaseView;
 import com.patchr.ui.widgets.ListWidget;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 import io.realm.RealmChangeListener;
-import rx.Subscription;
 
 @SuppressWarnings("ucd")
 public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetChangedListener {
@@ -33,7 +33,6 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 
 	public Integer topPadding = 0;  // Hack to handle ui tweaking
 	public BaseView            header;
-	public Subscription        subscription;
 	public RealmChangeListener changeListener;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -164,52 +163,45 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 
 	public void fetch(final FetchMode mode, Boolean headerOnly) {
 
-		if (this.header == null) {
+		if (header == null) {
 			listWidget.fetch(mode);
 		}
 		else {
-			if (!processing) {
+			Logger.v(this, "Fetching form entity: " + mode.name().toString());
+			FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
-				processing = true;
-				Logger.v(this, "Fetching form entity: " + mode.name().toString());
-				FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
+			AsyncTask.execute(() -> {
 
-				AsyncTask.execute(() -> {
-
-					if (!headerOnly && entity != null) {
+				if (!headerOnly && entity != null) {
 						/* We can do both in parallel */
-						listWidget.fetch(mode);
-					}
+					listWidget.fetch(mode);
+				}
 
-					this.subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
-						.doOnTerminate(() -> {
-							if (this.busyController != null) {
-								this.busyController.hide(true);
-							}
-						})
-						.subscribe(
-							response -> {
-								processing = false;
-								if (this.entity == null) {
-									bind();
-									if (!headerOnly) {
-										listWidget.fetch(mode);
-									}
+				subscription = RestClient.getInstance().fetchEntity(entityId, strategy)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
+							if (entity == null) {
+								bind();
+								if (!headerOnly) {
+									listWidget.fetch(mode); // Has it's own processing flag
 								}
-								supportInvalidateOptionsMenu();     // In case user authenticated
-							},
-							error -> {
-								processing = false;
-								Logger.w(this, error.getLocalizedMessage());
-							});
-				});
-			}
+							}
+							supportInvalidateOptionsMenu();     // In case user authenticated
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Errors.handleError(this, error);
+						});
+			});
 		}
 	}
 
 	public void draw() {
-		this.listWidget.draw();
-		if (this.header != null) {
+		listWidget.draw();
+		if (header != null) {
 			header.invalidate();
 		}
 	}

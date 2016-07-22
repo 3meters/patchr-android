@@ -36,6 +36,7 @@ import com.patchr.ui.components.EndlessRecyclerViewScrollListener;
 import com.patchr.ui.components.ListScrollListener;
 import com.patchr.ui.components.RealmArrayAdapter;
 import com.patchr.utilities.Colors;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -75,7 +76,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	public RealmArrayAdapter         adapter;
 	public RealmResults<RealmEntity> entities;
 	public Query                     query;
-	public boolean                   processingQuery;
+	public boolean                   processing;
 	public Subscription              subscription;
 	public Context                   context;
 	public boolean                   executed;
@@ -210,28 +211,28 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	private void fetchQueryItems(final FetchMode mode) {
 
-		if (processingQuery) return;
+		if (!processing) {
+			processing = true;
+			Logger.v(this, "Fetching list entities: " + mode.name().toString());
+			final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
+			final Integer skip = (mode == FetchMode.PAGING && query.more) ? entities.size() : 0;
 
-		processingQuery = true;
-		Logger.v(this, "Fetching list entities: " + mode.name().toString());
-		final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
-		final Integer skip = (mode == FetchMode.PAGING && query.more) ? entities.size() : 0;
-
-		AsyncTask.execute(() -> {
-			subscription = RestClient.getInstance().fetchListItems(strategy, querySpec, contextEntityId, skip)
-				.subscribe(
-					response -> {
-						busyController.hide(true);
-						processingQuery = false;
-						executed = true;
-						fetchQueryItemsComplete(mode, response, skip);
-					},
-					error -> {
-						busyController.hide(true);
-						processingQuery = false;
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+			AsyncTask.execute(() -> {
+				subscription = RestClient.getInstance().fetchListItems(strategy, querySpec, contextEntityId, skip)
+					.subscribe(
+						response -> {
+							processing = false;
+							busyController.hide(true);
+							executed = true;
+							fetchQueryItemsComplete(mode, response, skip);
+						},
+						error -> {
+							processing = false;
+							busyController.hide(true);
+							Errors.handleError(getContext(), error);
+						});
+			});
+		}
 	}
 
 	private void fetchQueryItemsComplete(FetchMode mode, ProxibaseResponse response, Integer skip) {
@@ -240,7 +241,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 		if (query.more && !pagingDisabled) {
 			recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((LinearLayoutManager) recyclerView.getLayoutManager()) {
 				@Override public void onLoadMore(int page, int totalItemsCount) {
-					if (!processingQuery) {
+					if (!processing) {
 						recyclerView.removeOnScrollListener(this);
 						fetch(FetchMode.PAGING);
 					}

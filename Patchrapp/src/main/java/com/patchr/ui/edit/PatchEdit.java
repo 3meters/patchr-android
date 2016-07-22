@@ -22,7 +22,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -31,7 +30,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
-import com.patchr.components.Logger;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.events.LocationUpdatedEvent;
@@ -49,6 +47,7 @@ import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -80,7 +79,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public void onResume() {
 		if (PermissionUtil.hasSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-			if (inputState.equals(State.Creating) && LocationManager.getInstance().isLocationAccessEnabled()) {
+			if (inputState.equals(State.Inserting) && LocationManager.getInstance().isLocationAccessEnabled()) {
 				LocationManager.getInstance().start(true);  // Location triggers sequence
 			}
 		}
@@ -89,7 +88,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public void onPause() {
 		if (mapView != null) mapView.onPause();
-		if (inputState.equals(State.Creating)) {
+		if (inputState.equals(State.Inserting)) {
 			LocationManager.getInstance().stop();
 		}
 		super.onPause();
@@ -173,12 +172,13 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public void submitAction() {
 
-		if (!isValid()) return;
-		if (processing) return;
-
-		SimpleMap parameters = new SimpleMap();
-		gather(parameters);
-		post(parameters);
+		if (!processing) {
+			processing = true;
+			if (!isValid()) return;
+			SimpleMap parameters = new SimpleMap();
+			gather(parameters);
+			post(parameters);
+		}
 	}
 
 	public void onCreateButtonClick(View view) {
@@ -281,31 +281,29 @@ public class PatchEdit extends BaseEdit {
 
 			mapView.onCreate(null);
 			mapView.onResume();
-			mapView.getMapAsync(new OnMapReadyCallback() {
-				@Override public void onMapReady(GoogleMap googleMap) {
-					map = googleMap;
-					map.getUiSettings().setMapToolbarEnabled(false);
-					MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
+			mapView.getMapAsync(googleMap -> {
+				map = googleMap;
+				map.getUiSettings().setMapToolbarEnabled(false);
+				MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
 
-					if (mapView.getViewTreeObserver().isAlive()) {
-						mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-							@SuppressWarnings("deprecation")
-							// We use the new method when supported
-							//@SuppressLint("NewApi")
-							// We check which build version we are using.
-							@Override
-							public void onGlobalLayout() {
+				if (mapView.getViewTreeObserver().isAlive()) {
+					mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+						@SuppressWarnings("deprecation")
+						// We use the new method when supported
+						//@SuppressLint("NewApi")
+						// We check which build version we are using.
+						@Override
+						public void onGlobalLayout() {
 
-								if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-									mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-								}
-								else {
-									mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-								}
-								drawLocation();
+							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+								mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 							}
-						});
-					}
+							else {
+								mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+							}
+							drawLocation();
+						}
+					});
 				}
 			});
 		}
@@ -432,23 +430,22 @@ public class PatchEdit extends BaseEdit {
 		parameters.put("visibility", buttonPrivacy.getTag());
 	}
 
-	protected void post(SimpleMap parameters) {
+	protected void post(SimpleMap data) {
 
-		processing = true;
 		String path = entity == null ? "data/patches" : String.format("data/patches/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, PatchEdit.this);
 
 		AsyncTask.execute(() -> {
 
-			if (parameters.containsKey("photo")) {
-				Photo photo = (Photo) parameters.get("photo");
+			if (data.containsKey("photo")) {
+				Photo photo = Photo.setPropertiesFromMap(new Photo(), (SimpleMap) data.get("photo"));
 				if (photo != null) {
 					Photo photoFinal = postPhotoToS3(photo);
-					parameters.put("photo", photoFinal);
+					data.put("photo", photoFinal);
 				}
 			}
 
-			subscription = RestClient.getInstance().postEntity(path, parameters)
+			subscription = RestClient.getInstance().postEntity(path, data)
 				.flatMap(response -> {
 					String entityId = response.data.get(0).id;
 					return RestClient.getInstance().fetchEntity(entityId, FetchStrategy.IgnoreCache);
@@ -457,7 +454,7 @@ public class PatchEdit extends BaseEdit {
 					response -> {
 						processing = false;
 						busyController.hide(true);
-						if (inputState.equals(State.Creating)) {
+						if (inputState.equals(State.Inserting)) {
 							RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
 							UI.toast(StringManager.getString(insertedResId));
 							String entityId = response.data.get(0).id;
@@ -471,14 +468,14 @@ public class PatchEdit extends BaseEdit {
 					error -> {
 						processing = false;
 						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
+						Errors.handleError(this, error);
 					});
 		});
 	}
 
 	protected boolean isDirty() {
 
-		if (inputState.equals(State.Creating)) {
+		if (inputState.equals(State.Inserting)) {
 			if (buttonPrivacy != null && !buttonPrivacy.getTag().equals(Constants.PRIVACY_PUBLIC)) {
 				return true;
 			}

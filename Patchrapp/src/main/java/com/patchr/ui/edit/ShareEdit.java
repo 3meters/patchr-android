@@ -19,7 +19,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -40,6 +39,7 @@ import com.patchr.ui.views.PatchView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
@@ -67,15 +67,22 @@ public class ShareEdit extends BaseEdit {
 	private RecipientsCompletionView recipientsField;
 	private ViewGroup                shareEntityView;
 	private RecyclerView             listView;
-	private EntitySuggestController  entitySuggest;
+	private EntitySuggestController  suggestController;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bind();
 	}
 
-    /*--------------------------------------------------------------------------------------------
-     * Events
+	@Override protected void onStop() {
+		super.onStop();
+		if (suggestController != null) {
+			suggestController.onStop();
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
      *--------------------------------------------------------------------------------------------*/
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -102,19 +109,20 @@ public class ShareEdit extends BaseEdit {
 				recipientsField.deleteText();
 				recipientsField.addObject(new Recipient(entity.id, entity.name, null));
 				dirty = true;
-				entitySuggest.clear();
+				suggestController.clear();
 			}
 		}
 	}
 
 	@Override public void submitAction() {
 
-		if (!isValid()) return;
-		if (processing) return;
-
-		SimpleMap parameters = new SimpleMap();
-		gather(parameters);
-		post(parameters);
+		if (!processing) {
+			processing = true;
+			if (!isValid()) return;
+			SimpleMap parameters = new SimpleMap();
+			gather(parameters);
+			post(parameters);
+		}
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -137,7 +145,7 @@ public class ShareEdit extends BaseEdit {
 		super.initialize(savedInstanceState);   // Handles creating new entity if needed
 
 		if (inputState == null) {
-			inputState = State.Creating;    // Not set when called via android sharing
+			inputState = State.Inserting;    // Not set when called via android sharing
 		}
 
 		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
@@ -152,12 +160,12 @@ public class ShareEdit extends BaseEdit {
 			listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
 		});
 
-		entitySuggest = new EntitySuggestController(this);
-		entitySuggest.searchInput = recipientsField;
-		entitySuggest.busyPresenter = busyController;
-		entitySuggest.suggestScope = Suggest.Users;
-		entitySuggest.recyclerView = listView;
-		entitySuggest.initialize();
+		suggestController = new EntitySuggestController(this);
+		suggestController.searchInput = recipientsField;
+		suggestController.busyPresenter = busyController;
+		suggestController.suggestScope = Suggest.Users;
+		suggestController.recyclerView = listView;
+		suggestController.bind();
 
 		Intent intent = getIntent();
 
@@ -412,23 +420,22 @@ public class ShareEdit extends BaseEdit {
 		parameters.put("links", links);
 	}
 
-	protected void post(SimpleMap parameters) {
+	protected void post(SimpleMap data) {
 
-		processing = true;
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, ShareEdit.this);
 
 		AsyncTask.execute(() -> {
 
-			if (parameters.containsKey("photo")) {
-				Photo photo = (Photo) parameters.get("photo");
+			if (data.containsKey("photo")) {
+				Photo photo = Photo.setPropertiesFromMap(new Photo(), (SimpleMap) data.get("photo"));
 				if (photo != null) {
 					Photo photoFinal = postPhotoToS3(photo);
-					parameters.put("photo", photoFinal);
+					data.put("photo", photoFinal);
 				}
 			}
 
-			subscription = RestClient.getInstance().postEntity(path, parameters)
+			subscription = RestClient.getInstance().postEntity(path, data)
 				.subscribe(
 					response -> {
 						processing = false;
@@ -447,7 +454,7 @@ public class ShareEdit extends BaseEdit {
 					error -> {
 						processing = false;
 						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
+						Errors.handleError(this, error);
 					});
 		});
 	}

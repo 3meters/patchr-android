@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,16 +22,15 @@ import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.Preference;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.edit.LoginEdit;
-import com.patchr.ui.edit.ProfileEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import java.util.Map;
@@ -111,9 +109,6 @@ public class LobbyScreen extends AppCompatActivity {
 				startHomeActivity();
 			}
 		}
-		else if (requestCode == Constants.ACTIVITY_COMPLETE_PROFILE) {
-			startHomeActivity();
-		}
 		else if (requestCode == AndroidManager.PLAY_SERVICES_RESOLUTION_REQUEST) {
 			proceed();
 		}
@@ -156,21 +151,17 @@ public class LobbyScreen extends AppCompatActivity {
 		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
 
 		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
-			AsyncTask.execute(() -> {
-				RestClient.getInstance().registerInstall()
-					.subscribe(
-						response -> {
-							if (response.isSuccessful()) {
-								SharedPreferences.Editor editor = Patchr.settings.edit();
-								editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
-								editor.putInt(StringManager.getString(R.string.setting_install_registered_version_code), Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
-								editor.apply();
-							}
-						},
-						error -> {
-							Logger.w(this, error.getLocalizedMessage());
-						});
-			});
+			RestClient.getInstance().registerInstall()
+				.subscribe(
+					response -> {
+						SharedPreferences.Editor editor = Patchr.settings.edit();
+						editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
+						editor.putInt(StringManager.getString(R.string.setting_install_registered_version_code), Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
+						editor.apply();
+					},
+					error -> {
+						Errors.handleError(this, error);
+					});
 		}
 	}
 
@@ -261,7 +252,7 @@ public class LobbyScreen extends AppCompatActivity {
 	protected void proceed() {
 
 		runOnUiThread(() -> {
-			/* Always reset the entity cache */
+			/* Always clear the location */
 			LocationManager.getInstance().stop();
 			LocationManager.getInstance().setAndroidLocationLocked(null);
 
@@ -307,24 +298,13 @@ public class LobbyScreen extends AppCompatActivity {
 		 * then we get them back to the activity to handle the share.
 		 */
 		if (UserManager.shared().authenticated() && Patchr.sendIntent != null) {
-			this.startActivity(Patchr.sendIntent);
-			/* Always ok to make sure sendIntent is cleared */
+			startActivity(Patchr.sendIntent);
 			Patchr.sendIntent = null;
 		}
 		else {
 			UI.routeHome(this);
 		}
 		finish();
-	}
-
-	public void completeProfile(RealmEntity entity) {
-
-		final String jsonEntity = Patchr.gson.toJson(entity);
-		Intent intent = new Intent(this, ProfileEdit.class);
-		intent.putExtra(Constants.EXTRA_STATE, State.Creating);
-		intent.putExtra(Constants.EXTRA_ENTITY, jsonEntity);
-		startActivityForResult(intent, Constants.ACTIVITY_COMPLETE_PROFILE);
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	private void showButtons() {

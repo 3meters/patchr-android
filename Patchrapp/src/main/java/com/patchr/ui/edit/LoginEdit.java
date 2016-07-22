@@ -15,6 +15,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
@@ -173,48 +174,54 @@ public class LoginEdit extends BaseEdit {
 
 	private void login() {
 
-		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this);
-		final String email = this.email.getText().toString().toLowerCase(Locale.US);
-		final String password = this.password.getText().toString();
+		if (!processing) {
+			processing = true;
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this);
+			final String email = this.email.getText().toString().toLowerCase(Locale.US);
+			final String password = this.password.getText().toString();
 
-		this.subscription = UserManager.shared().login(email, password)
-			.subscribe(
-				response -> {
-					busyController.hide(true);
-					if (response.isSuccessful()) {
+			UserManager.shared().login(email, password)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
 						Logger.i(this, "User signed in: " + UserManager.currentUser.name);
 						UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 						setResult(Constants.RESULT_USER_LOGGED_IN);
 						finish();
 						AnimationManager.doOverridePendingTransition(LoginEdit.this, TransitionType.FORM_BACK);
-					}
-					else {
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+
 						/* Cherry pick validation errors */
-						if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND
-							|| response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
-							Dialogs.alert(R.string.error_signin_failed, LoginEdit.this);
+						if (error instanceof ServiceException) {
+							Float code = ((ServiceException) error).code.floatValue();
+							if (code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_EMAIL_NOT_FOUND
+								|| code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+								Dialogs.alert(R.string.error_signin_failed, LoginEdit.this);
+								return;
+							}
 						}
-						else {
-							Errors.handleError(LoginEdit.this, response.error.asException());
-						}
-					}
-				},
-				error -> {
-					busyController.hide(true);
-					Errors.handleError(LoginEdit.this, error);
-				});
+
+						Errors.handleError(this, error);
+					});
+		}
 	}
 
 	private void validateEmail() {
 
-		final String email = this.email.getText().toString().toLowerCase(Locale.US);
-		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this);
+		if (!processing) {
+			processing = true;
+			final String email = this.email.getText().toString().toLowerCase(Locale.US);
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this);
 
-		subscription = RestClient.getInstance().validEmail(email)
-			.subscribe(
-				response -> {
-					busyController.hide(true);
-					if (response.isSuccessful()) {
+			subscription = RestClient.getInstance().validEmail(email)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
 						if (response.count.intValue() == 0) {
 							Intent intent = new Intent(this, ProfileEdit.class);
 							intent.putExtra(Constants.EXTRA_STATE, State.Signup);
@@ -226,11 +233,13 @@ public class LoginEdit extends BaseEdit {
 						else {
 							UI.toast("Email has already been used.");
 						}
-					}
-				},
-				error -> {
-					busyController.hide(true);
-					Errors.handleError(LoginEdit.this, error);
-				});
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Errors.handleError(this, error);
+					});
+		}
+
 	}
 }

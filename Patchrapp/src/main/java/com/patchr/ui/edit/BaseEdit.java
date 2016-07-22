@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -40,17 +39,12 @@ import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
 
-import rx.Subscription;
-
 public abstract class BaseEdit extends BaseScreen {
 
 	protected PhotoEditWidget photoEditWidget;
 	protected TextView        nameView;
 	protected TextView        descriptionView;
 	protected String          photoSource;
-
-	protected AsyncTask    taskService;
-	public    Subscription subscription;
 
 	protected Boolean brokenLink        = false;
 	protected Boolean proximityDisabled = false;        // Patch is only using location
@@ -218,7 +212,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 	protected void gather(SimpleMap parameters) {
 
-		if (inputState.equals(State.Creating)) {
+		if (inputState.equals(State.Inserting)) {
 			if (nameView != null) {
 				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
 			}
@@ -270,7 +264,7 @@ public abstract class BaseEdit extends BaseScreen {
 	protected boolean isDirty() {
 
 		if (inputState != null) {
-			if (inputState.equals(State.Creating)) {
+			if (inputState.equals(State.Inserting)) {
 				if (nameView != null && !TextUtils.isEmpty(nameView.getText().toString())) {
 					return true;
 				}

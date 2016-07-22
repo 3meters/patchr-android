@@ -31,7 +31,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
-import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -60,6 +59,7 @@ import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
@@ -80,8 +80,6 @@ public class PatchScreen extends BaseListScreen {
 
 	protected BottomSheetLayout bottomSheetLayout;
 	protected ViewGroup         actionView;
-
-	protected boolean processingCommand;
 
 	protected CallbackManager callbackManager;      // For facebook
 	protected String          branchLink;           // Uri
@@ -191,9 +189,8 @@ public class PatchScreen extends BaseListScreen {
 		 * Base activity broadcasts view clicks that target onViewClick. There are actions
 		 * that should be handled at the activity level like add a new entity.
 		 */
-		if (!processingCommand) {
-
-			processingCommand = true;
+		if (!processing) {
+			processing = true;
 			Integer id = view.getId();
 
 			/* Action button redirects based on tag */
@@ -205,6 +202,9 @@ public class PatchScreen extends BaseListScreen {
 			if (id == R.id.mute_button) {
 				muteAction();
 			}
+			else if (id == R.id.join_button) {
+				joinAction();
+			}
 
 			/* Synchronous */
 			else {
@@ -213,9 +213,6 @@ public class PatchScreen extends BaseListScreen {
 				}
 				else if (id == R.id.invite) {
 					inviteAction();
-				}
-				else if (id == R.id.join_button) {
-					joinAction();
 				}
 				else if (id == R.id.members_button) {
 					memberListAction();
@@ -230,7 +227,7 @@ public class PatchScreen extends BaseListScreen {
 						UI.browseEntity(entity.id, this);
 					}
 				}
-				processingCommand = false;
+				processing = false;
 			}
 		}
 	}
@@ -324,7 +321,7 @@ public class PatchScreen extends BaseListScreen {
 			Intent intent = new Intent(this, MessageEdit.class);
 			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_ID, entityId);
 			intent.putExtra(Constants.EXTRA_ENTITY_PARENT_NAME, entity.name);
-			intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+			intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
 			startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
 			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
@@ -550,11 +547,11 @@ public class PatchScreen extends BaseListScreen {
 			bottomSheetLayout.addOnSheetDismissedListener(bottomSheetLayout -> {
 
 				if (item.getItemId() == R.id.invite_using_patchr) {
-						/*
-						 * Go to patchr share directly but looks just like an external share
-						 */
+					/*
+					 * Go to patchr share directly but looks just like an external share
+					 */
 					final Intent intent = new Intent(activity, ShareEdit.class);
-					intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+					intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
 					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Invite);
 					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
 					intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
@@ -586,7 +583,7 @@ public class PatchScreen extends BaseListScreen {
 	public void join(final boolean activate) {
 
 		if (!entity.userMemberStatus.equals(MemberStatus.NonMember)) {  // Member or pending
-			RestClient.getInstance().deleteLinkById(entity.userMemberId)
+			subscription = RestClient.getInstance().deleteLinkById(entity.userMemberId)
 				.subscribe(
 					response -> {
 						Reporting.track(AnalyticsCategory.EDIT, "Left patch");
@@ -602,12 +599,12 @@ public class PatchScreen extends BaseListScreen {
 						fetch(FetchMode.AUTO);
 					},
 					error -> {
-						Logger.w(this, error.getLocalizedMessage());
-						processingCommand = false;
+						processing = false;
+						Errors.handleError(this, error);
 					});
 		}
 		else {
-			RestClient.getInstance().insertLink(UserManager.userId, entity.id, LinkType.Watch)
+			subscription = RestClient.getInstance().insertLink(UserManager.userId, entity.id, LinkType.Watch)
 				.subscribe(
 					response -> {
 						if (response.data != null && response.count.intValue() == 1) {
@@ -630,8 +627,8 @@ public class PatchScreen extends BaseListScreen {
 						fetch(FetchMode.AUTO);
 					},
 					error -> {
-						Logger.w(this, error.getLocalizedMessage());
-						processingCommand = false;
+						processing = false;
+						Errors.handleError(this, error);
 					});
 		}
 	}
@@ -644,16 +641,15 @@ public class PatchScreen extends BaseListScreen {
 		String entityId = entity.id;
 		String linkId = entity.userMemberId;
 
-		RestClient.getInstance().muteLinkById(entityId, linkId, mute)
+		subscription = RestClient.getInstance().muteLinkById(entityId, linkId, mute)
 			.subscribe(
 				response -> {
 					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
 					fetch(FetchMode.MANUAL, true);  // Need to refetch the patch, header only
-					processingCommand = false;
 				},
 				error -> {
-					Logger.w(this, error.getLocalizedMessage());
-					processingCommand = false;
+					processing = false;
+					Errors.handleError(this, error);
 				});
 	}
 

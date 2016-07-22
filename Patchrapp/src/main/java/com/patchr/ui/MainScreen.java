@@ -483,7 +483,7 @@ public class MainScreen extends BaseScreen {
 
 	public void addAction() {
 		Intent intent = new Intent(this, PatchEdit.class);
-		intent.putExtra(Constants.EXTRA_STATE, State.Creating);
+		intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
 		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}

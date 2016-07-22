@@ -39,6 +39,7 @@ import com.patchr.ui.components.OnItemClickListener;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 
 import org.json.JSONException;
@@ -195,41 +196,45 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private void search(View view) {
 
-		searchView.dismissDropDown();
+		if (!processing) {
 
-		searchText = searchView.getText().toString().trim();
+			processing = true;
+			searchView.dismissDropDown();
 
-		/* Prep the UI */
-		images.clear();
-		busyController.show(BusyController.BusyAction.Refreshing_Empty);
+			searchText = searchView.getText().toString().trim();
 
-		/* Hide soft keyboard */
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+			/* Prep the UI */
+			images.clear();
+			busyController.show(BusyController.BusyAction.Refreshing_Empty);
 
-		/* Stash query so we can restore it in the future */
-		SharedPreferences.Editor editor = Patchr.settings.edit();
-		editor.putString(StringManager.getString(R.string.setting_picture_search_last), searchText);
-		editor.apply();
+			/* Hide soft keyboard */
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
 
-		/* Add query to auto complete array */
-		try {
-			org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
-				"{}"));
-			jsonSearchMap.put(searchText, searchText);
-			editor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+			/* Stash query so we can restore it in the future */
+			SharedPreferences.Editor editor = Patchr.settings.edit();
+			editor.putString(StringManager.getString(R.string.setting_picture_search_last), searchText);
 			editor.apply();
-		}
-		catch (JSONException e) {
-			Reporting.logException(e);
-		}
 
-		/* Make sure the latest search appears in auto complete */
-		initAutoComplete();
-		bindAutoCompleteAdapter();
+			/* Add query to auto complete array */
+			try {
+				org.json.JSONObject jsonSearchMap = new org.json.JSONObject(Patchr.settings.getString(StringManager.getString(R.string.setting_picture_searches),
+					"{}"));
+				jsonSearchMap.put(searchText, searchText);
+				editor.putString(StringManager.getString(R.string.setting_picture_searches), jsonSearchMap.toString());
+				editor.apply();
+			}
+			catch (JSONException e) {
+				Reporting.logException(e);
+			}
 
-		skip = 0;
-		fetchImages(searchText);
+			/* Make sure the latest search appears in auto complete */
+			initAutoComplete();
+			bindAutoCompleteAdapter();
+
+			skip = 0;
+			fetchImages(searchText);
+		}
 	}
 
 	private void initAutoComplete() {
@@ -263,7 +268,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	private void fetchImages(final String queryText) {
 
 		AsyncTask.execute(() -> {
-			RestClient.getInstance().loadSearchImages(this.searchText, PAGE_SIZE, skip)
+			subscription = RestClient.getInstance().loadSearchImages(this.searchText, PAGE_SIZE, skip)
 				.map(response -> {
 					List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
 					for (ImageResult imageResult : response.data) {
@@ -298,6 +303,7 @@ public class PhotoSearchScreen extends BaseScreen {
 				})
 				.subscribe(
 					response -> {
+						processing = false;
 						busyController.hide(false);
 						List<ImageResult> moreImages = (ArrayList<ImageResult>) response.data;
 
@@ -316,8 +322,10 @@ public class PhotoSearchScreen extends BaseScreen {
 						if (response.more) {
 							skip = skip + PAGE_SIZE;
 							recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
-								@Override public void onLoadMore(int page, int totalItemsCount) {
+								@Override
+								public void onLoadMore(int page, int totalItemsCount) {
 									if (!processing) {
+										processing = true;
 										recyclerView.removeOnScrollListener(this);
 										fetchImages(queryText);
 									}
@@ -326,8 +334,9 @@ public class PhotoSearchScreen extends BaseScreen {
 						}
 					},
 					error -> {
+						processing = false;
 						busyController.hide(false);
-						Logger.w(this, error.getLocalizedMessage());
+						Errors.handleError(this, error);
 					});
 		});
 	}

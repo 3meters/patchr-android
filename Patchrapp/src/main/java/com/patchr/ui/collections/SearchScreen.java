@@ -18,13 +18,21 @@ import com.patchr.utilities.UI;
 
 public class SearchScreen extends BaseScreen {
 
-	private String             suggestScope;
-	private String             searchPhrase;
-	private FloatingSearchView searchView;
+	private String                  suggestScope;
+	private String                  searchPhrase;
+	private FloatingSearchView      searchView;
+	private EntitySuggestController suggestController;
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bind();
+	}
+
+	@Override protected void onStop() {
+		super.onStop();
+		if (suggestController != null) {
+			suggestController.onStop();
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -75,13 +83,11 @@ public class SearchScreen extends BaseScreen {
 			}
 		});
 
-		EntitySuggestController entitySuggest = new EntitySuggestController(this);
-		entitySuggest.searchView = searchView;
-		entitySuggest.recyclerView = recyclerView;
-		entitySuggest.suggestScope = this.suggestScope;
-		entitySuggest.initialize();
-
-		//getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		suggestController = new EntitySuggestController(this);
+		suggestController.searchView = searchView;
+		suggestController.recyclerView = recyclerView;
+		suggestController.suggestScope = this.suggestScope;
+		suggestController.bind();
 	}
 
 	@Override protected int getLayoutId() {

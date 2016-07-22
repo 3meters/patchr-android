@@ -1,6 +1,5 @@
 package com.patchr.ui.edit;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +14,7 @@ import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -52,16 +52,8 @@ public class PasswordEdit extends BaseEdit {
 	}
 
 	@Override public void submitAction() {
-
-		if (!this.processing) {
-			this.processing = true;
-
-			if (isValid()) {
-				update();
-			}
-			else {
-				this.processing = false;
-			}
+		if (isValid()) {
+			update();
 		}
 	}
 
@@ -78,14 +70,17 @@ public class PasswordEdit extends BaseEdit {
 
 	protected void update() {
 
-		final String passwordOld = this.passwordOld.getText().toString();
-		final String passwordNew = this.passwordNew.getText().toString();
-		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+		if (!processing) {
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().updatePassword(UserManager.userId, passwordOld, passwordNew)
+			processing = true;
+			final String passwordOld = this.passwordOld.getText().toString();
+			final String passwordNew = this.passwordNew.getText().toString();
+			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
+
+			subscription = RestClient.getInstance().updatePassword(UserManager.userId, passwordOld, passwordNew)
 				.subscribe(
 					response -> {
+						processing = false;
 						busyController.hide(true);
 						Reporting.track(AnalyticsCategory.EDIT, "Changed Password");
 						Logger.i(this, String.format("User changed password: %1$s (%2$s)", UserManager.currentUser.name, UserManager.currentUser.id));
@@ -93,10 +88,11 @@ public class PasswordEdit extends BaseEdit {
 						finish();
 					},
 					error -> {
+						processing = false;
 						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
+						Errors.handleError(this, error);
 					});
-		});
+		}
 	}
 
 	@Override protected boolean isValid() {

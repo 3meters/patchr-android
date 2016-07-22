@@ -238,7 +238,6 @@ public class Constants {
 	public static final int ACTIVITY_LOGIN             = 400;
 	public static final int ACTIVITY_LOGIN_ACCOUNT_KIT = 402;
 	public static final int ACTIVITY_SIGNUP            = 405;
-	public static final int ACTIVITY_COMPLETE_PROFILE  = 407;
 	public static final int ACTIVITY_RESET_AND_SIGNIN  = 410;
 	public static final int ACTIVITY_COMMENT           = 430;
 	public static final int ACTIVITY_APPLINKS_EDIT     = 535;

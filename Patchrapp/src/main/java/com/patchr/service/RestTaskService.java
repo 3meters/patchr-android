@@ -55,8 +55,8 @@ public class RestTaskService extends GcmTaskService {
 		}
 
 		try {
-			Call<Response<Map<String, Object>>> call = RestClient.getInstance().postEntityCall(path, data);
-			Response<Map<String, Object>> responseMap = call.execute().body();
+			Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, data);
+			Response<Map<String, Object>> responseMap = call.execute();
 
 			if (!responseMap.isSuccessful()) {
 				ServiceException exception = new ServiceException();
@@ -66,7 +66,7 @@ public class RestTaskService extends GcmTaskService {
 			}
 			ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
 			if (response.error != null) {
-				throw response.error.asException();
+				throw response.error.asServiceException();
 			}
 			else if (!response.noop && response.data.size() > 0) {
 				RestClient.getInstance().updateRealm(response, null, null);

@@ -76,12 +76,13 @@ public class MessageEdit extends BaseEdit {
 
 	@Override public void submitAction() {
 
-		if (!isValid()) return;
-		if (processing) return;
-
-		SimpleMap parameters = new SimpleMap();
-		gather(parameters);
-		post(parameters);
+		if (!processing) {
+			processing = true;
+			if (!isValid()) return;
+			SimpleMap parameters = new SimpleMap();
+			gather(parameters);
+			post(parameters);
+		}
 	}
 
     /*--------------------------------------------------------------------------------------------
@@ -138,7 +139,7 @@ public class MessageEdit extends BaseEdit {
 	@Override protected void gather(SimpleMap parameters) {
 		super.gather(parameters);   // Name, photo, description
 
-		if (inputState.equals(State.Creating)) {
+		if (inputState.equals(State.Inserting)) {
 			SimpleMap link = new SimpleMap();
 			List<SimpleMap> links = new ArrayList<SimpleMap>();
 			link.put("type", "content");
@@ -148,11 +149,9 @@ public class MessageEdit extends BaseEdit {
 		}
 	}
 
-	protected void post(SimpleMap parameters) {
-
-		processing = true;
+	protected void post(SimpleMap data) {
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
-		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, parameters, null, inputParentId));
+		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, data, null, inputParentId));
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
 	}

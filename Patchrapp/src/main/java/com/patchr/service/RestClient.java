@@ -17,7 +17,6 @@ import com.patchr.components.NetworkManager;
 import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
-import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Location;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
@@ -35,6 +34,7 @@ import com.patchr.utilities.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,8 @@ import java.util.Map;
 
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -417,7 +417,7 @@ public class RestClient {
 		return post(path, parameters, null, null, false);
 	}
 
-	public Call<Response<Map<String, Object>>> postEntityCall(final String path, SimpleMap data) {
+	public Call<Map<String, Object>> postEntityCall(final String path, SimpleMap data) {
 
 		SimpleMap parameters = data;
 		if (!data.containsKey("data")) {
@@ -713,22 +713,13 @@ public class RestClient {
 			return proxiApi.post(path, parameters)
 				.map(responseMap -> {
 					if (!responseMap.isSuccessful()) {
-						ServiceException exception = new ServiceException();
-						exception.code = responseMap.code();
-						exception.message = responseMap.message();
-						throw exception;
+						throwServiceException(responseMap.errorBody());
 					}
 					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-					if (response.clientMinVersions != null && response.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-						Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
-						if ((Integer) response.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
-							throw new ClientVersionException();
-						}
+					if (updateRequired(response)) {
+						throw new ClientVersionException();
 					}
-					if (response.error != null) {
-						throw response.error.asException(); // ServiceException
-					}
-					else if (updateRealm && !response.noop && response.data.size() > 0) {
+					if (updateRealm && !response.noop && response.data.size() > 0) {
 						updateRealm(response, queryId, skip);
 					}
 					return response;
@@ -746,11 +737,11 @@ public class RestClient {
 		else {
 			return proxiApi.get(path, parameters)
 				.map(responseMap -> {
-					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-					if (response.error != null) {
-						throw response.error.asException();
+					if (!responseMap.isSuccessful()) {
+						throwServiceException(responseMap.errorBody());
 					}
-					else if (updateRealm && !response.noop) {
+					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (updateRealm && !response.noop) {
 						updateRealm(response, null, null);
 					}
 					return response;
@@ -768,11 +759,11 @@ public class RestClient {
 		else {
 			return proxiApi.delete(path, parameters)
 				.map(responseMap -> {
-					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-					if (response.error != null) {
-						throw response.error.asException();
+					if (!responseMap.isSuccessful()) {
+						throwServiceException(responseMap.errorBody());
 					}
-					else if (updateRealm && entityId != null) {
+					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (updateRealm && entityId != null) {
 						Realm realm = Realm.getDefaultInstance();
 						realm.beginTransaction();
 						RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
@@ -865,5 +856,29 @@ public class RestClient {
 		}
 
 		parameters.put("location", locationMap);
+	}
+
+	private boolean updateRequired(ProxibaseResponse response) {
+		String packageName = Patchr.applicationContext.getPackageName();
+		if (response.clientMinVersions != null && response.clientMinVersions.containsKey(packageName)) {
+			Integer clientVersion = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+			Integer clientVersionMin = ((Double) response.clientMinVersions.get(packageName)).intValue();
+			if (clientVersionMin > clientVersion) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void throwServiceException(ResponseBody errorBody) {
+		try {
+			String bodyString = errorBody.string();
+			SimpleMap bodyMap = Patchr.gson.fromJson(bodyString, SimpleMap.class);
+			ProxibaseError error = ProxibaseError.setPropertiesFromMap(new ProxibaseError(), (Map<String, Object>) bodyMap.get("error"));
+			throw error.asServiceException();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

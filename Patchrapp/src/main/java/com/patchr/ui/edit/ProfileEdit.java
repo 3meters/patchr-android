@@ -35,6 +35,7 @@ import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
@@ -110,12 +111,13 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override public void submitAction() {
 
-		if (!isValid()) return;
-		if (processing) return;
-
-		SimpleMap parameters = new SimpleMap();
-		gather(parameters);
-		post(parameters);
+		if (!processing) {
+			processing = true;
+			if (!isValid()) return;
+			SimpleMap parameters = new SimpleMap();
+			gather(parameters);
+			post(parameters);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -207,13 +209,12 @@ public class ProfileEdit extends BaseEdit {
 		}
 	}
 
-	protected void post(SimpleMap parameters) {
+	protected void post(SimpleMap data) {
 
-		processing = true;
 		String path = entity == null ? "data/users" : String.format("data/users/%1$s", entity.id);
 		busyController.show(BusyController.BusyAction.ActionWithMessage, insertProgressResId, ProfileEdit.this);
 
-		if (parameters.containsKey("photo")) {
+		if (data.containsKey("photo")) {
 			busyController.showHorizontalProgressBar(ProfileEdit.this);
 		}
 		else {
@@ -222,16 +223,16 @@ public class ProfileEdit extends BaseEdit {
 
 		AsyncTask.execute(() -> {
 
-			if (parameters.containsKey("photo")) {
-				Photo photo = (Photo) parameters.get("photo");
+			if (data.containsKey("photo")) {
+				Photo photo = Photo.setPropertiesFromMap(new Photo(), (SimpleMap) data.get("photo"));
 				if (photo != null) {
 					Photo photoFinal = postPhotoToS3(photo);
-					parameters.put("photo", photoFinal);
+					data.put("photo", photoFinal);
 				}
 			}
 
 			if (inputState.equals(State.Signup)) {
-				subscription = RestClient.getInstance().signup(parameters)
+				subscription = RestClient.getInstance().signup(data)
 					.subscribe(
 						response -> {
 							processing = false;
@@ -252,11 +253,11 @@ public class ProfileEdit extends BaseEdit {
 						error -> {
 							processing = false;
 							busyController.hide(true);
-							Logger.w(this, error.getLocalizedMessage());
+							Errors.handleError(this, error);
 						});
 			}
 			else {
-				subscription = RestClient.getInstance().postEntity(path, parameters)
+				subscription = RestClient.getInstance().postEntity(path, data)
 					.subscribe(
 						response -> {
 							processing = false;
@@ -267,7 +268,7 @@ public class ProfileEdit extends BaseEdit {
 						error -> {
 							processing = false;
 							busyController.hide(true);
-							Logger.w(this, error.getLocalizedMessage());
+							Errors.handleError(this, error);
 						});
 			}
 		});
@@ -277,29 +278,26 @@ public class ProfileEdit extends BaseEdit {
 
 		final String userName = entity.name;
 
-		processing = true;
 		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
 		String path = String.format("user/%1$s?erase=true", entityId);
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().deleteEntity(path, entityId)
-				.subscribe(
-					response -> {
-						processing = false;
-						busyController.hide(true);
-						Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
-						Logger.i(this, "Deleted user: " + entity.id);
-						UserManager.shared().setCurrentUser(null, null);
-						UI.routeLobby(Patchr.applicationContext);
-						UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
-						finish();
-					},
-					error -> {
-						processing = false;
-						busyController.hide(true);
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+		subscription = RestClient.getInstance().deleteEntity(path, entityId)
+			.subscribe(
+				response -> {
+					processing = false;
+					busyController.hide(true);
+					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
+					Logger.i(this, "Deleted user: " + entity.id);
+					UserManager.shared().setCurrentUser(null, null);
+					UI.routeLobby(Patchr.applicationContext);
+					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
+					finish();
+				},
+				error -> {
+					processing = false;
+					busyController.hide(true);
+					Errors.handleError(this, error);
+				});
 	}
 
 	@Override public void confirmDelete() {
@@ -321,7 +319,10 @@ public class ProfileEdit extends BaseEdit {
 		builder.setTitle(R.string.alert_delete_account_title);
 		builder.setMessage(R.string.alert_delete_account_message);
 		builder.setPositiveButton("Delete", (dialog, which) -> {
-			delete();
+			if (!processing) {
+				processing = true;
+				delete();
+			}
 		});
 
 		builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {

@@ -1,7 +1,6 @@
 package com.patchr.ui.edit;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -25,6 +24,7 @@ import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -233,29 +233,27 @@ public class ResetEdit extends BaseEdit {
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 			UI.hideSoftInput(ResetEdit.this.emailField);
 
-			AsyncTask.execute(() -> {
-				RestClient.getInstance().validEmail(email)
-					.subscribe(
-						response -> {
-							processing = false;
-							busyController.hide(true);
+			subscription = RestClient.getInstance().validEmail(email)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
 
-							if (response.data != null && response.count.intValue() != 0) {
-								title.setText(R.string.form_title_reset_request_reset);
-								submitButton.setText("Send password reset email");
-								emailField.setEnabled(false);
-								emailValidated = true;
-							}
-							else {
-								Dialogs.alert("Email address not found.", ResetEdit.this);
-							}
-						},
-						error -> {
-							processing = false;
-							busyController.hide(true);
-							Logger.w(this, error.getLocalizedMessage());
-						});
-			});
+						if (response.data != null && response.count.intValue() != 0) {
+							title.setText(R.string.form_title_reset_request_reset);
+							submitButton.setText("Send password reset email");
+							emailField.setEnabled(false);
+							emailValidated = true;
+						}
+						else {
+							Dialogs.alert("Email address not found.", ResetEdit.this);
+						}
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Errors.handleError(this, error);
+					});
 		}
 	}
 
@@ -269,22 +267,20 @@ public class ResetEdit extends BaseEdit {
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, ResetEdit.this);
 			UI.hideSoftInput(ResetEdit.this.emailField);
 
-			AsyncTask.execute(() -> {
-				RestClient.getInstance().requestPasswordReset(email)
-					.subscribe(
-						response -> {
-							processing = false;
-							busyController.hide(true);
-							resetRequested = true;
-							title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
-							submitButton.setText("Finished");
-						},
-						error -> {
-							processing = false;
-							busyController.hide(true);
-							Logger.w(this, error.getLocalizedMessage());
-						});
-			});
+			subscription = RestClient.getInstance().requestPasswordReset(email)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						resetRequested = true;
+						title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
+						submitButton.setText("Finished");
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Errors.handleError(this, error);
+					});
 		}
 	}
 
@@ -298,41 +294,39 @@ public class ResetEdit extends BaseEdit {
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, ResetEdit.this);
 			UI.hideSoftInput(ResetEdit.this.emailField);
 
-			AsyncTask.execute(() -> {
-				RestClient.getInstance().resetPassword(password, inputToken)
-					.subscribe(
-						response -> {
-							processing = false;
-							busyController.hide(true);
+			subscription = RestClient.getInstance().resetPassword(password, inputToken)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
 
-							if (response.isSuccessful()) {
-								Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
-								Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
-								UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
-								UI.routeHome(this);
-								finish();
+						if (response.isSuccessful()) {
+							Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
+							Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
+							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
+							UI.routeHome(this);
+							finish();
+						}
+						else {
+							if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+								Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, (dlg, which) -> {
+									dlg.dismiss();
+									Intent intent = new Intent(this, ResetEdit.class);
+									startActivityForResult(intent, Constants.ACTIVITY_RESET_AND_SIGNIN);
+									AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO);
+									finish();
+								});
 							}
 							else {
-								if (response.serviceCode.floatValue() == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
-									Dialogs.alert(R.string.alert_reset_expired, ResetEdit.this, (dlg, which) -> {
-										dlg.dismiss();
-										Intent intent = new Intent(this, ResetEdit.class);
-										startActivityForResult(intent, Constants.ACTIVITY_RESET_AND_SIGNIN);
-										AnimationManager.doOverridePendingTransition(ResetEdit.this, TransitionType.FORM_TO);
-										finish();
-									});
-								}
-								else {
-									Logger.w(this, response.serviceMessage);
-								}
+								Logger.w(this, response.serviceMessage);
 							}
-						},
-						error -> {
-							processing = false;
-							busyController.hide(true);
-							Logger.w(this, error.getLocalizedMessage());
-						});
-			});
+						}
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Errors.handleError(this, error);
+					});
 		}
 	}
 }

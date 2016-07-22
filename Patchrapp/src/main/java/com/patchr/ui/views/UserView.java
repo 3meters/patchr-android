@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
-import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Link;
@@ -29,6 +27,7 @@ import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.UserRole;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -44,6 +43,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 	protected Integer     layoutResId;
 
 	public Boolean showEmail = false;
+	public boolean processing;
 
 	protected ViewGroup    layout;
 	private   ImageWidget  userPhoto;
@@ -87,9 +87,12 @@ public class UserView extends BaseView implements View.OnClickListener {
 	}
 
 	public void onApprovedClick(View view) {
-		Boolean approved = ((CompoundButton) view).isChecked();
-		this.enableLabel.setText(approved ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
-		approveMember(this.entity, this.entity.userMemberId, this.entity.id, this.patch.id, approved);
+		if (!processing) {
+			processing = true;
+			Boolean approved = ((CompoundButton) view).isChecked();
+			this.enableLabel.setText(approved ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+			approveMember(this.entity, this.entity.userMemberId, this.entity.id, this.patch.id, approved);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -168,11 +171,11 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 		String entityId = entity.id;
 
-		AsyncTask.execute(() -> {
-			RestClient.getInstance().enableLinkById(entityId, linkId, enabled)
-				.subscribe(
-					response -> {
-						if (((Activity) getContext()).isFinishing()) return;
+		RestClient.getInstance().enableLinkById(entityId, linkId, enabled)
+			.subscribe(
+				response -> {
+					processing = false;
+					if (!((Activity) getContext()).isFinishing()) {
 						Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
 						Realm realm = Realm.getDefaultInstance();
 						realm.executeTransaction(realmEntity -> {
@@ -180,10 +183,14 @@ public class UserView extends BaseView implements View.OnClickListener {
 						});
 						realm.close();
 						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
-					},
-					error -> {
-						Logger.w(this, error.getLocalizedMessage());
-					});
-		});
+					}
+					;
+				},
+				error -> {
+					processing = false;
+					if (!((Activity) getContext()).isFinishing()) {
+						Errors.handleError(getContext(), error);
+					}
+				});
 	}
 }
