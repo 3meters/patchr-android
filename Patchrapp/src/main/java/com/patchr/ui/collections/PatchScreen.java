@@ -33,6 +33,7 @@ import com.patchr.components.BranchProvider;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.MediaManager;
+import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.NotificationReceivedEvent;
@@ -79,7 +80,6 @@ public class PatchScreen extends BaseListScreen {
 	private final Handler handler = new Handler();
 
 	protected BottomSheetLayout bottomSheetLayout;
-	protected BottomSheetDialog bottomSheetDialog;
 	protected ViewGroup         actionView;
 
 	protected CallbackManager callbackManager;      // For facebook
@@ -146,19 +146,10 @@ public class PatchScreen extends BaseListScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		/* Shown for owner */
 		getMenuInflater().inflate(R.menu.menu_overflow, menu);
-
-
-		getMenuInflater().inflate(R.menu.menu_edit, menu);
-		//getMenuInflater().inflate(R.menu.menu_delete, menu);
-
-		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_invite, menu);
-//		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
-//		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
-
-		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
+		getMenuInflater().inflate(R.menu.menu_map, menu);
+		getMenuInflater().inflate(R.menu.menu_edit, menu);      // Owner
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -173,19 +164,19 @@ public class PatchScreen extends BaseListScreen {
 			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
 				bottomSheetDialog = null;
 			});
+			if (!MenuManager.canUserDelete(entity)) {
+				view.findViewById(R.id.delete_group).setVisibility(View.GONE);
+			}
+			if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
+				view.findViewById(R.id.leave_patch_group).setVisibility(View.GONE);
+			}
 			bottomSheetDialog.show();
-		}
-		else if (item.getItemId() == R.id.delete) {
-			deleteAction();
 		}
 		else if (item.getItemId() == R.id.edit) {
 			editAction();
 		}
 		else if (item.getItemId() == R.id.invite) {
 			inviteAction();
-		}
-		else if (item.getItemId() == R.id.leave_patch) {
-			joinAction();
 		}
 		else if (item.getItemId() == R.id.map) {
 			mapAction();

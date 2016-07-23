@@ -156,16 +156,18 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 
 	public void bindActionButton() {
 
-		TextView alertButton = (TextView) listWidget.header.findViewById(R.id.action_button);
-		if (alertButton != null) {
+		if (listWidget.header != null) {
+			TextView alertButton = (TextView) listWidget.header.findViewById(R.id.action_button);
+			if (alertButton != null) {
 
-			View rule = listWidget.header.findViewById(R.id.action_rule);
-			if (rule != null && Constants.SUPPORTS_KIT_KAT) {
-				rule.setVisibility(View.GONE);
+				View rule = listWidget.header.findViewById(R.id.action_rule);
+				if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+					rule.setVisibility(View.GONE);
+				}
+
+				Boolean patched = (UserManager.currentUser.patchesOwned != null && UserManager.currentUser.patchesOwned > 0);
+				alertButton.setText(patched ? R.string.button_alert_radar : R.string.button_alert_radar_no_patch);
 			}
-
-			Boolean patched = (UserManager.currentUser.patchesOwned != null && UserManager.currentUser.patchesOwned > 0);
-			alertButton.setText(patched ? R.string.button_alert_radar : R.string.button_alert_radar_no_patch);
 		}
 	}
 

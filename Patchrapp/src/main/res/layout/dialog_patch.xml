@@ -11,47 +11,61 @@
 	android:orientation="vertical"
 	app:layout_behavior="@string/bottom_sheet_behavior">
 
-	<Button
-		android:id="@+id/leave_patch"
-		style="@style/button_link"
+	<FrameLayout
+		android:id="@+id/leave_patch_group"
 		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:fontFamily="sans-serif"
-		android:textAllCaps="true"
-		android:gravity="center"
-		android:onClick="onClick"
-		android:text="@string/menu_item_leave" />
+		android:layout_height="wrap_content">
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_divider_height"
-		android:background="?attr/ruleColor" />
+		<Button
+			android:id="@+id/leave_patch"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_leave"
+			android:textAllCaps="true" />
 
-	<Button
-		android:id="@+id/delete"
-		style="@style/button_link"
-		android:layout_width="match_parent"
-		android:layout_height="48dp"
-		android:textAllCaps="true"
-		android:fontFamily="sans-serif"
-		android:gravity="center"
-		android:onClick="onClick"
-		android:text="@string/menu_item_delete" />
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+	</FrameLayout>
 
-	<View
+	<FrameLayout
+		android:id="@+id/delete_group"
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/rule_divider_height"
-		android:background="?attr/ruleColor" />
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/delete"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_delete"
+			android:textAllCaps="true" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+	</FrameLayout>
 
 	<Button
 		android:id="@+id/report"
 		style="@style/button_link"
 		android:layout_width="match_parent"
-		android:textAllCaps="true"
 		android:layout_height="48dp"
 		android:fontFamily="sans-serif"
 		android:gravity="center"
 		android:onClick="onClick"
-		android:text="@string/menu_item_report" />
+		android:text="@string/menu_item_report"
+		android:textAllCaps="true" />
 </LinearLayout>
 

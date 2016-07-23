@@ -3,13 +3,12 @@ package com.patchr.ui;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -34,7 +33,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
-import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
@@ -64,6 +62,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 	protected BusyController       busyController;
 	protected AirProgressBar       progressBar;
 	protected Snackbar             snackbar;
+	protected BottomSheetDialog    bottomSheetDialog;
 
 	/* Inputs */
 	public String inputState;
@@ -169,18 +168,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 		if (item.getItemId() == android.R.id.home) {
 			cancelAction(false);
-		}
-		else if (item.getItemId() == R.id.report) {
-			String message = String.format("Report on patch id: %1$s\n\nPlease add some detail on why you are reporting this patch.\n", entityId);
-			Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:report@patchr.com"));
-			email.putExtra(Intent.EXTRA_SUBJECT, "Report on Patchr content");
-			email.putExtra(Intent.EXTRA_TEXT, message);
-			startActivity(Intent.createChooser(email, "Send report using:"));
-			return true;
-		}
-		else if (item.getItemId() == R.id.logout) {
-			UserManager.shared().logout();
-			UI.routeLobby(Patchr.applicationContext);
 		}
 		else {
 			/* Handles: login, browse, map */

@@ -539,7 +539,8 @@ public class MainScreen extends BaseScreen {
 				fragment = new NearbyListFragment();
 				EntityListFragment listFragment = (EntityListFragment) fragment;
 				listFragment.querySpec = QuerySpec.Factory(QueryName.PatchesNearby);
-				listFragment.headerResId = R.layout.view_nearby_header;
+				//listFragment.headerResId = R.layout.view_nearby_header;
+				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MEMBER_OF)) {
 

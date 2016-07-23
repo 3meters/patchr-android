@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.CardView;
 import android.text.Html;
@@ -25,6 +26,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
+import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
@@ -99,11 +101,68 @@ public class MessageScreen extends BaseScreen {
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
 
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+
+		getMenuInflater().inflate(R.menu.menu_overflow, menu);
+		getMenuInflater().inflate(R.menu.menu_edit, menu);              // Owner
+		getMenuInflater().inflate(R.menu.menu_share_message, menu);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.overflow) {
+			bottomSheetDialog = new BottomSheetDialog(this);
+			View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
+			bottomSheetDialog.setContentView(view);
+			bottomSheetDialog.getWindow().setDimAmount(0.3f);
+			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
+				bottomSheetDialog = null;
+			});
+
+			if (!MenuManager.canUserDelete(entity)) {
+				view.findViewById(R.id.delete_group).setVisibility(View.GONE);
+			}
+			if (!MenuManager.canUserRemoveFromPatch(entity)) {
+				view.findViewById(R.id.remove_group).setVisibility(View.GONE);
+			}
+
+			bottomSheetDialog.show();
+		}
+		else if (item.getItemId() == R.id.edit) {
+			editAction();
+		}
+		else if (item.getItemId() == R.id.share) {
+			shareAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
 	public void onClick(View view) {
 		Integer id = view.getId();
 
 		if (id == R.id.like_button) {
 			likeAction();
+		}
+		else if (id == R.id.report) {
+			bottomSheetDialog.dismiss();
+			String message = String.format("Report on message id: %1$s\n\nPlease add some detail on why you are reporting this message.\n", entityId);
+			Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:report@patchr.com"));
+			email.putExtra(Intent.EXTRA_SUBJECT, "Report on message content");
+			email.putExtra(Intent.EXTRA_TEXT, message);
+			startActivity(Intent.createChooser(email, "Send report using:"));
+		}
+		else if (id == R.id.remove) {
+			bottomSheetDialog.dismiss();
+			removeAction();
+		}
+		else if (id == R.id.delete) {
+			bottomSheetDialog.dismiss();
+			deleteAction();
 		}
 		else if (id == R.id.likes_button) {
 			likeListAction();
@@ -118,40 +177,6 @@ public class MessageScreen extends BaseScreen {
 				UI.browseEntity(entity.id, this);
 			}
 		}
-	}
-
-	@Override public boolean onCreateOptionsMenu(Menu menu) {
-
-		/* Shown for owner */
-		getMenuInflater().inflate(R.menu.menu_edit, menu);
-		getMenuInflater().inflate(R.menu.menu_delete, menu);
-		getMenuInflater().inflate(R.menu.menu_remove, menu);
-
-		/* Shown for everyone */
-		getMenuInflater().inflate(R.menu.menu_share_message, menu);
-		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override public boolean onOptionsItemSelected(MenuItem item) {
-
-		if (item.getItemId() == R.id.delete) {
-			deleteAction();
-		}
-		else if (item.getItemId() == R.id.remove) {
-			removeAction();
-		}
-		else if (item.getItemId() == R.id.edit) {
-			editAction();
-		}
-		else if (item.getItemId() == R.id.share) {
-			shareAction();
-		}
-		else {
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
 	}
 
 	@Override public void onActivityResult(int requestCode, int resultCode, Intent intent) {
