@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.facebook.applinks.AppLinkData;
+import com.google.android.gms.maps.MapView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -142,6 +143,17 @@ public class LobbyScreen extends AppCompatActivity {
 	protected void initialize() {
 
 		this.busyPresenter = new BusyController();
+
+		/* Hack to preload map for later use */
+		new Thread(() -> {
+			try {
+				MapView mapView = new MapView(Patchr.applicationContext);
+				mapView.onCreate(null);
+				mapView.onPause();
+				mapView.onDestroy();
+			}
+			catch (Exception ignored){}
+		}).start();
 		/*
 		 * Ensure install is registered with service. Only done once unless something like a system update clears
 		 * the app preferences.

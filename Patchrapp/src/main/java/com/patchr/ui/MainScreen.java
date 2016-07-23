@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -30,14 +31,16 @@ import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.LocationAllowedEvent;
-import com.patchr.events.LocationDeniedEvent;
+import com.patchr.events.LocationStatusEvent;
+import com.patchr.events.NetworkStatusEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.LocationStatus;
+import com.patchr.objects.enums.NetworkStatus;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.Suggest;
@@ -49,7 +52,6 @@ import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.ListWidget;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 
@@ -63,8 +65,6 @@ import io.realm.RealmResults;
 
 @SuppressLint("Registered")
 public class MainScreen extends BaseScreen {
-
-	protected Number pauseDate;
 
 	protected ListWidget notificationList;
 	protected String     nextFragmentTag;
@@ -117,13 +117,6 @@ public class MainScreen extends BaseScreen {
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
-		if (pauseDate != null) {
-			final Long interval = DateTime.nowDate().getTime() - pauseDate.longValue();
-			if (interval > Constants.INTERVAL_TETHER_ALERT) {
-				tetherAlert();
-			}
-		}
-
 		bind();
 	}
 
@@ -133,7 +126,6 @@ public class MainScreen extends BaseScreen {
 		 * be followed by onStop if we are not visible. Does not fire if the activity window
 		 * loses focus but the activity is still active.
 		 */
-		pauseDate = DateTime.nowDate().getTime();
 		super.onPause();
 	}
 
@@ -148,7 +140,6 @@ public class MainScreen extends BaseScreen {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		getMenuInflater().inflate(R.menu.menu_login, menu);
 		getMenuInflater().inflate(R.menu.menu_view_as_map, menu);
 		getMenuInflater().inflate(R.menu.menu_view_as_list, menu);
 		getMenuInflater().inflate(R.menu.menu_search, menu);
@@ -225,10 +216,10 @@ public class MainScreen extends BaseScreen {
 		switch (requestCode) {
 			case Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
 				if (PermissionUtil.verifyPermissions(grantResults)) {
-					Dispatcher.getInstance().post(new LocationAllowedEvent());
+					Dispatcher.getInstance().post(new LocationStatusEvent(LocationStatus.ALLOWED, null));
 				}
 				else {
-					Dispatcher.getInstance().post(new LocationDeniedEvent());
+					Dispatcher.getInstance().post(new LocationStatusEvent(LocationStatus.DENIED, null));
 				}
 			}
 		}
@@ -269,6 +260,15 @@ public class MainScreen extends BaseScreen {
 
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
 		updateNotificationIndicator(false);
+	}
+
+	@Subscribe public void onNetworkStatusChange(final NetworkStatusEvent event) {
+		if (event.status == NetworkStatus.CONNECTED && snackbar.isShownOrQueued()) {
+			snackbar.dismiss();
+		}
+		else if (!snackbar.isShownOrQueued()) {
+			showSnackbar("Connection is offline", Snackbar.LENGTH_INDEFINITE);
+		}
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -391,9 +391,6 @@ public class MainScreen extends BaseScreen {
 			});
 		}
 
-		/* Check if the device is tethered */
-		tetherAlert();
-
 		/* Default fragment */
 		nextFragmentTag = Constants.FRAGMENT_TYPE_NEARBY;
 
@@ -479,6 +476,10 @@ public class MainScreen extends BaseScreen {
 			drawerLeft.getMenu().findItem(R.id.item_member).setVisible(true);
 			drawerLeft.getMenu().findItem(R.id.item_own).setVisible(true);
 		}
+
+		if (!NetworkManager.getInstance().isConnected()) {
+			showSnackbar("No network connection", Snackbar.LENGTH_INDEFINITE);
+		}
 	}
 
 	public void addAction() {
@@ -494,19 +495,6 @@ public class MainScreen extends BaseScreen {
 		intent.putExtra(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
 		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
-	}
-
-	private void tetherAlert() {
-	    /*
-	     * We alert that wifi isn't enabled. If the user ends up enabling wifi,
-		 * we will get that event and refresh radar with beacon support.
-		 */
-		Boolean tethered = NetworkManager.getInstance().isWifiTethered();
-		if (tethered || (!NetworkManager.getInstance().isWifiEnabled())) {
-			UI.toast(StringManager.getString(tethered
-			                                 ? R.string.alert_wifi_tethered
-			                                 : R.string.alert_wifi_disabled));
-		}
 	}
 
 	public void updateNotificationIndicator(final Boolean ifDrawerVisible) {
@@ -540,7 +528,7 @@ public class MainScreen extends BaseScreen {
 		 * - Called from BaseActivity.onCreate (once), configureActionBar and DispatchManager.
 		 * - Fragment menu items are in addition to any menu items added by the parent activity.
 		 */
-		Fragment fragment = null;
+		Fragment fragment;
 
 		if (fragments.containsKey(fragmentType)) {
 			fragment = fragments.get(fragmentType);

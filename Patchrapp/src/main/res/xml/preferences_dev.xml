@@ -12,23 +12,6 @@
 			android:summary="Turns off tracking and enables dev mode only features"
 			android:title="Enable developer features" />
 
-		<PreferenceScreen
-			android:key="pref_testing_screen"
-			android:summary="Settings used to test functionality"
-			android:title="Test settings">
-
-			<com.patchr.ui.widgets.ListPreferenceMultiSelect
-				android:id="@+id/Pref_Testing_Beacons"
-				android:defaultValue="natural"
-				android:dialogTitle="Beacons to include"
-				android:entries="@array/testing_beacons_entries"
-				android:entryValues="@array/testing_beacons_values"
-				android:key="pref_testing_beacons"
-				android:summary="Specify which beacons should be included in scans"
-				android:title="Beacon testing" />
-
-		</PreferenceScreen>
-
 		<CheckBoxPreference
 			android:id="@+id/Pref_Location_High_Accuracy"
 			android:defaultValue="false"

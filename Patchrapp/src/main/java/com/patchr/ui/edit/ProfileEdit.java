@@ -262,6 +262,8 @@ public class ProfileEdit extends BaseEdit {
 						response -> {
 							processing = false;
 							busyController.hide(true);
+							final RealmEntity user = response.data.get(0);
+							UserManager.shared().setCurrentUser(user, UserManager.currentSession);  // Retain current session
 							finish();
 							AnimationManager.doOverridePendingTransition(ProfileEdit.this, TransitionType.FORM_BACK);
 						},

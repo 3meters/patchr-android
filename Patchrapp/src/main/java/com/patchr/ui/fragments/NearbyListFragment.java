@@ -24,11 +24,10 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.LocationAllowedEvent;
-import com.patchr.events.LocationDeniedEvent;
-import com.patchr.events.LocationUpdatedEvent;
+import com.patchr.events.LocationStatusEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.FetchMode;
+import com.patchr.objects.enums.LocationStatus;
 import com.patchr.service.RestClient;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
@@ -85,32 +84,32 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onLocationAllowed(final LocationAllowedEvent event) {
-		activateNearby(FetchMode.MANUAL);
-		listWidget.emptyController.setText(StringManager.getString(R.string.empty_nearby));
-	}
-
-	@Subscribe public void onLocationDenied(final LocationDeniedEvent event) {
-		listWidget.emptyController.setText("Location services disabled for Patchr");
-		listWidget.emptyController.show(true);
-	}
-
-	@Subscribe public void onLocationChanged(final LocationUpdatedEvent event) {
-		if (isResumed()) {
-			if (event.location != null) {
-				LocationManager.getInstance().setAndroidLocationLocked(event.location);
-				final Location location = LocationManager.getInstance().getLocationLocked();
-				if (location != null) {
-					listWidget.fetch(FetchMode.AUTO);
-					if (!atLeastOneLocationProcessed) {
-						AsyncTask.execute(() -> {
-							MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
-						});
-						atLeastOneLocationProcessed = true;
+	@Subscribe public void onLocationStatusChanged(final LocationStatusEvent event) {
+		if (event.status == LocationStatus.ALLOWED) {
+			activateNearby(FetchMode.MANUAL);
+			listWidget.emptyController.setText(StringManager.getString(R.string.empty_nearby));
+		}
+		else if (event.status == LocationStatus.DENIED) {
+			listWidget.emptyController.setText("Location services disabled for Patchr");
+			listWidget.emptyController.show(true);
+		}
+		else if (event.status == LocationStatus.UPDATED) {
+			if (isResumed()) {
+				if (event.location != null) {
+					LocationManager.getInstance().setAndroidLocationLocked(event.location);
+					final Location location = LocationManager.getInstance().getLocationLocked();
+					if (location != null) {
+						listWidget.fetch(FetchMode.AUTO);
+						if (!atLeastOneLocationProcessed) {
+							AsyncTask.execute(() -> {
+								MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
+							});
+							atLeastOneLocationProcessed = true;
+						}
 					}
-				}
-				else {
-					listWidget.busyController.hide(true);
+					else {
+						listWidget.busyController.hide(true);
+					}
 				}
 			}
 		}

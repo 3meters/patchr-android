@@ -210,7 +210,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 	public void snapshotPreferences() {
 		prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
-		prefTestingBeacons = settings.getString(Preference.TESTING_BEACONS, "natural");
 	}
 
 	@Override public String getClientID() {

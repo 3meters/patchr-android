@@ -2,7 +2,7 @@
 <LinearLayout
 
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -23,8 +23,8 @@
 			android:layout_height="wrap_content"
 			android:minHeight="?attr/actionBarSize"
 			android:theme="@style/patchr_theme_action_bar"
-			custom:layout_scrollFlags="scroll|enterAlways"
-			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+			app:layout_scrollFlags="scroll|enterAlways"
+			app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 			<TextView
 				android:id="@+id/toolbar_title"
@@ -97,10 +97,10 @@
 				android:layout_marginLeft="4dp"
 				android:layout_marginRight="4dp"
 				android:background="@drawable/bg_rounded_placeholder"
-				custom:aspectRatio="0.56"
-				custom:category="standard"
-				custom:radius="18"
-				custom:shape="rounded" />
+				app:aspectRatio="0.56"
+				app:category="standard"
+				app:radius="8"
+				app:shape="rounded" />
 
 			<!-- Privacy -->
 
@@ -149,8 +149,8 @@
 					android:layout_marginLeft="8dp"
 					android:layout_marginRight="8dp"
 					android:visibility="gone"
-					custom:liteMode="true"
-					custom:mapType="none" />
+					app:liteMode="true"
+					app:mapType="none" />
 
 				<com.patchr.ui.widgets.AirProgressBar
 					android:id="@+id/map_progress"
@@ -238,8 +238,8 @@
 						android:layout_width="wrap_content"
 						android:layout_height="32dp"
 						android:onClick="onTypeButtonClick"
-						android:tag="project"
-						android:text="@string/label_patch_type_project"
+						android:tag="trip"
+						android:text="@string/label_patch_type_trip"
 						android:textAppearance="?android:attr/textAppearanceMedium"
 						android:theme="@style/patchr_radio_button" />
 				</LinearLayout>

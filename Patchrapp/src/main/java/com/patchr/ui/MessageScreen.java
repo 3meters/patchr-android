@@ -21,6 +21,7 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
@@ -522,7 +523,7 @@ public class MessageScreen extends BaseScreen {
 
 	public void like(final boolean activate) {
 
-		likeAnimator.setDisplayedChild(1);  // Turned off in drawButtons
+		likeAnimator.setDisplayedChild(1);  // Turned off in draw
 
 		UserManager.currentUser.activityDate = DateTime.nowDate().getTime();
 
@@ -534,6 +535,9 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
+						Patchr.mainThreadHandler.postDelayed(() -> {
+							likeAnimator.setDisplayedChild(0);
+						}, 1000);
 						Errors.handleError(this, error);
 					});
 		}
@@ -546,6 +550,9 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
+						Patchr.mainThreadHandler.postDelayed(() -> {
+							likeAnimator.setDisplayedChild(0);
+						}, 1000);
 						Errors.handleError(this, error);
 					});
 		}

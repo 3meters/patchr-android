@@ -14,8 +14,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_centerHorizontal="true"
-			tools:layout_height="150dp"
-			tools:layout_width="150dp" />
+			app:aspectRatio="@dimen/aspect_ratio_patch_image"
+			app:category="standard" />
 
 		<ImageButton
 			android:id="@+id/photo_set_button"

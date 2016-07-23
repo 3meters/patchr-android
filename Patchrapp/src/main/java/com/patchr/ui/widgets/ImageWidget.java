@@ -61,20 +61,19 @@ public class ImageWidget extends FrameLayout {
 	public ImageWidget(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
-		this.scaleType = ScaleType.CENTER_CROP;
-		this.shape = "auto";
-		this.radius = 8;
+		scaleType = ScaleType.CENTER_CROP;
+		shape = "auto";
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageWidget, defStyle, 0);
 
-		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
-		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
-		this.showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
-		this.aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
-		this.radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
+		bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
+		category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
+		showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
+		aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
+		radius = ta.getInteger(R.styleable.ImageWidget_radius, 8);
 
 		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
-			this.shape = ta.getString(R.styleable.ImageWidget_shape);
+			shape = ta.getString(R.styleable.ImageWidget_shape);
 		}
 
 		ta.recycle();
@@ -82,7 +81,7 @@ public class ImageWidget extends FrameLayout {
 		if (!isInEditMode()) {
 			final int scaleTypeValue = attrs.getAttributeIntValue(androidNamespace, "scaleType", ScaleType.CENTER_CROP.ordinal());
 			if (scaleTypeValue >= 0) {
-				this.scaleType = sScaleTypeArray[scaleTypeValue];
+				scaleType = sScaleTypeArray[scaleTypeValue];
 			}
 		}
 
@@ -97,17 +96,17 @@ public class ImageWidget extends FrameLayout {
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-		if (this.aspectRatio != 0) {
+		if (aspectRatio != 0) {
 
 			int w = MeasureSpec.getSize(widthMeasureSpec);
-			int h = (int) ((float) w * this.aspectRatio);
+			int h = (int) ((float) w * aspectRatio);
 			setMeasuredDimension(w, h);
 
 			/* We have to enforce the sizing on the child imageview */
 			int widthSpec = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
 			int heightSpec = MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY);
-			if (this.imageView != null) {
-				this.imageView.measure(widthSpec, heightSpec);
+			if (imageView != null) {
+				imageView.measure(widthSpec, heightSpec);
 			}
 		}
 	}
@@ -119,46 +118,46 @@ public class ImageWidget extends FrameLayout {
 	protected void initialize() {
 
 		/* Placeholder */
-		if (this.shape.equals("round")) {
-			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
+		if (shape.equals("round")) {
+			setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundRoundPlaceholder));
 		}
-		else if (this.shape.equals("auto")) {
-			this.setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundPlaceholder));
+		else if (shape.equals("auto")) {
+			setBackgroundResource(UI.getResIdForAttribute(getContext(), R.attr.backgroundPlaceholder));
 		}
 
 		/* Image - subclass could have provide it instead */
-		if (this.imageView == null) {
-			this.imageView = new AppCompatImageView(getContext());
-			this.imageView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			this.imageView.setScaleType(this.scaleType);
-			addView(this.imageView);
+		if (imageView == null) {
+			imageView = new AppCompatImageView(getContext());
+			imageView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			imageView.setScaleType(ScaleType.CENTER_CROP);
+			addView(imageView);
 		}
 
 		/* Text overlay */
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.gravity = Gravity.CENTER;
-		this.nameView = new TextView(getContext());
-		this.nameView.setLayoutParams(params);
-		this.nameView.setVisibility(GONE);
+		nameView = new TextView(getContext());
+		nameView.setLayoutParams(params);
+		nameView.setVisibility(GONE);
 		if (!isInEditMode()) {
-			this.nameView.setTextColor(Colors.getColor(R.color.white));
+			nameView.setTextColor(Colors.getColor(R.color.white));
 		}
-		this.nameView.setGravity(Gravity.CENTER);
-		addView(this.nameView);
+		nameView.setGravity(Gravity.CENTER);
+		addView(nameView);
 
 		/* Activity indicator - last added is in front */
 		if (showBusy) {
 			params = new FrameLayout.LayoutParams(72, 72);
 			params.gravity = Gravity.CENTER;
-			this.progressBar = new AirProgressBar(getContext(), null, android.R.attr.progressBarStyle);
-			this.progressBar.setLayoutParams(params);
-			this.progressBar.hide();
-			addView(this.progressBar);
+			progressBar = new AirProgressBar(getContext(), null, android.R.attr.progressBarStyle);
+			progressBar.setLayoutParams(params);
+			progressBar.hide();
+			addView(progressBar);
 		}
 
 		if (isInEditMode()) {
 			Drawable dummy = ContextCompat.getDrawable(getContext(), R.drawable.img_dummy);
-			this.imageView.setImageDrawable(dummy);
+			imageView.setImageDrawable(dummy);
 		}
 	}
 
@@ -183,17 +182,17 @@ public class ImageWidget extends FrameLayout {
 	private void setImageWithPhoto(Photo photo, Callback callback) {
 
 		/* Optimize if we already have the image */
-		if (photo.isUri() && this.uriBound != null && this.imageView.getDrawable() != null) {
+		if (photo.isUri() && uriBound != null && imageView.getDrawable() != null) {
 			String uri = photo.uriNative();
-			if (uri.equals(this.uriBound)) return;
+			if (uri.equals(uriBound)) return;
 		}
 
-		if (this.getBackground() != null) {
-			this.getBackground().clearColorFilter();
+		if (getBackground() != null) {
+			getBackground().clearColorFilter();
 		}
-		this.imageView.setImageDrawable(null);
-		this.imageView.setVisibility(VISIBLE);
-		this.nameView.setVisibility(GONE);
+		imageView.setImageDrawable(null);
+		imageView.setVisibility(VISIBLE);
+		nameView.setVisibility(GONE);
 
 		if (!showBusy) {
 			showLoading(false);
@@ -203,7 +202,7 @@ public class ImageWidget extends FrameLayout {
 			loadImageView(photo, new CircleTransform(), callback);
 		}
 		else if (shape.equals("rounded")) {
-			int displayRadius = UI.getRawPixelsForDisplayPixels((float) this.radius);
+			int displayRadius = UI.getRawPixelsForDisplayPixels((float) radius);
 			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
 		}
 		else {
@@ -213,22 +212,22 @@ public class ImageWidget extends FrameLayout {
 
 	public void setImageWithText(String name, Boolean showText) {
 
-		if (this.getBackground() != null) {
-			this.getBackground().clearColorFilter();
+		if (getBackground() != null) {
+			getBackground().clearColorFilter();
 		}
-		this.imageView.setImageDrawable(null);
-		this.imageView.setVisibility(GONE);
-		this.nameView.setText(null);
+		imageView.setImageDrawable(null);
+		imageView.setVisibility(GONE);
+		nameView.setText(null);
 
-		if (!TextUtils.isEmpty(name) && this.getBackground() != null) {
+		if (!TextUtils.isEmpty(name) && getBackground() != null) {
 			long seed = Utils.numberFromName(name);
 			Integer color = Utils.randomColor(seed);
-			this.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+			getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 
 			if (showText) {
 				String initials = Utils.initialsFromName(name);
-				this.nameView.setText(initials);
-				this.nameView.setVisibility(VISIBLE);
+				nameView.setText(initials);
+				nameView.setVisibility(VISIBLE);
 			}
 		}
 	}
@@ -242,7 +241,7 @@ public class ImageWidget extends FrameLayout {
 			creator.transform(transform);
 		}
 
-		creator.into(this.imageView);
+		creator.into(imageView);
 	}
 
 	public void showLoading(final Boolean visible) {
@@ -260,7 +259,7 @@ public class ImageWidget extends FrameLayout {
 	}
 
 	public void setAspectRatio(Float aspectRatio) {
-		this.aspectRatio = aspectRatio;
+		aspectRatio = aspectRatio;
 		requestLayout();
 	}
 
@@ -279,16 +278,17 @@ public class ImageWidget extends FrameLayout {
 					.load(drawableId)
 					.centerCrop()   // Needed so resize() keeps aspect ratio
 					.resize(getWidth(), getHeight())
-					.config(this.bitmapConfig);
+					.config(bitmapConfig);
 
 				if (transform != null) {
 					creator.transform(transform);
-					if (this.shape.equals("rounded")) {
-						creator.centerCrop();
-						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-					}
+					creator.fit();
 				}
-				creator.into(this.imageView);
+				else {
+					creator.centerCrop(); // Needed so resize() keeps aspect ratio
+					creator.resize(getWidth(), getHeight());
+				}
+				creator.into(imageView);
 			}
 		}
 		else if (photo.isFile()) {
@@ -296,37 +296,37 @@ public class ImageWidget extends FrameLayout {
 			RequestCreator creator = Picasso
 				.with(Patchr.applicationContext)
 				.load(photo.uriNative())
-				.centerCrop()   // Needed so resize() keeps aspect ratio
-				.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX)
-				.config(this.bitmapConfig);
+				.config(bitmapConfig);
 
 			if (transform != null) {
 				creator.transform(transform);
-				if (this.shape.equals("rounded")) {
-					creator.centerCrop();
-					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-				}
+				creator.fit();
 			}
-			creator.into(this.imageView, callback);
+			else {
+				creator.centerCrop(); // Needed so resize() keeps aspect ratio
+				creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+			}
+			creator.into(imageView, callback);
 		}
 		else {  /* url */
 
-			final String uri = UI.uri(photo.prefix, photo.source, this.category);
+			final String uri = UI.uri(photo.prefix, photo.source, category);
 			RequestCreator creator = Picasso
 				.with(Patchr.applicationContext)
 				.load(uri)
-				.config(this.bitmapConfig);
+				.config(bitmapConfig);
 
 			if (transform != null) {
 				creator.transform(transform);
-				if (this.shape.equals("rounded")) {
-					creator.centerCrop();
-					creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-				}
+				creator.fit();
+			}
+			else {
+				creator.centerCrop(); // Needed so resize() keeps aspect ratio
+				creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
 			}
 
 			creator.networkPolicy(NetworkPolicy.OFFLINE);
-			creator.into(this.imageView, new Callback() {
+			creator.into(imageView, new Callback() {
 
 				@Override public void onSuccess() {
 					if (callback != null) {
@@ -342,10 +342,11 @@ public class ImageWidget extends FrameLayout {
 
 					if (transform != null) {
 						creator.transform(transform);
-						if (shape.equals("rounded")) {
-							creator.centerCrop();
-							creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-						}
+						creator.fit();
+					}
+					else {
+						creator.centerCrop(); // Needed so resize() keeps aspect ratio
+						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
 					}
 
 					creator.into(imageView, new Callback() {

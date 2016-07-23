@@ -8,6 +8,7 @@ import com.patchr.Patchr;
 import com.patchr.components.Logger;
 import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
+import com.patchr.exceptions.NoNetworkException;
 import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.ErrorAction;
 import com.patchr.objects.enums.ErrorActionType;
@@ -25,9 +26,12 @@ public final class Errors {
 
 		/* First show any required UI */
 
-		final String alertMessage = throwable.getMessage();
-
+		String alertMessage = throwable.getMessage();
 		ErrorAction errAction = errorAction;
+
+		if (throwable instanceof NoNetworkException) {
+			return;
+		}
 
 		if (errorActionType == ErrorActionType.AUTO || errorActionType == ErrorActionType.TOAST) {
 			UI.toast(alertMessage);

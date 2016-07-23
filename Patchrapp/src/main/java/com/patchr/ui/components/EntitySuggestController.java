@@ -58,6 +58,7 @@ public class EntitySuggestController {
 	private final Handler handler = new SuggestHandler(this);
 
 	public EntitySuggestController(Context context) {
+		this.context = context;
 		initialize();
 	}
 
@@ -83,10 +84,9 @@ public class EntitySuggestController {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void initialize() {
-		this.context = context;
-		this.entities = new ArrayList<>();
-		this.adapter = new SuggestArrayAdapter(context, this.entities);
-		this.suggestScope = Suggest.Patches;
+		entities = new ArrayList<>();
+		adapter = new SuggestArrayAdapter(context, entities);
+		suggestScope = Suggest.Patches;
 	}
 
 	public void bind() {
@@ -116,10 +116,8 @@ public class EntitySuggestController {
 		else if (searchView != null && recyclerView != null) {
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
 			recyclerView.setAdapter(adapter);
-			searchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
-				@Override public void onSearchTextChanged(String oldQuery, String newQuery) {
-					textChanged(newQuery);
-				}
+			searchView.setOnQueryChangeListener((oldQuery, newQuery) -> {
+				textChanged(newQuery);
 			});
 		}
 	}
@@ -187,7 +185,7 @@ public class EntitySuggestController {
 	}
 
 	public void clear() {
-		this.entities.clear();
-		this.bindDropdown();
+		entities.clear();
+		bindDropdown();
 	}
 }

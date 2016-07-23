@@ -34,10 +34,6 @@ import io.realm.annotations.PrimaryKey;
  * links: user, user
  * sessions: user, user
  * users: user, admin
- *
- * beacons: admin, user
- * documents: admin, admin
- * observations: admin, user
  */
 public class RealmEntity extends RealmObject {
 
@@ -355,11 +351,6 @@ public class RealmEntity extends RealmObject {
 					entity.photoBigJson = photoJson;
 				}
 			}
-			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-				entity.ssid = (String) map.get("ssid");
-				entity.bssid = (String) map.get("bssid");
-				entity.signal = map.get("signal") != null ? ((Double) map.get("signal")).intValue() : null;
-			}
 		}
 		return entity;
 	}
@@ -538,10 +529,7 @@ public class RealmEntity extends RealmObject {
 
 	public static String getSchemaForId(String id) {
 		String prefix = id.substring(0, 2);
-		if (prefix.equals("be")) {
-			return Constants.SCHEMA_ENTITY_BEACON;
-		}
-		else if (prefix.equals("pa")) {
+		if (prefix.equals("pa")) {
 			return Constants.SCHEMA_ENTITY_PATCH;
 		}
 		else if (prefix.equals("us")) {
@@ -557,10 +545,7 @@ public class RealmEntity extends RealmObject {
 	}
 
 	public static String getCollectionForSchema(String schema) {
-		if (schema.equals(Constants.SCHEMA_ENTITY_BEACON)) {
-			return Constants.COLLECTION_ENTITY_BEACON;
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+		if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 			return Constants.COLLECTION_ENTITY_PATCHES;
 		}
 		else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {

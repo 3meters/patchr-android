@@ -112,6 +112,7 @@
 		<attr name="iconActionList" format="reference" />
 		<attr name="iconActionMap" format="reference" />
 		<attr name="iconActionNotification" format="reference" />
+		<attr name="iconActionOverflow" format="reference" />
 		<attr name="iconActionPatch" format="reference" />
 		<attr name="iconActionRefresh" format="reference" />
 		<attr name="iconActionSearch" format="reference" />

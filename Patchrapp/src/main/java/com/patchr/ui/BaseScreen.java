@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -62,6 +63,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 	public    ActionBar            actionBar;
 	protected BusyController       busyController;
 	protected AirProgressBar       progressBar;
+	protected Snackbar             snackbar;
 
 	/* Inputs */
 	public String inputState;
@@ -225,31 +227,42 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 	public void setupUI() {
 
-		this.fab = (FloatingActionButton) this.rootView.findViewById(R.id.fab);
-		this.appBarLayout = (AppBarLayout) this.rootView.findViewById(R.id.appbar_layout);
-		this.toolbar = (Toolbar) this.rootView.findViewById(R.id.actionbar_toolbar);
-		this.progressBar = (AirProgressBar) this.rootView.findViewById(R.id.list_progress);
+		fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+		appBarLayout = (AppBarLayout) rootView.findViewById(R.id.appbar_layout);
+		toolbar = (Toolbar) rootView.findViewById(R.id.actionbar_toolbar);
+		progressBar = (AirProgressBar) rootView.findViewById(R.id.list_progress);
 
-		this.busyController = new BusyController(this.progressBar, null);
+		View view = rootView.findViewById(R.id.coordinator);
+		if (view != null) {
+			snackbar = Snackbar.make(view, "Snackbar", Snackbar.LENGTH_INDEFINITE);
+			snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
+		}
 
-		if (this.toolbar != null) {
+		busyController = new BusyController(progressBar, null);
+
+		if (toolbar != null) {
 			super.setSupportActionBar(toolbar);
-			this.actionBar = super.getSupportActionBar();
-			this.actionBarTitle = (TextView) this.toolbar.findViewById(R.id.toolbar_title);
+			actionBar = super.getSupportActionBar();
+			actionBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
 			/*
 			 * By default we show the nav indicator and the title.
 			 */
-			if (this.actionBar != null) {
-				this.actionBar.setDisplayShowTitleEnabled(false);
-				this.actionBar.setDisplayHomeAsUpEnabled(true);
+			if (actionBar != null) {
+				actionBar.setDisplayShowTitleEnabled(false);
+				actionBar.setDisplayHomeAsUpEnabled(true);
 			}
 
-			this.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					onBackPressed();
-				}
+			toolbar.setNavigationOnClickListener(v -> {
+				onBackPressed();
 			});
+		}
+	}
+
+	protected void showSnackbar(String text, int duration) {
+		snackbar.setText(text);
+		snackbar.setDuration(duration);
+		if (!snackbar.isShown()) {
+			snackbar.show();
 		}
 	}
 

@@ -16,9 +16,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.events.LocationUpdatedEvent;
+import com.patchr.events.LocationStatusEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.AnalyticsCategory;
+import com.patchr.objects.enums.LocationStatus;
 import com.patchr.objects.enums.Preference;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -163,7 +164,7 @@ public class LocationManager implements
 			}
 		}
 
-		Dispatcher.getInstance().post(new LocationUpdatedEvent(location));
+		Dispatcher.getInstance().post(new LocationStatusEvent(LocationStatus.UPDATED, location));
 	}
 
 	/*--------------------------------------------------------------------------------------------

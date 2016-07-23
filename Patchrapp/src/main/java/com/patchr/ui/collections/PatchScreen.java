@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -57,7 +58,6 @@ import com.patchr.ui.edit.MessageEdit;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
@@ -79,6 +79,7 @@ public class PatchScreen extends BaseListScreen {
 	private final Handler handler = new Handler();
 
 	protected BottomSheetLayout bottomSheetLayout;
+	protected BottomSheetDialog bottomSheetDialog;
 	protected ViewGroup         actionView;
 
 	protected CallbackManager callbackManager;      // For facebook
@@ -88,7 +89,6 @@ public class PatchScreen extends BaseListScreen {
 	protected String          referrerPhotoUrl;
 	protected boolean         autoJoin;
 	protected boolean         justApproved;               // Set in onMessage via notification
-	protected Snackbar        snackbar;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -124,7 +124,7 @@ public class PatchScreen extends BaseListScreen {
 			int count = Patchr.jobManager.count();
 			runOnUiThread(() -> {
 				if (count > 0) {
-					showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)));
+					showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)), Snackbar.LENGTH_INDEFINITE);
 				}
 				else {
 					if (snackbar.isShownOrQueued()) {
@@ -147,15 +147,17 @@ public class PatchScreen extends BaseListScreen {
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
 		/* Shown for owner */
+		getMenuInflater().inflate(R.menu.menu_overflow, menu);
+
+
 		getMenuInflater().inflate(R.menu.menu_edit, menu);
-		getMenuInflater().inflate(R.menu.menu_delete, menu);
+		//getMenuInflater().inflate(R.menu.menu_delete, menu);
 
 		/* Shown for everyone */
 		getMenuInflater().inflate(R.menu.menu_invite, menu);
-		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
-		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
+//		getMenuInflater().inflate(R.menu.menu_leave_patch, menu);
+//		getMenuInflater().inflate(R.menu.menu_report, menu);        // base
 
-		getMenuInflater().inflate(R.menu.menu_login, menu);         // base
 		getMenuInflater().inflate(R.menu.menu_map, menu);           // base
 
 		return super.onCreateOptionsMenu(menu);
@@ -163,7 +165,17 @@ public class PatchScreen extends BaseListScreen {
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (item.getItemId() == R.id.delete) {
+		if (item.getItemId() == R.id.overflow) {
+			bottomSheetDialog = new BottomSheetDialog(this);
+			View view = getLayoutInflater().inflate(R.layout.dialog_patch, null);
+			bottomSheetDialog.setContentView(view);
+			bottomSheetDialog.getWindow().setDimAmount(0.3f);
+			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
+				bottomSheetDialog = null;
+			});
+			bottomSheetDialog.show();
+		}
+		else if (item.getItemId() == R.id.delete) {
 			deleteAction();
 		}
 		else if (item.getItemId() == R.id.edit) {
@@ -210,6 +222,22 @@ public class PatchScreen extends BaseListScreen {
 			else {
 				if (id == R.id.fab) {
 					addAction();
+				}
+				else if (id == R.id.leave_patch) {
+					bottomSheetDialog.dismiss();
+					joinAction();
+				}
+				else if (id == R.id.delete) {
+					bottomSheetDialog.dismiss();
+					deleteAction();
+				}
+				else if (id == R.id.report) {
+					bottomSheetDialog.dismiss();
+					String message = String.format("Report on patch id: %1$s\n\nPlease add some detail on why you are reporting this patch.\n", entityId);
+					Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:report@patchr.com"));
+					email.putExtra(Intent.EXTRA_SUBJECT, "Report on Patchr content");
+					email.putExtra(Intent.EXTRA_TEXT, message);
+					startActivity(Intent.createChooser(email, "Send report using:"));
 				}
 				else if (id == R.id.invite) {
 					inviteAction();
@@ -290,10 +318,10 @@ public class PatchScreen extends BaseListScreen {
 		/* Refresh the list because something happened with the list parent. */
 		if (this.entityId.equals(event.parentId)) {
 			if (event.status == TaskStatus.PENDING) {
-				showSnackbar("Message waiting");
+				showSnackbar("Message waiting", Snackbar.LENGTH_INDEFINITE);
 			}
 			if (event.status == TaskStatus.STARTED) {
-				showSnackbar("Sending");
+				showSnackbar("Sending", Snackbar.LENGTH_INDEFINITE);
 			}
 			if (event.status == TaskStatus.SUCCESS) {
 				if (snackbar != null && snackbar.isShownOrQueued()) {
@@ -301,7 +329,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 			if (event.status == TaskStatus.FAILED) {
-				showSnackbar("Send failed");
+				showSnackbar("Send failed", Snackbar.LENGTH_INDEFINITE);
 			}
 		}
 	}
@@ -403,8 +431,6 @@ public class PatchScreen extends BaseListScreen {
 		header = new PatchDetailView(this);
 		querySpec = QuerySpec.Factory(QueryName.MessagesForPatch);
 		actionView = (ViewGroup) header.findViewById(R.id.action_group);
-		snackbar = Snackbar.make(rootView.findViewById(R.id.coordinator), "Snackbar", Snackbar.LENGTH_INDEFINITE);
-		snackbar.setActionTextColor(Colors.getColor(R.color.brand_primary));
 
 		super.initialize(savedInstanceState);
 
@@ -636,7 +662,7 @@ public class PatchScreen extends BaseListScreen {
 	public void mute(final Boolean mute) {
 
 		final ViewAnimator animator = (ViewAnimator) ((PatchDetailView) header).bannerView.muteButton;
-		animator.setDisplayedChild(1);  // Turned off in drawButtons
+		animator.setDisplayedChild(1);  // Turned off in draw
 
 		String entityId = entity.id;
 		String linkId = entity.userMemberId;
@@ -649,6 +675,10 @@ public class PatchScreen extends BaseListScreen {
 				},
 				error -> {
 					processing = false;
+					Patchr.mainThreadHandler.postDelayed(() -> {
+						animator.setDisplayedChild(0);
+					}, 1000);
+
 					Errors.handleError(this, error);
 				});
 	}
@@ -718,13 +748,6 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 		});
-	}
-
-	private void showSnackbar(String text) {
-		snackbar.setText(text);
-		if (!snackbar.isShown()) {
-			snackbar.show();
-		}
 	}
 
 	private void showInviteWelcome(int delay) {

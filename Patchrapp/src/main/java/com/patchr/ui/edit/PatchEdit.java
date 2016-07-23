@@ -6,14 +6,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -21,7 +19,6 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -32,7 +29,7 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
-import com.patchr.events.LocationUpdatedEvent;
+import com.patchr.events.LocationStatusEvent;
 import com.patchr.model.Location;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
@@ -44,7 +41,6 @@ import com.patchr.service.RestClient;
 import com.patchr.ui.InviteSwitchboardScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.AirProgressBar;
-import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
@@ -57,7 +53,6 @@ public class PatchEdit extends BaseEdit {
 
 	private   TextView    buttonPrivacy;
 	private   TextView    locationLabel;
-	protected ImageWidget photoViewPlace;
 	private   TextView    title;
 
 	private RadioGroup  buttonPatchType;
@@ -82,6 +77,9 @@ public class PatchEdit extends BaseEdit {
 			if (inputState.equals(State.Inserting) && LocationManager.getInstance().isLocationAccessEnabled()) {
 				LocationManager.getInstance().start(true);  // Location triggers sequence
 			}
+		}
+		if (mapView != null) {
+			mapView.onResume();
 		}
 		super.onResume();
 	}
@@ -217,7 +215,7 @@ public class PatchEdit extends BaseEdit {
 	public void onLocationBuilderClick(View view) {
 
 		Intent intent = new Intent(this, LocationEdit.class);
-		if (mapView.getTag() != null) {
+		if (mapView != null && mapView.getTag() != null) {
 			Location location = (Location) mapView.getTag();
 			String locationJson = Patchr.gson.toJson(location);
 			intent.putExtra(Constants.EXTRA_LOCATION, locationJson);
@@ -230,7 +228,7 @@ public class PatchEdit extends BaseEdit {
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onLocationChanged(final LocationUpdatedEvent event) {
+	@Subscribe public void onLocationChanged(final LocationStatusEvent event) {
 		/*
 		 * Getting location updates because we are inserting a patch and
 		 * location services are enabled.
@@ -240,7 +238,7 @@ public class PatchEdit extends BaseEdit {
 			LocationManager.getInstance().setAndroidLocationLocked(event.location);
 			Location location = LocationManager.getInstance().getLocationLocked();
 
-			if (location != null) {
+			if (location != null && mapView != null) {
 				mapView.setTag(location);
 				drawLocation();
 			}
@@ -278,33 +276,11 @@ public class PatchEdit extends BaseEdit {
 		this.title.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		if (mapView != null) {
-
 			mapView.onCreate(null);
-			mapView.onResume();
 			mapView.getMapAsync(googleMap -> {
 				map = googleMap;
 				map.getUiSettings().setMapToolbarEnabled(false);
-				MapsInitializer.initialize(Patchr.applicationContext); // Initializes BitmapDescriptorFactory
-
-				if (mapView.getViewTreeObserver().isAlive()) {
-					mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-						@SuppressWarnings("deprecation")
-						// We use the new method when supported
-						//@SuppressLint("NewApi")
-						// We check which build version we are using.
-						@Override
-						public void onGlobalLayout() {
-
-							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-								mapView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-							}
-							else {
-								mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-							}
-							drawLocation();
-						}
-					});
-				}
+				drawLocation();
 			});
 		}
 	}
@@ -314,7 +290,9 @@ public class PatchEdit extends BaseEdit {
 
 		/* Only called when the activity is first created. */
 		if (entity != null) {
-			mapView.setTag(entity.getLocation());
+			if (mapView != null) {
+				mapView.setTag(entity.getLocation());
+			}
 
 			/* Visibility */
 			if (buttonPrivacy != null) {
@@ -328,7 +306,7 @@ public class PatchEdit extends BaseEdit {
 		}
 		else {
 			Location location = LocationManager.getInstance().getLocationLocked();
-			if (location != null) {
+			if (location != null && mapView != null) {
 				mapView.setTag(location);
 			}
 
@@ -421,9 +399,11 @@ public class PatchEdit extends BaseEdit {
 	public void gather(SimpleMap parameters) {
 		super.gather(parameters);   // name, photo, description
 
-		Location location = (Location) mapView.getTag();
-		if (location != null) {
-			parameters.put("location", location.asMap());
+		if (mapView != null) {
+			Location location = (Location) mapView.getTag();
+			if (location != null) {
+				parameters.put("location", location.asMap());
+			}
 		}
 
 		parameters.put("type", buttonPatchType.getTag());

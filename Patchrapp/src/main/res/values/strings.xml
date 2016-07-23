@@ -69,6 +69,7 @@
 	<string name="menu_item_next">Next</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
+	<string name="menu_item_overflow">Actions</string>
 	<string name="menu_item_delete">Delete</string>
 	<string name="menu_item_remove">Remove</string>
 	<string name="menu_item_leave">Leave patch</string>
@@ -532,7 +533,7 @@
 	<string name="label_patch_type_event">Event</string>
 	<string name="label_patch_type_group">Group</string>
 	<string name="label_patch_type_place">Place</string>
-	<string name="label_patch_type_project">Project</string>
+	<string name="label_patch_type_trip">Trip</string>
 
 	<string name="label_trends_count_active">Messages</string>
 	<string name="label_trends_header_message_active">Patches where people have the most to say.</string>

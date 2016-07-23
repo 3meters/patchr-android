@@ -1,11 +1,8 @@
 package com.patchr.components;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -16,10 +13,8 @@ import android.telephony.TelephonyManager;
 
 import com.patchr.Constants;
 import com.patchr.Patchr;
-import com.patchr.objects.enums.ConnectedState;
 import com.patchr.objects.enums.WifiApState;
 import com.patchr.utilities.Reporting;
-import com.patchr.utilities.UI;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -78,21 +73,14 @@ public class NetworkManager {
 
 	private final OkHttpClient client = new OkHttpClient();
 
-	/* monitor platform changes */
-	private IntentFilter      mNetworkStateChangedFilter;
-	private BroadcastReceiver mNetworkStateIntentReceiver;
-
 	/* Opportunistically used for crash reporting but not current state */
-	private Integer             mWifiState;
-	private Integer             mWifiApState;
-	private WifiManager         mWifiManager;
-	private ConnectivityManager mConnectivityManager;
-	private ConnectedState mConnectedState = ConnectedState.NORMAL;
+	private Integer             wifiState;
+	private Integer             wifiApState;
+	private WifiManager         wifiManager;
+	private ConnectivityManager connectivityManager;
+	private BroadcastReceiver   networkChangeReceiver;
 
-	public static final String EXTRA_WIFI_AP_STATE          = "wifi_state";
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
-	public static final int    WIFI_AP_STATE_ENABLED        = 3;
-	public static final String SERVICE_GROUP_TAG_DEFAULT    = "service";
 
 	private NetworkManager() {}
 
@@ -106,176 +94,46 @@ public class NetworkManager {
 
 	public void initialize() {
 
-		mWifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
-		mConnectivityManager = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-		/*
-		 * Setting system properties. Okhttp picks these up for its connection pooling unless
-		 * we have passed in a custom connection pool object.
-		 */
+		wifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
+		connectivityManager = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		networkChangeReceiver = new NetworkChangeReceiver();
+
+		Patchr.applicationContext.registerReceiver(networkChangeReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+		/* Setting system properties. Okhttp picks these up for its connection pooling unless
+		   we have passed in a custom connection pool object. */
 		System.setProperty("http.maxConnections", String.valueOf(Constants.DEFAULT_MAX_CONNECTIONS));
 		System.setProperty("http.keepAlive", "true");
-
-		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-		intentFilter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
-		/*
-		 * Enables registration for changes in network status from http stack
-		 */
-		mNetworkStateChangedFilter = new IntentFilter();
-		mNetworkStateChangedFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-		mNetworkStateIntentReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(final Context context, final Intent intent) {
-				if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-					boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-					if (noConnection) {
-						UI.toast("Lost network connection");
-					}
-				}
-			}
-		};
 	}
-
-	//	public ServiceResponse request(final ServiceRequest serviceRequest) {
-	//		/*
-	//		 * This is always being called from a background (non main) thread.
-	//		 */
-	//		if (checkConnectedState() != ConnectedState.NORMAL) {
-	//			return new ServiceResponse(ResponseCode.FAILED, null, new NoNetworkException());
-	//		}
-	//
-	//		if (UserManager.shared().authenticated()
-	//			&& (serviceRequest.getRequestType() != RequestType.GET
-	//			&& serviceRequest.getRequestType() != RequestType.DELETE)) {
-	//			serviceRequest.getParameters().putString("user", UserManager.userId);
-	//			serviceRequest.getParameters().putString("session", UserManager.sessionKey);
-	//		}
-	//
-	//		ServiceResponse serviceResponse = mOkClient.request(serviceRequest);
-	//
-	//		/* Check for valid client version and also capture service status code */
-	//		serviceResponse = clientVersionCheck(serviceRequest, serviceResponse);
-	//
-	//		/* Single point to handle request failures. */
-	//		if (serviceResponse.responseCode == ResponseCode.FAILED && serviceRequest.getErrorCheck()) {
-	//			serviceResponse.errorResponse = Errors.getErrorResponse(Patchr.applicationContext, serviceResponse);
-	//			if (serviceRequest.getStopwatch() != null) {
-	//				serviceRequest.getStopwatch().segmentTime("Service call failed");
-	//			}
-	//			if (serviceResponse.exception != null) {
-	//				Logger.w(this, "Service exception: " + serviceResponse.exception.getClass().getSimpleName());
-	//				Logger.w(this, "Service exception: " + serviceResponse.exception.getLocalizedMessage());
-	//			}
-	//			else {
-	//				Logger.w(this, "Service error: (code: " + String.valueOf(serviceResponse.statusCode) + ") " + serviceResponse.statusMessage);
-	//			}
-	//		}
-	//
-	//		return serviceResponse;
-	//	}
-
-	//	public ServiceResponse clientVersionCheck(ServiceRequest serviceRequest, ServiceResponse serviceResponse) {
-	//		if (serviceRequest.getResponseFormat() == ResponseFormat.JSON
-	//			&& !serviceRequest.getIgnoreResponseData()
-	//			&& serviceResponse.exception == null
-	//			&& serviceResponse.data != null) {
-	//			/*
-	//			 * We think anything json is coming from the Aircandi service (except Bing)
-	//			 */
-	//			ServiceData serviceData = (ServiceData) Json.jsonToObject((String) serviceResponse.data, Json.ObjectType.NONE, Json.ServiceDataWrapper.TRUE);
-	//
-	//			if (serviceData.error != null && serviceData.error.code != null) {
-	//				serviceResponse.statusCodeService = serviceData.error.code.floatValue();
-	//			}
-	//
-	//			if (serviceData.clientMinVersions != null && serviceData.clientMinVersions.containsKey(Patchr.applicationContext.getPackageName())) {
-	//				Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
-	//				if ((Integer) serviceData.clientMinVersions.get(Patchr.applicationContext.getPackageName()) > clientVersionCode) {
-	//					serviceResponse = new ServiceResponse(ResponseCode.FAILED, null, new ClientVersionException());
-	//				}
-	//			}
-	//		}
-	//		return serviceResponse;
-	//	}
 
 	/*--------------------------------------------------------------------------------------------
-	 * Connectivity routines
+	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public ConnectedState checkConnectedState() {
-		int attempts = 0;
-
-		/*
-		 * We create a little time for a connection process to complete
-		 * Max attempt time = CONNECT_TRIES * CONNECT_WAIT
-		 */
-		ConnectedState connectedState = ConnectedState.NORMAL;
-		while (!NetworkManager.getInstance().isConnected()) {
-			attempts++;
-			Logger.v(this, "No network connection: attempt: " + String.valueOf(attempts));
-
-			if (attempts >= Constants.CONNECT_TRIES) {
-				connectedState = ConnectedState.NONE;
-				break;
-			}
-			try {
-				Thread.sleep(Constants.CONNECT_WAIT);
-			}
-			catch (InterruptedException exception) {
-				connectedState = ConnectedState.NONE;
-				break;
-			}
-		}
-
-		synchronized (mConnectedState) {
-			mConnectedState = connectedState;
-		}
-		return mConnectedState;
-	}
-
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi") // We check which build version we are using.
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-	public static boolean isAirplaneMode(Context context) {
-		ContentResolver cr = context.getContentResolver();
-		if (Constants.SUPPORTS_JELLY_BEAN_MR1)
-			return Settings.Global.getInt(cr, Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
-		else
-			return Settings.System.getInt(cr, Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+	public Response get(String uri, String query) throws IOException {
+		Request request = new Request.Builder().url(uri).build();
+		return client.newCall(request).execute();
 	}
 
 	public boolean isConnected() {
-		NetworkInfo activeNetwork = mConnectivityManager.getActiveNetworkInfo();
+		NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 		return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
 	}
 
-	public Boolean isMobileNetwork() {
-		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
-		Boolean isMobileNetwork = null;
-		if (mConnectivityManager != null) {
-			final NetworkInfo activeNetwork = mConnectivityManager.getActiveNetworkInfo();
-			isMobileNetwork = activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
+	public boolean isAirplaneMode(Context context) {
+		ContentResolver cr = context.getContentResolver();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			return Settings.Global.getInt(cr, Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
 		}
-		return isMobileNetwork;
-	}
-
-	public String getNetworkType() {
-		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
-		if (mConnectivityManager != null) {
-			final NetworkInfo activeNetwork = mConnectivityManager.getActiveNetworkInfo();
-			if (activeNetwork != null) {
-				return getNetworkTypeLabel(activeNetwork.getType(), activeNetwork.getSubtype());
-			}
-		}
-		return "none";
+		else
+			//noinspection deprecation
+			return Settings.System.getInt(cr, Settings.System.AIRPLANE_MODE_ON, 0) != 0;
 	}
 
 	public boolean isInternetReachable() {
 
-		Response response = null;
 		try {
-			response = get(Constants.URI_WALLED_GARDEN, null);
+			Response response = get(Constants.URI_WALLED_GARDEN, null);
 			boolean success = (response != null && response.isSuccessful() && response.code() == 204);
 			if (!success) {
 			/* We assume a failure means most likely not a walled garden */
@@ -289,9 +147,65 @@ public class NetworkManager {
 		}
 	}
 
-	public Response get(String uri, String query) throws IOException {
-		Request request = new Request.Builder().url(uri).build();
-		return client.newCall(request).execute();
+	public boolean isWifiEnabled() {
+		boolean wifiEnabled = false;
+		if (wifiManager != null) {
+			wifiEnabled = (wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
+		}
+		return wifiEnabled;
+	}
+
+	public boolean isWifiTethered() {
+		/*
+		 * We use reflection because the method is hidden and unpublished.
+		 */
+		Boolean isTethered = false;
+		if (wifiManager != null) {
+			final Method[] wmMethods = wifiManager.getClass().getDeclaredMethods();
+			for (Method method : wmMethods) {
+				if (method.getName().equals("isWifiApEnabled")) {
+					try {
+						isTethered = (Boolean) method.invoke(wifiManager);
+					}
+					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+						Reporting.logException(e);
+					}
+				}
+			}
+		}
+		return isTethered;
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
+
+	public String getNetworkType() {
+		/* Check if we're connected to a data network, and if so - if it's a mobile network. */
+		if (connectivityManager != null) {
+			final NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+			if (activeNetwork != null) {
+				return getNetworkTypeLabel(activeNetwork.getType(), activeNetwork.getSubtype());
+			}
+		}
+		return "none";
+	}
+
+	public Integer getWifiState() {
+		return wifiManager.getWifiState();
+	}
+
+	public WifiApState getWifiApState() {
+		try {
+			Method method = wifiManager.getClass().getMethod("getWifiApState");
+			int tmp = ((Integer) method.invoke(wifiManager));
+			if (tmp > 10) {
+				tmp = tmp - 10;
+			}
+			return WifiApState.class.getEnumConstants()[tmp];
+		}
+		catch (Exception ignore) {}
+		return WifiApState.WIFI_AP_STATE_FAILED;
 	}
 
 	private String getNetworkTypeLabel(Integer type, Integer subType) {
@@ -354,71 +268,5 @@ public class NetworkManager {
 		}
 
 		return typeLabel;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Wifi routines
-	 *--------------------------------------------------------------------------------------------*/
-
-	public Boolean isWifiEnabled() {
-		Boolean wifiEnabled = null;
-		if (mWifiManager != null) {
-			wifiEnabled = (mWifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
-		}
-		return wifiEnabled;
-	}
-
-	public boolean isWifiTethered() {
-		/*
-		 * We use reflection because the method is hidden and unpublished.
-		 */
-		Boolean isTethered = false;
-		if (mWifiManager != null) {
-			final Method[] wmMethods = mWifiManager.getClass().getDeclaredMethods();
-			for (Method method : wmMethods) {
-				if (method.getName().equals("isWifiApEnabled")) {
-					try {
-						isTethered = (Boolean) method.invoke(mWifiManager);
-					}
-					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-						Reporting.logException(e);
-					}
-				}
-			}
-		}
-		return isTethered;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Methods
-	 *--------------------------------------------------------------------------------------------*/
-
-	public Integer getWifiState() {
-		return mWifiManager.getWifiState();
-	}
-
-	public WifiApState getWifiApState() {
-		try {
-			Method method = mWifiManager.getClass().getMethod("getWifiApState");
-			int tmp = ((Integer) method.invoke(mWifiManager));
-			if (tmp > 10) {
-				tmp = tmp - 10;
-			}
-			return WifiApState.class.getEnumConstants()[tmp];
-		}
-		catch (Exception ignore) {}
-		return WifiApState.WIFI_AP_STATE_FAILED;
-	}
-
-	public ConnectedState getConnectedState() {
-		return mConnectedState;
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
-
-	public WifiManager getWifiManager() {
-		return mWifiManager;
 	}
 }

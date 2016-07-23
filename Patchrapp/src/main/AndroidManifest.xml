@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 	The package element below is used internally only: R class, activity/service registrations.
 	The	official application id used in the app .apk and in the Google Play store is specified
 	in build.gradle
@@ -52,10 +51,6 @@
 	<!-- To support Notifications and Aviary -->
 
 	<uses-permission android:name="android.permission.VIBRATE" />
-
-	<!-- Needed to trigger a wifi scan -->
-
-	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
 	<!-- Used to beam patches and download links -->
 
@@ -123,11 +118,12 @@
 			android:enabled="true"
 			android:exported="false" />
 
-		<service android:name=".service.RestTaskService"
-			android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-			android:exported="true">
+		<service
+			android:name=".service.RestTaskService"
+			android:exported="true"
+			android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
 			<intent-filter>
-				<action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+				<action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
 			</intent-filter>
 		</service>
 

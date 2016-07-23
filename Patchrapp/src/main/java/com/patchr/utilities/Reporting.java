@@ -21,7 +21,7 @@ public class Reporting {
 
 	public static void updateCrashKeys() {
 
-		Bugsnag.addToTab("network", "airplane_mode", NetworkManager.isAirplaneMode(Patchr.applicationContext));
+		Bugsnag.addToTab("network", "airplane_mode", NetworkManager.getInstance().isAirplaneMode(Patchr.applicationContext));
 		Bugsnag.addToTab("network", "connected", NetworkManager.getInstance().isConnected());
 		Bugsnag.addToTab("network", "network_type", NetworkManager.getInstance().getNetworkType().toLowerCase(Locale.US));
 		Bugsnag.addToTab("network", "wifi_tethered", NetworkManager.getInstance().isWifiTethered());

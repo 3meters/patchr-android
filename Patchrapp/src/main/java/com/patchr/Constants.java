@@ -148,7 +148,6 @@ public class Constants {
 	public static final int BING_IMAGE_DIMENSION_MAX        = 1280;
 
 	public static final String SCHEMA_ANY                 = "any";
-	public static final String SCHEMA_ENTITY_BEACON       = "beacon";
 	public static final String SCHEMA_ENTITY_MESSAGE      = "message";
 	public static final String SCHEMA_ENTITY_NOTIFICATION = "notification";
 	public static final String SCHEMA_ENTITY_PATCH        = "patch";
@@ -157,7 +156,6 @@ public class Constants {
 	public static final String SCHEMA_LINK                = "link";
 	public static final String SCHEMA_INTENT              = "intent";
 
-	public static final String COLLECTION_ENTITY_BEACON        = "beacons";
 	public static final String COLLECTION_ENTITY_MESSAGE       = "messages";
 	public static final String COLLECTION_ENTITY_NOTIFICATIONS = "notifications";
 	public static final String COLLECTION_ENTITY_PATCHES       = "patches";

@@ -58,22 +58,21 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 	public PhotoEditWidget(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 
-		this.layoutResId = R.layout.view_photo_edit;
+		layoutResId = R.layout.view_photo_edit;
 
-		this.scaleType = ImageView.ScaleType.CENTER_CROP;
-		this.shape = "auto";
-		this.radius = 8;
+		scaleType = ImageView.ScaleType.CENTER_CROP;
+		shape = "auto";
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ImageWidget, defStyle, 0);
 
-		this.bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
-		this.category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
-		this.showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
-		this.aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
-		this.radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
+		bitmapConfig = Bitmap.Config.values()[ta.getInteger(R.styleable.ImageWidget_config, Bitmap.Config.RGB_565.ordinal())];
+		category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
+		showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
+		aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
+		radius = ta.getInteger(R.styleable.ImageWidget_radius, 8);
 
 		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
-			this.shape = ta.getString(R.styleable.ImageWidget_shape);
+			shape = ta.getString(R.styleable.ImageWidget_shape);
 		}
 
 		ta.recycle();
@@ -81,7 +80,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		if (!isInEditMode()) {
 			final int scaleTypeValue = attrs.getAttributeIntValue(androidNamespace, "scaleType", ImageView.ScaleType.CENTER_CROP.ordinal());
 			if (scaleTypeValue >= 0) {
-				this.scaleType = sScaleTypeArray[scaleTypeValue];
+				scaleType = sScaleTypeArray[scaleTypeValue];
 			}
 		}
 
@@ -96,8 +95,8 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		ObjectAnimator anim = ObjectAnimator.ofFloat(imageWidget.imageView, "alpha", 0f, 1f);
 		anim.setDuration(300);
 		anim.start();
-		UI.setVisibility(this.editButton, VISIBLE);
-		UI.setVisibility(this.deleteButton, VISIBLE);
+		UI.setVisibility(editButton, VISIBLE);
+		UI.setVisibility(deleteButton, VISIBLE);
 	}
 
 	@Override public void onError() {
@@ -111,27 +110,28 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 
 	protected void initialize() {
 
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+		layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
 
-		this.imageWidget = (ImageWidget) layout.findViewById(R.id.photo);
-		this.setButton = (View) layout.findViewById(R.id.photo_set_button);
-		this.editButton = (View) layout.findViewById(R.id.photo_edit_button);
-		this.deleteButton = (View) layout.findViewById(R.id.photo_delete_button);
-		this.photoGroup = (ViewGroup) layout.findViewById(R.id.photo_group);
+		imageWidget = (ImageWidget) layout.findViewById(R.id.photo);
+		setButton = (View) layout.findViewById(R.id.photo_set_button);
+		editButton = (View) layout.findViewById(R.id.photo_edit_button);
+		deleteButton = (View) layout.findViewById(R.id.photo_delete_button);
+		photoGroup = (ViewGroup) layout.findViewById(R.id.photo_group);
 
-		this.deleteButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
-		this.editButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
-		this.setButton.setBackground(UI.setTint(this.deleteButton.getBackground(), R.color.white_80_pcnt));
+		deleteButton.setBackground(UI.setTint(deleteButton.getBackground(), R.color.white_80_pcnt));
+		editButton.setBackground(UI.setTint(deleteButton.getBackground(), R.color.white_80_pcnt));
+		setButton.setBackground(UI.setTint(deleteButton.getBackground(), R.color.white_80_pcnt));
 
-		this.imageWidget.category = this.category;
-		this.imageWidget.shape = this.shape;
-		this.imageWidget.aspectRatio = this.aspectRatio;
-		this.imageWidget.radius = this.radius;
-		this.imageWidget.showBusy = this.showBusy;
-		this.imageWidget.imageView.setAlpha(0.0f);
+		imageWidget.category = category;
+		imageWidget.shape = shape;
+		imageWidget.aspectRatio = aspectRatio;
+		imageWidget.radius = radius;
+		imageWidget.showBusy = showBusy;
+		imageWidget.scaleType = scaleType;
+		imageWidget.imageView.setAlpha(0.0f);
 
 		/* Photo edit view always provides the correct placeholder */
-		this.imageWidget.setBackgroundResource(0);
+		imageWidget.setBackgroundResource(0);
 	}
 
 	public void bind(Photo photo) {
@@ -173,7 +173,6 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 							Logger.w(this, "Failed to save bitmap to internal storage");
 						}
 					});
-
 				}
 				else {
 					this.photo = photo;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
 
+	android:id="@+id/coordinator"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -55,11 +56,11 @@
 				android:layout_width="0dp"
 				android:layout_height="@dimen/form_field_height"
 				android:layout_weight="1"
-				android:fontFamily="sans-serif-light"
 				android:completionThreshold="1"
 				android:drawableLeft="?attr/iconSearch"
 				android:drawablePadding="10dp"
 				android:drawableRight="?attr/iconClear"
+				android:fontFamily="sans-serif-light"
 				android:gravity="center|left"
 				android:hint="@string/hint_picture_search"
 				android:imeOptions="actionSearch"

@@ -247,7 +247,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	private void enableDeveloper(Boolean enable) {
-		findPreference(com.patchr.objects.enums.Preference.TESTING_SCREEN).setEnabled(enable);
 		findPreference(com.patchr.objects.enums.Preference.ENABLE_LOCATION_HIGH_ACCURACY).setEnabled(enable);
 		findPreference(com.patchr.objects.enums.Preference.TAG_REFRESH).setEnabled(enable);
 		findPreference(com.patchr.objects.enums.Preference.USE_STAGING_SERVICE).setEnabled(enable);
