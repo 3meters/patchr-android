@@ -109,9 +109,11 @@
 			android:name=".components.GcmIntentService"
 			android:enabled="true" />
 
-		<service android:name="com.parse.PushService" />
+		<service
+			android:name="com.parse.PushService" />
 
-		<service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+		<service
+			android:name="com.google.android.gms.analytics.CampaignTrackingService" />
 
 		<service
 			android:name="com.google.android.gms.analytics.AnalyticsService"
@@ -204,12 +206,6 @@
 				<action android:name="com.parse.push.intent.OPEN" />
 			</intent-filter>
 		</receiver>
-
-		<!-- Provider for image editor assets -->
-		<provider
-			android:name="com.adobe.creativesdk.aviary.internal.cds.CdsProvider"
-			android:authorities="${applicationId}.CdsProvider"
-			android:exported="false" />
 
 		<!-- Forms -->
 

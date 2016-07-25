@@ -44,7 +44,9 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		listWidget.swipeRefresh.setOnRefreshListener(this);
+		if (listWidget != null) {
+			listWidget.swipeRefresh.setOnRefreshListener(this);
+		}
 	}
 
 	@Override public void onStart() {

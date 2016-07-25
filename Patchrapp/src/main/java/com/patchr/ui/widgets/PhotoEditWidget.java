@@ -69,7 +69,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 		category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
 		showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
 		aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
-		radius = ta.getInteger(R.styleable.ImageWidget_radius, 8);
+		radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
 
 		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
 			shape = ta.getString(R.styleable.ImageWidget_shape);

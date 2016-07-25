@@ -35,7 +35,7 @@ public class PostEntityJob extends Job {
 	public String    parentId;
 
 	public PostEntityJob(String path, SimpleMap data, String entityId, String parentId) {
-		super(new Params(PRIORITY).requireNetwork().persist());
+		super(new Params(PRIORITY).requireNetwork().setGroupId(parentId).persist());
 		this.path = path;
 		this.data = data;
 		this.entityId = entityId;
@@ -49,9 +49,16 @@ public class PostEntityJob extends Job {
 	}
 
 	@Override public void onRun() throws Throwable {
-		Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.STARTED));
-		postEntity(path, data);
-		Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.SUCCESS));
+		String processName = Utils.getProcessName();
+		if ("com.patchr.android:cds".equals(processName)) {
+			Logger.d(this, "Blocking job from running on background process");
+		}
+		else {
+			Logger.d(this, String.format("Job running"));
+			Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.STARTED));
+			postEntity(path, data);
+			Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.SUCCESS));
+		}
 	}
 
 	@Override protected void onCancel(int cancelReason, @Nullable Throwable throwable) {
@@ -60,6 +67,7 @@ public class PostEntityJob extends Job {
 
 	@Override
 	protected RetryConstraint shouldReRunOnThrowable(@NonNull Throwable throwable, int runCount, int maxRunCount) {
+		Logger.d(this, String.format("Job throws: %1$s", throwable.getMessage()));
 		if (throwable instanceof IOException) {
 			return RetryConstraint.RETRY;
 		}

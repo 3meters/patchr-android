@@ -7,7 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -15,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -22,7 +22,6 @@ import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.components.CircleTransform;
-import com.patchr.ui.components.RoundedCornersTransformation;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
@@ -35,9 +34,9 @@ import com.squareup.picasso.Transformation;
 @SuppressWarnings("ucd")
 public class ImageWidget extends FrameLayout {
 
-	public  AppCompatImageView imageView;
-	private AirProgressBar     progressBar;
-	private TextView           nameView;
+	public  RoundedImageView imageView;
+	private AirProgressBar   progressBar;
+	private TextView         nameView;
 
 	private String uri;
 	private String uriBound;
@@ -48,7 +47,7 @@ public class ImageWidget extends FrameLayout {
 	public Bitmap.Config bitmapConfig;  // Used by picasso
 	public boolean       showBusy;
 	public String        shape;    // auto, square, round, rounded
-	public Integer       radius;
+	public float         radius;
 
 	public ImageWidget(Context context) {
 		this(context, null);
@@ -70,7 +69,7 @@ public class ImageWidget extends FrameLayout {
 		category = PhotoCategory.values()[ta.getInteger(R.styleable.ImageWidget_category, PhotoCategory.THUMBNAIL.ordinal())];
 		showBusy = ta.getBoolean(R.styleable.ImageWidget_showBusy, true);
 		aspectRatio = ta.getFloat(R.styleable.ImageWidget_aspectRatio, 0f);
-		radius = ta.getInteger(R.styleable.ImageWidget_radius, 8);
+		radius = ta.getInteger(R.styleable.ImageWidget_radius, 0);
 
 		if (ta.hasValue(R.styleable.ImageWidget_shape)) {
 			shape = ta.getString(R.styleable.ImageWidget_shape);
@@ -127,9 +126,10 @@ public class ImageWidget extends FrameLayout {
 
 		/* Image - subclass could have provide it instead */
 		if (imageView == null) {
-			imageView = new AppCompatImageView(getContext());
+			imageView = new RoundedImageView(getContext());
 			imageView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			imageView.setScaleType(ScaleType.CENTER_CROP);
+			imageView.setCornerRadius(UI.getRawPixelsForDisplayPixels(radius));
 			addView(imageView);
 		}
 
@@ -202,8 +202,9 @@ public class ImageWidget extends FrameLayout {
 			loadImageView(photo, new CircleTransform(), callback);
 		}
 		else if (shape.equals("rounded")) {
-			int displayRadius = UI.getRawPixelsForDisplayPixels((float) radius);
-			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
+			//			int displayRadius = UI.getRawPixelsForDisplayPixels((float) radius);
+			//			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
+			loadImageView(photo, null, callback);
 		}
 		else {
 			loadImageView(photo, null, callback);
@@ -317,13 +318,13 @@ public class ImageWidget extends FrameLayout {
 				.config(bitmapConfig);
 
 			if (transform != null) {
+				//				creator.fit();
 				creator.transform(transform);
-				creator.fit();
 			}
-			else {
-				creator.centerCrop(); // Needed so resize() keeps aspect ratio
-				creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-			}
+			//			else {
+			//				creator.centerCrop(); // Needed so resize() keeps aspect ratio
+			//				creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+			//			}
 
 			creator.networkPolicy(NetworkPolicy.OFFLINE);
 			creator.into(imageView, new Callback() {
@@ -342,12 +343,12 @@ public class ImageWidget extends FrameLayout {
 
 					if (transform != null) {
 						creator.transform(transform);
-						creator.fit();
+						//						creator.fit();
 					}
-					else {
-						creator.centerCrop(); // Needed so resize() keeps aspect ratio
-						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-					}
+					//					else {
+					//						creator.centerCrop(); // Needed so resize() keeps aspect ratio
+					//						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
+					//					}
 
 					creator.into(imageView, new Callback() {
 						@Override public void onSuccess() {

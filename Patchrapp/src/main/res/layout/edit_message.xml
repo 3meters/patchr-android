@@ -134,10 +134,10 @@
 					android:id="@+id/photo_edit"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="@color/background_placeholder"
+					android:background="@drawable/bg_rounded_placeholder"
 					custom:aspectRatio="0.75"
 					custom:category="standard"
-					custom:radius="18"
+					custom:radius="8"
 					custom:shape="rounded" />
 
 			</ViewAnimator>

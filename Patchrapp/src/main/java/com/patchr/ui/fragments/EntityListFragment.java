@@ -67,21 +67,23 @@ public class EntityListFragment extends Fragment {
 		 * fragment's view hierarchy instantiated.
 		 */
 		super.onActivityCreated(savedInstanceState);
-		if (this.querySpec == null) {
+		if (querySpec == null) {
 			getActivity().finish();
 		}
 		else {
 			View view = getView();
 			if (view != null) {
 				initialize(view);
-				this.listWidget.bind(this.querySpec, this.contextEntityId);   // Triggers display of cached entities
+				listWidget.bind(querySpec, contextEntityId);   // Triggers display of cached entities
 			}
 		}
 	}
 
 	@Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		super.onViewStateRestored(savedInstanceState);
-		this.listWidget.onViewStateRestored(savedInstanceState);
+		if (listWidget != null) {
+			listWidget.onViewStateRestored(savedInstanceState);
+		}
 	}
 
 	@Override public void onStart() {

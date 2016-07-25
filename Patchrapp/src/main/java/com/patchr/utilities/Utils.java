@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -84,6 +85,21 @@ public class Utils {
 		}
 		catch (NoSuchAlgorithmException e) { /* ignore */ }
 		return "";
+	}
+
+	public static String getProcessName() {
+		String currentProcName = "";
+		int pid = android.os.Process.myPid();
+		ActivityManager manager = (ActivityManager) Patchr.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningAppProcessInfo> infos = manager.getRunningAppProcesses();
+		if (infos != null) {
+			for (ActivityManager.RunningAppProcessInfo info : infos) {
+				if (info.pid == pid) {
+					return  info.processName;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static void stripUnderlines(TextView textView) {

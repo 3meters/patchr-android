@@ -9,7 +9,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<android.support.design.widget.CoordinatorLayout
+		android:id="@+id/coordinator"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
@@ -308,6 +309,6 @@
 
 		</com.patchr.ui.widgets.AirScrollView>
 
-	</LinearLayout>
+	</android.support.design.widget.CoordinatorLayout>
 </com.flipboard.bottomsheet.BottomSheetLayout>
 

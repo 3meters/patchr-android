@@ -151,7 +151,7 @@ public class MessageEdit extends BaseEdit {
 
 	protected void post(SimpleMap data) {
 		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
-		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, data, null, inputParentId));
+		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, data, entityId, inputParentId));
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
 	}

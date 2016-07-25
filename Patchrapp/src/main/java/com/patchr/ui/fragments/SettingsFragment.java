@@ -34,7 +34,6 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.AboutScreen;
-import com.patchr.ui.widgets.ListPreferenceMultiSelect;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
@@ -116,11 +115,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		 * Update the setting summaries when a shared pref is changed.
 		 */
 		Preference pref = findPreference(key);
-		if (pref instanceof ListPreferenceMultiSelect) {
-			ListPreference listPref = (ListPreference) pref;
-			pref.setSummary(listPref.getValue().replace(ListPreferenceMultiSelect.DEFAULT_SEPARATOR, "|"));
-		}
-		else if (pref instanceof ListPreference) {
+		if (pref instanceof ListPreference) {
 			ListPreference listPref = (ListPreference) pref;
 			pref.setSummary(listPref.getEntry());
 		}
@@ -260,11 +255,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		 */
 		for (int i = 0; i < prefGroup.getPreferenceCount(); i++) {
 			Preference pref = prefGroup.getPreference(i);
-			if (pref instanceof ListPreferenceMultiSelect) {
-				ListPreference listPref = (ListPreference) pref;
-				pref.setSummary(listPref.getValue().replace(ListPreferenceMultiSelect.DEFAULT_SEPARATOR, "|"));
-			}
-			else if (pref instanceof ListPreference) {
+			if (pref instanceof ListPreference) {
 				ListPreference listPref = (ListPreference) pref;
 				pref.setSummary(listPref.getEntry());
 			}

@@ -150,7 +150,6 @@ public abstract class BaseEdit extends BaseScreen {
 				.withOutputSize(MegaPixels.Mp5)
 				.withPreviewSize((int) UI.getScreenWidthRawPixels(this) * 2)
 				.withVibrationEnabled(true)
-				.withAutoColorEnabled(true)
 				.build();
 
 			startActivityForResult(intent, Constants.ACTIVITY_PHOTO_EDIT);

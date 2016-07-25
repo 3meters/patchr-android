@@ -14,6 +14,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_centerHorizontal="true"
+			app:radius="8"
 			app:aspectRatio="@dimen/aspect_ratio_patch_image"
 			app:category="standard" />
 

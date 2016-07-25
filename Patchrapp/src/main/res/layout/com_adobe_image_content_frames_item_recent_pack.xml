@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/com_adobe_image_editor_content_item_width"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/com_adobe_image_content_content_items_pack_margin"
+    android:layout_marginRight="@dimen/com_adobe_image_content_content_items_pack_margin">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="@dimen/com_adobe_image_editor_content_item_width"
+            android:layout_height="@dimen/com_adobe_image_editor_content_item_width"
+            android:contentDescription="@string/com_adobe_image_recent"
+            android:scaleType="fitXY"
+            android:src="@drawable/com_adobe_image_content_recents"
+            android:visibility="visible" />
+
+        <com.adobe.android.ui.view.AdobeTextView
+            android:id="@+id/text"
+            style="@style/AdobeImageWidget.TextAppearance.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/gray_25_pcnt"
+            android:gravity="center"
+            android:padding="4dip"
+            android:text="@string/com_adobe_image_recent"
+            android:textStyle="bold"
+            app:adobe_fontFamily="?attr/com_adobe_font_regular" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/com_adobe_image_content_packs_background_selector"
+        android:duplicateParentState="true" />
+
+</RelativeLayout>

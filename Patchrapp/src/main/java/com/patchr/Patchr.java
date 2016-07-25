@@ -16,9 +16,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 
-import com.adobe.creativesdk.aviary.AdobeImageIntent;
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
-import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
@@ -125,24 +123,20 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 		Foreground.init(this);
 
+		/* Connectivity monitoring */
+		NetworkManager.getInstance().initialize();
+
 		/* Inject configuration */
 		openContainer(StringManager.getString(R.string.tag_manager_container_id));
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
 
-		/* Init Creative Sdk */
-		AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
-
 		AsyncTask.execute(() -> {
 
 			/* Make sure setting defaults are initialized */
 			PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
-
-			/* Start preloading assets */
-			Intent cdsIntent = AdobeImageIntent.createCdsInitIntent(getApplicationContext(), "CDS");
-			startService(cdsIntent);
 
 			/* Make sure unique id is initialized */
 			initializeInstallInfo();
@@ -199,9 +193,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			/* Warmup media manager */
 			MediaManager.warmup();
-
-			/* Connectivity monitoring */
-			NetworkManager.getInstance().initialize();
 
 			/* Must come after managers are initialized */
 			UserManager.shared().loginAuto();

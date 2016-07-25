@@ -178,6 +178,15 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 		swipeRefresh = (SwipeRefreshLayout) layout.findViewById(R.id.swipe);
 		listGroup = layout.findViewById(R.id.list_group);
 
+		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		recyclerView.addOnScrollListener(new ListScrollListener() {
+			@Override public void onMoved(int distance) {
+				if (busyController.swipeRefreshLayout != null) {
+					busyController.swipeRefreshLayout.setEnabled(distance == 0);
+				}
+			}
+		});
+
 		if (swipeRefresh != null) {
 			swipeRefresh.setColorSchemeColors(Colors.getColor(R.color.brand_accent));
 			swipeRefresh.setProgressBackgroundColorSchemeResource(UI.getResIdForAttribute(getContext(), R.attr.refreshColorBackground));
@@ -186,8 +195,6 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 			swipeRefresh.setEnabled(true);
 		}
 
-		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
 		busyController = new BusyController(progressBar, swipeRefresh);
 		emptyController = new EmptyController(emptyMessageView);
 
@@ -195,14 +202,57 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 			emptyController.positionBelow(header, null);
 			busyController.positionBelow(header, null);
 		}
+	}
 
-		recyclerView.addOnScrollListener(new ListScrollListener() {
-			@Override public void onMoved(int distance) {
-				if (busyController.swipeRefreshLayout != null) {
-					busyController.swipeRefreshLayout.setEnabled(distance == 0);
-				}
+	public void bind(QuerySpec querySpec, String contextEntityId) {
+
+		synchronized (lock) {
+
+			this.querySpec = querySpec;
+			this.contextEntityId = contextEntityId;
+			if (contextEntityId != null) {
+				contextEntity = realm.where(RealmEntity.class).equalTo("id", contextEntityId).findFirst();
 			}
-		});
+
+			query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
+			if (query == null) {
+				Query realmQuery = new Query();
+				realmQuery.id = querySpec.getId(contextEntityId);
+				realm.beginTransaction();
+				query = realm.copyToRealm(realmQuery);
+				realm.commitTransaction();
+			}
+
+			entities = query.entities
+				.sort(querySpec.sortField, querySpec.sortAscending ? Sort.ASCENDING : Sort.DESCENDING);
+
+			entities.addChangeListener(results -> {
+				if (entities.size() == 0) {
+					emptyController.show(true);
+				}
+				else {
+					emptyController.hide(true);
+				}
+			});
+
+			/* Both paths will trigger the ui to display any data available in the cache. */
+			if (adapter == null) {
+				adapter = new RealmArrayAdapter(getContext(), entities);
+				adapter.header = header;
+				adapter.listItemResId = querySpec.listItemResId;
+				adapter.contextEntity = contextEntity;
+				recyclerView.setAdapter(adapter);
+			}
+			else {
+				adapter.header = header;
+				adapter.data = entities;
+			}
+			emptyController.setText(StringManager.getString(querySpec.getListEmptyMessage()));
+		}
+	}
+
+	public void draw() {
+		adapter.notifyDataSetChanged();
 	}
 
 	public void fetch(final FetchMode mode) {
@@ -259,57 +309,6 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 				adapter.notifyDataSetChanged();
 			}
 		}
-	}
-
-	public void bind(QuerySpec querySpec, String contextEntityId) {
-
-		synchronized (lock) {
-
-			this.querySpec = querySpec;
-			this.contextEntityId = contextEntityId;
-			if (contextEntityId != null) {
-				contextEntity = realm.where(RealmEntity.class).equalTo("id", contextEntityId).findFirst();
-			}
-
-			query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
-			if (query == null) {
-				Query realmQuery = new Query();
-				realmQuery.id = querySpec.getId(contextEntityId);
-				realm.beginTransaction();
-				query = realm.copyToRealm(realmQuery);
-				realm.commitTransaction();
-			}
-
-			entities = query.entities
-				.sort(querySpec.sortField, querySpec.sortAscending ? Sort.ASCENDING : Sort.DESCENDING);
-
-			entities.addChangeListener(results -> {
-				if (entities.size() == 0) {
-					emptyController.show(true);
-				}
-				else {
-					emptyController.hide(true);
-				}
-			});
-
-			/* Both paths will trigger the ui to display any data available in the cache. */
-			if (adapter == null) {
-				adapter = new RealmArrayAdapter(getContext(), entities);
-				adapter.header = header;
-				adapter.listItemResId = querySpec.listItemResId;
-				adapter.contextEntity = contextEntity;
-				recyclerView.setAdapter(adapter);
-			}
-			else {
-				adapter.header = header;
-				adapter.data = entities;
-			}
-			emptyController.setText(StringManager.getString(querySpec.getListEmptyMessage()));
-		}
-	}
-
-	public void draw() {
-		adapter.notifyDataSetChanged();
 	}
 
 	public RealmResults<RealmEntity> getEntities() {

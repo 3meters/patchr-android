@@ -82,14 +82,16 @@ public class NetworkManager {
 
 	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 
+	private static NetworkManager instance = new NetworkManager();
+
+	public static NetworkManager getInstance() {
+		return instance;
+	}
+
 	private NetworkManager() {}
 
 	private static class NetworkManagerHolder {
 		public static final NetworkManager instance = new NetworkManager();
-	}
-
-	public static NetworkManager getInstance() {
-		return NetworkManagerHolder.instance;
 	}
 
 	public void initialize() {

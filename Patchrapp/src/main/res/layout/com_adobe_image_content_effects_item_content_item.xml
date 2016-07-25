@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.adobe.creativesdk.aviary.widget.CheckableRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/com_adobe_image_editor_content_item_width"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/com_adobe_image_content_content_items_margin"
+        android:layout_marginRight="@dimen/com_adobe_image_content_content_items_margin"
+        android:duplicateParentState="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/RelativeLayout05"
+            android:layout_width="@dimen/com_adobe_image_editor_content_item_image_width"
+            android:layout_height="@dimen/com_adobe_image_editor_content_item_image_width"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/com_adobe_image_content_default_item_image_background_selector"
+            android:duplicateParentState="true"
+            android:padding="1.5dip">
+
+
+            <com.adobe.android.ui.view.SquareImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/colorPrimaryDark"
+                android:duplicateParentState="true"
+                android:scaleType="fitXY"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/ImageView04"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:duplicateParentState="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/com_adobe_image_effect_intensity_selector"
+                android:stateListAnimator="@anim/com_adobe_image_effect_intensty_animator" />
+
+        </RelativeLayout>
+
+        <com.adobe.android.ui.view.AdobeTextView
+            android:id="@+id/text"
+            style="@style/AdobeImageWidget.TextAppearance.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:padding="4dip"
+            android:text="@string/feather_get_more"
+            android:textStyle="bold"
+            app:adobe_fontFamily="?attr/com_adobe_font_light" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/com_adobe_image_content_items_background_selector"
+        android:duplicateParentState="true" />
+
+
+</com.adobe.creativesdk.aviary.widget.CheckableRelativeLayout>

@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.CardView;
 import android.text.Html;
@@ -25,10 +27,12 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -38,6 +42,7 @@ import com.patchr.objects.enums.LinkType;
 import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
+import com.patchr.objects.enums.TaskStatus;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.collections.BaseListScreen;
@@ -53,6 +58,9 @@ import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.segment.analytics.Properties;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -84,6 +92,7 @@ public class MessageScreen extends BaseScreen {
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Dispatcher.getInstance().register(this);
 		bind();
 	}
 
@@ -94,7 +103,26 @@ public class MessageScreen extends BaseScreen {
 				processing = true;
 				fetch(FetchMode.AUTO);
 			}
+
+			AsyncTask.execute(() -> {
+				int count = Patchr.jobManager.count();
+				runOnUiThread(() -> {
+					if (count > 0) {
+						showSnackbar(String.format("Updates to send: %1$s", String.valueOf(count)), Snackbar.LENGTH_INDEFINITE);
+					}
+					else {
+						if (snackbar.isShownOrQueued()) {
+							snackbar.dismiss();
+						}
+					}
+				});
+			});
 		}
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -236,6 +264,28 @@ public class MessageScreen extends BaseScreen {
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onTaskStatusReceived(final TaskStatusEvent event) {
+		/* Refresh the list because something happened with the list parent. */
+		if (this.entityId.equals(event.entityId)) {
+			if (event.status == TaskStatus.PENDING) {
+				showSnackbar("Update waiting", Snackbar.LENGTH_INDEFINITE);
+			}
+			if (event.status == TaskStatus.STARTED) {
+				showSnackbar("Sending", Snackbar.LENGTH_INDEFINITE);
+			}
+			if (event.status == TaskStatus.SUCCESS) {
+				fetch(FetchMode.AUTO);
+				if (snackbar != null && snackbar.isShownOrQueued()) {
+					snackbar.dismiss();
+				}
+			}
+			if (event.status == TaskStatus.FAILED) {
+				showSnackbar("Send failed", Snackbar.LENGTH_INDEFINITE);
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
