@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -24,7 +25,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.FontManager;
 import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
@@ -278,14 +278,14 @@ public class UI {
 
 	public static void toast(final String message, final int duration, final int gravity) {
 
-		Patchr.mainThreadHandler.post(() -> {
+		Patchr.mainThread.post(() -> {
 			final CharSequence text = message;
 			final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
 			toast.getView().setBackgroundResource(R.drawable.bg_toast);
 			TextView view = (TextView) toast.getView().findViewById(android.R.id.message);
 			view.setTextColor(Colors.getColor(R.color.black));
 			view.setShadowLayer(0, 0, 0, 0);
-			FontManager.getInstance().setTypefaceLight(view);
+			view.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
 			if (gravity != 0) {
 				toast.setGravity(gravity, 0, 0);
 			}
@@ -297,7 +297,7 @@ public class UI {
 		/*
 		 * Make sure this on the main thread
 		 */
-		Patchr.mainThreadHandler.post(() -> {
+		Patchr.mainThread.post(() -> {
 			if (imageView != null) {
 				if (animate) {
 					ObjectAnimator anim = ObjectAnimator.ofFloat(imageView, "alpha", 0f, 1f);

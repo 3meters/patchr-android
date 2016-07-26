@@ -315,6 +315,7 @@ public class PatchScreen extends BaseListScreen {
 				showSnackbar("Sending", Snackbar.LENGTH_INDEFINITE);
 			}
 			if (event.status == TaskStatus.SUCCESS) {
+				fetch(FetchMode.AUTO);  // Check for fresh stuff
 				if (snackbar != null && snackbar.isShownOrQueued()) {
 					snackbar.dismiss();
 				}
@@ -666,7 +667,7 @@ public class PatchScreen extends BaseListScreen {
 				},
 				error -> {
 					processing = false;
-					Patchr.mainThreadHandler.postDelayed(() -> {
+					Patchr.mainThread.postDelayed(() -> {
 						animator.setDisplayedChild(0);
 					}, 1000);
 

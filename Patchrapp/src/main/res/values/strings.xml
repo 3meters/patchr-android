@@ -67,6 +67,7 @@
 	<string name="menu_item_signup">"  Sign up  "</string>
 	<string name="menu_item_send">Send</string>
 	<string name="menu_item_next">Next</string>
+	<string name="menu_item_join">Join</string>
 	<string name="menu_item_invite">Invite</string>
 	<string name="menu_item_map">Map location</string>
 	<string name="menu_item_overflow">Actions</string>

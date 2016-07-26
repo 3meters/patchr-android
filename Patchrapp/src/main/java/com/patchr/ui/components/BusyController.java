@@ -76,8 +76,8 @@ public class BusyController {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
+		Patchr.mainThread.removeCallbacks(runnableShow);
+		Patchr.mainThread.removeCallbacks(runnableHide);
 
 		runnableShow = new Runnable() {
 
@@ -149,22 +149,22 @@ public class BusyController {
 			}
 		};
 
-		Patchr.mainThreadHandler.postDelayed(runnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
+		Patchr.mainThread.postDelayed(runnableShow, (busyAction == BusyAction.Refreshing_Empty) ? Constants.INTERVAL_BUSY_DELAY : 0);
 	}
 
 	public void hide(Boolean noDelay) {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
+		Patchr.mainThread.removeCallbacks(runnableShow);
+		Patchr.mainThread.removeCallbacks(runnableHide);
 		/*
 		 * We delay to enforce a minimum display length for busy if start has been set.
 		 */
 		if (!noDelay && busyStartedTime != null) {
 			Long busyDuration = DateTime.nowDate().getTime() - busyStartedTime;
 			if (busyDuration < Constants.INTERVAL_BUSY_MINIMUM) {
-				Patchr.mainThreadHandler.postDelayed(runnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
+				Patchr.mainThread.postDelayed(runnableHide, Constants.INTERVAL_BUSY_MINIMUM - busyDuration);
 				return;
 			}
 		}
@@ -172,7 +172,7 @@ public class BusyController {
 		/* Safe to call from any thread */
 		stopProgressDialog();
 
-		Patchr.mainThreadHandler.post(new Runnable() {
+		Patchr.mainThread.post(new Runnable() {
 
 			@Override
 			public void run() {
@@ -186,8 +186,8 @@ public class BusyController {
 		/*
 		 * Make sure there are no pending busys waiting.
 		 */
-		Patchr.mainThreadHandler.removeCallbacks(runnableShow);
-		Patchr.mainThreadHandler.removeCallbacks(runnableHide);
+		Patchr.mainThread.removeCallbacks(runnableShow);
+		Patchr.mainThread.removeCallbacks(runnableHide);
 
 		runnableShow = new Runnable() {
 
@@ -222,7 +222,7 @@ public class BusyController {
 			}
 		};
 
-		Patchr.mainThreadHandler.postDelayed(runnableShow, 0);
+		Patchr.mainThread.postDelayed(runnableShow, 0);
 	}
 
 	private void startProgressBar() {

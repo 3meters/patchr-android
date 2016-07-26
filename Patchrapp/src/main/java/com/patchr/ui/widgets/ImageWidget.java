@@ -247,7 +247,7 @@ public class ImageWidget extends FrameLayout {
 
 	public void showLoading(final Boolean visible) {
 
-		Patchr.mainThreadHandler.post(() -> {
+		Patchr.mainThread.post(() -> {
 			if (progressBar != null) {
 				if (visible) {
 					progressBar.show();

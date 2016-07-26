@@ -33,6 +33,7 @@
 	</style>
 
 	<style name="text_appearance_title" parent="text_appearance">
+		<item name="android:fontFamily">sans-serif-light</item>
 		<item name="android:textSize">30sp</item>
 		<item name="android:textColor">@color/brand_accent_dark</item>
 	</style>

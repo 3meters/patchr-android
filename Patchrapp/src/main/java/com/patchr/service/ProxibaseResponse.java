@@ -80,11 +80,11 @@ public class ProxibaseResponse {
 		response.serviceCode = responseMap.code();
 		response.serviceMessage = responseMap.message();
 
-		if (map.get("entity") != null) {    // Not a fully decorated entity
-			response.entity = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("entity"), true);
+		if (map.get("entity") != null) {    // Do not store, not a fully decorated entity
+			response.entity = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("entity"));
 		}
-		if (map.get("user") != null) {      // Not a fully decorated user
-			response.user = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("user"), true);
+		if (map.get("user") != null) {      // Do not store, not a fully decorated user
+			response.user = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("user"));
 		}
 		if (map.get("error") != null) {
 			response.error = ProxibaseError.setPropertiesFromMap(new ProxibaseError(), (Map<String, Object>) map.get("error"));

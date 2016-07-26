@@ -430,9 +430,11 @@ public class RestClient {
 		return proxiApi.postCall(path, parameters);
 	}
 
-	public Observable<ProxibaseResponse> deleteEntity(final String path, final String objectId) {
+	public Observable<ProxibaseResponse> deleteEntity(final String path, SimpleMap parameters, final String objectId) {
 
-		SimpleMap parameters = new SimpleMap();
+		if (parameters == null) {
+			parameters = new SimpleMap();
+		}
 		addSessionParameters(parameters);
 
 		return delete(path, parameters, objectId, true);
@@ -584,7 +586,7 @@ public class RestClient {
 
 		return post("auth/signin", parameters, null, null, false)
 			.flatMap(response -> {
-				String userId = response.user.shortcutForId;
+				String userId = response.user.id;
 				String sessionKey = response.session.key;
 				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
 			})
@@ -652,7 +654,7 @@ public class RestClient {
 
 		return post("user/pw/reset", parameters, null, null, false)
 			.flatMap(response -> {
-				String userId = response.user.shortcutForId;
+				String userId = response.user.id;
 				String sessionKey = response.session.key;
 				return fetchEntity(userId, FetchStrategy.IgnoreCache, userId, sessionKey);
 			})

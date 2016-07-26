@@ -610,7 +610,7 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
-						Patchr.mainThreadHandler.postDelayed(() -> {
+						Patchr.mainThread.postDelayed(() -> {
 							likeAnimator.setDisplayedChild(0);
 						}, 1000);
 						Errors.handleError(this, error);
@@ -625,7 +625,7 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
-						Patchr.mainThreadHandler.postDelayed(() -> {
+						Patchr.mainThread.postDelayed(() -> {
 							likeAnimator.setDisplayedChild(0);
 						}, 1000);
 						Errors.handleError(this, error);

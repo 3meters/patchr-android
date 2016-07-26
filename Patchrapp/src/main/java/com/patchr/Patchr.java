@@ -66,7 +66,7 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 	public static SharedPreferences settings;
 	public static JobManager        jobManager;
 
-	public static Handler   mainThreadHandler         = new Handler(Looper.getMainLooper());
+	public static Handler   mainThread                = new Handler(Looper.getMainLooper());
 	public static Router    router                    = new Router();
 	public static Stopwatch stopwatch1                = new Stopwatch();
 	public static Stopwatch stopwatch2                = new Stopwatch();
@@ -134,6 +134,14 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 		AsyncTask.execute(() -> {
 
+			/* Configure realm */
+			RealmConfiguration config = new RealmConfiguration.Builder(Patchr.applicationContext)
+				.name("patchr.realm")
+				.deleteRealmIfMigrationNeeded()
+				.build();
+
+			Realm.setDefaultConfiguration(config);
+
 			/* Make sure setting defaults are initialized */
 			PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
@@ -175,14 +183,7 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 					.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
 					.build());
 
-			/* Configure realm */
-			RealmConfiguration config = new RealmConfiguration.Builder(Patchr.applicationContext)
-				.name("patchr.realm")
-				.deleteRealmIfMigrationNeeded()
-				.build();
-
-			Realm.setDefaultConfiguration(config);
-
+			/* Job queue */
 			Configuration.Builder builder = new Configuration.Builder(this)
 				.minConsumerCount(1)
 				.maxConsumerCount(3)

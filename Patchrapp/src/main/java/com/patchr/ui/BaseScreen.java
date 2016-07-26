@@ -345,7 +345,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 		String schema = entity.schema;
 		String path = String.format("data/%1$s/%2$s", collection, entityId);
 
-		subscription = RestClient.getInstance().deleteEntity(path, entityId)
+		subscription = RestClient.getInstance().deleteEntity(path, null, entityId)
 			.subscribe(
 				response -> {
 					processing = false;

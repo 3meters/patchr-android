@@ -2,6 +2,7 @@ package com.patchr.ui.edit;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
+import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.State;
@@ -67,11 +69,13 @@ public class ProfileEdit extends BaseEdit {
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (inputState.equals(State.Editing)) {
+		if (inputState.equals(State.Signup)) {
+			getMenuInflater().inflate(R.menu.menu_join, menu);
+		}
+		else if (inputState.equals(State.Editing)) {
 			getMenuInflater().inflate(R.menu.menu_save, menu);
 			getMenuInflater().inflate(R.menu.menu_delete, menu);
 		}
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -198,6 +202,7 @@ public class ProfileEdit extends BaseEdit {
 			if (area != null) {
 				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
 			}
+			parameters.put("password", inputPassword);
 		}
 		else {
 			if (email != null && !email.getText().toString().equals(entity.email)) {
@@ -239,8 +244,9 @@ public class ProfileEdit extends BaseEdit {
 							busyController.hide(true);
 
 							/* We automatically consider the user signed in. */
-							final RealmEntity user = response.data.get(0);
-							UserManager.shared().setCurrentUser(user, user.session);
+							final RealmEntity user = response.user;
+							final Session session = response.session;
+							UserManager.shared().setCurrentUser(user, session);
 
 							Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
 							Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
@@ -281,16 +287,24 @@ public class ProfileEdit extends BaseEdit {
 		final String userName = entity.name;
 
 		busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_deleting_user, ProfileEdit.this);
-		String path = String.format("user/%1$s?erase=true", entityId);
+		String path = String.format("user/%1$s", entityId);
+		SimpleMap parameters = new SimpleMap();
+		parameters.put("erase", true);
 
-		subscription = RestClient.getInstance().deleteEntity(path, entityId)
+		subscription = RestClient.getInstance().deleteEntity(path, parameters, entityId)
 			.subscribe(
 				response -> {
 					processing = false;
 					busyController.hide(true);
 					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
-					Logger.i(this, "Deleted user: " + entity.id);
+					Logger.i(this, "Deleted user: " + entityId);
 					UserManager.shared().setCurrentUser(null, null);
+
+					/* Clear cached email */
+					SharedPreferences.Editor editor = Patchr.settings.edit();
+					editor.putString(StringManager.getString(R.string.setting_last_email), null);
+					editor.apply();
+
 					UI.routeLobby(Patchr.applicationContext);
 					UI.toast(String.format(StringManager.getString(R.string.alert_user_deleted), userName));
 					finish();

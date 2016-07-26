@@ -8,8 +8,6 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
-import com.patchr.components.FontManager;
-
 public class TextDrawable extends Drawable {
 
 	private final String mText;
@@ -32,7 +30,6 @@ public class TextDrawable extends Drawable {
 		mPaint.setAntiAlias(true);
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setTextAlign(Paint.Align.LEFT);
-		mPaint.setTypeface(FontManager.fontRobotoLight);
 		mTextWidth = mPaint.measureText(mText, 0, mText.length());
 	}
 

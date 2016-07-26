@@ -211,7 +211,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 	protected void gather(SimpleMap parameters) {
 
-		if (inputState.equals(State.Inserting)) {
+		if (inputState.equals(State.Inserting) || inputState.equals(State.Signup)) {
 			if (nameView != null) {
 				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
 			}

@@ -15,7 +15,6 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.QuerySpec;
-import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
@@ -50,6 +49,10 @@ public class ProfileScreen extends BaseListScreen {
 			});
 			bottomSheetDialog.show();
 		}
+		else if (item.getItemId() == R.id.logout) {
+			UserManager.shared().logout();
+			UI.routeLobby(Patchr.applicationContext);
+		}
 		else {
 			return super.onOptionsItemSelected(item);   // home, report, logout
 		}
@@ -78,10 +81,6 @@ public class ProfileScreen extends BaseListScreen {
 			intent.putExtra(Constants.EXTRA_QUERY_NAME, QueryName.PatchesOwnedByUser);
 			startActivity(intent);
 			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
-		}
-		else if (view.getId() == R.id.logout) {
-			UserManager.shared().logout();
-			UI.routeLobby(Patchr.applicationContext);
 		}
 		else if (view.getId() == R.id.report) {
 			bottomSheetDialog.dismiss();

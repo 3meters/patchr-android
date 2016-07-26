@@ -58,6 +58,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	@Override protected void doOnResume() {
 		if (listWidget.query != null
 			&& RestClient.getInstance().activityDateInsertDeletePatch > listWidget.query.activityDate) {
+			Logger.d(this, "Calling activateNearby Manual: onResume: activityDateInsertDeletePatch triggered");
 			activateNearby(FetchMode.MANUAL);
 		}
 		else {
@@ -79,6 +80,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void onRefresh() {
+		Logger.d(this, "Calling activateNearby Manual: onRefresh");
 		activateNearby(FetchMode.MANUAL);
 	}
 
@@ -88,6 +90,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 
 	@Subscribe public void onLocationStatusChanged(final LocationStatusEvent event) {
 		if (event.status == LocationStatus.ALLOWED) {
+			Logger.d(this, "Calling activateNearby Manual: Location allowed called");
 			activateNearby(FetchMode.MANUAL);
 			listWidget.emptyController.setText(StringManager.getString(R.string.empty_nearby));
 		}
@@ -122,7 +125,6 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void activateNearby(FetchMode mode) {
-		Logger.d(this, "activateNearby called: " + mode.name());
 
 		if (!PermissionUtil.hasSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
 			requestPermissions();
