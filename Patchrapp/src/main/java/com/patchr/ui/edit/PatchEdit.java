@@ -170,9 +170,9 @@ public class PatchEdit extends BaseEdit {
 
 	@Override public void submitAction() {
 
+		if (!isValid()) return;
 		if (!processing) {
 			processing = true;
-			if (!isValid()) return;
 			SimpleMap parameters = new SimpleMap();
 			gather(parameters);
 			post(parameters);

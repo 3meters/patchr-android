@@ -70,7 +70,7 @@
 					android:maxWidth="150dp"
 					android:minWidth="100dp"
 					android:singleLine="true"
-					android:fontFamily="sans-serif"
+					android:fontFamily="sans-serif-medium"
 					tools:text="Aliza Wenk" />
 
 				<TextView

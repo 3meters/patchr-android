@@ -30,10 +30,10 @@
 					android:id="@+id/distance"
 					android:layout_width="@dimen/image_medium_large"
 					android:layout_height="wrap_content"
-					android:padding="8dp"
-					android:textSize="14sp"
 					android:fontFamily="sans-serif"
+					android:padding="8dp"
 					android:textColor="?attr/textColorCandiView"
+					android:textSize="14sp"
 					tools:text="0.8 mi" />
 
 			</LinearLayout>
@@ -44,10 +44,10 @@
 				android:layout_height="32dp"
 				android:layout_margin="4dp"
 				android:background="@drawable/bg_round_scrim"
-				android:gravity="center"
-				android:textSize="14sp"
 				android:fontFamily="sans-serif"
+				android:gravity="center"
 				android:textColor="@color/white"
+				android:textSize="14sp"
 				tools:text="999" />
 
 		</FrameLayout>
@@ -74,9 +74,10 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:ellipsize="end"
+					android:fontFamily="sans-serif-light"
 					android:maxLines="2"
-					android:textSize="20sp"
 					android:text="@string/dummy_title"
+					android:textSize="20sp"
 					tools:text="@string/dummy_title" />
 
 				<LinearLayout
@@ -94,8 +95,8 @@
 						android:ellipsize="end"
 						android:singleLine="true"
 						android:textAllCaps="true"
-						android:textSize="14sp"
 						android:textColor="?attr/textColorSecondary"
+						android:textSize="14sp"
 						tools:text="Event Patch" />
 
 					<LinearLayout
@@ -140,6 +141,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal"
+						android:fontFamily="sans-serif-light"
 						android:textAppearance="?attr/textAppearanceExtraLarge"
 						android:textColor="@color/brand_accent"
 						android:textSize="28sp"
@@ -152,8 +154,8 @@
 						android:layout_marginTop="-5dp"
 						android:text="@string/label_message_count"
 						android:textAllCaps="true"
-						android:textSize="12sp"
 						android:textColor="?attr/textColorSecondary"
+						android:textSize="12sp"
 						tools:text="messages" />
 				</LinearLayout>
 
@@ -175,6 +177,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_horizontal"
+						android:fontFamily="sans-serif-light"
 						android:textAppearance="?attr/textAppearanceExtraLarge"
 						android:textColor="@color/brand_accent"
 						android:textSize="28sp"
@@ -187,8 +190,8 @@
 						android:layout_marginTop="-5dp"
 						android:text="@string/label_watch_count"
 						android:textAllCaps="true"
-						android:textSize="12sp"
 						android:textColor="?attr/textColorSecondary"
+						android:textSize="12sp"
 						tools:text="watching" />
 				</LinearLayout>
 

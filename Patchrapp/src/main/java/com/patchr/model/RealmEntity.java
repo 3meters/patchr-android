@@ -438,6 +438,15 @@ public class RealmEntity extends RealmObject {
 		return null;
 	}
 
+	public void setLink(Link link) {
+		if (link == null) {
+			this.linkJson = null;
+		}
+		else {
+			this.linkJson = Patchr.gson.toJson(link, Link.class);
+		}
+	}
+
 	public Photo getPhotoBig() {
 		if (photoBigJson != null) {
 			return Photo.setPropertiesFromMap(new Photo(), Patchr.gson.fromJson(this.photoBigJson, SimpleMap.class));

@@ -10,6 +10,9 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.EventCategory;
+import com.patchr.service.RestClient;
+import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 
 @SuppressLint("Registered")
@@ -34,7 +37,8 @@ public class GcmIntentService extends GcmListenerService {
 			String data = extras.getString("data");
 			if (isEntity(data)) {
 
-				@SuppressWarnings("ConstantConditions") RealmEntity notification = Patchr.gson.fromJson(data, RealmEntity.class);
+				SimpleMap map = Patchr.gson.fromJson(data, SimpleMap.class);
+				RealmEntity notification = RealmEntity.setPropertiesFromMap(new RealmEntity(), map);
 
 				RealmEntity currentUser = UserManager.currentUser;
 				if (notification.userId != null && currentUser != null && currentUser.id.equals(notification.userId))
@@ -45,15 +49,15 @@ public class GcmIntentService extends GcmListenerService {
 				 * can be woken up when we don't have a current user. We do this regardless of whether
 				 * the application is in the foreground or not.
 				 */
-				if (currentUser != null) {
+				if (currentUser != null && notification.sentDate != null) {
 					currentUser.activityDate = notification.sentDate.longValue();
 				}
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */
 				String targetSchema = RealmEntity.getSchemaForId(notification.targetId);
-				//				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-				//					DataController.getInstance().activityDate = DateTime.nowDate().getTime();
-				//				}
+				if (targetSchema != null && targetSchema.equals(Constants.SCHEMA_ENTITY_PATCH) && notification.getEventCategory().equals(EventCategory.INSERT)) {
+					RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
+				}
 
 				/* Track */
 				NotificationManager.getInstance().getNotifications().put(notification.id, notification);

@@ -68,7 +68,7 @@ public class MemberListScreen extends BaseListScreen {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					if (which == DialogInterface.BUTTON_POSITIVE) {
-						removeRequest(link.id);
+						removeRequest(link.id, entity);
 						dialog.dismiss();
 					}
 					else if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -82,7 +82,7 @@ public class MemberListScreen extends BaseListScreen {
 		declineDialog.show();
 	}
 
-	public void removeRequest(final String linkId) {
+	public void removeRequest(final String linkId, final RealmEntity entity) {
 
 		if (!processing) {
 			processing = true;

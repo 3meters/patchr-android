@@ -90,6 +90,7 @@
 					android:ellipsize="end"
 					android:maxLines="2"
 					android:textColor="@color/white"
+					android:fontFamily="sans-serif-light"
 					android:textSize="24sp"
 					tools:text="Dillons Fabulous Birthday" />
 

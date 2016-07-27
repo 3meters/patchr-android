@@ -44,6 +44,7 @@
 				android:layout_height="wrap_content"
 				android:ellipsize="end"
 				android:maxLines="3"
+				android:fontFamily="sans-serif-light"
 				android:textSize="24sp"
 				android:text="@string/dummy_title"
 				tools:text="@string/dummy_title" />

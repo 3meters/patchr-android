@@ -24,7 +24,6 @@ import com.patchr.objects.QuerySpec;
 import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.FetchStrategy;
-import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.Suggest;
 import com.patchr.ui.MainScreen;
@@ -465,22 +464,7 @@ public class RestClient {
 
 		addSessionParameters(parameters);
 
-		return post(String.format("data/links/%1$s", linkId), parameters, null, null, false)
-			.map(response -> {
-				/*
-				 * Updating realm ripples to the ui and saves us a refetch.
-				 */
-				Realm realm = Realm.getDefaultInstance();
-				realm.beginTransaction();
-				RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
-				if (realmEntity != null) {
-					realmEntity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
-				}
-				realm.commitTransaction();
-				realm.close();
-
-				return response;
-			});
+		return post(String.format("data/links/%1$s", linkId), parameters, null, null, false);
 	}
 
 	public Observable<ProxibaseResponse> muteLinkById(String entityId, String linkId, Boolean muted) {

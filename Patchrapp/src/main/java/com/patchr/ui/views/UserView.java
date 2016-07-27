@@ -23,7 +23,6 @@ import com.patchr.components.UserManager;
 import com.patchr.model.Link;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.UserRole;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
@@ -47,10 +46,10 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 	protected ViewGroup    layout;
 	private   ImageWidget  userPhoto;
-	private   TextView     name;
-	private   TextView     email;
-	private   TextView     area;
-	private   TextView     role;
+	private   TextView     nameView;
+	private   TextView     emailView;
+	private   TextView     areaView;
+	private   TextView     roleView;
 	private   ViewGroup    editGroup;
 	private   ImageButton  removeButton;
 	private   SwitchCompat enableSwitch;
@@ -66,7 +65,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 	public UserView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.view_user;
+		layoutResId = R.layout.view_user;
 		initialize();
 	}
 
@@ -90,8 +89,9 @@ public class UserView extends BaseView implements View.OnClickListener {
 		if (!processing) {
 			processing = true;
 			Boolean approved = ((CompoundButton) view).isChecked();
-			this.enableLabel.setText(approved ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
-			approveMember(this.entity, this.entity.userMemberId, this.entity.id, this.patch.id, approved);
+			enableLabel.setText(approved ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+			Link link = entity.getLink();
+			approveMember(entity, link.id, approved);
 		}
 	}
 
@@ -101,22 +101,22 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 	private void initialize() {
 
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+		layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
 
 		ListView.LayoutParams params = new ListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		this.setLayoutParams(params);
+		setLayoutParams(params);
 
-		this.userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
-		this.name = (TextView) layout.findViewById(R.id.name);
-		this.email = (TextView) layout.findViewById(R.id.email);
-		this.area = (TextView) layout.findViewById(R.id.area);
-		this.role = (TextView) layout.findViewById(R.id.role);
-		this.editGroup = (ViewGroup) layout.findViewById(R.id.edit_group);
-		this.enableSwitch = (SwitchCompat) layout.findViewById(R.id.enable_switch);
-		this.enableLabel = (TextView) layout.findViewById(R.id.enable_label);
-		this.removeButton = (ImageButton) layout.findViewById(R.id.remove_button);
-		if (this.enableSwitch != null) {
-			this.enableSwitch.setOnClickListener(this);
+		userPhoto = (ImageWidget) layout.findViewById(R.id.user_photo);
+		nameView = (TextView) layout.findViewById(R.id.name);
+		emailView = (TextView) layout.findViewById(R.id.email);
+		areaView = (TextView) layout.findViewById(R.id.area);
+		roleView = (TextView) layout.findViewById(R.id.role);
+		editGroup = (ViewGroup) layout.findViewById(R.id.edit_group);
+		enableSwitch = (SwitchCompat) layout.findViewById(R.id.enable_switch);
+		enableLabel = (TextView) layout.findViewById(R.id.enable_label);
+		removeButton = (ImageButton) layout.findViewById(R.id.remove_button);
+		if (enableSwitch != null) {
+			enableSwitch.setOnClickListener(this);
 		}
 	}
 
@@ -130,61 +130,68 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 			this.entity = entity;
 
-			UI.setVisibility(this.email, GONE);
-			UI.setVisibility(this.role, GONE);
-			UI.setVisibility(this.editGroup, GONE);
+			UI.setVisibility(emailView, GONE);
+			UI.setVisibility(roleView, GONE);
+			UI.setVisibility(editGroup, GONE);
 
 			if (entity == null) {
 				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
 				final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
 				UI.showDrawableInImageView(bitmapDrawable, userPhoto.imageView, Constants.ANIMATE_IMAGES);
-				this.name.setText("Guest");
-				this.area.setText(null);
+				nameView.setText("Guest");
+				areaView.setText(null);
 				return;
 			}
 
-			this.userPhoto.setImageWithEntity(entity, null);
-			setOrGone(this.name, entity.name);
-			setOrGone(this.area, entity.area);
+			userPhoto.setImageWithEntity(entity, null);
+			setOrGone(nameView, entity.name);
+			setOrGone(areaView, entity.area);
 
-			if (this.showEmail) {
-				setOrGone(this.email, entity.email);
+			if (showEmail) {
+				setOrGone(emailView, entity.email);
 			}
 
 			Link link = entity.getLink();
 			if (patch != null && link != null) {
 				this.patch = patch;
 				if (entity.id.equals(patch.ownerId)) {
-					setOrGone(this.role, UserRole.OWNER);
+					setOrGone(roleView, UserRole.OWNER);
 				}
-				else if (UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)) {
-					this.removeButton.setTag(entity);
-					this.enableSwitch.setChecked(link.enabled);
-					this.enableLabel.setText(link.enabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
-					UI.setVisibility(this.editGroup, VISIBLE);
+				else if (!patch.visibility.equals(Constants.PRIVACY_PUBLIC) && UserManager.currentUser != null && UserManager.userId.equals(patch.ownerId)) {
+					removeButton.setTag(entity);
+					enableSwitch.setChecked(link.enabled);
+					enableLabel.setText(link.enabled ? R.string.label_watcher_enabled : R.string.label_watcher_not_enabled);
+					UI.setVisibility(editGroup, VISIBLE);
 				}
 			}
 		}
 	}
 
-	public void approveMember(final RealmEntity entity, final String linkId, final String fromId, final String toId, final Boolean enabled) {
+	public void approveMember(final RealmEntity entity, final String linkId, final Boolean enabled) {
 
 		String entityId = entity.id;
 
 		RestClient.getInstance().enableLinkById(entityId, linkId, enabled)
+			.map(response -> {
+				Realm realm = Realm.getDefaultInstance();
+				realm.executeTransaction(whocares -> {
+					RealmEntity realmEntity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+					if (realmEntity != null) {
+						Link link = realmEntity.getLink();
+						link.enabled = enabled;
+						realmEntity.setLink(link);
+					}
+				});
+				realm.close();
+				return response;
+			})
 			.subscribe(
 				response -> {
 					processing = false;
 					if (!((Activity) getContext()).isFinishing()) {
 						Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
-						Realm realm = Realm.getDefaultInstance();
-						realm.executeTransaction(realmEntity -> {
-							entity.userMemberStatus = enabled ? MemberStatus.Member : MemberStatus.Pending;
-						});
-						realm.close();
 						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 					}
-					;
 				},
 				error -> {
 					processing = false;
