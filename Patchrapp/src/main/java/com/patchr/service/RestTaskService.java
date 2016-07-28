@@ -8,19 +8,12 @@ import com.google.android.gms.gcm.TaskParams;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.S3;
-import com.patchr.exceptions.ServiceException;
 import com.patchr.model.Photo;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.ResponseCode;
 import com.patchr.objects.enums.TaskTag;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-
-import java.io.IOException;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 public class RestTaskService extends GcmTaskService {
 
@@ -54,32 +47,32 @@ public class RestTaskService extends GcmTaskService {
 			}
 		}
 
-		try {
-			Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, data);
-			Response<Map<String, Object>> responseMap = call.execute();
-
-			if (!responseMap.isSuccessful()) {
-				ServiceException exception = new ServiceException();
-				exception.code = responseMap.code();
-				exception.message = responseMap.message();
-				throw exception;
-			}
-			ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
-			if (response.error != null) {
-				throw response.error.asServiceException();
-			}
-			else if (!response.noop && response.data.size() > 0) {
-				RestClient.getInstance().updateRealm(response, null, null);
-			}
+//		try {
+//			Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, data);
+//			Response<Map<String, Object>> responseMap = call.execute();
+//
+//			if (!responseMap.isSuccessful()) {
+//				ServiceException exception = new ServiceException();
+//				exception.code = responseMap.code();
+//				exception.message = responseMap.message();
+//				throw exception;
+//			}
+//			ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+//			if (response.error != null) {
+//				throw response.error.asServiceException();
+//			}
+//			else if (!response.noop && response.data.size() > 0) {
+//				RestClient.getInstance().updateRealm(response, null, null);
+//			}
 
 			return GcmNetworkManager.RESULT_SUCCESS;
-		}
-		catch (IOException e) {
-			return GcmNetworkManager.RESULT_RESCHEDULE;
-		}
-		catch (Exception e) {
-			return GcmNetworkManager.RESULT_FAILURE;
-		}
+//		}
+//		catch (IOException e) {
+//			return GcmNetworkManager.RESULT_RESCHEDULE;
+//		}
+//		catch (Exception e) {
+//			return GcmNetworkManager.RESULT_FAILURE;
+//		}
 	}
 
 	protected Photo postPhotoToS3(Photo photo) {
@@ -92,7 +85,7 @@ public class RestTaskService extends GcmTaskService {
 		bitmap = UI.ensureBitmapScaleForS3(bitmap);
 
 		/* Push it to S3. It is always formatted/compressed as a jpeg. */
-		String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
+		String imageKey = Utils.createImageKey(); // User id at root to avoid collisions
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */

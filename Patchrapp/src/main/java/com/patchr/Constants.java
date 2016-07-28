@@ -129,7 +129,6 @@ public class Constants {
 	public static final int   PIXEL_SCALE               = UI.getRawPixelsForDisplayPixels(1f);
 	public static final int   PAGE_SIZE                 = 20;
 
-	public static final int RADAR_BEACON_SIGNAL_BUCKET_SIZE = 1;
 	/*
 	 * Using quality = 70 for jpeg compression reduces image file size by 85% with
 	 * an acceptable degradation of image quality. A 1280x960 image went from
@@ -194,10 +193,6 @@ public class Constants {
 
 	public static final String TYPE_COUNT_LINK_PROXIMITY       = "link_proximity";
 	public static final String TYPE_COUNT_LINK_PROXIMITY_MINUS = "link_proximity_minus";
-
-	public static final String TYPE_BEACON_FIXED     = "fixed";
-	public static final String TYPE_BEACON_MOBILE    = "mobile";
-	public static final String TYPE_BEACON_TEMPORARY = "temporary";
 
 	public static final String TYPE_PROVIDER_FOURSQUARE = "foursquare";
 	public static final String TYPE_PROVIDER_GOOGLE     = "google";
@@ -337,8 +332,6 @@ public class Constants {
 	 * Nearby = 20 minutes walking = 1 mile = 1609 meters.
 	 */
 	public static final int     PATCH_NEAR_RADIUS                                = 10000;
-	public static final int     PROXIMITY_BEACON_COVERAGE                        = 5;
-	public static final int     PROXIMITY_BEACON_UNCOVERAGE                      = 50;
 	public static final float   SERVICE_STATUS_CODE_BAD_REQUEST                  = 400.0f;
 	public static final float   SERVICE_STATUS_CODE_MISSING_PARAM                = 400.1f;
 	public static final float   SERVICE_STATUS_CODE_BAD_PARAM                    = 400.11f;

@@ -38,7 +38,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		bind();                                         // Display header from cache
-		listWidget.bind(this.querySpec, this.entityId); // Display list from cache
+		listWidget.bind(this.querySpec.name, this.entityId); // Display list from cache
 	}
 
 	@Override protected void onStart() {
@@ -123,19 +123,19 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 		}
 
 		if (querySpec.listTitleResId != null) {
-			this.actionBarTitle.setText(this.querySpec.listTitleResId);
+			actionBarTitle.setText(querySpec.listTitleResId);
 		}
 
-		this.listWidget = (ListWidget) findViewById(R.id.list_view);
-		if (this.listWidget != null) {
-			this.listWidget.setRealm(this.realm);
-			this.listWidget.listGroup.setPadding(0, this.topPadding, 0, 0);
+		listWidget = (ListWidget) findViewById(R.id.list_view);
+		if (listWidget != null) {
+			listWidget.setRealm(realm);
+			listWidget.listGroup.setPadding(0, this.topPadding, 0, 0);
 		}
-		if (this.headerResId != null) {
-			View header = LayoutInflater.from(this).inflate(this.headerResId, null, false);
+		if (headerResId != null) {
+			View header = LayoutInflater.from(this).inflate(headerResId, null, false);
 		}
-		if (this.header != null && this.listWidget != null) {
-			this.listWidget.setHeader(header);
+		if (header != null && listWidget != null) {
+			listWidget.setHeader(header);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 			AsyncTask.execute(() -> {
 
 				if (!headerOnly && entity != null) {
-						/* We can do both in parallel */
+					/* We can do both in parallel */
 					listWidget.fetch(mode);
 				}
 

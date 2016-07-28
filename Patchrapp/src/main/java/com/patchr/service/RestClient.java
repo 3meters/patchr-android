@@ -70,7 +70,12 @@ public class RestClient {
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
 			OkHttpClient client = httpClient.build();
 
-			Gson gson = new GsonBuilder().serializeNulls().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).create();
+			Gson gson = new GsonBuilder()
+				.serializeNulls()
+				.setPrettyPrinting()
+				.registerTypeAdapter(RealmEntity.class, new EntitySerializer())
+				.excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC)    // These are also the defaults
+				.create();
 
 			Retrofit retrofitProxi = new Retrofit.Builder()
 				.baseUrl("https://api.aircandi.com/v1/")
@@ -416,17 +421,17 @@ public class RestClient {
 		return post(path, parameters, null, null, false);
 	}
 
-	public Call<Map<String, Object>> postEntityCall(final String path, SimpleMap data) {
+	public Call<Map<String, Object>> postEntityCall(final String path, RealmEntity entity, SimpleMap parameters) {
 
-		SimpleMap parameters = data;
-		if (!data.containsKey("data")) {
-			parameters = new SimpleMap();
-			parameters.put("data", data);
+		SimpleMap body = parameters;
+		if (body == null) {
+			body = new SimpleMap();
 		}
+		body.put("data", entity);
 
-		addSessionParameters(parameters);
+		addSessionParameters(body);
 
-		return proxiApi.postCall(path, parameters);
+		return proxiApi.postCall(path, body);
 	}
 
 	public Observable<ProxibaseResponse> deleteEntity(final String path, SimpleMap parameters, final String objectId) {
@@ -854,6 +859,25 @@ public class RestClient {
 			}
 		}
 		return false;
+	}
+
+	public static Query getQuery(String queryName, String contextEntityId) {
+		QuerySpec querySpec = getQuerySpec(queryName);
+		Realm realm = Realm.getDefaultInstance();
+		Query query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
+		if (query == null) {
+			realm.beginTransaction();
+			Query realmQuery = new Query();
+			realmQuery.id = querySpec.getId(contextEntityId);
+			query = realm.copyToRealm(realmQuery);
+			realm.commitTransaction();
+		}
+		return query;
+	}
+
+	public static QuerySpec getQuerySpec(String queryName) {
+		QuerySpec querySpec = QuerySpec.Factory(queryName);
+		return querySpec;
 	}
 
 	public void throwServiceException(ResponseBody errorBody) {

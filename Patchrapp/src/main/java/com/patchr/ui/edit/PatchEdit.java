@@ -51,9 +51,9 @@ import org.greenrobot.eventbus.Subscribe;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEdit {
 
-	private   TextView    buttonPrivacy;
-	private   TextView    locationLabel;
-	private   TextView    title;
+	private TextView buttonPrivacy;
+	private TextView locationLabel;
+	private TextView title;
 
 	private RadioGroup  buttonPatchType;
 	private RadioButton buttonTypeEvent;

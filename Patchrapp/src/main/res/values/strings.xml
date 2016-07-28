@@ -395,6 +395,11 @@
 	<string name="button_just_approved_no_message">Approved! Post your first message</string>
 	<string name="button_no_message">Post your first message</string>
 
+	<plurals name="pending_updates">
+		<item quantity="one">One pending update</item>
+		<item quantity="other">%d pending updates</item>
+	</plurals>
+
 	<plurals name="button_pending_requests">
 		<item quantity="one">One member request</item>
 		<item quantity="other">%d member requests</item>

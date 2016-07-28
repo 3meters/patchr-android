@@ -15,7 +15,9 @@ import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.Session;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.TriggerCategory;
+import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
+import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,21 +39,20 @@ import io.realm.annotations.PrimaryKey;
  */
 public class RealmEntity extends RealmObject {
 
-	/* Service persisted fields */
+	/* Updatable fields */
 	@PrimaryKey
 	public String id;
-	public String schema;
 	public String type;
 	public String name;
-	public String namelc;
-	public String subtitle;
 	public String description;
-	public String photoJson;
+	public Boolean locked;
 
-	public String  locationJson;
+	/* Service managed fields */
+	public String  schema;
+	public String  namelc;
+	public String  subtitle;
 	public String  aclId; // _acl
 	public String  patchId; // _acl
-	public Boolean locked;
 
 	public String ownerId;
 	public String creatorId;
@@ -59,7 +60,6 @@ public class RealmEntity extends RealmObject {
 	public Long   createdDate;
 	public Long   modifiedDate;
 	public Long   activityDate;
-	public Long   sortDate;
 
 	/* Patch entity */
 	public String visibility;           // private|public|hidden
@@ -68,18 +68,11 @@ public class RealmEntity extends RealmObject {
 	public String  area;
 	public Boolean developer;
 	public String  email;
-	public String  password;
 	public String  role;
-	public String  phoneJson;
 
 	/* Message entity */
 	public RealmEntity            message;
 	public RealmList<RealmEntity> recipients;
-
-	/* Beacon entity */
-	public String  ssid;
-	public String  bssid;
-	public Integer signal;                                    // Used to evaluate location accuracy
 
 	/* Notification entity */
 	public String  targetId;
@@ -101,11 +94,14 @@ public class RealmEntity extends RealmObject {
 	public RealmEntity creator;
 	public RealmEntity modifier;
 	public RealmEntity patch;
-	public String      linkJson;
 	public String      reason;        // Search suggestions
 	public Float       score;         // Search suggestions
 
 	/* Local calculated fields */
+	public String linkJson;
+	public String photoJson;
+	public String locationJson;
+	public String  phoneJson;
 	public Integer countLikes             = 0;
 	public Integer countMembers           = 0;
 	public Integer countPending           = 0;
@@ -121,12 +117,13 @@ public class RealmEntity extends RealmObject {
 	public Boolean userHasMessaged = false;
 	public String shortcutForId;
 	public Float  distance;              // Used to cache most recent distance calculation.
+	public boolean pending;
+	public boolean posting;
 
 	/* Local convenience fields */
 	@Ignore public Integer index = 0;                                   // Used to cross reference list position for mapping.
 	@Ignore public String authType;
 	@Ignore public Intent intent;
-	@Ignore public Boolean personalized = true;
 	@Ignore public Session session;
 
 	/*--------------------------------------------------------------------------------------------
@@ -153,7 +150,6 @@ public class RealmEntity extends RealmObject {
 
 			if (asShortcut) {
 				entity.shortcutForId = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
-				entity.personalized = false;
 				if (!entity.id.contains("sh.")) {
 					entity.id = "sh.".concat(entity.id);
 				}
@@ -166,7 +162,6 @@ public class RealmEntity extends RealmObject {
 			entity.createdDate = map.get("createdDate") != null ? ((Double) map.get("createdDate")).longValue() : null;
 			entity.modifiedDate = map.get("modifiedDate") != null ? ((Double) map.get("modifiedDate")).longValue() : null;
 			entity.activityDate = map.get("activityDate") != null ? ((Double) map.get("activityDate")).longValue() : null;
-			entity.sortDate = map.get("sortDate") != null ? ((Double) map.get("sortDate")).longValue() : null;
 
 			if (entity.activityDate == null && entity.createdDate != null) {
 				entity.activityDate = entity.createdDate; // Service doesn't set activityDate until there is activity
@@ -404,6 +399,21 @@ public class RealmEntity extends RealmObject {
 		return EventCategory.NONE;
 	}
 
+	public static RealmEntity createBaseEntity(String schema) {
+		RealmEntity entity = new RealmEntity();
+		long date = DateTime.nowDate().getTime();
+		entity.id = Utils.createEntityKey(schema);
+		entity.schema = schema;
+		entity.createdDate = date;
+		entity.modifiedDate = date;
+		entity.activityDate = date;
+		entity.ownerId = UserManager.userId;
+		entity.modifierId = UserManager.userId;
+		entity.creatorId = UserManager.userId;
+		entity.owner = UserManager.currentUser;
+		return entity;
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -427,7 +437,7 @@ public class RealmEntity extends RealmObject {
 			this.photoJson = null;
 		}
 		else {
-			this.photoJson = Patchr.gson.toJson(photo, Photo.class);
+			this.photoJson = Patchr.gson.toJson(photo);
 		}
 	}
 
@@ -443,7 +453,7 @@ public class RealmEntity extends RealmObject {
 			this.linkJson = null;
 		}
 		else {
-			this.linkJson = Patchr.gson.toJson(link, Link.class);
+			this.linkJson = Patchr.gson.toJson(link);
 		}
 	}
 
@@ -459,7 +469,7 @@ public class RealmEntity extends RealmObject {
 			this.photoBigJson = null;
 		}
 		else {
-			this.photoBigJson = Patchr.gson.toJson(photo, Photo.class);
+			this.photoBigJson = Patchr.gson.toJson(photo);
 		}
 	}
 
@@ -475,7 +485,7 @@ public class RealmEntity extends RealmObject {
 			this.locationJson = null;
 		}
 		else {
-			this.locationJson = Patchr.gson.toJson(location, Location.class);
+			this.locationJson = Patchr.gson.toJson(location);
 		}
 	}
 
@@ -565,6 +575,22 @@ public class RealmEntity extends RealmObject {
 		}
 		else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
 			return Constants.COLLECTION_ENTITY_NOTIFICATIONS;
+		}
+		return null;
+	}
+
+	public static String getSchemaIdForSchema(String schema) {
+		if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+			return "pa";
+		}
+		else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+			return "us";
+		}
+		else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+			return "me";
+		}
+		else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+			return "no";
 		}
 		return null;
 	}

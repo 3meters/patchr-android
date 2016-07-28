@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.patchr.R;
-import com.patchr.objects.QuerySpec;
 import com.patchr.ui.widgets.ListWidget;
 
 import io.realm.Realm;
@@ -35,8 +34,9 @@ import io.realm.Realm;
  */
 public class EntityListFragment extends Fragment {
 
-	public QuerySpec  querySpec;   /* Required injection */
-	public Integer    headerResId; /* Optional injection */
+	public String     queryName;    /* Required injection */
+	public Integer    headerResId;  /* Optional injection */
+	public Integer    listTitleResId;
 	public ListWidget listWidget;
 	public String     contextEntityId;
 
@@ -67,14 +67,14 @@ public class EntityListFragment extends Fragment {
 		 * fragment's view hierarchy instantiated.
 		 */
 		super.onActivityCreated(savedInstanceState);
-		if (querySpec == null) {
+		if (queryName == null) {
 			getActivity().finish();
 		}
 		else {
 			View view = getView();
 			if (view != null) {
 				initialize(view);
-				listWidget.bind(querySpec, contextEntityId);   // Triggers display of cached entities
+				listWidget.bind(queryName, contextEntityId);   // Triggers display of cached entities
 			}
 		}
 	}

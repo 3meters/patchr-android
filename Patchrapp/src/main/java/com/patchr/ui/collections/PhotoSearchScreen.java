@@ -127,7 +127,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			Photo photo = imageResult.asPhoto();
 
 			final Intent intent = new Intent();
-			final String jsonPhoto = Patchr.gson.toJson(photo, Photo.class);
+			final String jsonPhoto = Patchr.gson.toJson(photo);
 			intent.putExtra(Constants.EXTRA_PHOTO, jsonPhoto);
 			setResult(Activity.RESULT_OK, intent);
 			finish();

@@ -3,6 +3,7 @@ package com.patchr.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -36,7 +37,6 @@ import com.patchr.events.NetworkStatusEvent;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.QuerySpec;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.LocationStatus;
@@ -254,6 +254,21 @@ public class MainScreen extends BaseScreen {
 		this.pendingClickView = null;
 	}
 
+	public void addAction() {
+		Intent intent = new Intent(this, PatchEdit.class);
+		intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
+		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+	}
+
+	public void searchAction() {
+
+		Intent intent = new Intent(this, SearchScreen.class);
+		intent.putExtra(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
+		startActivity(intent);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
@@ -267,7 +282,7 @@ public class MainScreen extends BaseScreen {
 			snackbar.dismiss();
 		}
 		else if (!snackbar.isShownOrQueued()) {
-			showSnackbar("Connection is offline", Snackbar.LENGTH_INDEFINITE);
+			displayConnectionIndicator();
 		}
 	}
 
@@ -407,10 +422,25 @@ public class MainScreen extends BaseScreen {
 		 */
 		if (this.drawerRight != null && this.notificationList != null) {
 			notificationList.setRealm(this.realm);
-			notificationList.bind(QuerySpec.Factory(QueryName.NotificationsForUser), null);
+			notificationList.bind(QueryName.NotificationsForUser, null);
 		}
 
 		switchToFragment(nextFragmentTag);
+	}
+
+	public void displayConnectionIndicator() {
+
+		AsyncTask.execute(() -> {
+			int count = Patchr.jobManager.count();
+			runOnUiThread(() -> {
+				String pending = "";
+				if (count > 0) {
+					String label = getResources().getQuantityString(R.plurals.pending_updates, count, count);
+					pending = String.format(": %1$s", label);
+				}
+				showSnackbar(String.format("Connection is offline%1$s", pending), Snackbar.LENGTH_INDEFINITE);
+			});
+		});
 	}
 
 	@Override protected void configureStandardMenuItems(Menu menu) {
@@ -478,23 +508,8 @@ public class MainScreen extends BaseScreen {
 		}
 
 		if (!NetworkManager.getInstance().isConnected()) {
-			showSnackbar("No network connection", Snackbar.LENGTH_INDEFINITE);
+			displayConnectionIndicator();
 		}
-	}
-
-	public void addAction() {
-		Intent intent = new Intent(this, PatchEdit.class);
-		intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
-		startActivityForResult(intent, Constants.ACTIVITY_ENTITY_INSERT);
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
-	}
-
-	public void searchAction() {
-
-		Intent intent = new Intent(this, SearchScreen.class);
-		intent.putExtra(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
-		startActivity(intent);
-		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void updateNotificationIndicator(final Boolean ifDrawerVisible) {
@@ -538,15 +553,16 @@ public class MainScreen extends BaseScreen {
 
 				fragment = new NearbyListFragment();
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.querySpec = QuerySpec.Factory(QueryName.PatchesNearby);
-				//listFragment.headerResId = R.layout.view_nearby_header;
+				listFragment.queryName = QueryName.PatchesNearby;
+				listFragment.listTitleResId = R.string.screen_title_nearby;
 				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MEMBER_OF)) {
 
 				fragment = new EntityListFragment();
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.querySpec = QuerySpec.Factory(QueryName.PatchesUserMemberOf);
+				listFragment.queryName = QueryName.PatchesUserMemberOf;
+				listFragment.listTitleResId = R.string.screen_title_member_of;
 				listFragment.contextEntityId = UserManager.userId;
 				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
 			}
@@ -554,7 +570,8 @@ public class MainScreen extends BaseScreen {
 
 				fragment = new EntityListFragment();
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.querySpec = QuerySpec.Factory(QueryName.PatchesOwnedByUser);
+				listFragment.queryName = QueryName.PatchesOwnedByUser;
+				listFragment.listTitleResId = R.string.screen_title_owner_of;
 				listFragment.contextEntityId = UserManager.userId;
 				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
 			}
@@ -562,7 +579,8 @@ public class MainScreen extends BaseScreen {
 
 				fragment = new EntityListFragment();
 				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.querySpec = QuerySpec.Factory(QueryName.PatchesToExplore);
+				listFragment.listTitleResId = R.string.screen_title_explore;
+				listFragment.queryName = QueryName.PatchesToExplore;
 				listFragment.headerResId = R.layout.view_list_header_trends_active;
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
@@ -602,7 +620,7 @@ public class MainScreen extends BaseScreen {
 		}
 
 		if (fragment instanceof EntityListFragment) {
-			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).querySpec.listTitleResId));
+			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).listTitleResId));
 		}
 
 		if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {

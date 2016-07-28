@@ -8,21 +8,19 @@ import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.Params;
 import com.birbit.android.jobqueue.RetryConstraint;
 import com.patchr.Constants;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.S3;
-import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Photo;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.ResponseCode;
-import com.patchr.objects.enums.TaskStatus;
-import com.patchr.objects.enums.TaskTag;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
 import java.io.IOException;
 import java.util.Map;
 
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -32,37 +30,63 @@ public class PostEntityJob extends Job {
 	public String    path;
 	public SimpleMap data;
 	public String    entityId;
-	public String    parentId;
 
-	public PostEntityJob(String path, SimpleMap data, String entityId, String parentId) {
-		super(new Params(PRIORITY).requireNetwork().setGroupId(parentId).persist());
+	public PostEntityJob(String path, SimpleMap data, String entityId, String groupId) {
+		super(new Params(PRIORITY).requireNetwork().setGroupId(groupId).persist());
 		this.path = path;
 		this.data = data;
 		this.entityId = entityId;
-		this.parentId = parentId;
 	}
 
 	@Override public void onAdded() {
 		/* Has been persisted */
 		Logger.d(this, "Job persisted to job queue");
-		Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.PENDING));
 	}
 
 	@Override public void onRun() throws Throwable {
-		String processName = Utils.getProcessName();
-		if ("com.patchr.android:cds".equals(processName)) {
-			Logger.d(this, "Blocking job from running on background process");
+		Logger.d(this, String.format("Job running"));
+		Realm realm = Realm.getDefaultInstance();
+		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+
+		if (entity.pending && !entity.posting) {
+			realm.executeTransaction(whocares -> entity.posting = true);
+			RealmEntity entityCopy = realm.copyFromRealm(entity);
+			Photo photo = entityCopy.getPhoto();
+
+			/* Convert local file photos */
+			if (photo != null && photo.isFile()) {
+				Photo photoFinal = postPhotoToS3(photo);
+				entityCopy.setPhoto(photoFinal);
+				realm.executeTransaction(whocares -> entity.setPhoto(photoFinal));
+			}
+
+			Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, entityCopy, data);
+			Response<Map<String, Object>> responseMap = call.execute();
+
+			if (!responseMap.isSuccessful()) {
+				realm.close();
+				RestClient.getInstance().throwServiceException(responseMap.errorBody());
+			}
+			else {
+				realm.executeTransaction(whocares -> {
+					entity.pending = false;
+					entity.posting = false;
+				});
+				realm.close();
+			}
 		}
 		else {
-			Logger.d(this, String.format("Job running"));
-			Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.STARTED));
-			postEntity(path, data);
-			Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.SUCCESS));
+			realm.close();
 		}
 	}
 
 	@Override protected void onCancel(int cancelReason, @Nullable Throwable throwable) {
-		Dispatcher.getInstance().post(new TaskStatusEvent(TaskTag.POST_ENTITY, this.entityId, this.parentId, TaskStatus.FAILED));
+		Realm realm = Realm.getDefaultInstance();
+		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
+		realm.executeTransaction(whocares -> {
+			entity.posting = false;
+		});
+		realm.close();
 	}
 
 	@Override
@@ -72,24 +96,6 @@ public class PostEntityJob extends Job {
 			return RetryConstraint.RETRY;
 		}
 		return RetryConstraint.CANCEL;
-	}
-
-	protected void postEntity(String path, SimpleMap data) throws Throwable {
-
-		if (data.containsKey("photo")) {
-			Photo photo = Photo.setPropertiesFromMap(new Photo(), (SimpleMap) data.get("photo"));
-			if (photo != null) {
-				Photo photoFinal = postPhotoToS3(photo);
-				data.put("photo", photoFinal);
-			}
-		}
-
-		Call<Map<String, Object>> call = RestClient.getInstance().postEntityCall(path, data);
-		Response<Map<String, Object>> responseMap = call.execute();
-
-		if (!responseMap.isSuccessful()) {
-			RestClient.getInstance().throwServiceException(responseMap.errorBody());
-		}
 	}
 
 	protected Photo postPhotoToS3(Photo photo) {
@@ -102,7 +108,7 @@ public class PostEntityJob extends Job {
 		bitmap = UI.ensureBitmapScaleForS3(bitmap);
 
 		/* Push it to S3. It is always formatted/compressed as a jpeg. */
-		String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
+		String imageKey = Utils.createImageKey(); // User id at root to avoid collisions
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */

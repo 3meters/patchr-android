@@ -47,6 +47,18 @@ public class DateTime {
 		return (nowMilliseconds - time) / 1000;
 	}
 
+	public static long secondsSinceMidnight(Long time) {
+		final Calendar cal = Calendar.getInstance();
+		final Long now = cal.getTimeInMillis();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		long passed = now - cal.getTimeInMillis();
+		long secondsPassed = passed / 1000;
+		return secondsPassed;
+	}
+
 	@SuppressWarnings("deprecation")
 	@NonNull public static String dateStringAt(Long time) {
 		final Date date = new Date(time);
@@ -57,10 +69,6 @@ public class DateTime {
 
 		final SimpleDateFormat timePart = new SimpleDateFormat(TIME_FORMAT_TIME_SINCE, Locale.US);
 		final SimpleDateFormat ampmPart = new SimpleDateFormat(AMPM_FORMAT_TIME_SINCE, Locale.US);
-
-		//		return datePart.format(time) + " " + StringManager.getString(R.string.symbol_bullet) + " "
-		//				+ timePart.format(time) + " "
-		//				+ ampmPart.format(time).toUpperCase(Locale.US);
 
 		return timePart.format(time) + " "
 				+ ampmPart.format(time).toUpperCase(Locale.US) + " " + StringManager.getString(R.string.symbol_bullet) + " "

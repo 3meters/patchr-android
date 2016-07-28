@@ -248,7 +248,7 @@ public abstract class BaseEdit extends BaseScreen {
 		bitmap = UI.ensureBitmapScaleForS3(bitmap);
 
 		/* Push it to S3. It is always formatted/compressed as a jpeg. */
-		String imageKey = Utils.getImageKey(); // User id at root to avoid collisions
+		String imageKey = Utils.createImageKey(); // User id at root to avoid collisions
 		ServiceResponse serviceResponse = S3.getInstance().putImage(imageKey, bitmap, Constants.IMAGE_QUALITY_S3);
 
 		/* Update the photo object for the entity or user */

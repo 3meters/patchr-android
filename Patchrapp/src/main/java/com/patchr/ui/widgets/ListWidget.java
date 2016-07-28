@@ -204,25 +204,17 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 		}
 	}
 
-	public void bind(QuerySpec querySpec, String contextEntityId) {
+	public void bind(String queryName, String contextEntityId) {
 
 		synchronized (lock) {
 
-			this.querySpec = querySpec;
+			this.querySpec = QuerySpec.Factory(queryName);
 			this.contextEntityId = contextEntityId;
 			if (contextEntityId != null) {
 				contextEntity = realm.where(RealmEntity.class).equalTo("id", contextEntityId).findFirst();
 			}
 
-			query = realm.where(Query.class).equalTo("id", querySpec.getId(contextEntityId)).findFirst();
-			if (query == null) {
-				Query realmQuery = new Query();
-				realmQuery.id = querySpec.getId(contextEntityId);
-				realm.beginTransaction();
-				query = realm.copyToRealm(realmQuery);
-				realm.commitTransaction();
-			}
-
+			query = RestClient.getQuery(queryName, contextEntityId);
 			entities = query.entities
 				.sort(querySpec.sortField, querySpec.sortAscending ? Sort.ASCENDING : Sort.DESCENDING);
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
@@ -103,20 +102,6 @@ public class MessageScreen extends BaseScreen {
 				processing = true;
 				fetch(FetchMode.AUTO);
 			}
-
-			AsyncTask.execute(() -> {
-				int count = Patchr.jobManager.count();
-				runOnUiThread(() -> {
-					if (count > 0) {
-						showSnackbar(String.format("Updates to send: %1$s", String.valueOf(count)), Snackbar.LENGTH_INDEFINITE);
-					}
-					else {
-						if (snackbar.isShownOrQueued()) {
-							snackbar.dismiss();
-						}
-					}
-				});
-			});
 		}
 	}
 

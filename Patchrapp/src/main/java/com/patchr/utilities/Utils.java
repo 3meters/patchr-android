@@ -17,11 +17,15 @@ import com.patchr.Patchr;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.UserManager;
+import com.patchr.model.RealmEntity;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -60,10 +64,26 @@ public class Utils {
 		return string.substring(0, 1).toUpperCase(Locale.US) + string.substring(1).toLowerCase(Locale.US);
 	}
 
-	public static String getImageKey() {
+	public static String createImageKey() {
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
+		final String root = UserManager.userId != null ? UserManager.userId : Patchr.getInstance().getinstallId();
 		final String imageKey = String.format("%1$s_%2$s.jpg", UserManager.userId, stringDate); // User id at root to avoid collisions
 		return imageKey;
+	}
+
+	public static String createEntityKey(String schema) {
+		final Date nowDate = new Date();
+		final long secondsSinceMidnight = DateTime.secondsSinceMidnight(nowDate.getTime());
+		final int randNum = Utils.randInt(1, 999999);
+
+		final String schemaId = RealmEntity.getSchemaIdForSchema(schema);
+		final String dateString = DateTime.dateString(nowDate.getTime(), "yyMMdd");
+		final String secondsString = StringUtils.leftPad(String.valueOf(secondsSinceMidnight), 5, "0");
+		final String millisString = DateTime.dateString(nowDate.getTime(), "SSS");
+		final String randString = String.valueOf(randNum);
+
+		final String key = String.format("%1$s.%2$s.%3$s.%4$s.%5$s", schemaId, dateString, secondsString, millisString, randString);
+		return key;
 	}
 
 	public static String md5(final String s) {
@@ -95,7 +115,7 @@ public class Utils {
 		if (infos != null) {
 			for (ActivityManager.RunningAppProcessInfo info : infos) {
 				if (info.pid == pid) {
-					return  info.processName;
+					return info.processName;
 				}
 			}
 		}
@@ -189,6 +209,12 @@ public class Utils {
 		if (!condition) {
 			throw new AssertionError(message);
 		}
+	}
+
+	public static int randInt(int min, int max) {
+		Random random = new Random();
+		int randomNum = random.nextInt((max - min) + 1) + min;
+		return randomNum;
 	}
 
 	public static int randomColor(long seed) {

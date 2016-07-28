@@ -13,10 +13,14 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
+import com.patchr.model.Query;
+import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.PostEntityJob;
+import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.UI;
@@ -77,11 +81,10 @@ public class MessageEdit extends BaseEdit {
 	@Override public void submitAction() {
 
 		if (!isValid()) return;
+		if (!isDirty()) return;
 		if (!processing) {
 			processing = true;
-			SimpleMap parameters = new SimpleMap();
-			gather(parameters);
-			post(parameters);
+			post();
 		}
 	}
 
@@ -122,10 +125,10 @@ public class MessageEdit extends BaseEdit {
 	@Override public void bind() { /* This method is only called when the activity is created.*/
 		super.bind();
 
-		if (!inputState.equals(State.Editing)) {
+		if (State.Inserting.equals(inputState)) {
 			UI.setTextView(this.patchName, this.inputParentName + " Patch");
 		}
-		else {
+		else if (entity.patch != null) {
 			UI.setTextView(this.patchName, this.entity.patch.name + " Patch");
 		}
 		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
@@ -149,8 +152,54 @@ public class MessageEdit extends BaseEdit {
 		}
 	}
 
-	protected void post(SimpleMap data) {
-		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entity.id);
+	protected void post() {
+
+		String path = entity == null ? "data/messages" : String.format("data/messages/%1$s", entityId);
+		String entityId = this.entityId;
+		SimpleMap data = new SimpleMap();
+
+		if (State.Editing.equals(inputState) && entity != null) {
+			realm.executeTransaction(whocares -> {
+				entity.pending = true;
+				entity.description = descriptionView.getText().toString().trim();
+				entity.setPhoto(photoEditWidget.photo);
+			});
+		}
+		else if (State.Inserting.equals(inputState)) {
+
+			RealmEntity entity = RealmEntity.createBaseEntity(Constants.SCHEMA_ENTITY_MESSAGE);
+
+			entityId = entity.id;
+			entity.pending = true;
+			entity.description = descriptionView.getText().toString().trim();
+			entity.setPhoto(photoEditWidget.photo);
+
+			realm.executeTransaction(whocares -> {
+				RealmEntity realmEntity = realm.copyToRealmOrUpdate(entity);
+
+				/* Fixup message lists */
+				Query query = RestClient.getQuery(QueryName.MessagesForPatch, inputParentId);
+				if (query != null) {
+					query.entities.add(0, realmEntity);
+				}
+
+				/* Fixup patch link and counts */
+				RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", inputParentId).findFirst();
+				if (patch != null) {
+					patch.countMessages++;
+					realmEntity.patch = patch;
+				}
+			});
+
+			/* Link to patch */
+			SimpleMap link = new SimpleMap();
+			List<SimpleMap> links = new ArrayList<SimpleMap>();
+			link.put("type", "content");
+			link.put("_to", inputParentId);
+			links.add(link);
+			data.put("links", links);
+		}
+
 		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, data, entityId, inputParentId));
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);

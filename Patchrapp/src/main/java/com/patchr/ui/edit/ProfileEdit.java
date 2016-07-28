@@ -153,7 +153,6 @@ public class ProfileEdit extends BaseEdit {
 		if (inputState != null && inputState.equals(State.Signup)) {
 			entity = new RealmEntity();
 			entity.email = inputEmail;
-			entity.password = inputPassword;
 			title.setText(R.string.form_title_profile_signup);
 			area.setVisibility(View.GONE);
 			submitButton.setVisibility(View.VISIBLE);

@@ -9,11 +9,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 
 import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
@@ -83,7 +81,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 	private static String CREATIVE_SDK_CLIENT_SECRET = "creative-sdk-client-secret";
 
 	public  Boolean prefEnableDev;
-	public  String  prefTestingBeacons;
 	private String  advertisingId;
 	private String  uniqueId;
 	private Long    uniqueDate;
@@ -300,24 +297,11 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 		if (uniqueId == null || uniqueType == null) {
 
-			/* Try to use android id first */
-			String androidId = Settings.Secure.getString(applicationContext.getContentResolver(), Settings.Secure.ANDROID_ID);
-			if (androidId != null) {
-				uniqueId = androidId;
-				uniqueType = Constants.INSTALL_TYPE_ANDROID_ID;
-			}
-			/* Hardware serial number */
-			else if (Build.SERIAL != null && !Build.SERIAL.equals("unknown")) {
-				uniqueId = Build.SERIAL;
-				uniqueType = Constants.INSTALL_TYPE_SERIAL;
-			}
-			/* Generate a unique number for this device */
-			else {
-				uniqueId = UUID.randomUUID().toString();
-				uniqueType = Constants.INSTALL_TYPE_RANDOM;
-			}
-
+			/* Generate and store a unique number for this device */
+			uniqueId = UUID.randomUUID().toString();
+			uniqueType = Constants.INSTALL_TYPE_RANDOM;
 			uniqueDate = DateTime.nowDate().getTime();
+
 			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
 			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
 			settings.edit().putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);

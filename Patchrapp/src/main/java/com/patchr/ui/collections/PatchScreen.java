@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.BottomSheetDialog;
@@ -119,20 +118,6 @@ public class PatchScreen extends BaseListScreen {
 			joinAction();
 			autoJoin = false;
 		}
-
-		AsyncTask.execute(() -> {
-			int count = Patchr.jobManager.count();
-			runOnUiThread(() -> {
-				if (count > 0) {
-					showSnackbar(String.format("Messages to send: %1$s", String.valueOf(count)), Snackbar.LENGTH_INDEFINITE);
-				}
-				else {
-					if (snackbar.isShownOrQueued()) {
-						snackbar.dismiss();
-					}
-				}
-			});
-		});
 	}
 
 	@Override protected void onDestroy() {
