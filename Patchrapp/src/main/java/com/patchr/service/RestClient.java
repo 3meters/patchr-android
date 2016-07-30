@@ -7,6 +7,7 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.parse.ParseInstallation;
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.AndroidManager;
@@ -71,8 +72,11 @@ public class RestClient {
 			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder()
 				.connectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS)
 				.readTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS)
-				.writeTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS)
-				.addNetworkInterceptor(new StethoInterceptor());
+				.writeTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS);
+
+			if (BuildConfig.DEBUG) {
+				httpClient.addNetworkInterceptor(new StethoInterceptor());
+			}
 
 			OkHttpClient client = httpClient.build();
 

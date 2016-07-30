@@ -172,11 +172,14 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			ParseInstallation.getCurrentInstallation().saveInBackground();
 
 			/* Stetho */
-			Stetho.initialize(
-				Stetho.newInitializerBuilder(this)
-					.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-					.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
-					.build());
+			if (BuildConfig.DEBUG) {
+				Logger.d(this, "Debug build, stetho initialized");
+				Stetho.initialize(
+					Stetho.newInitializerBuilder(this)
+						.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+						.enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+						.build());
+			}
 
 			/* Job queue */
 			Configuration.Builder builder = new Configuration.Builder(this)
