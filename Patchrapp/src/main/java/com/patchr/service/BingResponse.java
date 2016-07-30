@@ -12,7 +12,7 @@ public class BingResponse {
 
 	public List<ImageResult> data;
 	public Number            count;
-	public Boolean           more;
+	public boolean           more;
 	public Number httpCode = 200;
 	public String httpMessage;
 

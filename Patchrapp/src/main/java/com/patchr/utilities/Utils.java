@@ -326,7 +326,8 @@ public class Utils {
 		+ "|y[etu]"
 		+ "|z[amw]))";
 
-	private static final String GOOD_IRI_CHAR = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF";
+	private static final String GOOD_IRI_CHAR            = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF";
+	public static final  String ALLOWED_BING_QUERY_CHARS = "' ";
 
 	/**
 	 * Regular expression pattern to match most part of RFC 3987

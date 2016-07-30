@@ -1,5 +1,6 @@
 package com.patchr.service;
 
+import android.net.Uri;
 import android.os.Build;
 import android.util.Base64;
 
@@ -529,7 +530,7 @@ public class RestClient {
 
 		SimpleMap parameters = new SimpleMap();
 
-		String queryEncoded = Utils.encode(query);
+		String queryEncoded = Uri.encode(query, Utils.ALLOWED_BING_QUERY_CHARS);
 		parameters.put("Query", "'" + queryEncoded + "'");
 		parameters.put("Market", "'en-US'");
 		parameters.put("Adult", "'Strict'");

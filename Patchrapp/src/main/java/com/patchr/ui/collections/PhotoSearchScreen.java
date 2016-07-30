@@ -268,33 +268,35 @@ public class PhotoSearchScreen extends BaseScreen {
 	private void fetchImages(final String queryText) {
 
 		AsyncTask.execute(() -> {
-			subscription = RestClient.getInstance().loadSearchImages(this.searchText, PAGE_SIZE, skip)
+			subscription = RestClient.getInstance().loadSearchImages(queryText, PAGE_SIZE, skip)
 				.map(response -> {
 					List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
-					for (ImageResult imageResult : response.data) {
+					if (response.data != null && response.data.size() > 0) {
+						for (ImageResult imageResult : response.data) {
 
-						Boolean usable = false;
-						if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
-							&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
-							&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
-							usable = true;
-						}
+							Boolean usable = false;
+							if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
+								&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
+								&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
+								usable = true;
+							}
 
-						if (usable) {
-							usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
-						}
+							if (usable) {
+								usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
+							}
 
-						if (usable) {
-							for (ImageResult image : images) {
-								if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
-									usable = false;
-									break;
+							if (usable) {
+								for (ImageResult image : images) {
+									if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
+										usable = false;
+										break;
+									}
 								}
 							}
-						}
 
-						if (usable) {
-							imagesFiltered.add(imageResult);
+							if (usable) {
+								imagesFiltered.add(imageResult);
+							}
 						}
 					}
 
