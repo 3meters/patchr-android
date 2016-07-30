@@ -25,7 +25,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
@@ -87,7 +86,6 @@ public class MessageScreen extends BaseScreen {
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Dispatcher.getInstance().register(this);
 		bind();
 	}
 
@@ -99,11 +97,6 @@ public class MessageScreen extends BaseScreen {
 				fetch(FetchMode.AUTO);
 			}
 		}
-	}
-
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------
