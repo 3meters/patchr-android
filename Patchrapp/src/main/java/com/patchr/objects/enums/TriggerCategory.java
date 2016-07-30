@@ -1,8 +1,5 @@
 package com.patchr.objects.enums;
 
-/**
- * Created by jaymassena on 7/10/16.
- */
 public class TriggerCategory {
 	/*
 	 * Used to characterize why the current user is receiving the notification.

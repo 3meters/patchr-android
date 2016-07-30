@@ -1,8 +1,5 @@
 package com.patchr.objects.enums;
 
-/**
- * Created by jaymassena on 7/10/16.
- */
 public class NotificationType {
 	/*
 	 * Used to determine icon to display in notification ui.

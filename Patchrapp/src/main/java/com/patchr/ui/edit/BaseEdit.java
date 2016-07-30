@@ -200,9 +200,10 @@ public abstract class BaseEdit extends BaseScreen {
 				UI.setTextView(nameView, entity.name);
 				UI.setTextView(descriptionView, entity.description);
 				bindPhoto(entity.getPhoto());
-				firstDraw = false;
+				return;
 			}
 		}
+		bindPhoto(null);
 	}
 
 	protected void bindPhoto(Photo photo) {

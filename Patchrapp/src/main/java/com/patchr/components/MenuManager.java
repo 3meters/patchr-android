@@ -22,6 +22,7 @@ public class MenuManager {
 
 	public static Boolean canUserRemoveFromPatch(RealmEntity entity) {
 		if (entity == null) return false;
+		//noinspection SimplifiableIfStatement
 		if (Constants.TYPE_ENTITY_SHARE.equals(entity.type)) return false;
 
 		return entity.patch != null && entity.patch.ownerId != null
@@ -43,12 +44,7 @@ public class MenuManager {
 			}
 		}
 
-		if (!(entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH))) {
-			return true;
-		}
-		else {
-			return (entity.userMemberStatus.equals(MemberStatus.Member) || entity.isOwnedByCurrentUser());
-		}
+		return !(entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) || (entity.userMemberStatus.equals(MemberStatus.Member) || entity.isOwnedByCurrentUser());
 	}
 
 	public static boolean showAction(Integer route, RealmEntity entity) {

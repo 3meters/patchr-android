@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.text.Html;
 
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -17,6 +16,7 @@ import com.patchr.objects.enums.EventCategory;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.ui.MainScreen;
 import com.patchr.utilities.Reporting;
+import com.patchr.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class NotificationManager {
 
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(Patchr.applicationContext)
 			.setContentTitle(StringManager.getString(R.string.name_app))
-			.setContentText(Html.fromHtml(notification.summary))
+			.setContentText(Utils.fromHtml(notification.summary))
 			.setDeleteIntent(deleteIntent)
 			.setNumber(mNewNotificationCount)
 			.setSmallIcon(R.drawable.ic_stat_notification)
@@ -122,7 +122,7 @@ public class NotificationManager {
 
 		/* Ticker */
 		if (notification.ticker != null) {
-			builder.setTicker(Html.fromHtml(notification.ticker));
+			builder.setTicker(Utils.fromHtml(notification.ticker));
 		}
 
 		/* Big photo or text - photo trumps text */
@@ -152,7 +152,7 @@ public class NotificationManager {
 			NotificationCompat.BigPictureStyle style = new NotificationCompat.BigPictureStyle()
 				.bigPicture(bitmap)
 				.setBigContentTitle(notification.name)
-				.setSummaryText(Html.fromHtml(notification.subtitle));
+				.setSummaryText(Utils.fromHtml(notification.subtitle));
 
 			builder.setStyle(style);
 			String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
@@ -170,8 +170,8 @@ public class NotificationManager {
 
 		NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
 			.setBigContentTitle(notification.name)
-			.bigText(Html.fromHtml(notification.description))
-			.setSummaryText(Html.fromHtml(notification.subtitle));
+			.bigText(Utils.fromHtml(notification.description))
+			.setSummaryText(Utils.fromHtml(notification.subtitle));
 
 		builder.setStyle(style);
 

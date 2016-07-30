@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.CardView;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -454,7 +453,7 @@ public class MessageScreen extends BaseScreen {
 				});
 
 				if (!TextUtils.isEmpty(entity.description)) {
-					descriptionView.setText(Html.fromHtml(entity.description));
+					descriptionView.setText(Utils.fromHtml(entity.description));
 					UI.setVisibility(descriptionView, View.VISIBLE);
 				}
 				else {

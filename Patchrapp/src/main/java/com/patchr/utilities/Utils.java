@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.URLSpan;
 import android.widget.TextView;
@@ -67,7 +69,7 @@ public class Utils {
 	public static String createImageKey() {
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
 		final String root = UserManager.userId != null ? UserManager.userId : Patchr.getInstance().getinstallId();
-		final String imageKey = String.format("%1$s_%2$s.jpg", UserManager.userId, stringDate); // User id at root to avoid collisions
+		final String imageKey = String.format("%1$s_%2$s.jpg", root, stringDate); // User id at root to avoid collisions
 		return imageKey;
 	}
 
@@ -108,7 +110,6 @@ public class Utils {
 	}
 
 	public static String getProcessName() {
-		String currentProcName = "";
 		int pid = android.os.Process.myPid();
 		ActivityManager manager = (ActivityManager) Patchr.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
 		List<ActivityManager.RunningAppProcessInfo> infos = manager.getRunningAppProcesses();
@@ -120,6 +121,18 @@ public class Utils {
 			}
 		}
 		return null;
+	}
+
+	public static Spanned fromHtml(String value) {
+
+		Spanned result;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+			result = Html.fromHtml(value, Html.FROM_HTML_MODE_LEGACY);
+		}
+		else {
+			result = Html.fromHtml(value);
+		}
+		return result;
 	}
 
 	public static void stripUnderlines(TextView textView) {

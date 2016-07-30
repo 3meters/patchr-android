@@ -98,8 +98,9 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 		super.onCreate();
 		if (instance == null) {
 			instance = this;
+			applicationContext = getApplicationContext();
+			Logger.i(this, "Application created");
 			instance.initializeInstance();
-			Logger.d(this, "Application created");
 		}
 	}
 
@@ -109,12 +110,11 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 	protected void initializeInstance() {
 
+		Logger.d(this, "Starting app initialization");
+
 		/* Must have this so activity rerouting works. */
-		applicationContext = getApplicationContext();
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
 		gson = new Gson();
-
-		Logger.i(this, "First run configuration");
 
 		Foreground.init(this);
 
@@ -192,6 +192,8 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 			/* Must come after managers are initialized */
 			UserManager.shared().loginAuto();
+
+			Logger.d(this, "Finished app initialization");
 		});
 	}
 

@@ -4,9 +4,6 @@ import com.patchr.model.RealmEntity;
 
 import java.util.Comparator;
 
-/**
- * Created by jaymassena on 7/10/16.
- */
 public class SortByProximityAndDistance implements Comparator<RealmEntity> {
 
 	@Override public int compare(RealmEntity object1, RealmEntity object2) {

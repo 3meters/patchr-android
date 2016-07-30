@@ -260,7 +260,7 @@ public class ImageWidget extends FrameLayout {
 	}
 
 	public void setAspectRatio(Float aspectRatio) {
-		aspectRatio = aspectRatio;
+		this.aspectRatio = aspectRatio;
 		requestLayout();
 	}
 

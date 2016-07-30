@@ -1,6 +1,5 @@
 package com.patchr.objects;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ucd")

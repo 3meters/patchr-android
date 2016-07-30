@@ -133,7 +133,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 			listWidget.listGroup.setPadding(0, this.topPadding, 0, 0);
 		}
 		if (headerResId != null) {
-			View header = LayoutInflater.from(this).inflate(headerResId, null, false);
+			header = (BaseView) LayoutInflater.from(this).inflate(headerResId, null, false);
 		}
 		if (header != null && listWidget != null) {
 			listWidget.setHeader(header);

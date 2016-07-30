@@ -214,9 +214,9 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 										, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 								}
 								else {
-									//									listController.busyController.hide(true);
-									//									listController.emptyController.setText("Location services disabled for Patchr");
-									//									listController.emptyController.show(true);
+									listWidget.busyController.hide(true);
+									listWidget.emptyController.setText("Location services disabled for Patchr");
+									listWidget.emptyController.show(true);
 								}
 							}
 						}, null);

@@ -6,9 +6,6 @@ import com.patchr.model.RealmEntity;
 
 import java.util.Comparator;
 
-/**
- * Created by jaymassena on 7/22/16.
- */
 public class SortByScoreAndDistance implements Comparator<RealmEntity> {
 
 	@Override public int compare(@NonNull RealmEntity object1, @NonNull RealmEntity object2) {

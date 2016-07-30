@@ -75,9 +75,8 @@ public abstract class BaseScreen extends AppCompatActivity {
 	protected View     rootView;
 	public    Fragment currentFragment;
 
-	public    Boolean firstDraw  = true;
-	protected Boolean processing = false;
 	protected Subscription subscription;
+	protected boolean      processing;
 	protected boolean      executed;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {

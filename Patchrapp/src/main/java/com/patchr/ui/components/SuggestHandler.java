@@ -5,9 +5,6 @@ import android.os.Message;
 
 import java.lang.ref.WeakReference;
 
-/**
- * Created by jaymassena on 7/22/16.
- */
 class SuggestHandler extends Handler {
 	private final WeakReference<EntitySuggestController> suggestController;
 
