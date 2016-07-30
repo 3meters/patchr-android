@@ -587,7 +587,6 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("email", email);
 		parameters.put("password", password);
-		parameters.put("installId", Patchr.getInstance().getinstallId());
 
 		return post("auth/signin", parameters, null, null, false)
 			.flatMap(response -> {
