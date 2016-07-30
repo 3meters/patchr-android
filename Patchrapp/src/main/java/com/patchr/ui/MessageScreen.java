@@ -6,7 +6,6 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.CardView;
 import android.text.Html;
@@ -31,7 +30,6 @@ import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
-import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -41,8 +39,8 @@ import com.patchr.objects.enums.LinkType;
 import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
-import com.patchr.objects.enums.TaskStatus;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.DeleteEntityJob;
 import com.patchr.service.RestClient;
 import com.patchr.ui.collections.BaseListScreen;
 import com.patchr.ui.components.InsetViewTransformer;
@@ -56,10 +54,8 @@ import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 import com.segment.analytics.Properties;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -250,28 +246,6 @@ public class MessageScreen extends BaseScreen {
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onTaskStatusReceived(final TaskStatusEvent event) {
-		/* Refresh the list because something happened with the list parent. */
-		if (this.entityId.equals(event.entityId)) {
-			if (event.status == TaskStatus.PENDING) {
-				showSnackbar("Update waiting", Snackbar.LENGTH_INDEFINITE);
-			}
-			if (event.status == TaskStatus.STARTED) {
-				showSnackbar("Sending", Snackbar.LENGTH_INDEFINITE);
-			}
-			if (event.status == TaskStatus.SUCCESS) {
-				fetch(FetchMode.AUTO);
-				if (snackbar != null && snackbar.isShownOrQueued()) {
-					snackbar.dismiss();
-				}
-			}
-			if (event.status == TaskStatus.FAILED) {
-				showSnackbar("Send failed", Snackbar.LENGTH_INDEFINITE);
-			}
-		}
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -326,6 +300,38 @@ public class MessageScreen extends BaseScreen {
 		return R.layout.screen_message;
 	}
 
+	@Override protected void delete() {
+
+		String collection = RealmEntity.getCollectionForSchema(entity.schema);
+		String schema = entity.schema;
+		String path = String.format("data/%1$s/%2$s", collection, entityId);
+		boolean share = Constants.TYPE_LINK_SHARE.equals(entity.type);
+		String parentId = entity.patch.id;
+
+		realm.executeTransaction(whocares -> {
+			entity.deleteFromRealm();
+			/* Fixup patch link and counts */
+			RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", parentId).findFirst();
+			if (patch != null) {
+				patch.countMessages--;
+			}
+		});
+
+		if (share) {
+			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path));
+		}
+		else {
+			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path, parentId));
+		}
+
+		Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+		Logger.i(this, "Deleted entity: " + entityId);
+		UI.toast(StringManager.getString(R.string.alert_deleted));
+		setResult(Constants.RESULT_ENTITY_DELETED);
+		finish();
+		AnimationManager.doOverridePendingTransition(MessageScreen.this, TransitionType.FORM_BACK);
+	}
+
 	public void bind() {
 
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
@@ -365,7 +371,7 @@ public class MessageScreen extends BaseScreen {
 
 		if (entity != null) {
 			/* Share */
-			Boolean share = (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE));
+			Boolean share = (Constants.TYPE_ENTITY_SHARE.equals(entity.type));
 
 			/* Message patch context */
 

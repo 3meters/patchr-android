@@ -31,7 +31,6 @@ import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
-import com.patchr.components.MapManager;
 import com.patchr.components.StringManager;
 import com.patchr.model.Location;
 import com.patchr.model.RealmEntity;
@@ -224,7 +223,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 						 * that could center the user out in the ocean or something else
 						 * stupid.
 						 */
-						map.moveCamera(CameraUpdateFactory.newLatLngZoom(MapManager.LATLNG_USA, MapManager.ZOOM_SCALE_USA));
+						map.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.LATLNG_USA, Constants.ZOOM_SCALE_USA));
 					}
 				}
 				else {

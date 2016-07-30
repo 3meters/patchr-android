@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.BottomSheetDialog;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,7 +35,6 @@ import com.patchr.components.MenuManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
@@ -47,7 +45,6 @@ import com.patchr.objects.enums.MemberStatus;
 import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
-import com.patchr.objects.enums.TaskStatus;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.service.RestClient;
 import com.patchr.ui.MapScreen;
@@ -286,28 +283,6 @@ public class PatchScreen extends BaseListScreen {
 				justApproved = true;
 			}
 			fetch(FetchMode.AUTO);
-		}
-	}
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onTaskStatusReceived(final TaskStatusEvent event) {
-		/* Refresh the list because something happened with the list parent. */
-		if (this.entityId.equals(event.parentId)) {
-			if (event.status == TaskStatus.PENDING) {
-				showSnackbar("Message waiting", Snackbar.LENGTH_INDEFINITE);
-			}
-			if (event.status == TaskStatus.STARTED) {
-				showSnackbar("Sending", Snackbar.LENGTH_INDEFINITE);
-			}
-			if (event.status == TaskStatus.SUCCESS) {
-				fetch(FetchMode.AUTO);  // Check for fresh stuff
-				if (snackbar != null && snackbar.isShownOrQueued()) {
-					snackbar.dismiss();
-				}
-			}
-			if (event.status == TaskStatus.FAILED) {
-				showSnackbar("Send failed", Snackbar.LENGTH_INDEFINITE);
-			}
 		}
 	}
 

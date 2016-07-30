@@ -48,6 +48,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 
 	@Override public void onResume() {
 		super.onResume();
+		draw();
 		fetch(FetchMode.AUTO);  // Check for fresh stuff
 		if (this.appBarLayout != null) {
 			this.appBarLayout.addOnOffsetChangedListener(this);

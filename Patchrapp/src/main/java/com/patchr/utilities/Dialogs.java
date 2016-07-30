@@ -8,17 +8,18 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
+import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.model.RealmEntity;
-import com.patchr.objects.enums.Command;
+import com.patchr.objects.enums.TransitionType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -225,55 +226,6 @@ public class Dialogs {
 		updateDialog.show();
 	}
 
-	public static void installAviary(@NonNull final Activity activity) {
-
-		final AlertDialog updateDialog = alertDialog(R.drawable.ic_launcher
-				, StringManager.getString(R.string.dialog_aviary_title)
-				, StringManager.getString(R.string.dialog_aviary_message)
-				, null
-				, activity
-				, R.string.dialog_aviary_ok
-				, R.string.dialog_aviary_cancel
-				, null
-				, new DialogInterface.OnClickListener() {
-
-					@SuppressWarnings("deprecation")
-					@Override
-					public void onClick(@NonNull DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							try {
-								Logger.d(this, "Update: navigating to aviary install/update page");
-								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_aviary_install)));
-								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-								activity.startActivity(intent);
-							}
-							catch (Exception e) {
-						/*
-						 * In case the market app isn't installed on the phone
-						 */
-								Logger.d(this, "Install: navigating to play website install page");
-								final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(StringManager.getString(R.string.uri_app_update_web)));
-								intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-								activity.startActivityForResult(intent, Constants.ACTIVITY_MARKET);
-							}
-							dialog.dismiss();
-						}
-						else if (which == DialogInterface.BUTTON_NEGATIVE) {
-							dialog.dismiss();
-						}
-					}
-				}
-				, new DialogInterface.OnCancelListener() {
-
-					@Override
-					public void onCancel(DialogInterface dialog) {
-				/* Back button can trigger this */
-					}
-				});
-		updateDialog.setCanceledOnTouchOutside(false);
-		updateDialog.show();
-	}
-
 	public static void locationServicesDisabled(@NonNull final Activity activity, @NonNull final AtomicBoolean shot) {
 
 		final AlertDialog updateDialog = alertDialog(null
@@ -289,7 +241,8 @@ public class Dialogs {
 					@Override
 					public void onClick(@NonNull DialogInterface dialog, int which) {
 						if (which == DialogInterface.BUTTON_POSITIVE) {
-							Patchr.router.route(activity, Command.SETTINGS_LOCATION, null, null);
+							activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+							AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
 							dialog.dismiss();
 						}
 						else if (which == DialogInterface.BUTTON_NEGATIVE) {

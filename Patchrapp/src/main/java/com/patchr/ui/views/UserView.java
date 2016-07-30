@@ -2,9 +2,6 @@ package com.patchr.ui.views;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.SwitchCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -16,7 +13,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.patchr.Constants;
-import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.MediaManager;
 import com.patchr.components.UserManager;
@@ -133,15 +129,6 @@ public class UserView extends BaseView implements View.OnClickListener {
 			UI.setVisibility(emailView, GONE);
 			UI.setVisibility(roleView, GONE);
 			UI.setVisibility(editGroup, GONE);
-
-			if (entity == null) {
-				Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img_default_user_light);
-				final BitmapDrawable bitmapDrawable = new BitmapDrawable(Patchr.applicationContext.getResources(), bitmap);
-				UI.showDrawableInImageView(bitmapDrawable, userPhoto.imageView, Constants.ANIMATE_IMAGES);
-				nameView.setText("Guest");
-				areaView.setText(null);
-				return;
-			}
 
 			userPhoto.setImageWithEntity(entity, null);
 			setOrGone(nameView, entity.name);

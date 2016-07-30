@@ -21,59 +21,51 @@ public class StringManager {
 
 	private StringManager() {}
 
-	@NonNull
-	public static String getString(int resId) {
+	@NonNull public static String getString(int resId) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 			, Patchr.applicationContext
 			, Patchr.applicationContext.getResources()
 			, null);
 	}
 
-	@NonNull
-	public static String getString(String string) {
+	@NonNull public static String getString(String string) {
 		return getString(string
 			, Patchr.applicationContext
 			, Patchr.applicationContext.getResources()
 			, null);
 	}
 
-	@NonNull
-	public static String getString(int resId, Context context, Resources resources) {
+	@NonNull public static String getString(int resId, Context context, Resources resources) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 			, context
 			, resources
 			, null);
 	}
-
 	/*
 	 * Overloads with schema parameter
 	 */
-	@NonNull
-	public static String getString(int resId, String schema) {
+	@NonNull public static String getString(int resId, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 			, Patchr.applicationContext
 			, Patchr.applicationContext.getResources()
 			, schema);
 	}
 
-	@NonNull
-	public static String getString(String string, String schema) {
+	@NonNull public static String getString(String string, String schema) {
 		return getString(string
 			, Patchr.applicationContext
 			, Patchr.applicationContext.getResources()
 			, schema);
 	}
 
-	@NonNull
-	public static String getString(int resId, Context context, Resources resources, String schema) {
+	@NonNull public static String getString(int resId, Context context, Resources resources, String schema) {
 		return getString(Patchr.applicationContext.getResources().getString(resId)
 			, context
 			, resources
 			, schema);
 	}
 
-	@NonNull
-	public static synchronized String getString(String string, Context context, Resources resources, String schema) {
+	@NonNull public static synchronized String getString(String string, Context context, Resources resources, String schema) {
 
 		stringBuilder.setLength(0);
 		stringBuilder.trimToSize();

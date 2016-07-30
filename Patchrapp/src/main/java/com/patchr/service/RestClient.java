@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import okhttp3.OkHttpClient;
@@ -67,7 +68,12 @@ public class RestClient {
 			activityDateInsertDeletePatch = DateTime.nowDate().getTime();
 
 			/* Configure http client */
-			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder().addNetworkInterceptor(new StethoInterceptor());
+			OkHttpClient.Builder httpClient = new OkHttpClient().newBuilder()
+				.connectTimeout(Constants.TIMEOUT_CONNECTION, TimeUnit.MILLISECONDS)
+				.readTimeout(Constants.TIMEOUT_SOCKET_READ, TimeUnit.MILLISECONDS)
+				.writeTimeout(Constants.TIMEOUT_SOCKET_WRITE, TimeUnit.MILLISECONDS)
+				.addNetworkInterceptor(new StethoInterceptor());
+
 			OkHttpClient client = httpClient.build();
 
 			Gson gson = new GsonBuilder()
@@ -199,7 +205,7 @@ public class RestClient {
 			if (location != null) {
 				addLocationParameter(parameters, location);
 				parameters.put("radius", Constants.PLACE_SUGGEST_RADIUS);
-				parameters.put("timeout", Constants.TIMEOUT_SERVICE_PLACE_SUGGEST);
+				parameters.put("timeout", Constants.TIMEOUT_SERVICE_SUGGEST);
 			}
 		}
 
@@ -442,6 +448,12 @@ public class RestClient {
 		addSessionParameters(parameters);
 
 		return delete(path, parameters, objectId, true);
+	}
+
+	public Call<Map<String, Object>> deleteEntityCall(final String path) {
+		SimpleMap parameters = new SimpleMap();
+		addSessionParameters(parameters);
+		return proxiApi.deleteCall(path, parameters);
 	}
 
 	public Observable<ProxibaseResponse> insertLink(String fromId, String toId, String type) {

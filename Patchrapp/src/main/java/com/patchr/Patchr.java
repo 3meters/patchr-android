@@ -35,7 +35,6 @@ import com.patchr.components.Foreground;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.Router;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -65,7 +64,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 	public static JobManager        jobManager;
 
 	public static Handler   mainThread                = new Handler(Looper.getMainLooper());
-	public static Router    router                    = new Router();
 	public static Stopwatch stopwatch1                = new Stopwatch();
 	public static Stopwatch stopwatch2                = new Stopwatch();
 	public static Boolean   debuggable                = false;

@@ -4,9 +4,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.components.AndroidManager;
-import com.patchr.components.MapManager;
 import com.patchr.model.Location;
 import com.patchr.model.RealmEntity;
 import com.patchr.ui.fragments.MapListFragment;
@@ -59,7 +59,7 @@ public class MapScreen extends BaseScreen {
 		super.initialize(savedInstanceState);
 
 		MapListFragment fragment = new MapListFragment();
-		fragment.zoomLevel = MapManager.ZOOM_SCALE_NEARBY;
+		fragment.zoomLevel = Constants.ZOOM_SCALE_NEARBY;
 		currentFragment = fragment;
 
 		getSupportFragmentManager()

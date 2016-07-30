@@ -22,7 +22,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.IntentBuilder;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
@@ -100,9 +99,9 @@ public class ProfileEdit extends BaseEdit {
 			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 		else if (view.getId() == R.id.terms_button) {
-			final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-			intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
-			startActivity(intentBuilder.build());
+			Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
+			startActivity(intent);
 			AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 		}
 		else if (view.getId() == R.id.signup_button) {

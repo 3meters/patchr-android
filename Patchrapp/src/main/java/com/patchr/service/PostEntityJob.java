@@ -48,7 +48,7 @@ public class PostEntityJob extends Job {
 		Realm realm = Realm.getDefaultInstance();
 		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 
-		if (entity.pending && !entity.posting) {
+		if (entity != null && entity.pending && !entity.posting) {
 			realm.executeTransaction(whocares -> entity.posting = true);
 			RealmEntity entityCopy = realm.copyFromRealm(entity);
 			Photo photo = entityCopy.getPhoto();
@@ -83,9 +83,11 @@ public class PostEntityJob extends Job {
 	@Override protected void onCancel(int cancelReason, @Nullable Throwable throwable) {
 		Realm realm = Realm.getDefaultInstance();
 		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
-		realm.executeTransaction(whocares -> {
-			entity.posting = false;
-		});
+		if (entity != null) {
+			realm.executeTransaction(whocares -> {
+				entity.posting = false;
+			});
+		}
 		realm.close();
 	}
 

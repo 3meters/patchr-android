@@ -11,19 +11,25 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
+import com.patchr.components.Logger;
+import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.SimpleMap;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.DeleteEntityJob;
 import com.patchr.service.PostEntityJob;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
+import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,6 +207,39 @@ public class MessageEdit extends BaseEdit {
 		}
 
 		Patchr.jobManager.addJobInBackground(new PostEntityJob(path, data, entityId, inputParentId));
+		finish();
+		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
+	}
+
+	@Override protected void delete() {
+
+		String collection = RealmEntity.getCollectionForSchema(entity.schema);
+		String schema = entity.schema;
+		String path = String.format("data/%1$s/%2$s", collection, entityId);
+		boolean share = Constants.TYPE_LINK_SHARE.equals(entity.type);
+		String parentId = inputParentId;
+
+		realm.executeTransaction(whocares -> {
+			entity.deleteFromRealm();
+
+			/* Fixup patch link and counts */
+			RealmEntity patch = realm.where(RealmEntity.class).equalTo("id", parentId).findFirst();
+			if (patch != null) {
+				patch.countMessages--;
+			}
+		});
+
+		if (share) {
+			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path));
+		}
+		else {
+			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path, parentId));
+		}
+
+		Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+		Logger.i(this, "Deleted entity: " + entityId);
+		UI.toast(StringManager.getString(R.string.alert_deleted));
+		setResult(Constants.RESULT_ENTITY_DELETED);
 		finish();
 		AnimationManager.doOverridePendingTransition(MessageEdit.this, TransitionType.FORM_BACK);
 	}

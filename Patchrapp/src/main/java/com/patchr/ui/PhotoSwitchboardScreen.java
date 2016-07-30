@@ -29,8 +29,8 @@ import com.patchr.components.MediaManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
-import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.ui.collections.PhotoSearchScreen;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
@@ -302,8 +302,10 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 	}
 
 	protected void photoSearch(String defaultSearch) {
-		Bundle extras = new Bundle();
-		extras.putString(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
-		Patchr.router.route(this, Command.PHOTO_SEARCH, null, extras);
+
+		final Intent intent = new Intent(this, PhotoSearchScreen.class);
+		intent.putExtra(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
+		startActivityForResult(intent, Constants.ACTIVITY_PHOTO_SEARCH);
+		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_TO);
 	}
 }

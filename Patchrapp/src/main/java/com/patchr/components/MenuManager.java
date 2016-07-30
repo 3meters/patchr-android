@@ -22,7 +22,7 @@ public class MenuManager {
 
 	public static Boolean canUserRemoveFromPatch(RealmEntity entity) {
 		if (entity == null) return false;
-		if (entity.type != null && entity.type.equals(Constants.TYPE_LINK_SHARE)) return false;
+		if (Constants.TYPE_ENTITY_SHARE.equals(entity.type)) return false;
 
 		return entity.patch != null && entity.patch.ownerId != null
 				&& entity.patch.ownerId.equals(UserManager.currentUser.id)

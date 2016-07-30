@@ -169,10 +169,6 @@ public abstract class BaseScreen extends AppCompatActivity {
 		if (item.getItemId() == android.R.id.home) {
 			cancelAction(false);
 		}
-		else {
-			/* Handles: login, browse, map */
-			Patchr.router.route(this, Patchr.router.routeForMenuId(item.getItemId()), entity, null);
-		}
 
 		return true;
 	}

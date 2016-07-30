@@ -1,15 +1,14 @@
 package com.patchr.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.utilities.DateTime;
@@ -50,23 +49,23 @@ public class AboutScreen extends BaseScreen {
 	}
 
 	public void termsAction() {
-		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
-		startActivity(intentBuilder.build());
+		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
+		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void privacyPolicyAction() {
-		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
-		startActivity(intentBuilder.build());
+		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
+		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
 	public void legalAction() {
-		final IntentBuilder intentBuilder = new IntentBuilder(android.content.Intent.ACTION_VIEW);
-		intentBuilder.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
-		startActivity(intentBuilder.build());
+		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
+		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
@@ -97,8 +96,6 @@ public class AboutScreen extends BaseScreen {
 		this.copyright.setText(copyright);
 
 		if (Utils.devModeEnabled()) {
-			String serviceUrl = Constants.serviceUrl();
-			UI.setTextView(findViewById(R.id.service_url), serviceUrl);
 			UI.setTextView(findViewById(R.id.install_id), Patchr.getInstance().getinstallId());
 			UI.setTextView(findViewById(R.id.install_type), "Id type: " + Patchr.getInstance().getInstallType());
 			UI.setTextView(findViewById(R.id.install_date), "Install date: " + DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));

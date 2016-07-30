@@ -16,15 +16,25 @@ import rx.Observable;
 
 public interface ProxibaseApi {
 
+	/* Observables */
+
 	@POST("{path}")
 	Observable<Response<Map<String, Object>>> post(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
 
-	@POST("{path}")
-	Call<Map<String, Object>> postCall(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
+	@GET("{path}")
+	Observable<Response<Map<String, Object>>> get(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
 
 	@DELETE("{path}")
 	Observable<Response<Map<String, Object>>> delete(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
 
+	/* Calls */
+
+	@POST("{path}")
+	Call<Map<String, Object>> postCall(@Path(value = "path", encoded = true) String path, @Body SimpleMap parameters);
+
 	@GET("{path}")
-	Observable<Response<Map<String, Object>>> get(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
+	Call<Map<String, Object>> getCall(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
+
+	@DELETE("{path}")
+	Call<Map<String, Object>> deleteCall(@Path(value = "path", encoded = true) String path, @QueryMap SimpleMap parameters);
 }

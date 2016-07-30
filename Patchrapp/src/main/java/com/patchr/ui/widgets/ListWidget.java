@@ -20,14 +20,12 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.events.NotificationReceivedEvent;
-import com.patchr.events.TaskStatusEvent;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
 import com.patchr.objects.enums.FetchMode;
 import com.patchr.objects.enums.FetchStrategy;
 import com.patchr.objects.enums.QueryName;
-import com.patchr.objects.enums.TaskStatus;
 import com.patchr.service.ProxibaseResponse;
 import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
@@ -152,15 +150,6 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
 		if (querySpec != null && querySpec.name.equals(QueryName.NotificationsForUser)) {
 			adapter.notifyDataSetChanged();
-		}
-	}
-
-	@Subscribe public void onTaskStatusReceived(final TaskStatusEvent event) {
-		/* Refresh the list because something happened with the list parent. */
-		if (this.contextEntityId.equals(event.parentId)) {
-			if (event.status == TaskStatus.SUCCESS) {
-				fetch(FetchMode.AUTO);
-			}
 		}
 	}
 

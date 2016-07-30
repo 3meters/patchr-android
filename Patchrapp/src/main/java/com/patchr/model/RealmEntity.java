@@ -51,8 +51,6 @@ public class RealmEntity extends RealmObject {
 	public String  schema;
 	public String  namelc;
 	public String  subtitle;
-	public String  aclId; // _acl
-	public String  patchId; // _acl
 
 	public String ownerId;
 	public String creatorId;
@@ -155,7 +153,6 @@ public class RealmEntity extends RealmObject {
 				}
 			}
 
-			entity.patchId = (String) (map.get("_acl") != null ? map.get("_acl") : map.get("patchId"));
 			entity.ownerId = (String) (map.get("_owner") != null ? map.get("_owner") : map.get("ownerId"));
 			entity.creatorId = (String) (map.get("_creator") != null ? map.get("_creator") : map.get("creatorId"));
 			entity.modifierId = (String) (map.get("_modifier") != null ? map.get("_modifier") : map.get("modifierId"));

@@ -103,18 +103,13 @@ public class MessageView extends BaseView {
 				}
 			}
 
-			Boolean share = (message.type != null && message.type.equals(Constants.TYPE_LINK_SHARE));
+			Boolean share = (Constants.TYPE_ENTITY_SHARE.equals(message.type));
 
 			/* Patch context */
 			patchGroup.setVisibility(GONE);
 			if (!share) {
 				if (!hidePatchName) {
 					RealmEntity parentEntity = message.patch;
-					if (parentEntity == null) {
-						if (message.patchId != null) {
-							/* TODO */
-						}
-					}
 					if (parentEntity != null) {
 						setOrGone(patchName, parentEntity.name);
 						patchGroup.setVisibility(VISIBLE);

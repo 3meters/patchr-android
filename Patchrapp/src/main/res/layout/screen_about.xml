@@ -187,22 +187,6 @@
 							android:textColor="?attr/textColorSecondary" />
 					</TableRow>
 
-					<View
-						android:layout_width="match_parent"
-						android:layout_height="@dimen/rule_divider_height"
-						android:background="?attr/ruleColor" />
-
-					<TableRow>
-
-						<TextView
-							android:id="@+id/service_url"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:text="https://api.aircandi.com/v1"
-							android:textAppearance="?android:attr/textAppearanceSmall"
-							android:textColor="?attr/textColorSecondary"
-							tools:ignore="HardcodedText" />
-					</TableRow>
 				</TableLayout>
 			</LinearLayout>
 		</RelativeLayout>

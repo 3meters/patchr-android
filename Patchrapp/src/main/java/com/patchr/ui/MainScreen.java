@@ -26,7 +26,6 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
-import com.patchr.components.MapManager;
 import com.patchr.components.NetworkManager;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
@@ -38,7 +37,6 @@ import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
-import com.patchr.objects.enums.Command;
 import com.patchr.objects.enums.LocationStatus;
 import com.patchr.objects.enums.NetworkStatus;
 import com.patchr.objects.enums.QueryName;
@@ -151,9 +149,18 @@ public class MainScreen extends BaseScreen {
 
 		if (item.getItemId() == R.id.view_as_map) {
 			this.fab.hide();
+			switchToFragment(Constants.FRAGMENT_TYPE_MAP);
 		}
 		else if (item.getItemId() == R.id.view_as_list) {
 			this.fab.show();
+			Fragment fragment = getCurrentFragment();
+			if (fragment instanceof MapListFragment) {
+				String listFragment = ((MapListFragment) fragment).relatedListFragment;
+				if (listFragment == null) {
+					listFragment = Constants.FRAGMENT_TYPE_NEARBY;
+				}
+				switchToFragment(listFragment);
+			}
 		}
 
 		if (item.getItemId() == android.R.id.home) {
@@ -193,11 +200,10 @@ public class MainScreen extends BaseScreen {
 
 		if (currentFragmentTag != null && currentFragmentTag.equals(Constants.FRAGMENT_TYPE_MAP)) {
 			String listFragment = ((MapListFragment) getCurrentFragment()).relatedListFragment;
-			if (listFragment != null) {
-				Bundle extras = new Bundle();
-				extras.putString(Constants.EXTRA_FRAGMENT_TYPE, listFragment);
-				Patchr.router.route(this, Command.VIEW_AS_LIST, null, extras);
+			if (listFragment == null) {
+				listFragment = Constants.FRAGMENT_TYPE_NEARBY;
 			}
+			switchToFragment(listFragment);
 			return;
 		}
 
@@ -586,7 +592,9 @@ public class MainScreen extends BaseScreen {
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
 
 				nextFragmentTag = currentFragmentTag;
-				Patchr.router.route(this, Command.SETTINGS, null, null);
+				final Intent intent = new Intent(this, SettingsScreen.class);
+				startActivityForResult(intent, Constants.ACTIVITY_PREFERENCES);
+				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 				return;
 			}
 			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
@@ -615,7 +623,7 @@ public class MainScreen extends BaseScreen {
 			mapFragment.bottomPadding = UI.getRawPixelsForDisplayPixels(48f);
 
 			if (!currentFragmentTag.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
-				mapFragment.zoomLevel = MapManager.ZOOM_SCALE_COUNTY;
+				mapFragment.zoomLevel = Constants.ZOOM_SCALE_COUNTY;
 			}
 		}
 

@@ -16,13 +16,8 @@ import com.patchr.Patchr;
 import com.patchr.objects.enums.WifiApState;
 import com.patchr.utilities.Reporting;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Designed as a singleton. The private Constructor prevents any other class from instantiating.
@@ -62,7 +57,7 @@ public class NetworkManager {
 	 */
 
 	/*
-	 * Exceptions when executing HTTP methods using HttpClient
+	 * Exceptions when executing HTTP methods using okhttp
 	 * 
 	 * - IOException: Generic transport exceptions (unreliable connection, socket timeout, generally non-fatal.
 	 * ClientProtocolException, SocketException and InterruptedIOException are sub classes of IOException.
@@ -71,16 +66,10 @@ public class NetworkManager {
 	 * request such as a violation of the http protocol.
 	 */
 
-	private final OkHttpClient client = new OkHttpClient();
-
 	/* Opportunistically used for crash reporting but not current state */
-	private Integer             wifiState;
-	private Integer             wifiApState;
 	private WifiManager         wifiManager;
 	private ConnectivityManager connectivityManager;
 	private BroadcastReceiver   networkChangeReceiver;
-
-	public static final String WIFI_AP_STATE_CHANGED_ACTION = "android.net.wifi.WIFI_AP_STATE_CHANGED";
 
 	private static NetworkManager instance = new NetworkManager();
 
@@ -112,11 +101,6 @@ public class NetworkManager {
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
 
-	public Response get(String uri, String query) throws IOException {
-		Request request = new Request.Builder().url(uri).build();
-		return client.newCall(request).execute();
-	}
-
 	public boolean isConnected() {
 		NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
 		return (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
@@ -130,23 +114,6 @@ public class NetworkManager {
 		else
 			//noinspection deprecation
 			return Settings.System.getInt(cr, Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-	}
-
-	public boolean isInternetReachable() {
-
-		try {
-			Response response = get(Constants.URI_WALLED_GARDEN, null);
-			boolean success = (response != null && response.isSuccessful() && response.code() == 204);
-			if (!success) {
-			/* We assume a failure means most likely not a walled garden */
-				String message = "Reachability check returned false";
-				Reporting.breadcrumb(message);
-			}
-			return success;
-		}
-		catch (IOException e) {
-			return false;
-		}
 	}
 
 	public boolean isWifiEnabled() {

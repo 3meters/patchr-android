@@ -25,7 +25,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
-import com.patchr.components.IntentBuilder;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
@@ -196,9 +195,7 @@ public class UI {
 
 	public static void routeHome(Context context) {
 
-		final IntentBuilder intentBuilder = new IntentBuilder(context, MainScreen.class);
-		Intent intent = intentBuilder.build();
-
+		final Intent intent = new Intent(context, MainScreen.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -209,8 +206,7 @@ public class UI {
 
 	public static void routeLobby(Context context) {
 
-		final IntentBuilder intentBuilder = new IntentBuilder(context, LobbyScreen.class);
-		final Intent intent = intentBuilder.build();
+		final Intent intent = new Intent(context, LobbyScreen.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		if (context instanceof BaseScreen) {
