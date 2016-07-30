@@ -73,6 +73,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_horizontal"
+					android:fontFamily="sans-serif-light"
 					android:text="@string/name_app"
 					android:textColor="@color/brand_accent"
 					android:textSize="30sp" />

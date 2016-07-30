@@ -457,7 +457,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 
 				if (isPublic) {
-					if (!hasMessaged) {
+					if (!entity.userHasMessaged) {
 						buttonAlert.setText(StringManager.getString(R.string.button_no_message));
 						buttonAlert.setTag(R.id.fab);
 					}

@@ -301,6 +301,7 @@ public class RealmEntity extends RealmObject {
 					for (Map<String, Object> linkMap : linkMaps) {
 						if (linkMap.get("fromSchema").equals(Constants.SCHEMA_ENTITY_MESSAGE) && linkMap.get("type").equals(LinkType.Content)) {
 							entity.userHasMessaged = true;
+							break;
 						}
 					}
 				}
@@ -528,7 +529,7 @@ public class RealmEntity extends RealmObject {
 			/* Links */
 			List<Map<String, Object>> links = Arrays.asList(
 				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
-				new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_owner", UserManager.userId)).asMap());
+				new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_creator", UserManager.userId)).asMap());
 			parameters.put("links", links);
 
 			/* Link counts */
