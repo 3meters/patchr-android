@@ -225,10 +225,8 @@
 			<!-- Old school deep linking -->
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
-
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-
 				<data
 					android:host="open"
 					android:scheme="patchr" />
@@ -241,18 +239,20 @@
 				android:autoVerify="true"
 				tools:ignore="UnusedAttribute">
 				<action android:name="android.intent.action.VIEW" />
-
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-
 				<data
 					android:host="bnc.lt"
 					android:pathPrefix="/cdud"
 					android:scheme="https" />    <!-- live -->
-				<data
-					android:host="bnc.lt"
-					android:pathPrefix="/b2dc"
-					android:scheme="https" />    <!-- test -->
+			</intent-filter>
+
+			<intent-filter android:autoVerify="true"
+				tools:ignore="UnusedAttribute">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="https" android:host="bvvb.app.link"/>
 			</intent-filter>
 
 		</activity>

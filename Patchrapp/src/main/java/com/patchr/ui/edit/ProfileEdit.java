@@ -43,13 +43,13 @@ import com.patchr.utilities.UI;
 
 public class ProfileEdit extends BaseEdit {
 
-	private TextView title;
-	private EditText email;
-	private EditText area;
+	private TextView titleView;
+	private EditText emailField;
+	private EditText areaField;
 	public  TextView authIdentifierLabel;
 	public  TextView authIdentifier;
 
-	private Button submitDelete;
+	private Button deleteButton;
 	private Button submitButton;
 	private Button changePasswordButton;
 	private Button termsButton;
@@ -140,9 +140,9 @@ public class ProfileEdit extends BaseEdit {
 		super.initialize(savedInstanceState);   // handles name/photo
 
 		entitySchema = Constants.SCHEMA_ENTITY_USER;
-		title = (TextView) findViewById(R.id.title);
-		area = (EditText) findViewById(R.id.area);
-		email = (EditText) findViewById(R.id.email);
+		titleView = (TextView) findViewById(R.id.title);
+		areaField = (EditText) findViewById(R.id.area);
+		emailField = (EditText) findViewById(R.id.email);
 		authIdentifierLabel = (TextView) findViewById(R.id.auth_identifier_label);
 		authIdentifier = (TextView) findViewById(R.id.auth_identifier);
 		submitButton = (Button) findViewById(R.id.signup_button);
@@ -152,15 +152,15 @@ public class ProfileEdit extends BaseEdit {
 		if (inputState != null && inputState.equals(State.Signup)) {
 			entity = new RealmEntity();
 			entity.email = inputEmail;
-			title.setText(R.string.form_title_profile_signup);
-			area.setVisibility(View.GONE);
+			titleView.setText(R.string.form_title_profile_signup);
+			areaField.setVisibility(View.GONE);
 			submitButton.setVisibility(View.VISIBLE);
 			termsButton.setVisibility(View.VISIBLE);
 			changePasswordButton.setVisibility(View.GONE);
 		}
 
-		nameView.setImeOptions(EditorInfo.IME_ACTION_GO);
-		nameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		nameField.setImeOptions(EditorInfo.IME_ACTION_GO);
+		nameField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
 			@Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
@@ -176,16 +176,16 @@ public class ProfileEdit extends BaseEdit {
 		super.bind();
 
 		if (this.inputState != null && this.inputState.equals(State.Signup)) {
-			UI.setTextView(this.email, this.inputEmail);
-			this.email.setEnabled(false);
+			UI.setTextView(this.emailField, this.inputEmail);
+			this.emailField.setEnabled(false);
 			this.photoEditWidget.bind(null);
 		}
 		else {
-			if (this.area != null && !TextUtils.isEmpty(entity.area)) {
-				this.area.setText(entity.area);
+			if (this.areaField != null && !TextUtils.isEmpty(entity.area)) {
+				this.areaField.setText(entity.area);
 			}
-			if (this.email != null && !TextUtils.isEmpty(entity.email)) {
-				this.email.setText(entity.email);
+			if (this.emailField != null && !TextUtils.isEmpty(entity.email)) {
+				this.emailField.setText(entity.email);
 			}
 		}
 	}
@@ -194,20 +194,20 @@ public class ProfileEdit extends BaseEdit {
 		super.gather(parameters); // Handles name, description, photo
 
 		if (inputState.equals(State.Signup)) {
-			if (email != null) {
-				parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
+			if (emailField != null) {
+				parameters.put("email", Type.emptyAsNull(emailField.getText().toString().trim()));
 			}
-			if (area != null) {
-				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
+			if (areaField != null) {
+				parameters.put("area", Type.emptyAsNull(areaField.getText().toString().trim()));
 			}
 			parameters.put("password", inputPassword);
 		}
 		else {
-			if (email != null && !email.getText().toString().equals(entity.email)) {
-				parameters.put("email", Type.emptyAsNull(email.getText().toString().trim()));
+			if (emailField != null && !emailField.getText().toString().equals(entity.email)) {
+				parameters.put("email", Type.emptyAsNull(emailField.getText().toString().trim()));
 			}
-			if (area != null && !area.getText().toString().equals(entity.area)) {
-				parameters.put("area", Type.emptyAsNull(area.getText().toString().trim()));
+			if (areaField != null && !areaField.getText().toString().equals(entity.area)) {
+				parameters.put("area", Type.emptyAsNull(areaField.getText().toString().trim()));
 			}
 		}
 	}
@@ -320,7 +320,7 @@ public class ProfileEdit extends BaseEdit {
 
 		textConfirm.addTextChangedListener(new SimpleTextWatcher() {
 			@Override public void afterTextChanged(Editable s) {
-				submitDelete.setEnabled(s.toString().equals("YES"));
+				deleteButton.setEnabled(s.toString().equals("YES"));
 			}
 		});
 
@@ -346,19 +346,19 @@ public class ProfileEdit extends BaseEdit {
 		AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
-		submitDelete = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		submitDelete.setEnabled(false);
+		deleteButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		deleteButton.setEnabled(false);
 	}
 
 	@Override protected boolean isValid() {
 
-		if (nameView == null) {
+		if (nameField == null) {
 			Dialogs.alert(R.string.error_missing_fullname, this);
 			return false;
 		}
 
 		if (inputState.equals(State.Editing)) {
-			if (email == null) {
+			if (emailField == null) {
 				Dialogs.alert(R.string.error_missing_email, this);
 				return false;
 			}

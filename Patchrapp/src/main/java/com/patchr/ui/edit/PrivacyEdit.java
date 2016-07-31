@@ -19,9 +19,9 @@ import com.patchr.objects.enums.TransitionType;
 public class PrivacyEdit extends BaseEdit {
 
 	private String      originalPrivacy;
-	private RadioGroup  buttonGroupPrivacy;
-	private RadioButton buttonPublic;
-	private RadioButton buttonPrivate;
+	private RadioGroup  privacyButtonGroup;
+	private RadioButton publicButton;
+	private RadioButton privateButton;
 	private String      privacy;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +56,13 @@ public class PrivacyEdit extends BaseEdit {
 			case R.id.button_public:
 				if (checked) {
 					privacy = Constants.PRIVACY_PUBLIC;
-					buttonPrivate.setChecked(false);
+					privateButton.setChecked(false);
 				}
 				break;
 			case R.id.button_private:
 				if (checked) {
 					privacy = Constants.PRIVACY_PRIVATE;
-					buttonPublic.setChecked(false);
+					publicButton.setChecked(false);
 				}
 				break;
 		}
@@ -84,9 +84,9 @@ public class PrivacyEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		buttonPublic = (RadioButton) findViewById(R.id.button_public);
-		buttonPrivate = (RadioButton) findViewById(R.id.button_private);
-		buttonGroupPrivacy = (RadioGroup) findViewById(R.id.buttons_privacy);
+		publicButton = (RadioButton) findViewById(R.id.button_public);
+		privateButton = (RadioButton) findViewById(R.id.button_private);
+		privacyButtonGroup = (RadioGroup) findViewById(R.id.buttons_privacy);
 	}
 
 	@Override protected int getLayoutId() {
@@ -102,7 +102,7 @@ public class PrivacyEdit extends BaseEdit {
 	}
 
 	public void bind() {
-		buttonGroupPrivacy.check(originalPrivacy.equals(Constants.PRIVACY_PUBLIC)
+		privacyButtonGroup.check(originalPrivacy.equals(Constants.PRIVACY_PUBLIC)
 		                         ? R.id.button_public
 		                         : R.id.button_private);
 	}

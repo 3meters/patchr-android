@@ -196,10 +196,8 @@ public class UI {
 	public static void routeHome(Context context) {
 
 		final Intent intent = new Intent(context, MainScreen.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 		AnimationManager.doOverridePendingTransition((Activity) context, TransitionType.VIEW_TO);
 	}

@@ -39,7 +39,7 @@ public class MessageEdit extends BaseEdit {
 	public String inputParentId;
 	public String inputParentName;
 
-	private TextView     patchName;
+	private TextView     patchNameView;
 	private ImageWidget  userPhoto;
 	private ViewAnimator photoEditAnimator;
 
@@ -117,12 +117,12 @@ public class MessageEdit extends BaseEdit {
 		insertProgressResId = R.string.progress_sending;
 		insertedResId = R.string.alert_message_sent;
 
-		patchName = (TextView) findViewById(R.id.patch_name);
+		patchNameView = (TextView) findViewById(R.id.patch_name);
 		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
 		photoEditAnimator = (ViewAnimator) findViewById(R.id.photo_edit_animator);
 
-		if (descriptionView != null) {
-			descriptionView.setCompoundDrawables(null, null, null, null);  // Remove the clear button
+		if (descriptionField != null) {
+			descriptionField.setCompoundDrawables(null, null, null, null);  // Remove the clear button
 		}
 
 		actionBarTitle.setText(inputState.equals(State.Editing) ? "Edit message" : "Message");
@@ -132,10 +132,10 @@ public class MessageEdit extends BaseEdit {
 		super.bind();
 
 		if (State.Inserting.equals(inputState)) {
-			UI.setTextView(this.patchName, this.inputParentName + " Patch");
+			UI.setTextView(this.patchNameView, this.inputParentName + " Patch");
 		}
 		else if (entity.patch != null) {
-			UI.setTextView(this.patchName, this.entity.patch.name + " Patch");
+			UI.setTextView(this.patchNameView, this.entity.patch.name + " Patch");
 		}
 		UI.setImageWithEntity(this.userPhoto, UserManager.currentUser);
 	}
@@ -167,7 +167,7 @@ public class MessageEdit extends BaseEdit {
 		if (State.Editing.equals(inputState) && entity != null) {
 			realm.executeTransaction(whocares -> {
 				entity.pending = true;
-				entity.description = descriptionView.getText().toString().trim();
+				entity.description = descriptionField.getText().toString().trim();
 				entity.setPhoto(photoEditWidget.photo);
 			});
 		}
@@ -177,7 +177,7 @@ public class MessageEdit extends BaseEdit {
 
 			entityId = entity.id;
 			entity.pending = true;
-			entity.description = descriptionView.getText().toString().trim();
+			entity.description = descriptionField.getText().toString().trim();
 			entity.setPhoto(photoEditWidget.photo);
 
 			realm.executeTransaction(whocares -> {
@@ -246,7 +246,7 @@ public class MessageEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (photoEditWidget.photo == null && TextUtils.isEmpty(descriptionView.getText().toString().trim())) {
+		if (photoEditWidget.photo == null && TextUtils.isEmpty(descriptionField.getText().toString().trim())) {
 			Dialogs.alert(R.string.error_missing_message_content, this);
 			return false;
 		}

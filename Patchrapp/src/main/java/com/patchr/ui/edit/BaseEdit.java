@@ -42,8 +42,8 @@ import com.segment.analytics.Properties;
 public abstract class BaseEdit extends BaseScreen {
 
 	protected PhotoEditWidget photoEditWidget;
-	protected TextView        nameView;
-	protected TextView        descriptionView;
+	protected TextView        nameField;
+	protected TextView        descriptionField;
 	protected String          photoSource;
 
 	protected Boolean brokenLink        = false;
@@ -187,8 +187,8 @@ public abstract class BaseEdit extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		nameView = (TextView) findViewById(R.id.name);
-		descriptionView = (TextView) findViewById(R.id.description);
+		nameField = (TextView) findViewById(R.id.name);
+		descriptionField = (TextView) findViewById(R.id.description);
 		photoEditWidget = (PhotoEditWidget) findViewById(R.id.photo_edit);
 	}
 
@@ -197,8 +197,8 @@ public abstract class BaseEdit extends BaseScreen {
 		if (entityId != null && inputState.equals(State.Editing)) {
 			entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 			if (entity != null) {
-				UI.setTextView(nameView, entity.name);
-				UI.setTextView(descriptionView, entity.description);
+				UI.setTextView(nameField, entity.name);
+				UI.setTextView(descriptionField, entity.description);
 				bindPhoto(entity.getPhoto());
 				return;
 			}
@@ -213,22 +213,22 @@ public abstract class BaseEdit extends BaseScreen {
 	protected void gather(SimpleMap parameters) {
 
 		if (inputState.equals(State.Inserting) || inputState.equals(State.Signup)) {
-			if (nameView != null) {
-				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
+			if (nameField != null) {
+				parameters.put("name", Type.emptyAsNull(nameField.getText().toString().trim()));
 			}
-			if (descriptionView != null) {
-				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
+			if (descriptionField != null) {
+				parameters.put("description", Type.emptyAsNull(descriptionField.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.photo != null) {
 				parameters.put("photo", photoEditWidget.photo.asMap()); // Could be null
 			}
 		}
 		else if (inputState.equals(State.Editing)) {
-			if (nameView != null && !nameView.getText().toString().equals(entity.name)) {
-				parameters.put("name", Type.emptyAsNull(nameView.getText().toString().trim()));
+			if (nameField != null && !nameField.getText().toString().equals(entity.name)) {
+				parameters.put("name", Type.emptyAsNull(nameField.getText().toString().trim()));
 			}
-			if (descriptionView != null && !descriptionView.getText().toString().equals(entity.description)) {
-				parameters.put("description", Type.emptyAsNull(descriptionView.getText().toString().trim()));
+			if (descriptionField != null && !descriptionField.getText().toString().equals(entity.description)) {
+				parameters.put("description", Type.emptyAsNull(descriptionField.getText().toString().trim()));
 			}
 			if (photoEditWidget != null && photoEditWidget.dirty) {
 				parameters.put("photo", photoEditWidget.photo != null ? photoEditWidget.photo.asMap() : null); // Could be null
@@ -265,10 +265,10 @@ public abstract class BaseEdit extends BaseScreen {
 
 		if (inputState != null) {
 			if (inputState.equals(State.Inserting)) {
-				if (nameView != null && !TextUtils.isEmpty(nameView.getText().toString())) {
+				if (nameField != null && !TextUtils.isEmpty(nameField.getText().toString())) {
 					return true;
 				}
-				if (descriptionView != null && !TextUtils.isEmpty(descriptionView.getText().toString())) {
+				if (descriptionField != null && !TextUtils.isEmpty(descriptionField.getText().toString())) {
 					return true;
 				}
 				if (photoEditWidget != null && photoEditWidget.photo != null) {
@@ -276,10 +276,10 @@ public abstract class BaseEdit extends BaseScreen {
 				}
 			}
 			else if (inputState.equals(State.Editing)) {
-				if (nameView != null && !Type.equal(entity.name, nameView.getText().toString())) {
+				if (nameField != null && !Type.equal(entity.name, nameField.getText().toString())) {
 					return true;
 				}
-				if (descriptionView != null && !Type.equal(entity.description, descriptionView.getText().toString())) {
+				if (descriptionField != null && !Type.equal(entity.description, descriptionField.getText().toString())) {
 					return true;
 				}
 				if (photoEditWidget != null && photoEditWidget.dirty) {

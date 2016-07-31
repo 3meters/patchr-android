@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.patchr.Constants;
+import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
@@ -41,7 +42,7 @@ public class ResetEdit extends BaseEdit {
 	private boolean emailValidated;
 	private boolean resetRequested;
 
-	private TextView    title;
+	private TextView    titleView;
 	private EditText    emailField;
 	private EditText    passwordField;
 	private ImageWidget userPhoto;
@@ -101,7 +102,7 @@ public class ResetEdit extends BaseEdit {
 
 		actionBarTitle.setText(R.string.screen_title_reset_edit);
 
-		title = (TextView) findViewById(R.id.title);
+		titleView = (TextView) findViewById(R.id.title);
 		emailField = (EditText) findViewById(R.id.email);
 		passwordField = (EditText) findViewById(R.id.password);
 		userPhoto = (ImageWidget) findViewById(R.id.user_photo);
@@ -114,8 +115,8 @@ public class ResetEdit extends BaseEdit {
 		userPhoto.setVisibility(View.GONE);
 
 		if (!resetActive) {
-			title.setText(R.string.form_title_reset_validate_email);
-			title.setMinLines(3);
+			titleView.setText(R.string.form_title_reset_validate_email);
+			titleView.setMinLines(3);
 			emailField.setVisibility(View.VISIBLE);
 			emailField.setImeOptions(EditorInfo.IME_ACTION_GO);
 			emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -132,8 +133,8 @@ public class ResetEdit extends BaseEdit {
 			submitButton.setText("Verify");
 		}
 		else {
-			title.setText(R.string.form_title_reset_reset_password);
-			title.setMinLines(1);
+			titleView.setText(R.string.form_title_reset_reset_password);
+			titleView.setMinLines(1);
 			userName.setVisibility(View.VISIBLE);
 			userPhoto.setVisibility(View.VISIBLE);
 			passwordField.setVisibility(View.VISIBLE);
@@ -168,8 +169,9 @@ public class ResetEdit extends BaseEdit {
 			userName.setText(inputUserName);
 		}
 		else {
-			if (UserManager.currentUser.email != null) {
-				this.emailField.setText(UserManager.currentUser.email);
+			final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
+			if (email != null) {
+				emailField.setText(email);
 			}
 		}
 	}
@@ -240,7 +242,7 @@ public class ResetEdit extends BaseEdit {
 						busyController.hide(true);
 
 						if (response.data != null && response.count.intValue() != 0) {
-							title.setText(R.string.form_title_reset_request_reset);
+							titleView.setText(R.string.form_title_reset_request_reset);
 							submitButton.setText("Send password reset email");
 							emailField.setEnabled(false);
 							emailValidated = true;
@@ -273,7 +275,7 @@ public class ResetEdit extends BaseEdit {
 						processing = false;
 						busyController.hide(true);
 						resetRequested = true;
-						title.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
+						titleView.setText("An email has been sent to your account\'s email address. Please check your email to continue.");
 						submitButton.setText("Finished");
 					},
 					error -> {

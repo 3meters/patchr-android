@@ -33,9 +33,9 @@ import rx.Subscription;
 
 public class LoginEdit extends BaseEdit {
 
-	private   ClearableEditText email;
-	private   PasswordEditText  password;
-	private   TextView          title;
+	private   ClearableEditText emailField;
+	private   PasswordEditText  passwordField;
+	private   TextView          titleView;
 	private   View              forgotPasswordButton;
 	private   View              loginButton;
 	protected Subscription      subscription;
@@ -89,13 +89,13 @@ public class LoginEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		title = (TextView) findViewById(R.id.title);
+		titleView = (TextView) findViewById(R.id.title);
 		loginButton = findViewById(R.id.signup_button);
 		forgotPasswordButton = findViewById(R.id.forgot_password_button);
-		email = (ClearableEditText) findViewById(R.id.email);
-		password = (PasswordEditText) findViewById(R.id.password);
-		if (password != null) {
-			password.setOnEditorActionListener((textView, actionId, event) -> {
+		emailField = (ClearableEditText) findViewById(R.id.email);
+		passwordField = (PasswordEditText) findViewById(R.id.password);
+		if (passwordField != null) {
+			passwordField.setOnEditorActionListener((textView, actionId, event) -> {
 				if (actionId == EditorInfo.IME_ACTION_GO) {
 					login();
 					return true;
@@ -105,7 +105,7 @@ public class LoginEdit extends BaseEdit {
 		}
 
 		if (inputState.equals(State.Signup)) {
-			title.setText(R.string.form_title_login_signup);
+			titleView.setText(R.string.form_title_login_signup);
 			loginButton.setVisibility(View.GONE);
 			forgotPasswordButton.setVisibility(View.GONE);
 		}
@@ -114,22 +114,22 @@ public class LoginEdit extends BaseEdit {
 	@Override public void bind() {
 		final String email = Patchr.settings.getString(StringManager.getString(R.string.setting_last_email), null);
 		if (email != null) {
-			this.email.setText(email);
-			password.requestFocus();
+			this.emailField.setText(email);
+			passwordField.requestFocus();
 		}
 	}
 
 	@Override protected boolean isValid() {
 
-		if (password.getText().length() == 0) {
+		if (passwordField.getText().length() == 0) {
 			Dialogs.alert(R.string.error_missing_password, this);
 			return false;
 		}
-		if (password.getText().length() < 6) {
+		if (passwordField.getText().length() < 6) {
 			Dialogs.alert(R.string.error_missing_password_weak, this);
 			return false;
 		}
-		if (!Utils.validEmail(email.getText().toString())) {
+		if (!Utils.validEmail(emailField.getText().toString())) {
 			Dialogs.alert(R.string.error_invalid_email, this);
 			return false;
 		}
@@ -177,8 +177,8 @@ public class LoginEdit extends BaseEdit {
 		if (!processing) {
 			processing = true;
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_logging_in, LoginEdit.this);
-			final String email = this.email.getText().toString().toLowerCase(Locale.US);
-			final String password = this.password.getText().toString();
+			final String email = this.emailField.getText().toString().toLowerCase(Locale.US);
+			final String password = this.passwordField.getText().toString();
 
 			UserManager.shared().login(email, password)
 				.subscribe(
@@ -214,7 +214,7 @@ public class LoginEdit extends BaseEdit {
 
 		if (!processing) {
 			processing = true;
-			final String email = this.email.getText().toString().toLowerCase(Locale.US);
+			final String email = this.emailField.getText().toString().toLowerCase(Locale.US);
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_reset_verify, LoginEdit.this);
 
 			subscription = RestClient.getInstance().validEmail(email)
@@ -226,7 +226,7 @@ public class LoginEdit extends BaseEdit {
 							Intent intent = new Intent(this, ProfileEdit.class);
 							intent.putExtra(Constants.EXTRA_STATE, State.Signup);
 							intent.putExtra(Constants.EXTRA_EMAIL, email);
-							intent.putExtra(Constants.EXTRA_PASSWORD, password.getText().toString());
+							intent.putExtra(Constants.EXTRA_PASSWORD, passwordField.getText().toString());
 							startActivityForResult(intent, Constants.ACTIVITY_SIGNUP);
 							AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 						}

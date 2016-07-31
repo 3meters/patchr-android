@@ -21,8 +21,8 @@ import com.patchr.utilities.UI;
 @SuppressWarnings("ucd")
 public class PasswordEdit extends BaseEdit {
 
-	private EditText passwordOld;
-	private EditText passwordNew;
+	private EditText passwordOldField;
+	private EditText passwordNewField;
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events
@@ -64,8 +64,8 @@ public class PasswordEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		passwordOld = (EditText) findViewById(R.id.password_old);
-		passwordNew = (EditText) findViewById(R.id.password);
+		passwordOldField = (EditText) findViewById(R.id.password_old);
+		passwordNewField = (EditText) findViewById(R.id.password);
 	}
 
 	protected void update() {
@@ -73,8 +73,8 @@ public class PasswordEdit extends BaseEdit {
 		if (!processing) {
 
 			processing = true;
-			final String passwordOld = this.passwordOld.getText().toString();
-			final String passwordNew = this.passwordNew.getText().toString();
+			final String passwordOld = this.passwordOldField.getText().toString();
+			final String passwordNew = this.passwordNewField.getText().toString();
 			busyController.show(BusyController.BusyAction.ActionWithMessage, R.string.progress_changing_password, PasswordEdit.this);
 
 			subscription = RestClient.getInstance().updatePassword(UserManager.userId, passwordOld, passwordNew)
@@ -97,17 +97,17 @@ public class PasswordEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (passwordOld.getText().length() == 0) {
+		if (passwordOldField.getText().length() == 0) {
 			Dialogs.alert(R.string.error_missing_password_old, this);
 			return false;
 		}
 
-		if (passwordNew.getText().length() == 0) {
+		if (passwordNewField.getText().length() == 0) {
 			Dialogs.alert(R.string.error_missing_password_new, this);
 			return false;
 		}
 
-		if (passwordNew.getText().length() < 6) {
+		if (passwordNewField.getText().length() < 6) {
 			Dialogs.alert(R.string.error_missing_password_weak, this);
 			return false;
 		}

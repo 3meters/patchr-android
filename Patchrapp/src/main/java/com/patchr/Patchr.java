@@ -112,6 +112,9 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 		Logger.d(this, "Starting app initialization");
 
+		/* Turn on crash reporting */
+		Bugsnag.init(this);
+
 		/* Must have this so activity rerouting works. */
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
 		gson = new Gson();
@@ -148,8 +151,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
 			Analytics.setSingletonInstance(analytics);
 
-			/* Turn on crash reporting */
-			Bugsnag.init(this);
 
 			/* Turn on facebook */
 			FacebookSdk.sdkInitialize(this);

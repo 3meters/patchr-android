@@ -51,7 +51,7 @@ import org.greenrobot.eventbus.Subscribe;
 @SuppressLint("Registered")
 public class PatchEdit extends BaseEdit {
 
-	private TextView buttonPrivacy;
+	private TextView privacyButton;
 	private TextView locationLabel;
 	private TextView title;
 
@@ -140,7 +140,7 @@ public class PatchEdit extends BaseEdit {
 					final Bundle extras = intent.getExtras();
 					final String privacy = extras.getString(Constants.EXTRA_PRIVACY);
 					if (privacy != null) {
-						buttonPrivacy.setTag(privacy);
+						privacyButton.setTag(privacy);
 						draw();
 					}
 				}
@@ -207,7 +207,7 @@ public class PatchEdit extends BaseEdit {
 	public void onPrivacyBuilderClick(View view) {
 
 		final Intent intent = new Intent(this, PrivacyEdit.class);
-		intent.putExtra(Constants.EXTRA_PRIVACY, (String) buttonPrivacy.getTag());
+		intent.putExtra(Constants.EXTRA_PRIVACY, (String) privacyButton.getTag());
 		startActivityForResult(intent, Constants.ACTIVITY_PRIVACY_EDIT);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_TO);
 	}
@@ -262,15 +262,15 @@ public class PatchEdit extends BaseEdit {
 		buttonTypeTrip = (RadioButton) findViewById(R.id.radio_trip);
 		buttonPatchType = (RadioGroup) findViewById(R.id.buttons_type);
 
-		buttonPrivacy = (TextView) findViewById(R.id.privacy_policy_button);
+		privacyButton = (TextView) findViewById(R.id.privacy_policy_button);
 		title = (TextView) findViewById(R.id.title);
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
 
-		Drawable originalDrawable = buttonPrivacy.getCompoundDrawables()[2];
+		Drawable originalDrawable = privacyButton.getCompoundDrawables()[2];
 		Drawable chevron = UI.setTint(originalDrawable, R.color.brand_primary);
-		buttonPrivacy.setCompoundDrawables(null, null, chevron, null);
+		privacyButton.setCompoundDrawables(null, null, chevron, null);
 
 		this.actionBarTitle.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 		this.title.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
@@ -295,8 +295,8 @@ public class PatchEdit extends BaseEdit {
 			}
 
 			/* Visibility */
-			if (buttonPrivacy != null) {
-				buttonPrivacy.setTag(entity.visibility);
+			if (privacyButton != null) {
+				privacyButton.setTag(entity.visibility);
 			}
 
 			/* Type */
@@ -310,19 +310,19 @@ public class PatchEdit extends BaseEdit {
 				mapView.setTag(location);
 			}
 
-			buttonPrivacy.setTag(Constants.PRIVACY_PUBLIC);
+			privacyButton.setTag(Constants.PRIVACY_PUBLIC);
 		}
 	}
 
 	public void draw() {
 
 		/* Visibility */
-		if (buttonPrivacy != null) {
-			String visibility = (String) buttonPrivacy.getTag();
+		if (privacyButton != null) {
+			String visibility = (String) privacyButton.getTag();
 			String value = (visibility.equals(Constants.PRIVACY_PUBLIC))
 			               ? StringManager.getString(R.string.label_patch_privacy_public)
 			               : StringManager.getString(R.string.label_patch_privacy_private);
-			buttonPrivacy.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
+			privacyButton.setText(StringManager.getString(R.string.label_patch_edit_privacy) + ": " + value);
 		}
 
 		/* Type */
@@ -407,7 +407,7 @@ public class PatchEdit extends BaseEdit {
 		}
 
 		parameters.put("type", buttonPatchType.getTag());
-		parameters.put("visibility", buttonPrivacy.getTag());
+		parameters.put("visibility", privacyButton.getTag());
 	}
 
 	protected void post(SimpleMap data) {
@@ -456,7 +456,7 @@ public class PatchEdit extends BaseEdit {
 	protected boolean isDirty() {
 
 		if (inputState.equals(State.Inserting)) {
-			if (buttonPrivacy != null && !buttonPrivacy.getTag().equals(Constants.PRIVACY_PUBLIC)) {
+			if (privacyButton != null && !privacyButton.getTag().equals(Constants.PRIVACY_PUBLIC)) {
 				return true;
 			}
 			if (buttonPatchType != null && buttonPatchType.getTag() != null) {
@@ -464,7 +464,7 @@ public class PatchEdit extends BaseEdit {
 			}
 		}
 		else if (inputState.equals(State.Editing)) {
-			if (buttonPrivacy != null && !buttonPrivacy.getTag().equals(entity.visibility)) {
+			if (privacyButton != null && !privacyButton.getTag().equals(entity.visibility)) {
 				return true;
 			}
 			if (buttonPatchType != null && !buttonPatchType.getTag().equals(entity.type)) {
@@ -480,7 +480,7 @@ public class PatchEdit extends BaseEdit {
 
 	@Override protected boolean isValid() {
 
-		if (TextUtils.isEmpty(nameView.getText().toString().trim())) {
+		if (TextUtils.isEmpty(nameField.getText().toString().trim())) {
 			Dialogs.alert(R.string.error_missing_patch_name, this);
 			return false;
 		}
