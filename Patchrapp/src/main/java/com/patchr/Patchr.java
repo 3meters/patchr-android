@@ -130,6 +130,13 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
 
+		/* Turn on parse */
+		Parse.initialize(this
+			, StringManager.getString(R.string.parse_app_id)        // application id
+			, StringManager.getString(R.string.parse_client_key));  // client key
+		Parse.setLogLevel(Constants.LOG_LEVEL);
+		ParseInstallation.getCurrentInstallation().saveInBackground();
+
 		AsyncTask.execute(() -> {
 
 			/* Configure realm */
@@ -164,13 +171,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			/* Set the folder used by image chooser for all files */
 			BChooserPreferences preferences = new BChooserPreferences(this);
 			preferences.setFolderName("Pictures/Patchr");
-
-			/* Turn on parse */
-			Parse.initialize(this
-				, StringManager.getString(R.string.parse_app_id)        // application id
-				, StringManager.getString(R.string.parse_client_key));  // client key
-			Parse.setLogLevel(Constants.LOG_LEVEL);
-			ParseInstallation.getCurrentInstallation().saveInBackground();
 
 			/* Stetho */
 			if (BuildConfig.DEBUG) {
