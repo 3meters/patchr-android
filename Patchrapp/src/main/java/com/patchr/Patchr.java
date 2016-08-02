@@ -158,7 +158,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 			Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
 			Analytics.setSingletonInstance(analytics);
 
-
 			/* Turn on facebook */
 			FacebookSdk.sdkInitialize(this);
 
