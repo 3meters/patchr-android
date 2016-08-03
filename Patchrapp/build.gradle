@@ -17,8 +17,8 @@ android {
 
 		minSdkVersion 16        // ICS 4.1 and up: Jelly Bean
 		targetSdkVersion 24     // Marshmallow
-		versionCode 128
-		versionName '1.3.4'
+		versionCode 129
+		versionName '1.3.5'
 
 		multiDexEnabled true
 		manifestPlaceholders = [appPackageName: "${applicationId}"]

@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
+import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.adobe.creativesdk.foundation.auth.IAdobeAuthClientCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.birbit.android.jobqueue.JobManager;
@@ -157,6 +158,9 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			/* Turn on segement to gather user data */
 			Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
 			Analytics.setSingletonInstance(analytics);
+
+			/* Creative SDK needs the app context */
+			AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
 
 			/* Turn on facebook */
 			FacebookSdk.sdkInitialize(this);
