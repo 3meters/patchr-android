@@ -127,7 +127,7 @@ dependencies {
 	compile 'com.parse:parse-android:1.13.1'
 	compile 'com.parse.bolts:bolts-applinks:1.4.0'
 	compile 'com.segment.analytics.android:analytics:4.1.5'
-	compile 'io.branch.sdk.android:library:2.0.1'
+	compile 'io.branch.sdk.android:library:2.0.2'
 	compile 'com.bugsnag:bugsnag-android:3.5.0'
 	compile 'com.google.android.gms:play-services-base:9.4.0'
 	compile 'com.google.android.gms:play-services-location:9.4.0'
@@ -148,7 +148,6 @@ dependencies {
 	compile 'com.uphyca:stetho_realm:0.9.0'
 	compile 'org.greenrobot:eventbus:3.0.0'
 	compile 'com.android.support:multidex:1.0.1'
-	//noinspection NewerVersionAvailable
 	compile 'com.birbit:android-priority-jobqueue:2.0.0-beta2'
 	compile 'com.android.support:support-v4:24.1.1'
 	compile 'com.android.support:appcompat-v7:24.1.1'

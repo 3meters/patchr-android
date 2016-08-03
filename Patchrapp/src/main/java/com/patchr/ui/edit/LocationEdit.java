@@ -32,7 +32,7 @@ import com.patchr.utilities.UI;
  * We often will get duplicates because the ordering of images isn't
  * guaranteed while paging.
  */
-public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChangeListener {
+public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraMoveListener {
 
 	protected MapView   mapView;
 	protected GoogleMap map;
@@ -121,7 +121,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 						if (originalLocation != null) {
 							map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()), 17));
 						}
-						map.setOnCameraChangeListener(LocationEdit.this);
+						map.setOnCameraMoveListener(LocationEdit.this);
 						bind();
 					}
 				}
@@ -195,7 +195,7 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraChange
 		MapsInitializer.initialize(this);
 	}
 
-	@Override public void onCameraChange(CameraPosition cameraPosition) {
+	@Override public void onCameraMove() {
 		if (this.positionDrawn) {
 			this.dirty = true;
 		}
