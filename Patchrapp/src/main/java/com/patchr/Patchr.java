@@ -14,7 +14,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
-import com.adobe.creativesdk.aviary.IAviaryClientCredentials;
+import com.adobe.creativesdk.foundation.auth.IAdobeAuthClientCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
@@ -52,7 +52,7 @@ import io.branch.referral.Branch;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public class Patchr extends Application implements IAviaryClientCredentials {
+public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 	private static Patchr instance;
 
@@ -210,10 +210,6 @@ public class Patchr extends Application implements IAviaryClientCredentials {
 
 	@Override public String getClientSecret() {
 		return StringManager.getString(R.string.creative_sdk_client_key);
-	}
-
-	@Override public String getBillingKey() {
-		return ""; // Leave this blank
 	}
 
 	public void openContainer(String containerId) {

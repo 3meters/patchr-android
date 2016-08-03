@@ -86,6 +86,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				clusterRenderer.setMinClusterSize(10);
 				clusterManager.setRenderer(clusterRenderer);
 
+				//noinspection deprecation
 				map.setOnCameraChangeListener(clusterManager);
 				map.setOnMarkerClickListener(clusterManager);
 				map.setOnInfoWindowClickListener(clusterManager);

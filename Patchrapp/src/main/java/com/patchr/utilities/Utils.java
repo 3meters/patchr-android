@@ -130,6 +130,7 @@ public class Utils {
 			result = Html.fromHtml(value, Html.FROM_HTML_MODE_LEGACY);
 		}
 		else {
+			//noinspection deprecation
 			result = Html.fromHtml(value);
 		}
 		return result;

@@ -88,7 +88,8 @@ public abstract class BaseEdit extends BaseScreen {
 					if (changed) {
 						Reporting.track(AnalyticsCategory.ACTION, "Edited Photo");
 					}
-					final Uri photoUri = Uri.parse("file://" + intent.getData().toString());
+					//final Uri photoUri = Uri.parse("file://" + intent.getParcelableExtra(AdobeImageIntent.EXTRA_OUTPUT_URI));
+					final Uri photoUri = intent.getParcelableExtra(AdobeImageIntent.EXTRA_OUTPUT_URI);
 					MediaManager.scanMedia(photoUri);
 
 					Photo photo = new Photo(photoUri.toString(), Photo.PhotoSource.file);

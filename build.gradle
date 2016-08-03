@@ -23,6 +23,7 @@ allprojects {
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://repo.adobe.com/nexus/content/repositories/releases/' }
 		maven { url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo' }
+		maven { url 'http://maven.localytics.com/public' }
 	}
 }
 
