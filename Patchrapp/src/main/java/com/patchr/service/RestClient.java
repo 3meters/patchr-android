@@ -476,7 +476,7 @@ public class RestClient {
 		return post("data/links", parameters, null, null, false);
 	}
 
-	public Observable<ProxibaseResponse> enableLinkById(String entityId, String linkId, Boolean enabled) {
+	public Observable<ProxibaseResponse> enableLinkById(String linkId, Boolean enabled) {
 
 		SimpleMap link = new SimpleMap();
 		link.put("enabled", enabled);
@@ -489,7 +489,7 @@ public class RestClient {
 		return post(String.format("data/links/%1$s", linkId), parameters, null, null, false);
 	}
 
-	public Observable<ProxibaseResponse> muteLinkById(String entityId, String linkId, Boolean muted) {
+	public Observable<ProxibaseResponse> muteLinkById(String linkId, Boolean muted) {
 
 		SimpleMap link = new SimpleMap();
 		link.put("mute", muted);
@@ -602,7 +602,7 @@ public class RestClient {
 			});
 	}
 
-	public Observable<ProxibaseResponse> tokenLogin(String token, String authType) {
+	public Observable<ProxibaseResponse> tokenLogin(String token) {
 
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("authorization_code", token);
@@ -635,9 +635,7 @@ public class RestClient {
 		parameters.put("installId", Patchr.getInstance().getinstallId());
 		addSessionParameters(parameters);
 
-		return post("user/pw/change", parameters, null, null, false).doOnNext(response -> {
-			UserManager.shared().handlePasswordChange(response);
-		});
+		return post("user/pw/change", parameters, null, null, false).doOnNext(response -> UserManager.shared().handlePasswordChange(response));
 	}
 
 	public Observable<ProxibaseResponse> requestPasswordReset(final String email) {
@@ -853,7 +851,7 @@ public class RestClient {
 		locationMap.put("lat", location.lat);
 		locationMap.put("lng", location.lng);
 
-		List<Double> geoarray = new ArrayList<Double>();
+		List<Double> geoarray = new ArrayList<>();
 		geoarray.add(0, location.lng);
 		geoarray.add(1, location.lat);
 		locationMap.put("geometry", geoarray);
@@ -892,8 +890,7 @@ public class RestClient {
 	}
 
 	public static QuerySpec getQuerySpec(String queryName) {
-		QuerySpec querySpec = QuerySpec.Factory(queryName);
-		return querySpec;
+		return QuerySpec.Factory(queryName);
 	}
 
 	public void throwServiceException(ResponseBody errorBody) {

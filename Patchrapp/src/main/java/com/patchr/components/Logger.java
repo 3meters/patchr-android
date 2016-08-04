@@ -28,7 +28,7 @@ public class Logger {
 	 * Chatty stuff that is helpful in the logs while developing but will never used in release.
 	 */
 
-	private static enum LogLevel {
+	private enum LogLevel {
 		ERROR,
 		WARNING,
 		INFO,
@@ -44,7 +44,7 @@ public class Logger {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		if (taskContext != null) {
-			stringBuilder.append("[" + Thread.currentThread().getName() + "]: " + taskContext.getClass().getSimpleName() + ": ");
+			stringBuilder.append("[").append(Thread.currentThread().getName()).append("]: ").append(taskContext.getClass().getSimpleName()).append(": ");
 		}
 
 		if (logLevel == LogLevel.ERROR) {

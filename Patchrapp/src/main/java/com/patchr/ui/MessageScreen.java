@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.OnSheetDismissedListener;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -57,7 +56,6 @@ import com.segment.analytics.Properties;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressWarnings("ConstantConditions")
@@ -118,9 +116,7 @@ public class MessageScreen extends BaseScreen {
 			View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
 			bottomSheetDialog.setContentView(view);
 			bottomSheetDialog.getWindow().setDimAmount(0.3f);
-			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
-				bottomSheetDialog = null;
-			});
+			bottomSheetDialog.setOnDismissListener(dialogInterface -> bottomSheetDialog = null);
 
 			if (!MenuManager.canUserDelete(entity)) {
 				view.findViewById(R.id.delete_group).setVisibility(View.GONE);
@@ -339,7 +335,7 @@ public class MessageScreen extends BaseScreen {
 
 	public void fetch(final FetchMode mode) {
 
-		Logger.v(this, "Fetching entity: " + mode.name().toString());
+		Logger.v(this, "Fetching entity: " + mode.name());
 		final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
 		subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
@@ -426,7 +422,7 @@ public class MessageScreen extends BaseScreen {
 			/* Created date */
 			if (createdDate != null) {
 				if (entity.createdDate != null) {
-					createdDate.setText(DateTime.dateStringAt(entity.createdDate.longValue()));
+					createdDate.setText(DateTime.dateStringAt(entity.createdDate));
 					UI.setVisibility(createdDate, View.VISIBLE);
 				}
 				else {
@@ -593,9 +589,7 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
-						Patchr.mainThread.postDelayed(() -> {
-							likeAnimator.setDisplayedChild(0);
-						}, 1000);
+						Patchr.mainThread.postDelayed(() -> likeAnimator.setDisplayedChild(0), 1000);
 						Errors.handleError(this, error);
 					});
 		}
@@ -608,9 +602,7 @@ public class MessageScreen extends BaseScreen {
 					},
 					error -> {
 						processing = false;
-						Patchr.mainThread.postDelayed(() -> {
-							likeAnimator.setDisplayedChild(0);
-						}, 1000);
+						Patchr.mainThread.postDelayed(() -> likeAnimator.setDisplayedChild(0), 1000);
 						Errors.handleError(this, error);
 					});
 		}
@@ -621,35 +613,29 @@ public class MessageScreen extends BaseScreen {
 		final String title = StringManager.getString(R.string.label_message_share_title);
 		final Activity activity = this;
 
-		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", new MenuSheetView.OnMenuItemClickListener() {
+		MenuSheetView menuSheetView = new MenuSheetView(this, MenuSheetView.MenuType.GRID, "Share using...", item -> {
 
-			@Override public boolean onMenuItemClick(final MenuItem item) {
+			bottomSheetLayout.addOnSheetDismissedListener(bottomSheetLayout1 -> {
+				if (item.getItemId() == R.id.share_using_patchr) {
+					/* Go to patchr share directly but looks just like an external share*/
+					final Intent intent = new Intent(activity, ShareEdit.class);
+					intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
+					intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
+					intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+					intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
+					intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
+					intent.setAction(Intent.ACTION_SEND);
+					activity.startActivity(intent);
+					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
+				}
+				else if (item.getItemId() == R.id.share_using_other) {
+					Reporting.track(AnalyticsCategory.ACTION, "Started Message Share", new Properties().putValue("network", "Android"));
+					showBuiltInSharePicker(title);
+				}
+			});
 
-				bottomSheetLayout.addOnSheetDismissedListener(new OnSheetDismissedListener() {
-
-					@Override public void onDismissed(BottomSheetLayout bottomSheetLayout) {
-						if (item.getItemId() == R.id.share_using_patchr) {
-							/* Go to patchr share directly but looks just like an external share*/
-							final Intent intent = new Intent(activity, ShareEdit.class);
-							intent.putExtra(Constants.EXTRA_STATE, State.Inserting);
-							intent.putExtra(Constants.EXTRA_MESSAGE_TYPE, MessageType.Share);
-							intent.putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-							intent.putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
-							intent.putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-							intent.setAction(Intent.ACTION_SEND);
-							activity.startActivity(intent);
-							AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
-						}
-						else if (item.getItemId() == R.id.share_using_other) {
-							Reporting.track(AnalyticsCategory.ACTION, "Started Message Share", new Properties().putValue("network", "Android"));
-							showBuiltInSharePicker(title);
-						}
-					}
-				});
-
-				bottomSheetLayout.dismissSheet();
-				return true;
-			}
+			bottomSheetLayout.dismissSheet();
+			return true;
 		});
 
 		menuSheetView.inflateMenu(R.menu.menu_share_sheet);
@@ -698,28 +684,24 @@ public class MessageScreen extends BaseScreen {
 			.setChannel("patchr-android")
 			.setFeature(Branch.FEATURE_TAG_SHARE);
 
-		applink.generateShortUrl(this, linkProperties, new Branch.BranchLinkCreateListener() {
+		applink.generateShortUrl(this, linkProperties, (url, error) -> {
 
-			@Override
-			public void onLinkCreate(String url, BranchError error) {
+			if (error == null) {
+				ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(MessageScreen.this);
+				builder.setChooserTitle(title);
+				builder.setType("text/plain");
+				/*
+				 * subject: Invitation to the \'%1$s\' patch
+				 * body: %1$s has invited you to the %2$s patch! %3$s
+				 */
+				builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject), ownerName));
+				builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), ownerName, patchName, url));
 
-				if (error == null) {
-					ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(MessageScreen.this);
-					builder.setChooserTitle(title);
-					builder.setType("text/plain");
-					/*
-					 * subject: Invitation to the \'%1$s\' patch
-					 * body: %1$s has invited you to the %2$s patch! %3$s
-					 */
-					builder.setSubject(String.format(StringManager.getString(R.string.label_message_share_subject), ownerName));
-					builder.setText(String.format(StringManager.getString(R.string.label_message_share_body), ownerName, patchName, url));
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
 
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, getPackageName());
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entityId);
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_MESSAGE);
-
-					builder.startChooser();
-				}
+				builder.startChooser();
 			}
 		});
 	}

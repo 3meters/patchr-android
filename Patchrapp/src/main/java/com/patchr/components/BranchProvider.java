@@ -12,7 +12,6 @@ import com.patchr.objects.enums.PhotoCategory;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 public class BranchProvider {
@@ -73,28 +72,24 @@ public class BranchProvider {
 				.setChannel("patchr-android")
 				.setFeature(Branch.FEATURE_TAG_INVITE);
 
-		applink.generateShortUrl(Patchr.applicationContext, linkProperties, new Branch.BranchLinkCreateListener() {
+		applink.generateShortUrl(Patchr.applicationContext, linkProperties, (url, error) -> {
 
-			@Override
-			public void onLinkCreate(String url, BranchError error) {
+			if (error == null) {
+				ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(activity);
+				builder.setChooserTitle(title);
+				builder.setType("text/plain");
+				/*
+				 * subject: Invitation to the \'%1$s\' patch
+				 * body: %1$s has invited you to the %2$s patch! %3$s
+				 */
+				builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
+				builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
 
-				if (error == null) {
-					ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(activity);
-					builder.setChooserTitle(title);
-					builder.setType("text/plain");
-					/*
-					 * subject: Invitation to the \'%1$s\' patch
-					 * body: %1$s has invited you to the %2$s patch! %3$s
-					 */
-					builder.setSubject(String.format(StringManager.getString(R.string.label_patch_share_subject), patchName));
-					builder.setText(String.format(StringManager.getString(R.string.label_patch_share_body), referrerName, patchName, url));
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, activity.getPackageName());
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entity.id);
+				builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
 
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SOURCE, activity.getPackageName());
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_ENTITY_ID, entity.id);
-					builder.getIntent().putExtra(Constants.EXTRA_SHARE_SCHEMA, Constants.SCHEMA_ENTITY_PATCH);
-
-					activity.startActivityForResult(builder.createChooserIntent(), Constants.ACTIVITY_SHARE);
-				}
+				activity.startActivityForResult(builder.createChooserIntent(), Constants.ACTIVITY_SHARE);
 			}
 		});
 	}

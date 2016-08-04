@@ -47,7 +47,7 @@ public class DateTime {
 		return (nowMilliseconds - time) / 1000;
 	}
 
-	public static long secondsSinceMidnight(Long time) {
+	public static long secondsSinceMidnight() {
 		final Calendar cal = Calendar.getInstance();
 		final Long now = cal.getTimeInMillis();
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -55,8 +55,7 @@ public class DateTime {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		long passed = now - cal.getTimeInMillis();
-		long secondsPassed = passed / 1000;
-		return secondsPassed;
+		return passed / 1000;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -126,7 +125,7 @@ public class DateTime {
 		return interval;
 	}
 
-	@SuppressWarnings("deprecation") public static String intervalCompact(Long oldDateMs, Long newDateMs, IntervalContext context) {
+	@SuppressWarnings("deprecation") public static String intervalCompact(Long oldDateMs, Long newDateMs) {
 
 		final Long diff = newDateMs - oldDateMs;
 

@@ -10,9 +10,9 @@ public class SortByScoreAndDistance implements Comparator<RealmEntity> {
 
 	@Override public int compare(@NonNull RealmEntity object1, @NonNull RealmEntity object2) {
 
-		if (object1.score.floatValue() > object2.score.floatValue())
+		if (object1.score > object2.score)
 			return -1;
-		else if (object2.score.floatValue() < object1.score.floatValue())
+		else if (object2.score < object1.score)
 			return 1;
 		else {
 			if (object1.distance == null || object2.distance == null)

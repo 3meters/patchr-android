@@ -63,17 +63,17 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 	public static final long   CHECK_DELAY = 2000;
 
 	public interface Listener {
-		public void onBecameForeground();
+		void onBecameForeground();
 
-		public void onBecameBackground();
+		void onBecameBackground();
 	}
 
 	public interface Binding {
-		public void unbind();
+		void unbind();
 	}
 
 	private interface Callback {
-		public void invoke(Listener listener);
+		void invoke(Listener listener);
 	}
 
 	private static class Listeners {
@@ -82,11 +82,7 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 		public Binding add(Listener listener) {
 			final WeakReference<Listener> wr = new WeakReference<>(listener);
 			listeners.add(wr);
-			return new Binding() {
-				public void unbind() {
-					listeners.remove(wr);
-				}
-			};
+			return () -> listeners.remove(wr);
 		}
 
 		public void each(Callback callback) {
@@ -106,19 +102,9 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 		}
 	}
 
-	private static Callback becameForeground = new Callback() {
-		@Override
-		public void invoke(Listener listener) {
-			listener.onBecameForeground();
-		}
-	};
+	private static Callback becameForeground = Listener::onBecameForeground;
 
-	private static Callback becameBackground = new Callback() {
-		@Override
-		public void invoke(Listener listener) {
-			listener.onBecameBackground();
-		}
-	};
+	private static Callback becameBackground = Listener::onBecameBackground;
 
 	private static Foreground instance;
 
@@ -172,12 +158,7 @@ public class Foreground implements Application.ActivityLifecycleCallbacks {
 		if (!activity.isChangingConfigurations()) {
 			// don't prevent activity being gc'd
 			final WeakReference<Activity> ref = new WeakReference<>(activity);
-			handler.postDelayed(check = new Runnable() {
-				@Override
-				public void run() {
-					onActivityCeased(ref.get());
-				}
-			}, CHECK_DELAY);
+			handler.postDelayed(check = () -> onActivityCeased(ref.get()), CHECK_DELAY);
 		}
 	}
 

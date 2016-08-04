@@ -42,8 +42,8 @@ public class MapScreen extends BaseScreen {
 			}
 
 			AndroidManager.getInstance().callMapNavigation(this
-				, location.lat.doubleValue()
-				, location.lng.doubleValue()
+				, location.lat
+				, location.lng
 				, null
 				, entity.name);
 			return true;
@@ -72,7 +72,7 @@ public class MapScreen extends BaseScreen {
 		this.actionBarTitle.setText(R.string.screen_title_map_form);
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 		if (this.entity != null) {
-			RealmList<RealmEntity> entities = new RealmList<RealmEntity>();
+			RealmList<RealmEntity> entities = new RealmList<>();
 			entities.add(entity);
 			MapListFragment fragment = (MapListFragment) currentFragment;
 			fragment.entities = entities;

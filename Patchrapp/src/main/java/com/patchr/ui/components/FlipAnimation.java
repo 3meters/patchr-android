@@ -27,8 +27,6 @@ import android.support.annotation.NonNull;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-;
-
 /**
  * This class extends Animation to support a 3D flip view transition animation. Two instances of this class is
  * required: one for the "from" view and another for the "to" view.
@@ -119,8 +117,6 @@ public class FlipAnimation extends Animation {
 
 	/**
 	 * Get the current direction, it can be {@link #ROTATION_X} or {#ROTATION_Y}
-	 *
-	 * @param direction
 	 */
 	public void setDirection(int direction) {
 		mDirection = direction;
@@ -132,7 +128,7 @@ public class FlipAnimation extends Animation {
 	 * @author Ephraim A. Tekle
 	 */
 	@SuppressWarnings("ucd")
-	public static enum ScaleUpDownEnum {
+	public enum ScaleUpDownEnum {
 		/**
 		 * The view will be scaled up from the scale value until it's at 100% zoom level (i.e. no zoom).
 		 */

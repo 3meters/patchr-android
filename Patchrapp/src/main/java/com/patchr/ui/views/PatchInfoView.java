@@ -26,14 +26,12 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 	public  RealmEntity entity;
 	private Integer     layoutResId;
 
-	private ViewGroup layout;
-	private TextView  name;
-	private TextView  type;
-	private TextView  description;
-	private View      privacyGroup;
-	private TextView  ownerName;
-	public  Button    expandoButton;
-	private View      moreButton;
+	private TextView nameView;
+	private TextView typeView;
+	private TextView descriptionView;
+	private View     privacyGroup;
+	private TextView ownerNameView;
+	public  Button   expandoButton;
 
 	public PatchInfoView(Context context) {
 		this(context, null, 0);
@@ -45,7 +43,7 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 
 	public PatchInfoView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.layoutResId = R.layout.view_patch_info;
+		layoutResId = R.layout.view_patch_info;
 		initialize();
 	}
 
@@ -57,15 +55,14 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 
 	protected void initialize() {
 
-		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
+		ViewGroup layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
-		this.name = (TextView) layout.findViewById(R.id.name);
-		this.type = (TextView) layout.findViewById(R.id.type);
-		this.privacyGroup = (View) layout.findViewById(R.id.privacy_group);
-		this.description = (TextView) layout.findViewById(R.id.description);
-		this.ownerName = (TextView) layout.findViewById(R.id.owner_name);
-		this.expandoButton = (Button) layout.findViewById(R.id.expando_button);
-		this.moreButton = (View) layout.findViewById(R.id.next_page_button);
+		nameView = (TextView) layout.findViewById(R.id.name);
+		typeView = (TextView) layout.findViewById(R.id.type);
+		privacyGroup = (View) layout.findViewById(R.id.privacy_group);
+		descriptionView = (TextView) layout.findViewById(R.id.description);
+		ownerNameView = (TextView) layout.findViewById(R.id.owner_name);
+		expandoButton = (Button) layout.findViewById(R.id.expando_button);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -92,33 +89,33 @@ public class PatchInfoView extends BaseView implements View.OnClickListener {
 
 	public void draw() {
 
-		setOrGone(this.name, entity.name);
-		setOrGone(this.description, entity.description);
-		setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+		setOrGone(nameView, entity.name);
+		setOrGone(descriptionView, entity.description);
+		setOrGone(typeView, (entity.type + " patch").toUpperCase(Locale.US));
 		if (entity.owner != null) {
-			ownerName.setText(entity.owner.name);
+			ownerNameView.setText(entity.owner.name);
 		}
 
 		privacyGroup.setVisibility((entity.visibility != null
 			&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
 
-		UI.setVisibility(this.expandoButton, View.GONE);
+		UI.setVisibility(expandoButton, View.GONE);
 		if (!TextUtils.isEmpty(entity.description)) {
-			this.expandoButton.setText(StringManager.getString(R.string.button_text_expand));
-			UI.setVisibility(this.expandoButton, View.VISIBLE);
-			this.expandoButton.setOnClickListener(this);
+			expandoButton.setText(StringManager.getString(R.string.button_text_expand));
+			UI.setVisibility(expandoButton, View.VISIBLE);
+			expandoButton.setOnClickListener(this);
 		}
 	}
 
 	public void toggleExpando() {
-		if (description != null) {
+		if (descriptionView != null) {
 			int maxLines = Integers.getInteger(R.integer.max_lines_patch_description);
-			boolean collapsed = ((String) this.expandoButton.getTag()).equals("collapsed");
-			description.setMaxLines(collapsed ? Integer.MAX_VALUE : maxLines);
-			this.expandoButton.setText(StringManager.getString(collapsed
+			boolean collapsed = ((String) expandoButton.getTag()).equals("collapsed");
+			descriptionView.setMaxLines(collapsed ? Integer.MAX_VALUE : maxLines);
+			expandoButton.setText(StringManager.getString(collapsed
 			                                                   ? R.string.button_text_collapse
 			                                                   : R.string.button_text_expand));
-			this.expandoButton.setTag(collapsed ? "expanded" : "collapsed");
+			expandoButton.setTag(collapsed ? "expanded" : "collapsed");
 		}
 	}
 }

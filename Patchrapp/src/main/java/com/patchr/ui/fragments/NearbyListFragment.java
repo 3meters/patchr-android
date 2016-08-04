@@ -106,9 +106,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 					if (location != null) {
 						listWidget.fetch(FetchMode.AUTO);
 						if (!atLeastOneLocationProcessed) {
-							AsyncTask.execute(() -> {
-								MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1);
-							});
+							AsyncTask.execute(() -> MediaManager.playSound(MediaManager.SOUND_PLACES_FOUND, 1.0f, 1));
 							atLeastOneLocationProcessed = true;
 						}
 					}
@@ -193,35 +191,28 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 
 		if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					final AlertDialog dialog = Dialogs.alertDialog(null
-						, StringManager.getString(R.string.alert_permission_location_title)
-						, StringManager.getString(R.string.alert_permission_location_message)
-						, null
-						, getActivity()
-						, R.string.alert_permission_location_positive
-						, R.string.alert_permission_location_negative
-						, null
-						, new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									ActivityCompat.requestPermissions(getActivity()
-										, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
-										, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-								}
-								else {
-									listWidget.busyController.hide(true);
-									listWidget.emptyController.setText("Location services disabled for Patchr");
-									listWidget.emptyController.show(true);
-								}
-							}
-						}, null);
-					dialog.setCanceledOnTouchOutside(false);
-				}
+			getActivity().runOnUiThread(() -> {
+				final AlertDialog dialog = Dialogs.alertDialog(null
+					, StringManager.getString(R.string.alert_permission_location_title)
+					, StringManager.getString(R.string.alert_permission_location_message)
+					, null
+					, getActivity()
+					, R.string.alert_permission_location_positive
+					, R.string.alert_permission_location_negative
+					, null
+					, (dialog1, which) -> {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							ActivityCompat.requestPermissions(getActivity()
+								, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}
+								, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+						}
+						else {
+							listWidget.busyController.hide(true);
+							listWidget.emptyController.setText("Location services disabled for Patchr");
+							listWidget.emptyController.show(true);
+						}
+					}, null);
+				dialog.setCanceledOnTouchOutside(false);
 			});
 		}
 		else {

@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
@@ -62,12 +61,10 @@ public class S3 {
 
 			mUpload = mManager.upload("aircandi-images", imageKey, inputStream, metadata);
 
-			mUpload.addProgressListener(new ProgressListener() {
-				public void progressChanged(ProgressEvent progressEvent) {
-					if (mUpload == null) return;
-					if (mUpload.getProgress().getPercentTransferred() <= 95) {
-						Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
-					}
+			mUpload.addProgressListener((ProgressListener) progressEvent -> {
+				if (mUpload == null) return;
+				if (mUpload.getProgress().getPercentTransferred() <= 95) {
+					Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
 				}
 			});
 

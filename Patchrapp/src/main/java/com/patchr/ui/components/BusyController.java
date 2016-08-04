@@ -47,11 +47,7 @@ public class BusyController {
 		if (swipeRefreshLayout != null) {
 			this.swipeRefreshLayout = swipeRefreshLayout;
 		}
-		runnableHide = new Runnable() {
-			@Override public void run() {
-				hide(false);
-			}
-		};
+		runnableHide = () -> hide(false);
 	}
 
 	public void onResume() {
@@ -79,73 +75,69 @@ public class BusyController {
 		Patchr.mainThread.removeCallbacks(runnableShow);
 		Patchr.mainThread.removeCallbacks(runnableHide);
 
-		runnableShow = new Runnable() {
+		runnableShow = () -> {
+			try {
+				if (busyAction == BusyAction.Refreshing_Empty) {
+					/*
+					 * Initial data load for an activity/fragment.
+					 */
+					startProgressBar();
+				}
+				else if (busyAction == BusyAction.Refreshing) {
+					/*
+					 * Refreshing data for activity/fragment that is already showing data.
+					 */
+					startSwipeRefreshIndicator();
+				}
+				else if (busyAction == BusyAction.Scanning_Empty) {
+					/*
+					 * Scanning for patches.
+					 */
+					startProgressBar();
+				}
+				else if (busyAction == BusyAction.Scanning) {
+					/*
+					 * Scanning for patches.
+					 */
+					startSwipeRefreshIndicator();
+				}
+				else if (busyAction == BusyAction.Update) {
+					/*
+					 * Pushing an edit or insert to the server. We show progress dialog if a photo
+					 * update can be canceled.
+					 */
+					startProgressBar();
+					startSwipeRefreshIndicator();
+				}
+				else if (busyAction == BusyAction.ActionWithMessage) {
+					/*
+					 * Making a service call and showing a message
+					 */
+					if (message != null) {
+						final ProgressDialog progressDialog1 = getProgressDialog(context);
+						if (message instanceof Integer) {
+							progressDialog1.setMessage(StringManager.getString((Integer) message));
+						}
+						else {
+							progressDialog1.setMessage((String) message);
+						}
 
-			@Override
-			public void run() {
-				try {
-					if (busyAction == BusyAction.Refreshing_Empty) {
-						/*
-						 * Initial data load for an activity/fragment.
-						 */
-						startProgressBar();
-					}
-					else if (busyAction == BusyAction.Refreshing) {
-						/*
-						 * Refreshing data for activity/fragment that is already showing data.
-						 */
-						startSwipeRefreshIndicator();
-					}
-					else if (busyAction == BusyAction.Scanning_Empty) {
-						/*
-						 * Scanning for patches.
-						 */
-						startProgressBar();
-					}
-					else if (busyAction == BusyAction.Scanning) {
-						/*
-						 * Scanning for patches.
-						 */
-						startSwipeRefreshIndicator();
-					}
-					else if (busyAction == BusyAction.Update) {
-						/*
-						 * Pushing an edit or insert to the server. We show progress dialog if a photo
-						 * update can be canceled.
-						 */
-						startProgressBar();
-						startSwipeRefreshIndicator();
-					}
-					else if (busyAction == BusyAction.ActionWithMessage) {
-						/*
-						 * Making a service call and showing a message
-						 */
-						if (message != null) {
-							final ProgressDialog progressDialog = getProgressDialog(context);
-							if (message instanceof Integer) {
-								progressDialog.setMessage(StringManager.getString((Integer) message));
-							}
-							else {
-								progressDialog.setMessage((String) message);
-							}
-
-							if (!progressDialog.isShowing()) {
-								progressDialog.setCancelable(false);
-								progressDialog.setCanceledOnTouchOutside(false);
-								progressDialog.show();
-							}
+						if (!progressDialog1.isShowing()) {
+							progressDialog1.setCancelable(false);
+							progressDialog1.setCanceledOnTouchOutside(false);
+							progressDialog1.show();
 						}
 					}
+				}
 
-					busyStartedTime = DateTime.nowDate().getTime();
-				}
-				catch (BadTokenException e) {
-					/*
-					 * Sometimes the activity has been destroyed out from under us
-					 * so we trap this and continue.
-					 */
-					Reporting.logException(e);
-				}
+				busyStartedTime = DateTime.nowDate().getTime();
+			}
+			catch (BadTokenException e) {
+				/*
+				 * Sometimes the activity has been destroyed out from under us
+				 * so we trap this and continue.
+				 */
+				Reporting.logException(e);
 			}
 		};
 
@@ -172,13 +164,9 @@ public class BusyController {
 		/* Safe to call from any thread */
 		stopProgressDialog();
 
-		Patchr.mainThread.post(new Runnable() {
-
-			@Override
-			public void run() {
-				stopProgressBar();
-				stopSwipeRefreshIndicator();
-			}
+		Patchr.mainThread.post(() -> {
+			stopProgressBar();
+			stopSwipeRefreshIndicator();
 		});
 	}
 
@@ -189,37 +177,32 @@ public class BusyController {
 		Patchr.mainThread.removeCallbacks(runnableShow);
 		Patchr.mainThread.removeCallbacks(runnableHide);
 
-		runnableShow = new Runnable() {
+		runnableShow = () -> {
+			try {
+				/*
+				 * Making a service call and showing a message
+				 */
+				final ProgressDialog progressDialog1 = getProgressDialog(context);
 
-			@Override public void run() {
-				try {
-					/*
-					 * Making a service call and showing a message
-					 */
-					final ProgressDialog progressDialog = getProgressDialog(context);
+				if (!progressDialog1.isShowing()) {
+					progressDialog1.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+					progressDialog1.setProgress(0);
+					progressDialog1.setMax(100);
+					progressDialog1.setProgressNumberFormat(null);
+					progressDialog1.setIndeterminate(false);
+					progressDialog1.setCanceledOnTouchOutside(false);
+					progressDialog1.setCancelable(false);
+					progressDialog1.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialog, which) -> {
+						Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
+						Dialogs.dismiss(progressDialog1);
+					});
 
-					if (!progressDialog.isShowing()) {
-						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-						progressDialog.setProgress(0);
-						progressDialog.setMax(100);
-						progressDialog.setProgressNumberFormat(null);
-						progressDialog.setIndeterminate(false);
-						progressDialog.setCanceledOnTouchOutside(false);
-						progressDialog.setCancelable(false);
-						progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-							@Override public void onClick(DialogInterface dialog, int which) {
-								Dispatcher.getInstance().post(new ProcessingCanceledEvent(false));
-								Dialogs.dismiss(progressDialog);
-							}
-						});
-
-						progressDialog.show();
-					}
-					busyStartedTime = DateTime.nowDate().getTime();
+					progressDialog1.show();
 				}
-
-				catch (BadTokenException ignore) {}
+				busyStartedTime = DateTime.nowDate().getTime();
 			}
+
+			catch (BadTokenException ignore) {}
 		};
 
 		Patchr.mainThread.postDelayed(runnableShow, 0);

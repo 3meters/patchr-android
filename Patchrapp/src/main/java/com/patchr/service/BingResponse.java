@@ -31,7 +31,7 @@ public class BingResponse {
 		else if (map.get("d") instanceof Map) {
 			Map<String, Object> data_map = (Map<String, Object>) map.get("d");
 			List<Map<String, Object>> imageMaps = (List<Map<String, Object>>) data_map.get("results");
-			List<ImageResult> imageResults = new ArrayList<ImageResult>();
+			List<ImageResult> imageResults = new ArrayList<>();
 
 			if (imageMaps.size() == 0) {
 				response.count = 0;

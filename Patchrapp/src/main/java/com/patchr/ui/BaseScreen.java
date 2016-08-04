@@ -131,6 +131,11 @@ public abstract class BaseScreen extends AppCompatActivity {
 	}
 
 	@Override protected void onPause() {
+		/*
+		 * - Fires when we lose focus and have been moved into the background. This will
+		 * be followed by onStop if we are not visible. Does not fire if the activity window
+		 * loses focus but the activity is still active.
+		 */
 		super.onPause();
 		busyController.onPause();
 	}
@@ -234,9 +239,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 				actionBar.setDisplayHomeAsUpEnabled(true);
 			}
 
-			toolbar.setNavigationOnClickListener(v -> {
-				onBackPressed();
-			});
+			toolbar.setNavigationOnClickListener(v -> onBackPressed());
 		}
 	}
 
@@ -290,16 +293,12 @@ public abstract class BaseScreen extends AppCompatActivity {
 			, android.R.string.ok
 			, android.R.string.cancel
 			, null
-			, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						delete();
-					}
-					else {
-						processing = false;
-					}
+			, (dialog1, which) -> {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					delete();
+				}
+				else {
+					processing = false;
 				}
 			}
 			, null);

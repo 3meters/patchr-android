@@ -255,8 +255,7 @@ public abstract class BaseEdit extends BaseScreen {
 
 		/* Update the photo object for the entity or user */
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Photo photoFinal = new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
-			return photoFinal;
+			return new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
 		}
 
 		return null;
@@ -305,14 +304,12 @@ public abstract class BaseEdit extends BaseScreen {
 			, dirtyExitPositiveResId
 			, android.R.string.cancel
 			, R.string.alert_dirty_discard
-			, new DialogInterface.OnClickListener() {
-				@Override public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						submitAction();
-					}
-					else if (which == DialogInterface.BUTTON_NEUTRAL) {
-						cancelAction(true);
-					}
+			, (dialog1, which) -> {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					submitAction();
+				}
+				else if (which == DialogInterface.BUTTON_NEUTRAL) {
+					cancelAction(true);
 				}
 			}
 			, null);

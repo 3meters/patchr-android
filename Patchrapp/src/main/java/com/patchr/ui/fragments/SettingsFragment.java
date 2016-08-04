@@ -12,8 +12,6 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
@@ -72,10 +70,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		initialize();
 		initializeDev();
 		return root;
-	}
-
-	@Override public void onStart() {
-		super.onStart();
 	}
 
 	@Override public void onResume() {
@@ -161,15 +155,11 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			pref.setTitle("Version: " + Patchr.getVersionName(getActivity(), SettingsFragment.class));
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");
 
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					Intent intent = new Intent(getActivity(), AboutScreen.class);
-					getActivity().startActivity(intent);
-					AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.FORM_TO);
-					return true;
-				}
+			pref.setOnPreferenceClickListener(preference -> {
+				Intent intent = new Intent(getActivity(), AboutScreen.class);
+				getActivity().startActivity(intent);
+				AnimationManager.doOverridePendingTransition(getActivity(), TransitionType.FORM_TO);
+				return true;
 			});
 		}
 
@@ -179,27 +169,21 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			pref.setTitle(StringManager.getString(R.string.pref_signout_title));
 			pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
 
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override public boolean onPreferenceClick(Preference preference) {
-					UserManager.shared().logout();
-					UI.routeLobby(Patchr.applicationContext);
-					return true;
-				}
+			pref.setOnPreferenceClickListener(preference -> {
+				UserManager.shared().logout();
+				UI.routeLobby(Patchr.applicationContext);
+				return true;
 			});
 		}
 
 		/* Listen for feedback click */
 		pref = findPreference("Pref_Feedback");
 		if (pref != null) {
-			pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override public boolean onPreferenceClick(Preference preference) {
-					Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:feedback@patchr.com"));
-					email.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Patchr");
-					startActivity(Intent.createChooser(email, "Send feedback using:"));
-					return true;
-				}
+			pref.setOnPreferenceClickListener(preference -> {
+				Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:feedback@patchr.com"));
+				email.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Patchr");
+				startActivity(Intent.createChooser(email, "Send feedback using:"));
+				return true;
 			});
 		}
 	}
@@ -212,14 +196,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			Boolean enabled = Patchr.settings.getBoolean(com.patchr.objects.enums.Preference.ENABLE_DEV, false);
 			enableDeveloper(enabled);
 
-			pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
-				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					Boolean enabled = (Boolean) newValue;
-					enableDeveloper(enabled);
-					return true;
-				}
+			pref.setOnPreferenceChangeListener((preference, newValue) -> {
+				Boolean enabled1 = (Boolean) newValue;
+				enableDeveloper(enabled1);
+				return true;
 			});
 		}
 
@@ -228,15 +208,12 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
 				+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
-			prefTagRefresh.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override public boolean onPreferenceClick(Preference preference) {
-					prefTagRefresh.setSummary("Refreshing...");
-					ContainerManager.getContainerHolder().refresh();
-					prefTagRefresh.setSummary("Last refresh: "
-						+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
-					return true;
-				}
+			prefTagRefresh.setOnPreferenceClickListener(preference -> {
+				prefTagRefresh.setSummary("Refreshing...");
+				ContainerManager.getContainerHolder().refresh();
+				prefTagRefresh.setSummary("Last refresh: "
+					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+				return true;
 			});
 		}
 	}
@@ -310,11 +287,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			}
 			target.addView(toolbar, 0); // insert at top
 
-			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View v) {
-					Dialogs.dismiss(dialog);
-				}
-			});
+			toolbar.setNavigationOnClickListener(v -> Dialogs.dismiss(dialog));
 		}
 	}
 }

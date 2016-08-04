@@ -198,16 +198,16 @@ public class ImageWidget extends FrameLayout {
 			showLoading(false);
 		}
 
-		if (shape.equals("round")) {
-			loadImageView(photo, new CircleTransform(), callback);
-		}
-		else if (shape.equals("rounded")) {
-			//			int displayRadius = UI.getRawPixelsForDisplayPixels((float) radius);
-			//			loadImageView(photo, new RoundedCornersTransformation(displayRadius, 0), callback);
-			loadImageView(photo, null, callback);
-		}
-		else {
-			loadImageView(photo, null, callback);
+		switch (shape) {
+			case "round":
+				loadImageView(photo, new CircleTransform(), callback);
+				break;
+			case "rounded":
+				loadImageView(photo, null, callback);
+				break;
+			default:
+				loadImageView(photo, null, callback);
+				break;
 		}
 	}
 

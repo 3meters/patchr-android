@@ -63,17 +63,13 @@ public class MemberListScreen extends BaseListScreen {
 			, okResId
 			, cancelResId
 			, null
-			, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						removeRequest(link.id, entity);
-						dialog.dismiss();
-					}
-					else if (which == DialogInterface.BUTTON_NEGATIVE) {
-						dialog.dismiss();
-					}
+			, (dialog, which) -> {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					removeRequest(link.id, entity);
+					dialog.dismiss();
+				}
+				else if (which == DialogInterface.BUTTON_NEGATIVE) {
+					dialog.dismiss();
 				}
 			}
 			, null);
@@ -91,9 +87,7 @@ public class MemberListScreen extends BaseListScreen {
 					response -> {
 						processing = false;
 						Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
-						realm.executeTransaction(realm -> {
-							entity.linkJson = null;
-						});
+						realm.executeTransaction(realm -> entity.linkJson = null);
 						fetch(AUTO);
 					},
 					error -> {

@@ -27,7 +27,7 @@ public class LinkCount {
 		linkCount.to = (String) map.get("to");
 		linkCount.type = (String) map.get("type");
 		linkCount.enabled = (Boolean) map.get("enabled");
-		linkCount.count = map.get("count") != null ? ((Double) map.get("count")).intValue() : null;;
+		linkCount.count = map.get("count") != null ? ((Double) map.get("count")).intValue() : null;
 
 		return linkCount;
 	}

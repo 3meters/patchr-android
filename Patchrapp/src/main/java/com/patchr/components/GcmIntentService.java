@@ -50,7 +50,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * the application is in the foreground or not.
 				 */
 				if (currentUser != null && notification.sentDate != null) {
-					currentUser.activityDate = notification.sentDate.longValue();
+					currentUser.activityDate = notification.sentDate;
 				}
 
 				/* Tickle activity date on entity manager because that is monitored by radar. */
@@ -76,7 +76,7 @@ public class GcmIntentService extends GcmListenerService {
 				 * - Action requests like join request, join approval, message share, patch invite.
 				 */
 				if (background) {
-					if (notification.priority.intValue() == 1) {
+					if (notification.priority == 1) {
 						/*
 						 * Build intent that can be used in association with the notification
 						 * - Intents route directly to the activity if the application is already running.
@@ -102,7 +102,7 @@ public class GcmIntentService extends GcmListenerService {
 				 */
 
 				else {
-					if (notification.priority.intValue() == 1) {
+					if (notification.priority == 1) {
 						/* Chirp */
 						MediaManager.playSound(MediaManager.SOUND_ACTIVITY_NEW, 1.0f, 1);   // Won't play if user turned off sounds
 

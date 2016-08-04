@@ -44,9 +44,7 @@ public class ProfileScreen extends BaseListScreen {
 			View view = getLayoutInflater().inflate(R.layout.dialog_profile, null);
 			bottomSheetDialog.setContentView(view);
 			bottomSheetDialog.getWindow().setDimAmount(0.3f);
-			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
-				bottomSheetDialog = null;
-			});
+			bottomSheetDialog.setOnDismissListener(dialogInterface -> bottomSheetDialog = null);
 			bottomSheetDialog.show();
 		}
 		else if (item.getItemId() == R.id.logout) {

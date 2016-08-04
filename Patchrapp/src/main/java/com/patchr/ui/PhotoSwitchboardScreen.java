@@ -39,9 +39,6 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 
 	private   String              pendingChoice;
 	protected ImageChooserManager imageChooserManager;
-	private   View                searchButton;
-	private   View                galleryButton;
-	private   View                cameraButton;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -159,9 +156,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 	    /*
 	     * Error trying to pick or take a photo
 		 */
-		runOnUiThread(() -> {
-			UI.toast(reason);
-		});
+		runOnUiThread(() -> UI.toast(reason));
 	}
 
 	@Override public void onImagesChosen(final ChosenImages chosenImages) {
@@ -181,9 +176,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 	 *--------------------------------------------------------------------------------------------*/
 
 	public void initialize(Bundle savedInstanceState) {
-		searchButton = findViewById(R.id.photo_search_button);
-		galleryButton = findViewById(R.id.gallery_button);
-		cameraButton = findViewById(R.id.camera_button);
+		View cameraButton = findViewById(R.id.camera_button);
 
 		/* Only show the camera choice if there is one and there is a place to store the image */
 		UI.setVisibility(cameraButton, View.GONE);
@@ -196,7 +189,7 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 
 		switch (choice) {
 			case Constants.PHOTO_ACTION_SEARCH:
-				photoSearch(null);
+				photoSearch();
 				break;
 			case Constants.PHOTO_ACTION_GALLERY:
 				photoFromGallery();
@@ -212,35 +205,28 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 
 		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					final AlertDialog dialog = Dialogs.alertDialog(null
-						, StringManager.getString(R.string.alert_permission_storage_title)
-						, StringManager.getString(R.string.alert_permission_storage_message)
-						, null
-						, PhotoSwitchboardScreen.this
-						, R.string.alert_permission_storage_positive
-						, R.string.alert_permission_storage_negative
-						, null
-						, new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-										ActivityCompat.requestPermissions(PhotoSwitchboardScreen.this
-											, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-											, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-									}
-									else {
-										cancelAction(false);
-									}
-								}
+			runOnUiThread(() -> {
+				final AlertDialog dialog = Dialogs.alertDialog(null
+					, StringManager.getString(R.string.alert_permission_storage_title)
+					, StringManager.getString(R.string.alert_permission_storage_message)
+					, null
+					, PhotoSwitchboardScreen.this
+					, R.string.alert_permission_storage_positive
+					, R.string.alert_permission_storage_negative
+					, null
+					, (dialog1, which) -> {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+								ActivityCompat.requestPermissions(PhotoSwitchboardScreen.this
+									, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+									, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 							}
-						}, null);
-					dialog.setCanceledOnTouchOutside(false);
-				}
+							else {
+								cancelAction(false);
+							}
+						}
+					}, null);
+				dialog.setCanceledOnTouchOutside(false);
 			});
 		}
 		else {
@@ -301,10 +287,9 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 		}
 	}
 
-	protected void photoSearch(String defaultSearch) {
+	protected void photoSearch() {
 
 		final Intent intent = new Intent(this, PhotoSearchScreen.class);
-		intent.putExtra(Constants.EXTRA_SEARCH_PHRASE, defaultSearch);
 		startActivityForResult(intent, Constants.ACTIVITY_PHOTO_SEARCH);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.DIALOG_TO);
 	}

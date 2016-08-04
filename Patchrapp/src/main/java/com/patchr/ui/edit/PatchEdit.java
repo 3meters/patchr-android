@@ -53,7 +53,6 @@ public class PatchEdit extends BaseEdit {
 
 	private TextView privacyButton;
 	private TextView locationLabel;
-	private TextView title;
 
 	private RadioGroup  buttonPatchType;
 	private RadioButton buttonTypeEvent;
@@ -263,7 +262,7 @@ public class PatchEdit extends BaseEdit {
 		buttonPatchType = (RadioGroup) findViewById(R.id.buttons_type);
 
 		privacyButton = (TextView) findViewById(R.id.privacy_policy_button);
-		title = (TextView) findViewById(R.id.title);
+		TextView titleView = (TextView) findViewById(R.id.title);
 		mapView = (MapView) findViewById(R.id.mapview);
 		mapProgressBar = (AirProgressBar) findViewById(R.id.map_progress);
 		locationLabel = (TextView) findViewById(R.id.location_label);
@@ -273,7 +272,7 @@ public class PatchEdit extends BaseEdit {
 		privacyButton.setCompoundDrawables(null, null, chevron, null);
 
 		this.actionBarTitle.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
-		this.title.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
+		titleView.setText(inputState.equals(State.Editing) ? R.string.screen_title_patch_edit : R.string.screen_title_patch_new);
 
 		if (mapView != null) {
 			mapView.onCreate(null);

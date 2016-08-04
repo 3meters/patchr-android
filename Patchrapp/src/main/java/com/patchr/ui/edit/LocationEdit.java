@@ -14,7 +14,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -113,17 +112,14 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraMoveLi
 		mapView = (MapView) findViewById(R.id.mapview);
 		if (mapView != null) {
 			mapView.onCreate(savedInstanceState);
-			mapView.getMapAsync(new OnMapReadyCallback() {
-				@Override public void onMapReady(GoogleMap googleMap) {
-					map = googleMap;
-					if (checkReady()) {
-						setUpMap();
-						if (originalLocation != null) {
-							map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(originalLocation.lat.doubleValue(), originalLocation.lng.doubleValue()), 17));
-						}
-						map.setOnCameraMoveListener(LocationEdit.this);
-						bind();
+			mapView.getMapAsync(googleMap -> {
+				map = googleMap;
+				if (checkReady()) {
+					setUpMap();
+					if (originalLocation != null) {
+						map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(originalLocation.lat, originalLocation.lng), 17));
 					}
+					map.setOnCameraMoveListener(LocationEdit.this);
 				}
 			});
 		}
@@ -140,8 +136,6 @@ public class LocationEdit extends BaseScreen implements GoogleMap.OnCameraMoveLi
 	@Override public void submitAction() {
 		save();
 	}
-
-	public void bind() {}
 
 	private void save() {
 

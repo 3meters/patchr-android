@@ -2,7 +2,6 @@ package com.patchr.ui.edit;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -119,16 +118,12 @@ public class ResetEdit extends BaseEdit {
 			titleView.setMinLines(3);
 			emailField.setVisibility(View.VISIBLE);
 			emailField.setImeOptions(EditorInfo.IME_ACTION_GO);
-			emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-				@Override
-				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-					if (actionId == EditorInfo.IME_ACTION_GO) {
-						submitAction();
-						return true;
-					}
-					return false;
+			emailField.setOnEditorActionListener((v, actionId, event) -> {
+				if (actionId == EditorInfo.IME_ACTION_GO) {
+					submitAction();
+					return true;
 				}
+				return false;
 			});
 			submitButton.setText("Verify");
 		}
@@ -139,16 +134,12 @@ public class ResetEdit extends BaseEdit {
 			userPhoto.setVisibility(View.VISIBLE);
 			passwordField.setVisibility(View.VISIBLE);
 			passwordField.setImeOptions(EditorInfo.IME_ACTION_GO);
-			passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-				@Override
-				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-					if (actionId == EditorInfo.IME_ACTION_GO) {
-						submitAction();
-						return true;
-					}
-					return false;
+			passwordField.setOnEditorActionListener((v, actionId, event) -> {
+				if (actionId == EditorInfo.IME_ACTION_GO) {
+					submitAction();
+					return true;
 				}
+				return false;
 			});
 			submitButton.setText("Reset");
 		}

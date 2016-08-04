@@ -18,7 +18,6 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.events.LocationStatusEvent;
 import com.patchr.model.Location;
-import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.LocationStatus;
 import com.patchr.objects.enums.Preference;
 import com.patchr.utilities.Reporting;
@@ -156,11 +155,6 @@ public class LocationManager implements
 		if (location.hasAccuracy()) {
 			if (Patchr.getInstance().prefEnableDev) {
 				UI.toast("Location accuracy: " + location.getAccuracy());
-			}
-			if (location.getAccuracy() <= ACCURACY_PREFERRED) {
-				Reporting.sendTiming(AnalyticsCategory.PERFORMANCE, Patchr.stopwatch2.getTotalTimeMills()
-					, "location_accepted"
-					, NetworkManager.getInstance().getNetworkType());
 			}
 		}
 

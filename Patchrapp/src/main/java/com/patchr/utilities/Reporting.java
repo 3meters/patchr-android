@@ -138,11 +138,4 @@ public class Reporting {
 	public static void screen(String category, String name) {
 		Analytics.with(Patchr.applicationContext).screen(category, name);
 	}
-
-	public static void sendTiming(String category, Long timing, String name, String label) {
-		/*
-		 * Stub right now. User timings require native calls using GoogleAnalytics
-		 * segment bundle.
-		 */
-	}
 }

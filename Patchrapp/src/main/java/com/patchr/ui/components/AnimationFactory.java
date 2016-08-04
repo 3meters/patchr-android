@@ -29,8 +29,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.Interpolator;
 import android.widget.ViewAnimator;
 
-;
-
 /**
  * This class contains methods for creating {@link Animation} objects for some of the most common animation, including a
  * 3D flip animation, {@link FlipAnimation}.
@@ -49,7 +47,7 @@ public class AnimationFactory {
 	 *
 	 * @author Ephraim A. Tekle
 	 */
-	public static enum FlipDirection {
+	public enum FlipDirection {
 		LEFT_RIGHT,
 		RIGHT_LEFT,
 		TOP_BOTTOM,
@@ -113,14 +111,13 @@ public class AnimationFactory {
 	 * NOTE: Avoid using this method. Instead, use {@link #flipTransition}.
 	 *
 	 * @param fromView     the view transition away from
-	 * @param toView       the view transition to
 	 * @param dir          the flip direction
 	 * @param duration     the transition duration in milliseconds
 	 * @param interpolator the interpolator to use (pass {@code null} to use the {@link AccelerateInterpolator} interpolator)
-	 * @return
+	 * @return animation array
 	 */
 	@NonNull
-	public static Animation[] flipAnimation(@NonNull final View fromView, final View toView, @NonNull FlipDirection dir, long duration, Interpolator interpolator) {
+	public static Animation[] flipAnimation(@NonNull final View fromView, @NonNull FlipDirection dir, long duration, Interpolator interpolator) {
 		Animation[] result = new Animation[2];
 		float centerX;
 		float centerY;
@@ -142,10 +139,6 @@ public class AnimationFactory {
 		AnimationSet outAnimation = new AnimationSet(true);
 		outAnimation.addAnimation(outFlip);
 		result[0] = outAnimation;
-
-		// Uncomment the following if toView has its layout established (not the case if using ViewFlipper and on first show)
-		//centerX = toView.getWidth() / 2.0f;
-		//centerY = toView.getHeight() / 2.0f; 
 
 		FlipAnimation inFlip = new FlipAnimation(dir.getStartDegreeForSecondView(), dir.getEndDegreeForSecondView(), centerX, centerY,
 				FlipAnimation.SCALE_DEFAULT, FlipAnimation.ScaleUpDownEnum.SCALE_UP);
@@ -194,9 +187,7 @@ public class AnimationFactory {
 		final int currentIndex = viewAnimator.getDisplayedChild();
 		final int nextIndex = (currentIndex + 1) % viewAnimator.getChildCount();
 
-		final View toView = viewAnimator.getChildAt(nextIndex);
-
-		Animation[] animc = AnimationFactory.flipAnimation(fromView, toView, ((nextIndex < currentIndex) ? dir.theOtherDirection() : dir), duration, null);
+		Animation[] animc = AnimationFactory.flipAnimation(fromView, ((nextIndex < currentIndex) ? dir.theOtherDirection() : dir), duration, null);
 
 		viewAnimator.setOutAnimation(animc[0]);
 		viewAnimator.setInAnimation(animc[1]);

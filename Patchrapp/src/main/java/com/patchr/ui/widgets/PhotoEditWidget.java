@@ -165,9 +165,7 @@ public class PhotoEditWidget extends FrameLayout implements Callback {
 								String path = String.format("file://%1$s/%2$s", getContext().getFilesDir(), filename);
 								Photo photoSaved = new Photo(path, Photo.PhotoSource.file);
 								this.photo = photoSaved;
-								Patchr.mainThread.post(() -> {
-									imageWidget.setImageWithPhoto(photoSaved, null, this);
-								});
+								Patchr.mainThread.post(() -> imageWidget.setImageWithPhoto(photoSaved, null, this));
 								return;
 							}
 							Logger.w(this, "Failed to save bitmap to internal storage");

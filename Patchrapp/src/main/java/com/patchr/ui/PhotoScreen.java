@@ -1,7 +1,6 @@
 package com.patchr.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -185,31 +184,24 @@ public class PhotoScreen extends BaseScreen {
 		/* Sharing a photo requires external storage permission on api 16+ */
 		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-			runOnUiThread(new Runnable() {
+			runOnUiThread(() -> {
 
-				@Override public void run() {
-
-					final AlertDialog dialog = Dialogs.alertDialog(null
-						, StringManager.getString(R.string.alert_permission_storage_title)
-						, StringManager.getString(R.string.alert_permission_storage_message)
-						, null
-						, PhotoScreen.this
-						, R.string.alert_permission_storage_positive
-						, R.string.alert_permission_storage_negative
-						, null
-						, new DialogInterface.OnClickListener() {
-
-							@SuppressLint("InlinedApi") @Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (which == DialogInterface.BUTTON_POSITIVE) {
-									ActivityCompat.requestPermissions(PhotoScreen.this
-										, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-										, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-								}
-							}
-						}, null);
-					dialog.setCanceledOnTouchOutside(false);
-				}
+				final AlertDialog dialog = Dialogs.alertDialog(null
+					, StringManager.getString(R.string.alert_permission_storage_title)
+					, StringManager.getString(R.string.alert_permission_storage_message)
+					, null
+					, PhotoScreen.this
+					, R.string.alert_permission_storage_positive
+					, R.string.alert_permission_storage_negative
+					, null
+					, (dialog1, which) -> {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							ActivityCompat.requestPermissions(PhotoScreen.this
+								, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+								, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+						}
+					}, null);
+				dialog.setCanceledOnTouchOutside(false);
 			});
 		}
 		else {

@@ -19,14 +19,7 @@ import com.patchr.utilities.UI;
 public class SearchScreen extends BaseScreen {
 
 	private String                  suggestScope;
-	private String                  searchPhrase;
-	private FloatingSearchView      searchView;
 	private EntitySuggestController suggestController;
-
-	@Override public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		bind();
-	}
 
 	@Override protected void onStop() {
 		super.onStop();
@@ -61,7 +54,6 @@ public class SearchScreen extends BaseScreen {
 
 		final Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			searchPhrase = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
 			suggestScope = extras.getString(Constants.EXTRA_SEARCH_SCOPE, Suggest.Patches);
 		}
 	}
@@ -69,7 +61,7 @@ public class SearchScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 
 		RecyclerView recyclerView = (RecyclerView) findViewById(R.id.results_list);
-		searchView = (FloatingSearchView) findViewById(R.id.search_view);
+		FloatingSearchView searchView = (FloatingSearchView) findViewById(R.id.search_view);
 
 		searchView.setSearchHint("Search...");
 		searchView.setLeftActionMode(FloatingSearchView.LEFT_ACTION_MODE_SHOW_HOME);
@@ -77,11 +69,7 @@ public class SearchScreen extends BaseScreen {
 		searchView.setBackgroundColor(Colors.getColor(R.color.transparent));
 		searchView.setSearchFocusable(true);
 		searchView.setSearchFocused(true);
-		searchView.setOnHomeActionClickListener(new FloatingSearchView.OnHomeActionClickListener() {
-			@Override public void onHomeClicked() {
-				onBackPressed();
-			}
-		});
+		searchView.setOnHomeActionClickListener(this::onBackPressed);
 
 		suggestController = new EntitySuggestController(this);
 		suggestController.searchView = searchView;
@@ -97,6 +85,4 @@ public class SearchScreen extends BaseScreen {
 	@Override protected int getTransitionBack(int transitionType) {
 		return TransitionType.FORM_BACK;
 	}
-
-	public void bind() { }
 }

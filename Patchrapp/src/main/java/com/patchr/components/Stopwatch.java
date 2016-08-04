@@ -8,7 +8,7 @@ public class Stopwatch {
 	private long   mTotalTime;
 	private long   mLastThreshold;
 	private String mName;
-	private List<String> mLog = new ArrayList<String>();
+	private List<String> mLog = new ArrayList<>();
 
 	public long getTotalTime() {
 		return mTotalTime;

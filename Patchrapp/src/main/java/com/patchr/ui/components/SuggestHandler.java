@@ -9,7 +9,7 @@ class SuggestHandler extends Handler {
 	private final WeakReference<EntitySuggestController> suggestController;
 
 	SuggestHandler(EntitySuggestController suggestController) {
-		this.suggestController = new WeakReference<EntitySuggestController>(suggestController);
+		this.suggestController = new WeakReference<>(suggestController);
 	}
 
 	@Override public void handleMessage(Message msg) {

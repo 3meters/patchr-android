@@ -35,9 +35,6 @@ public class LoginEdit extends BaseEdit {
 
 	private   ClearableEditText emailField;
 	private   PasswordEditText  passwordField;
-	private   TextView          titleView;
-	private   View              forgotPasswordButton;
-	private   View              loginButton;
 	protected Subscription      subscription;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +86,9 @@ public class LoginEdit extends BaseEdit {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 
-		titleView = (TextView) findViewById(R.id.title);
-		loginButton = findViewById(R.id.signup_button);
-		forgotPasswordButton = findViewById(R.id.forgot_password_button);
+		TextView titleView = (TextView) findViewById(R.id.title);
+		View loginButton = findViewById(R.id.signup_button);
+		View forgotPasswordButton = findViewById(R.id.forgot_password_button);
 		emailField = (ClearableEditText) findViewById(R.id.email);
 		passwordField = (PasswordEditText) findViewById(R.id.password);
 		if (passwordField != null) {

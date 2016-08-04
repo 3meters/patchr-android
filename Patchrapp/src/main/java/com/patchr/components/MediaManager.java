@@ -15,9 +15,7 @@ import com.patchr.utilities.Booleans;
 import com.patchr.utilities.Reporting;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 @SuppressWarnings("ucd")
 public class MediaManager {
@@ -31,18 +29,13 @@ public class MediaManager {
 	public static SoundPool    soundPool;
 	public static boolean      loaded;
 	public static  Integer streamType        = AudioManager.STREAM_SYSTEM;
-	private static String  shareFileName     = "photo.jpeg";
 	public static  String  tempDirectoryName = ".Patchr";
 
 	static {
 		/* Called first time a static member is accessed */
 		//noinspection deprecation
 		soundPool = new SoundPool(4, streamType, 0); // New SoundPool.Builder requires API 21
-		soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-			@Override public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-				loaded = true;
-			}
-		});
+		soundPool.setOnLoadCompleteListener((soundPool1, sampleId, status) -> loaded = true);
 
 		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);
 
@@ -67,10 +60,10 @@ public class MediaManager {
 		}
 	}
 
-	public static void warmup() {}
+	@SuppressWarnings("EmptyMethod") public static void warmup() {}
 
 	public static Boolean canCaptureWithCamera() {
-		return AndroidManager.isIntentAvailable(Patchr.applicationContext, MediaStore.ACTION_IMAGE_CAPTURE)
+		return AndroidManager.isIntentAvailable(MediaStore.ACTION_IMAGE_CAPTURE)
 			&& Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
@@ -109,6 +102,7 @@ public class MediaManager {
 	public static String getSharePath() {
 		String directory = getTempDirectory(tempDirectoryName);
 		if (directory != null) {
+			String shareFileName = "photo.jpeg";
 			return directory + File.separator + shareFileName;
 		}
 		return null;
@@ -135,12 +129,6 @@ public class MediaManager {
 			outputStream.flush();
 			outputStream.close();
 		}
-		catch (FileNotFoundException e) {
-			Reporting.logException(e);
-		}
-		catch (IOException e) {
-			Reporting.logException(e);
-		}
 		catch (Exception e) {
 			Reporting.logException(e);
 		}
@@ -155,12 +143,6 @@ public class MediaManager {
 			outputStream.flush();
 			outputStream.close();
 			return true;
-		}
-		catch (FileNotFoundException e) {
-			Reporting.logException(e);
-		}
-		catch (IOException e) {
-			Reporting.logException(e);
 		}
 		catch (Exception e) {
 			Reporting.logException(e);

@@ -104,21 +104,16 @@ public class Dialogs {
 
 	public static void alertDialogSimple(@NonNull final Activity activity, final String titleText, final String message) {
 		if (!activity.isFinishing()) {
-			activity.runOnUiThread(new Runnable() {
-
-				@Override public void run() {
-					alertDialog(R.drawable.ic_launcher
-							, titleText
-							, message
-							, null
-							, activity
-							, android.R.string.ok
-							, null
-							, null
-							, null
-							, null);
-				}
-			});
+			activity.runOnUiThread(() -> alertDialog(R.drawable.ic_launcher
+					, titleText
+					, message
+					, null
+					, activity
+					, android.R.string.ok
+					, null
+					, null
+					, null
+					, null));
 		}
 	}
 
@@ -162,13 +157,9 @@ public class Dialogs {
 						}
 					}
 				}
-				, new DialogInterface.OnCancelListener() {
-
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						/* Back button can trigger this */
-						activity.finish();
-					}
+				, dialog -> {
+					/* Back button can trigger this */
+					activity.finish();
 				});
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
@@ -214,13 +205,9 @@ public class Dialogs {
 						}
 					}
 				}
-				, new DialogInterface.OnCancelListener() {
-
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						/* Back button can trigger this */
-						activity.finish();
-					}
+				, dialog -> {
+					/* Back button can trigger this */
+					activity.finish();
 				});
 		updateDialog.setCanceledOnTouchOutside(false);
 		updateDialog.show();
@@ -236,19 +223,15 @@ public class Dialogs {
 				, R.string.dialog_location_services_disabled_ok
 				, R.string.dialog_location_services_disabled_cancel
 				, null
-				, new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(@NonNull DialogInterface dialog, int which) {
-						if (which == DialogInterface.BUTTON_POSITIVE) {
-							activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-							AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
-							dialog.dismiss();
-						}
-						else if (which == DialogInterface.BUTTON_NEGATIVE) {
-							shot.set(true);
-							dialog.dismiss();
-						}
+				, (dialog, which) -> {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+						AnimationManager.doOverridePendingTransition((Activity) activity, TransitionType.FORM_TO);
+						dialog.dismiss();
+					}
+					else if (which == DialogInterface.BUTTON_NEGATIVE) {
+						shot.set(true);
+						dialog.dismiss();
 					}
 				}, null);
 		updateDialog.setCanceledOnTouchOutside(false);

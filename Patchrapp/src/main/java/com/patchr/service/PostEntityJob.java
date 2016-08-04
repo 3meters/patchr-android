@@ -44,7 +44,7 @@ public class PostEntityJob extends Job {
 	}
 
 	@Override public void onRun() throws Throwable {
-		Logger.d(this, String.format("Job running"));
+		Logger.d(this, "Job running");
 		Realm realm = Realm.getDefaultInstance();
 		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 
@@ -84,9 +84,7 @@ public class PostEntityJob extends Job {
 		Realm realm = Realm.getDefaultInstance();
 		RealmEntity entity = realm.where(RealmEntity.class).equalTo("id", entityId).findFirst();
 		if (entity != null) {
-			realm.executeTransaction(whocares -> {
-				entity.posting = false;
-			});
+			realm.executeTransaction(whocares -> entity.posting = false);
 		}
 		realm.close();
 	}
@@ -115,8 +113,7 @@ public class PostEntityJob extends Job {
 
 		/* Update the photo object for the entity or user */
 		if (serviceResponse.responseCode == ResponseCode.SUCCESS) {
-			Photo photoFinal = new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
-			return photoFinal;
+			return new Photo(imageKey, bitmap.getWidth(), bitmap.getHeight(), Photo.PhotoSource.aircandi_images);
 		}
 
 		return null;

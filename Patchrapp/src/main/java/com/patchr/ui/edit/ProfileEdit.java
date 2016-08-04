@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,16 +42,11 @@ import com.patchr.utilities.UI;
 
 public class ProfileEdit extends BaseEdit {
 
-	private TextView titleView;
 	private EditText emailField;
 	private EditText areaField;
 	public  TextView authIdentifierLabel;
 	public  TextView authIdentifier;
-
-	private Button deleteButton;
-	private Button submitButton;
-	private Button changePasswordButton;
-	private Button termsButton;
+	private Button   deleteButton;
 
 	private String inputEmail;
 	private String inputPassword;
@@ -140,14 +134,14 @@ public class ProfileEdit extends BaseEdit {
 		super.initialize(savedInstanceState);   // handles name/photo
 
 		entitySchema = Constants.SCHEMA_ENTITY_USER;
-		titleView = (TextView) findViewById(R.id.title);
+		TextView titleView = (TextView) findViewById(R.id.title);
 		areaField = (EditText) findViewById(R.id.area);
 		emailField = (EditText) findViewById(R.id.email);
 		authIdentifierLabel = (TextView) findViewById(R.id.auth_identifier_label);
 		authIdentifier = (TextView) findViewById(R.id.auth_identifier);
-		submitButton = (Button) findViewById(R.id.signup_button);
-		termsButton = (Button) findViewById(R.id.terms_button);
-		changePasswordButton = (Button) findViewById(R.id.change_password_button);
+		Button submitButton = (Button) findViewById(R.id.signup_button);
+		Button termsButton = (Button) findViewById(R.id.terms_button);
+		Button changePasswordButton = (Button) findViewById(R.id.change_password_button);
 
 		if (inputState != null && inputState.equals(State.Signup)) {
 			entity = new RealmEntity();
@@ -160,15 +154,12 @@ public class ProfileEdit extends BaseEdit {
 		}
 
 		nameField.setImeOptions(EditorInfo.IME_ACTION_GO);
-		nameField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-			@Override public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_GO) {
-					submitAction();
-					return true;
-				}
-				return false;
+		nameField.setOnEditorActionListener((v, actionId, event) -> {
+			if (actionId == EditorInfo.IME_ACTION_GO) {
+				submitAction();
+				return true;
 			}
+			return false;
 		});
 	}
 

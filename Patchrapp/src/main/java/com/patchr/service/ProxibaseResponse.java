@@ -48,7 +48,7 @@ public class ProxibaseResponse {
 			response.noop = true;
 		}
 		else if (map.get("data") instanceof List) {
-			List<RealmEntity> entities = new ArrayList<RealmEntity>();
+			List<RealmEntity> entities = new ArrayList<>();
 			List<Map<String, Object>> data_maps = (List<Map<String, Object>>) map.get("data");
 			if (data_maps.size() == 0 && !Type.isTrue(canEdit)) {
 				response.noop = true;
@@ -65,7 +65,7 @@ public class ProxibaseResponse {
 			}
 		}
 		else if (map.get("data") instanceof Map) {
-			List<RealmEntity> entities = new ArrayList<RealmEntity>();
+			List<RealmEntity> entities = new ArrayList<>();
 			Map<String, Object> data_map = (Map<String, Object>) map.get("data");
 			String schema = (String) data_map.get("schema");
 			if (schema != null) {

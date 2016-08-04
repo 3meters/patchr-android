@@ -33,7 +33,7 @@ public class FontManager {
 		initialize();
 	}
 
-	public static interface FontManagerCreator {
-		public FontManager create();
+	public interface FontManagerCreator {
+		FontManager create();
 	}
 }

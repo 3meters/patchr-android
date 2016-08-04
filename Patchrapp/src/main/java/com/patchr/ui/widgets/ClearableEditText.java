@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.EditText;
 
 import com.patchr.R;
@@ -29,10 +28,10 @@ public class ClearableEditText extends EditText {
 
 	public ClearableEditText(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		initialize(context);
+		initialize();
 	}
 
-	private void initialize(Context context) {
+	private void initialize() {
 
 		if (!isInEditMode()) {
 			final Drawable[] drawables = getCompoundDrawables();
@@ -57,18 +56,15 @@ public class ClearableEditText extends EditText {
 				clearButtonHandler();
 
 				//if the clear button is pressed, clear it. Otherwise do nothing
-				setOnTouchListener(new OnTouchListener() {
-					@Override
-					public boolean onTouch(View view, MotionEvent event) {
-						if (ClearableEditText.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
-							return false;
-
-						if (event.getX() > ClearableEditText.this.getWidth() - ClearableEditText.this.getPaddingRight() - clearDrawable.getIntrinsicWidth()) {
-							ClearableEditText.this.setText("");
-							ClearableEditText.this.clearButtonHandler();
-						}
+				setOnTouchListener((view, event) -> {
+					if (ClearableEditText.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
 						return false;
+
+					if (event.getX() > ClearableEditText.this.getWidth() - ClearableEditText.this.getPaddingRight() - clearDrawable.getIntrinsicWidth()) {
+						ClearableEditText.this.setText("");
+						ClearableEditText.this.clearButtonHandler();
 					}
+					return false;
 				});
 
 				addTextChangedListener(new SimpleTextWatcher() {

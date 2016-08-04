@@ -165,7 +165,8 @@ dependencies {
 	compile 'com.adobe.creativesdk:image:4.6.3'
 	compile 'com.github.arimorty:floatingsearchview:2.0.2'
 	compile 'com.makeramen:roundedimageview:2.2.1'
-	compile "com.localytics.android:library:3.8.0"
+	compile 'com.localytics.android:library:3.8.0'
+	compile 'com.google.android.gms:play-services-auth:9.4.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

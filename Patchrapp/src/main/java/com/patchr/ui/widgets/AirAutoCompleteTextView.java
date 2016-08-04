@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import com.patchr.R;
@@ -36,10 +35,10 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 	@SuppressWarnings("ucd")
 	public AirAutoCompleteTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		initialize(context);
+		initialize();
 	}
 
-	private void initialize(Context context) {
+	private void initialize() {
 
 		final Drawable[] drawables = getCompoundDrawables();
 
@@ -69,19 +68,16 @@ public class AirAutoCompleteTextView extends AutoCompleteTextView {
 			clearButtonHandler();
 
 			//if the clear button is pressed, clear it. Otherwise do nothing
-			setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View view, MotionEvent event) {
-					if (AirAutoCompleteTextView.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
-						return false;
-
-					if (event.getX() > AirAutoCompleteTextView.this.getWidth() - AirAutoCompleteTextView.this.getPaddingRight()
-							- mClearDrawable.getIntrinsicWidth()) {
-						AirAutoCompleteTextView.this.setText("");
-						AirAutoCompleteTextView.this.clearButtonHandler();
-					}
+			setOnTouchListener((view, event) -> {
+				if (AirAutoCompleteTextView.this.getCompoundDrawables()[2] == null || event.getAction() != MotionEvent.ACTION_UP)
 					return false;
+
+				if (event.getX() > AirAutoCompleteTextView.this.getWidth() - AirAutoCompleteTextView.this.getPaddingRight()
+						- mClearDrawable.getIntrinsicWidth()) {
+					AirAutoCompleteTextView.this.setText("");
+					AirAutoCompleteTextView.this.clearButtonHandler();
 				}
+				return false;
 			});
 
 			addTextChangedListener(new SimpleTextWatcher() {

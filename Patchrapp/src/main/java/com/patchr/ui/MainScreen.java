@@ -118,15 +118,6 @@ public class MainScreen extends BaseScreen {
 		bind();
 	}
 
-	@Override protected void onPause() {
-		/*
-		 * - Fires when we lose focus and have been moved into the background. This will
-		 * be followed by onStop if we are not visible. Does not fire if the activity window
-		 * loses focus but the activity is still active.
-		 */
-		super.onPause();
-	}
-
 	@Override protected void onStop() {
 		Dispatcher.getInstance().unregister(this);
 		super.onStop();
@@ -461,21 +452,18 @@ public class MainScreen extends BaseScreen {
 		final MenuItem notifications = menu.findItem(R.id.notifications);
 		if (notifications != null) {
 			notificationActionIcon = MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_image);
-			MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_frame).setOnClickListener(new View.OnClickListener() {
-
-				@Override public void onClick(View view) {
-					if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-						drawerLayout.closeDrawer(drawerLeft);
+			MenuItemCompat.getActionView(notifications).findViewById(R.id.notifications_frame).setOnClickListener(view -> {
+				if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+					drawerLayout.closeDrawer(drawerLeft);
+				}
+				if (drawerRight != null) {
+					if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+						notificationActionIcon.animate().rotation(0f).setDuration(200);
+						drawerLayout.closeDrawer(drawerRight);
 					}
-					if (drawerRight != null) {
-						if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-							notificationActionIcon.animate().rotation(0f).setDuration(200);
-							drawerLayout.closeDrawer(drawerRight);
-						}
-						else {
-							notificationActionIcon.animate().rotation(90f).setDuration(200);
-							drawerLayout.openDrawer(drawerRight);
-						}
+					else {
+						notificationActionIcon.animate().rotation(90f).setDuration(200);
+						drawerLayout.openDrawer(drawerRight);
 					}
 				}
 			});
@@ -521,20 +509,17 @@ public class MainScreen extends BaseScreen {
 	public void updateNotificationIndicator(final Boolean ifDrawerVisible) {
 
 		Logger.v(this, "updateNotificationIndicator for menus");
-		runOnUiThread(new Runnable() {
+		runOnUiThread(() -> {
+			Boolean showingNotifications = (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END));
+			Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
 
-			@Override public void run() {
-				Boolean showingNotifications = (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END));
-				Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
-
-				if ((ifDrawerVisible || !showingNotifications) && notificationsBadgeGroup != null) {
-					if (newNotificationCount > 0) {
-						notificationsBadgeCount.setText(String.valueOf(newNotificationCount));
-						notificationsBadgeGroup.setVisibility(View.VISIBLE);
-					}
-					else {
-						notificationsBadgeGroup.setVisibility(View.GONE);
-					}
+			if ((ifDrawerVisible || !showingNotifications) && notificationsBadgeGroup != null) {
+				if (newNotificationCount > 0) {
+					notificationsBadgeCount.setText(String.valueOf(newNotificationCount));
+					notificationsBadgeGroup.setVisibility(View.VISIBLE);
+				}
+				else {
+					notificationsBadgeGroup.setVisibility(View.GONE);
 				}
 			}
 		});
@@ -555,54 +540,58 @@ public class MainScreen extends BaseScreen {
 			fragment = fragments.get(fragmentType);
 		}
 		else {
-			if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
+			switch (fragmentType) {
+				case Constants.FRAGMENT_TYPE_NEARBY: {
 
-				fragment = new NearbyListFragment();
-				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.queryName = QueryName.PatchesNearby;
-				listFragment.listTitleResId = R.string.screen_title_nearby;
-				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MEMBER_OF)) {
+					fragment = new NearbyListFragment();
+					EntityListFragment listFragment = (EntityListFragment) fragment;
+					listFragment.queryName = QueryName.PatchesNearby;
+					listFragment.listTitleResId = R.string.screen_title_nearby;
+					listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
+					break;
+				}
+				case Constants.FRAGMENT_TYPE_MEMBER_OF: {
 
-				fragment = new EntityListFragment();
-				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.queryName = QueryName.PatchesUserMemberOf;
-				listFragment.listTitleResId = R.string.screen_title_member_of;
-				listFragment.contextEntityId = UserManager.userId;
-				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_OWNER_OF)) {
+					fragment = new EntityListFragment();
+					EntityListFragment listFragment = (EntityListFragment) fragment;
+					listFragment.queryName = QueryName.PatchesUserMemberOf;
+					listFragment.listTitleResId = R.string.screen_title_member_of;
+					listFragment.contextEntityId = UserManager.userId;
+					listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
+					break;
+				}
+				case Constants.FRAGMENT_TYPE_OWNER_OF: {
 
-				fragment = new EntityListFragment();
-				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.queryName = QueryName.PatchesOwnedByUser;
-				listFragment.listTitleResId = R.string.screen_title_owner_of;
-				listFragment.contextEntityId = UserManager.userId;
-				listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
+					fragment = new EntityListFragment();
+					EntityListFragment listFragment = (EntityListFragment) fragment;
+					listFragment.queryName = QueryName.PatchesOwnedByUser;
+					listFragment.listTitleResId = R.string.screen_title_owner_of;
+					listFragment.contextEntityId = UserManager.userId;
+					listFragment.topPadding = UI.getRawPixelsForDisplayPixels(6f);
+					break;
+				}
+				case Constants.FRAGMENT_TYPE_TREND_ACTIVE: {
 
-				fragment = new EntityListFragment();
-				EntityListFragment listFragment = (EntityListFragment) fragment;
-				listFragment.listTitleResId = R.string.screen_title_explore;
-				listFragment.queryName = QueryName.PatchesToExplore;
-				listFragment.headerResId = R.layout.view_list_header_trends_active;
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_SETTINGS)) {
+					fragment = new EntityListFragment();
+					EntityListFragment listFragment = (EntityListFragment) fragment;
+					listFragment.listTitleResId = R.string.screen_title_explore;
+					listFragment.queryName = QueryName.PatchesToExplore;
+					listFragment.headerResId = R.layout.view_list_header_trends_active;
+					break;
+				}
+				case Constants.FRAGMENT_TYPE_SETTINGS:
 
-				nextFragmentTag = currentFragmentTag;
-				final Intent intent = new Intent(this, SettingsScreen.class);
-				startActivityForResult(intent, Constants.ACTIVITY_PREFERENCES);
-				AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
-				return;
-			}
-			else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
+					nextFragmentTag = currentFragmentTag;
+					final Intent intent = new Intent(this, SettingsScreen.class);
+					startActivityForResult(intent, Constants.ACTIVITY_PREFERENCES);
+					AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
+					return;
+				case Constants.FRAGMENT_TYPE_MAP:
 
-				fragment = new MapListFragment();
-			}
-			else {
-				return;
+					fragment = new MapListFragment();
+					break;
+				default:
+					return;
 			}
 
 			fragments.put(fragmentType, fragment);
@@ -613,7 +602,7 @@ public class MainScreen extends BaseScreen {
 			MapListFragment mapFragment = (MapListFragment) fragment;
 
 			RealmResults<RealmEntity> realmEntities = ((EntityListFragment) getCurrentFragment()).listWidget.getEntities();
-			RealmList<RealmEntity> entities = new RealmList<RealmEntity>();
+			RealmList<RealmEntity> entities = new RealmList<>();
 			entities.addAll(realmEntities.subList(0, realmEntities.size()));
 
 			mapFragment.entities = entities;
@@ -631,20 +620,22 @@ public class MainScreen extends BaseScreen {
 			this.actionBarTitle.setText(StringManager.getString(((EntityListFragment) fragment).listTitleResId));
 		}
 
-		if (fragmentType.equals(Constants.FRAGMENT_TYPE_NEARBY)) {
-			Reporting.screen(AnalyticsCategory.VIEW, "NearbyPatchList");
-		}
-		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MEMBER_OF)) {
-			Reporting.screen(AnalyticsCategory.VIEW, "MemberOfPatchList");
-		}
-		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_OWNER_OF)) {
-			Reporting.screen(AnalyticsCategory.VIEW, "OwnerOfPatchList");
-		}
-		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_TREND_ACTIVE)) {
-			Reporting.screen(AnalyticsCategory.VIEW, "ExplorePatchList");
-		}
-		else if (fragmentType.equals(Constants.FRAGMENT_TYPE_MAP)) {
-			Reporting.screen(AnalyticsCategory.VIEW, "PatchListMap");
+		switch (fragmentType) {
+			case Constants.FRAGMENT_TYPE_NEARBY:
+				Reporting.screen(AnalyticsCategory.VIEW, "NearbyPatchList");
+				break;
+			case Constants.FRAGMENT_TYPE_MEMBER_OF:
+				Reporting.screen(AnalyticsCategory.VIEW, "MemberOfPatchList");
+				break;
+			case Constants.FRAGMENT_TYPE_OWNER_OF:
+				Reporting.screen(AnalyticsCategory.VIEW, "OwnerOfPatchList");
+				break;
+			case Constants.FRAGMENT_TYPE_TREND_ACTIVE:
+				Reporting.screen(AnalyticsCategory.VIEW, "ExplorePatchList");
+				break;
+			case Constants.FRAGMENT_TYPE_MAP:
+				Reporting.screen(AnalyticsCategory.VIEW, "PatchListMap");
+				break;
 		}
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

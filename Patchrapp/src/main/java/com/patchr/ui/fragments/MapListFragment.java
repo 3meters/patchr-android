@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -60,10 +58,6 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 	protected Bitmap                     markerBitmap;
 	public Integer bottomPadding = 0;
 
-	@Override public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = super.onCreateView(inflater, container, savedInstanceState);
@@ -72,50 +66,46 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 		 * Any objects obtained from GoogleMap are associated with the view and will be
 		 * leaked if held beyond view lifetime.
 		 */
-		getMapAsync(new OnMapReadyCallback() {
+		getMapAsync(googleMap -> {
 
-			@Override
-			public void onMapReady(@NonNull GoogleMap googleMap) {
+			if (getActivity() == null) return;
 
-				if (getActivity() == null) return;
+			map = googleMap;
 
-				map = googleMap;
+			clusterManager = new ClusterManager<>(getActivity(), map);
+			clusterRenderer = new EntityRenderer(getActivity());
+			clusterRenderer.setMinClusterSize(10);
+			clusterManager.setRenderer(clusterRenderer);
 
-				clusterManager = new ClusterManager<>(getActivity(), map);
-				clusterRenderer = new EntityRenderer(getActivity());
-				clusterRenderer.setMinClusterSize(10);
-				clusterManager.setRenderer(clusterRenderer);
+			//noinspection deprecation
+			map.setOnCameraChangeListener(clusterManager);
+			map.setOnMarkerClickListener(clusterManager);
+			map.setOnInfoWindowClickListener(clusterManager);
 
-				//noinspection deprecation
-				map.setOnCameraChangeListener(clusterManager);
-				map.setOnMarkerClickListener(clusterManager);
-				map.setOnInfoWindowClickListener(clusterManager);
+			clusterManager.setOnClusterClickListener(MapListFragment.this);
+			clusterManager.setOnClusterInfoWindowClickListener(MapListFragment.this);
+			clusterManager.setOnClusterItemClickListener(MapListFragment.this);
+			clusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
 
-				clusterManager.setOnClusterClickListener(MapListFragment.this);
-				clusterManager.setOnClusterInfoWindowClickListener(MapListFragment.this);
-				clusterManager.setOnClusterItemClickListener(MapListFragment.this);
-				clusterManager.setOnClusterItemInfoWindowClickListener(MapListFragment.this);
+			map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			map.setPadding(0, 0, 0, bottomPadding);
 
-				map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-				map.setPadding(0, 0, 0, bottomPadding);
+			UiSettings uiSettings = map.getUiSettings();
 
-				UiSettings uiSettings = map.getUiSettings();
-
-				if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-					map.setMyLocationEnabled(true);  // Causes connect() log error by gms client
-					uiSettings.setMyLocationButtonEnabled(true);
-					map.setOnMyLocationButtonClickListener(MapListFragment.this);
-				}
-
-				map.setLocationSource(null);
-
-				uiSettings.setZoomControlsEnabled(true);
-				uiSettings.setAllGesturesEnabled(true);
-				uiSettings.setCompassEnabled(true);
-
-				/* Entities to map are always set at start */
-				bind();
+			if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+				map.setMyLocationEnabled(true);  // Causes connect() log error by gms client
+				uiSettings.setMyLocationButtonEnabled(true);
+				map.setOnMyLocationButtonClickListener(MapListFragment.this);
 			}
+
+			map.setLocationSource(null);
+
+			uiSettings.setZoomControlsEnabled(true);
+			uiSettings.setAllGesturesEnabled(true);
+			uiSettings.setCompassEnabled(true);
+
+			/* Entities to map are always set at start */
+			bind();
 		});
 
 		return root;
@@ -185,7 +175,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 					if (entity.getLocation() != null) {
 						entity.index = entities.indexOf(entity) + 1;
 						Location location = entity.getLocation();
-						EntityItem entityItem = new EntityItem(location.lat.doubleValue(), location.lng.doubleValue(), entity);
+						EntityItem entityItem = new EntityItem(location.lat, location.lng, entity);
 						clusterManager.addItem(entityItem);
 					}
 				}
@@ -205,7 +195,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 				RealmEntity entity = entities.get(0);
 				Location location = entity.getLocation();
 				if (location != null && location.lat != null && location.lng != null) {
-					map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat.doubleValue(), location.lng.doubleValue()), zoomLevel));
+					map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.lat, location.lng), zoomLevel));
 				}
 			}
 			/*
@@ -245,7 +235,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 			LatLngBounds.Builder builder = LatLngBounds.builder();
 			for (RealmEntity entity : entities) {
 				if (entity.getLocation() != null) {
-					builder.include(new LatLng(entity.getLocation().lat.doubleValue(), entity.getLocation().lng.doubleValue()));
+					builder.include(new LatLng(entity.getLocation().lat, entity.getLocation().lng));
 				}
 			}
 			bounds = builder.build();
@@ -295,7 +285,7 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 			if (entityItem.entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 				if (showIndex && entityItem.entity.index != null) {
-					String label = (entityItem.entity.index.intValue() <= 99) ? String.valueOf(entityItem.entity.index) : "+";
+					String label = (entityItem.entity.index <= 99) ? String.valueOf(entityItem.entity.index) : "+";
 					markerOptions.icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(label)));
 				}
 				else {

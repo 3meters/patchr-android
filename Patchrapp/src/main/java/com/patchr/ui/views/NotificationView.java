@@ -79,7 +79,7 @@ public class NotificationView extends BaseView {
 			/* Create date */
 			String dateFormatted = null;
 			if (entity.modifiedDate != null) {
-				dateFormatted = DateTime.intervalCompact(entity.modifiedDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
+				dateFormatted = DateTime.intervalCompact(entity.modifiedDate, DateTime.nowDate().getTime());
 			}
 
 			setOrGone(this.modifiedDate, dateFormatted);

@@ -59,10 +59,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	public boolean restartAtTop;
 
 	private Integer        layoutResId;
-	private ViewGroup      layout;
 	public  RecyclerView   recyclerView;
-	private View           emptyMessageView;
-	private AirProgressBar progressBar;
 	public  View           listGroup;
 
 	public  BusyController  busyController;
@@ -159,10 +156,10 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 	protected void initialize() {
 
-		layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
+		ViewGroup layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
 
-		emptyMessageView = layout.findViewById(R.id.list_message);
-		progressBar = (AirProgressBar) layout.findViewById(R.id.list_progress);
+		View emptyMessageView = layout.findViewById(R.id.list_message);
+		AirProgressBar progressBar = (AirProgressBar) layout.findViewById(R.id.list_progress);
 		recyclerView = (RecyclerView) layout.findViewById(R.id.entity_list);
 		swipeRefresh = (SwipeRefreshLayout) layout.findViewById(R.id.swipe);
 		listGroup = layout.findViewById(R.id.list_group);
@@ -244,25 +241,23 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 
 		if (!processing) {
 			processing = true;
-			Logger.v(this, "Fetching list entities: " + mode.name().toString());
+			Logger.v(this, "Fetching list entities: " + mode.name());
 			final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 			final Integer skip = (mode == FetchMode.PAGING && query.more) ? entities.size() : 0;
 
-			AsyncTask.execute(() -> {
-				subscription = RestClient.getInstance().fetchListItems(strategy, querySpec, contextEntityId, skip)
-					.subscribe(
-						response -> {
-							processing = false;
-							busyController.hide(true);
-							executed = true;
-							fetchQueryItemsComplete(mode, response, skip);
-						},
-						error -> {
-							processing = false;
-							busyController.hide(true);
-							Errors.handleError(getContext(), error);
-						});
-			});
+			AsyncTask.execute(() -> subscription = RestClient.getInstance().fetchListItems(strategy, querySpec, contextEntityId, skip)
+				.subscribe(
+					response -> {
+						processing = false;
+						busyController.hide(true);
+						executed = true;
+						fetchQueryItemsComplete(mode, response, skip);
+					},
+					error -> {
+						processing = false;
+						busyController.hide(true);
+						Errors.handleError(getContext(), error);
+					}));
 		}
 	}
 
@@ -283,8 +278,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 		/* Trigger ui update */
 		if (response != null && !response.noop) {
 			if (mode == FetchMode.PAGING) {
-				Integer positionStart = skip;
-				adapter.notifyItemRangeChanged(positionStart, entities.size() - 1);
+				adapter.notifyItemRangeChanged(skip, entities.size() - 1);
 			}
 			else {
 				adapter.notifyDataSetChanged();

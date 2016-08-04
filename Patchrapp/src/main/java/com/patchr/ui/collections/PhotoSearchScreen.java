@@ -64,7 +64,6 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private String               defaultSearchText;
 	private List<String>         previousSearches;
-	private ArrayAdapter<String> autoCompleteAdapter;
 
 	private static final int    PAGE_SIZE     = 49;
 	private static final int    LIST_MAX      = 300;
@@ -73,7 +72,7 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	@Override public void onCreate(Bundle savedInstanceState) {
 
-		this.images = new ArrayList<ImageResult>();
+		this.images = new ArrayList<>();
 		this.previousSearches = new ArrayList<>();
 
 		super.onCreate(savedInstanceState);
@@ -140,11 +139,6 @@ public class PhotoSearchScreen extends BaseScreen {
 			int inputType = searchView.getInputType();
 			inputType &= ~InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE;
 			searchView.setRawInputType(inputType);
-
-			final Bundle extras = getIntent().getExtras();
-			if (extras != null) {
-				defaultSearchText = extras.getString(Constants.EXTRA_SEARCH_PHRASE);
-			}
 
 			if (!TextUtils.isEmpty(defaultSearchText)) {
 				searchView.setText(defaultSearchText);
@@ -259,7 +253,7 @@ public class PhotoSearchScreen extends BaseScreen {
 	}
 
 	private void bindAutoCompleteAdapter() {
-		autoCompleteAdapter = new ArrayAdapter<String>(this
+		ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<>(this
 			, android.R.layout.simple_dropdown_item_1line
 			, previousSearches);
 		searchView.setAdapter(autoCompleteAdapter);
@@ -267,80 +261,78 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private void fetchImages(final String queryText) {
 
-		AsyncTask.execute(() -> {
-			subscription = RestClient.getInstance().loadSearchImages(queryText, PAGE_SIZE, skip)
-				.map(response -> {
-					List<ImageResult> imagesFiltered = new ArrayList<ImageResult>();
-					if (response.data != null && response.data.size() > 0) {
-						for (ImageResult imageResult : response.data) {
+		AsyncTask.execute(() -> subscription = RestClient.getInstance().loadSearchImages(queryText, PAGE_SIZE, skip)
+			.map(response -> {
+				List<ImageResult> imagesFiltered = new ArrayList<>();
+				if (response.data != null && response.data.size() > 0) {
+					for (ImageResult imageResult : response.data) {
 
-							Boolean usable = false;
-							if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
-								&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
-								&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
-								usable = true;
-							}
+						Boolean usable = false;
+						if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
+							&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
+							&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
+							usable = true;
+						}
 
-							if (usable) {
-								usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
-							}
+						if (usable) {
+							usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
+						}
 
-							if (usable) {
-								for (ImageResult image : images) {
-									if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
-										usable = false;
-										break;
-									}
+						if (usable) {
+							for (ImageResult image : images) {
+								if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
+									usable = false;
+									break;
 								}
 							}
+						}
 
-							if (usable) {
-								imagesFiltered.add(imageResult);
-							}
+						if (usable) {
+							imagesFiltered.add(imageResult);
 						}
 					}
+				}
 
-					response.data = imagesFiltered;
-					return response;
-				})
-				.subscribe(
-					response -> {
-						processing = false;
-						busyController.hide(false);
-						List<ImageResult> moreImages = (ArrayList<ImageResult>) response.data;
+				response.data = imagesFiltered;
+				return response;
+			})
+			.subscribe(
+				response -> {
+					processing = false;
+					busyController.hide(false);
+					List<ImageResult> moreImages = (ArrayList<ImageResult>) response.data;
 
-						if (moreImages.size() > 0) {
-							Integer positionStart = images.size();
-							images.addAll(moreImages);
-							adapter.notifyItemRangeChanged(positionStart, images.size() - 1);
-							Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(skip), String.valueOf(images.size())));
-						}
+					if (moreImages.size() > 0) {
+						Integer positionStart = images.size();
+						images.addAll(moreImages);
+						adapter.notifyItemRangeChanged(positionStart, images.size() - 1);
+						Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(skip), String.valueOf(images.size())));
+					}
 
-						if (images.size() == 0) {
-							emptyController.setText(StringManager.getString(R.string.empty_photo_search) + " " + this.searchText);
-							emptyController.show(true);
-						}
+					if (images.size() == 0) {
+						emptyController.setText(StringManager.getString(R.string.empty_photo_search) + " " + this.searchText);
+						emptyController.show(true);
+					}
 
-						if (response.more) {
-							skip = skip + PAGE_SIZE;
-							recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
-								@Override
-								public void onLoadMore(int page, int totalItemsCount) {
-									if (!processing) {
-										processing = true;
-										recyclerView.removeOnScrollListener(this);
-										fetchImages(queryText);
-									}
+					if (response.more) {
+						skip = skip + PAGE_SIZE;
+						recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
+							@Override
+							public void onLoadMore(int page, int totalItemsCount) {
+								if (!processing) {
+									processing = true;
+									recyclerView.removeOnScrollListener(this);
+									fetchImages(queryText);
 								}
-							});
-						}
-					},
-					error -> {
-						processing = false;
-						busyController.hide(false);
-						Errors.handleError(this, error);
-					});
-		});
+							}
+						});
+					}
+				},
+				error -> {
+					processing = false;
+					busyController.hide(false);
+					Errors.handleError(this, error);
+				}));
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -384,9 +376,7 @@ public class PhotoSearchScreen extends BaseScreen {
 		public void bind(ImageResult imageResult, final OnItemClickListener listener) {
 			imageWidget.setImageWithPhoto(imageResult.thumbnail.asPhoto(), null, null);
 			imageWidget.setTag(imageResult);
-			imageWidget.setOnClickListener(view -> {
-				listener.onItemClick(view);
-			});
+			imageWidget.setOnClickListener(listener::onItemClick);
 		}
 	}
 }

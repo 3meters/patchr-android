@@ -69,13 +69,12 @@ public class Utils {
 	public static String createImageKey() {
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
 		final String root = UserManager.userId != null ? UserManager.userId : Patchr.getInstance().getinstallId();
-		final String imageKey = String.format("%1$s_%2$s.jpg", root, stringDate); // User id at root to avoid collisions
-		return imageKey;
+		return String.format("%1$s_%2$s.jpg", root, stringDate);
 	}
 
 	public static String createEntityKey(String schema) {
 		final Date nowDate = new Date();
-		final long secondsSinceMidnight = DateTime.secondsSinceMidnight(nowDate.getTime());
+		final long secondsSinceMidnight = DateTime.secondsSinceMidnight();
 		final int randNum = Utils.randInt(1, 999999);
 
 		final String schemaId = RealmEntity.getSchemaIdForSchema(schema);
@@ -84,8 +83,7 @@ public class Utils {
 		final String millisString = DateTime.dateString(nowDate.getTime(), "SSS");
 		final String randString = String.valueOf(randNum);
 
-		final String key = String.format("%1$s.%2$s.%3$s.%4$s.%5$s", schemaId, dateString, secondsString, millisString, randString);
-		return key;
+		return String.format("%1$s.%2$s.%3$s.%4$s.%5$s", schemaId, dateString, secondsString, millisString, randString);
 	}
 
 	public static String md5(final String s) {
@@ -227,8 +225,7 @@ public class Utils {
 
 	public static int randInt(int min, int max) {
 		Random random = new Random();
-		int randomNum = random.nextInt((max - min) + 1) + min;
-		return randomNum;
+		return random.nextInt((max - min) + 1) + min;
 	}
 
 	public static int randomColor(long seed) {

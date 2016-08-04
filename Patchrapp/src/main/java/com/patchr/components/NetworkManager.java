@@ -69,7 +69,6 @@ public class NetworkManager {
 	/* Opportunistically used for crash reporting but not current state */
 	private WifiManager         wifiManager;
 	private ConnectivityManager connectivityManager;
-	private BroadcastReceiver   networkChangeReceiver;
 
 	private static NetworkManager instance = new NetworkManager();
 
@@ -87,8 +86,7 @@ public class NetworkManager {
 
 		wifiManager = (WifiManager) Patchr.applicationContext.getSystemService(Context.WIFI_SERVICE);
 		connectivityManager = (ConnectivityManager) Patchr.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-		networkChangeReceiver = new NetworkChangeReceiver();
-
+		BroadcastReceiver networkChangeReceiver = new NetworkChangeReceiver();
 		Patchr.applicationContext.registerReceiver(networkChangeReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
 		/* Setting system properties. Okhttp picks these up for its connection pooling unless

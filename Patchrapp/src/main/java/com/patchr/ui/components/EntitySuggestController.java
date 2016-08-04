@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
+import com.patchr.Constants;
 import com.patchr.components.LocationManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
@@ -29,10 +30,7 @@ import java.util.List;
 import rx.Subscription;
 
 public class EntitySuggestController {
-	/*
-	 * Used by SearchForm and MessageEdit.
-	 */
-	private static       Integer LIMIT                      = 10;
+
 	private static final int     MESSAGE_TEXT_CHANGED       = 1337;
 	private static final int     DEFAULT_AUTOCOMPLETE_DELAY = 750;
 
@@ -116,9 +114,7 @@ public class EntitySuggestController {
 		else if (searchView != null && recyclerView != null) {
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
 			recyclerView.setAdapter(adapter);
-			searchView.setOnQueryChangeListener((oldQuery, newQuery) -> {
-				textChanged(newQuery);
-			});
+			searchView.setOnQueryChangeListener((oldQuery, newQuery) -> textChanged(newQuery));
 		}
 	}
 
@@ -159,11 +155,11 @@ public class EntitySuggestController {
 			searchView.showProgress();
 		}
 
-		subscription = RestClient.getInstance().suggest(chars.toString().trim()
+		subscription = RestClient.getInstance().suggest(chars.trim()
 			, suggestScope
 			, UserManager.currentUser.id
 			, LocationManager.getInstance().getLocationLocked()
-			, LIMIT)
+			, Constants.SUGGEST_LIMIT)
 			.subscribe(
 				response -> {
 					processing = false;

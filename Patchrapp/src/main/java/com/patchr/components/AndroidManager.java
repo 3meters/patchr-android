@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -67,17 +66,13 @@ public class AndroidManager {
 			Dialog dialog = googleAPI.getErrorDialog(activity, status, PLAY_SERVICES_RESOLUTION_REQUEST);
 			dialog.setCancelable(true);
 			dialog.setCanceledOnTouchOutside(false);
-			dialog.setOnCancelListener(new OnCancelListener() {
-
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					UI.toast(StringManager.getString(R.string.error_google_play_services_unavailable));
-					if (!(activity instanceof LobbyScreen)) {
-						UI.routeLobby(activity);
-					}
-					else {
-						activity.finish();
-					}
+			dialog.setOnCancelListener(dialog1 -> {
+				UI.toast(StringManager.getString(R.string.error_google_play_services_unavailable));
+				if (!(activity instanceof LobbyScreen)) {
+					UI.routeLobby(activity);
+				}
+				else {
+					activity.finish();
 				}
 			});
 			if (dismissListener != null) {
@@ -96,7 +91,7 @@ public class AndroidManager {
 		return false;
 	}
 
-	public static boolean isIntentAvailable(Context context, String action) {
+	public static boolean isIntentAvailable(String action) {
 		final Intent intent = new Intent(action);
 		final List<ResolveInfo> list = Patchr.applicationContext.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;

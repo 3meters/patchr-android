@@ -41,7 +41,6 @@ public class ImageResult {
 	}
 
 	public Photo asPhoto() {
-		Photo photo = new Photo(mediaUrl, width.intValue(), height.intValue(), Photo.PhotoSource.generic);
-		return photo;
+		return new Photo(mediaUrl, width.intValue(), height.intValue(), Photo.PhotoSource.generic);
 	}
 }

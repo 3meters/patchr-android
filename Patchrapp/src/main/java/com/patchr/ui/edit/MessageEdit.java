@@ -150,7 +150,7 @@ public class MessageEdit extends BaseEdit {
 
 		if (inputState.equals(State.Inserting)) {
 			SimpleMap link = new SimpleMap();
-			List<SimpleMap> links = new ArrayList<SimpleMap>();
+			List<SimpleMap> links = new ArrayList<>();
 			link.put("type", "content");
 			link.put("_to", inputParentId);
 			links.add(link);
@@ -199,7 +199,7 @@ public class MessageEdit extends BaseEdit {
 
 			/* Link to patch */
 			SimpleMap link = new SimpleMap();
-			List<SimpleMap> links = new ArrayList<SimpleMap>();
+			List<SimpleMap> links = new ArrayList<>();
 			link.put("type", "content");
 			link.put("_to", inputParentId);
 			links.add(link);

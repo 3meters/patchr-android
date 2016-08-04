@@ -10,7 +10,6 @@ import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 import com.patchr.R;
 import com.patchr.components.FontManager;
@@ -44,20 +43,17 @@ public class PasswordEditText extends AppCompatEditText {
 			}
 
 			setCompoundDrawablesWithIntrinsicBounds(null, null, unmaskDrawable, null);
-			setOnTouchListener(new View.OnTouchListener() {
+			setOnTouchListener((v, event) -> {
+				final int DRAWABLE_RIGHT = 2;
 
-				@Override public boolean onTouch(View v, MotionEvent event) {
-					final int DRAWABLE_RIGHT = 2;
-
-					if (event.getAction() == MotionEvent.ACTION_UP) {
-						if (event.getRawX() >= (getRight() - getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-							unmaskAction(!unmaskEnabled);
-							unmaskEnabled = !unmaskEnabled;
-							return true;
-						}
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (event.getRawX() >= (getRight() - getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+						unmaskAction(!unmaskEnabled);
+						unmaskEnabled = !unmaskEnabled;
+						return true;
 					}
-					return false;
 				}
+				return false;
 			});
 		}
 	}

@@ -158,7 +158,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 
 		String entityId = entity.id;
 
-		RestClient.getInstance().enableLinkById(entityId, linkId, enabled)
+		RestClient.getInstance().enableLinkById(linkId, enabled)
 			.map(response -> {
 				Realm realm = Realm.getDefaultInstance();
 				realm.executeTransaction(whocares -> {

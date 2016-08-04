@@ -17,7 +17,7 @@ public class BaseView extends FrameLayout {
 	}
 
 	public BaseView(Context context, AttributeSet attrs) {
-		this(context, null, 0);
+		this(context, attrs, 0);
 	}
 
 	public BaseView(Context context, AttributeSet attrs, int defStyleAttr) {

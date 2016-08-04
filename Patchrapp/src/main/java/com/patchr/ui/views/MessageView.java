@@ -124,7 +124,7 @@ public class MessageView extends BaseView {
 			/* Create date */
 			String dateFormatted = null;
 			if (message.createdDate != null) {
-				dateFormatted = DateTime.intervalCompact(message.createdDate.longValue(), DateTime.nowDate().getTime(), DateTime.IntervalContext.PAST);
+				dateFormatted = DateTime.intervalCompact(message.createdDate, DateTime.nowDate().getTime());
 			}
 			setOrGone(createdDate, dateFormatted);
 			setOrGone(description, message.description);

@@ -156,9 +156,7 @@ public class ShareEdit extends BaseEdit {
 		recipientsField = (RecipientsCompletionView) findViewById(R.id.recipients);
 		recipientsField.setLineSpacing((int) UI.getRawPixelsForDisplayPixels(4f), 1f);
 		recipientsField.setPrefix(" To: ");
-		recipientsField.setOnFocusChangeListener((view, hasFocus) -> {
-			listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-		});
+		recipientsField.setOnFocusChangeListener((view, hasFocus) -> listView.setVisibility(hasFocus ? View.VISIBLE : View.GONE));
 
 		suggestController = new EntitySuggestController(this);
 		suggestController.searchInput = recipientsField;
@@ -326,9 +324,6 @@ public class ShareEdit extends BaseEdit {
 									UI.toast(StringManager.getString(R.string.error_storage_unmounted));
 								}
 							}
-							catch (FileNotFoundException e) {
-								Reporting.breadcrumb("Picasso failed to load bitmap");
-							}
 							catch (IOException e) {
 								Reporting.breadcrumb("Picasso failed to load bitmap");
 							}
@@ -401,7 +396,7 @@ public class ShareEdit extends BaseEdit {
 			parameters.put("description", descriptionDefault);
 		}
 
-		List<SimpleMap> links = new ArrayList<SimpleMap>();
+		List<SimpleMap> links = new ArrayList<>();
 
 		if (inputShareEntityId != null) {
 			SimpleMap link = new SimpleMap();

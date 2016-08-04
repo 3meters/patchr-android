@@ -30,25 +30,17 @@ public class AirProgressBar extends ProgressBar {
 	private ObjectAnimator mFadeInAnim  = ObjectAnimator.ofFloat(null, "alpha", 1f);
 	private ObjectAnimator mFadeOutAnim = ObjectAnimator.ofFloat(null, "alpha", 0f);
 
-	private final Runnable mDelayedHide = new Runnable() {
-
-		@Override
-		public void run() {
-			mPostedHide = false;
-			mStartTime = -1;
-			fadeOut();
-		}
+	private final Runnable mDelayedHide = () -> {
+		mPostedHide = false;
+		mStartTime = -1;
+		fadeOut();
 	};
 
-	private final Runnable mDelayedShow = new Runnable() {
-
-		@Override
-		public void run() {
-			mPostedShow = false;
-			if (!mDismissed) {
-				mStartTime = System.currentTimeMillis();
-				setVisibility(View.VISIBLE);
-			}
+	private final Runnable mDelayedShow = () -> {
+		mPostedShow = false;
+		if (!mDismissed) {
+			mStartTime = System.currentTimeMillis();
+			setVisibility(View.VISIBLE);
 		}
 	};
 

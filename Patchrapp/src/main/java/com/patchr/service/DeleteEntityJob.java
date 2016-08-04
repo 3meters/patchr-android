@@ -35,7 +35,7 @@ public class DeleteEntityJob extends Job {
 	}
 
 	@Override public void onRun() throws Throwable {
-		Logger.d(this, String.format("Job running"));
+		Logger.d(this, "Job running");
 
 		Call<Map<String, Object>> call = RestClient.getInstance().deleteEntityCall(path);
 		Response<Map<String, Object>> responseMap = call.execute();

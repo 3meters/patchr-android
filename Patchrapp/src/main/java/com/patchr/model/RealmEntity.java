@@ -21,6 +21,7 @@ import com.patchr.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,16 +42,16 @@ public class RealmEntity extends RealmObject {
 
 	/* Updatable fields */
 	@PrimaryKey
-	public String id;
-	public String type;
-	public String name;
-	public String description;
+	public String  id;
+	public String  type;
+	public String  name;
+	public String  description;
 	public Boolean locked;
 
 	/* Service managed fields */
-	public String  schema;
-	public String  namelc;
-	public String  subtitle;
+	public String schema;
+	public String namelc;
+	public String subtitle;
 
 	public String ownerId;
 	public String creatorId;
@@ -99,7 +100,7 @@ public class RealmEntity extends RealmObject {
 	public String linkJson;
 	public String photoJson;
 	public String locationJson;
-	public String  phoneJson;
+	public String phoneJson;
 	public Integer countLikes             = 0;
 	public Integer countMembers           = 0;
 	public Integer countPending           = 0;
@@ -113,15 +114,15 @@ public class RealmEntity extends RealmObject {
 	public Integer patchesMember = 0;
 	public Integer countMessages;
 	public Boolean userHasMessaged = false;
-	public String shortcutForId;
-	public Float  distance;              // Used to cache most recent distance calculation.
+	public String  shortcutForId;
+	public Float   distance;              // Used to cache most recent distance calculation.
 	public boolean pending;
 	public boolean posting;
 
 	/* Local convenience fields */
 	@Ignore public Integer index = 0;                                   // Used to cross reference list position for mapping.
-	@Ignore public String authType;
-	@Ignore public Intent intent;
+	@Ignore public String  authType;
+	@Ignore public Intent  intent;
 	@Ignore public Session session;
 
 	/*--------------------------------------------------------------------------------------------
@@ -136,122 +137,118 @@ public class RealmEntity extends RealmObject {
 
 		if (map.isEmpty()) return null;
 
-		synchronized (entity) {
+		entity.id = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
+		entity.schema = (String) map.get("schema");
+		entity.type = (String) map.get("type");
+		entity.name = (String) map.get("name");
+		entity.namelc = (String) map.get("namelc");
+		entity.subtitle = (String) map.get("subtitle");
+		entity.description = (String) map.get("description");
 
-			entity.id = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
-			entity.schema = (String) map.get("schema");
-			entity.type = (String) map.get("type");
-			entity.name = (String) map.get("name");
-			entity.namelc = (String) map.get("namelc");
-			entity.subtitle = (String) map.get("subtitle");
-			entity.description = (String) map.get("description");
+		if (asShortcut) {
+			entity.shortcutForId = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
+			if (!entity.id.contains("sh.")) {
+				entity.id = "sh.".concat(entity.id);
+			}
+		}
 
-			if (asShortcut) {
-				entity.shortcutForId = (String) (map.get("_id") != null ? map.get("_id") : map.get("id"));
-				if (!entity.id.contains("sh.")) {
-					entity.id = "sh.".concat(entity.id);
-				}
-			}
+		entity.ownerId = (String) (map.get("_owner") != null ? map.get("_owner") : map.get("ownerId"));
+		entity.creatorId = (String) (map.get("_creator") != null ? map.get("_creator") : map.get("creatorId"));
+		entity.modifierId = (String) (map.get("_modifier") != null ? map.get("_modifier") : map.get("modifierId"));
+		entity.createdDate = map.get("createdDate") != null ? ((Double) map.get("createdDate")).longValue() : null;
+		entity.modifiedDate = map.get("modifiedDate") != null ? ((Double) map.get("modifiedDate")).longValue() : null;
+		entity.activityDate = map.get("activityDate") != null ? ((Double) map.get("activityDate")).longValue() : null;
 
-			entity.ownerId = (String) (map.get("_owner") != null ? map.get("_owner") : map.get("ownerId"));
-			entity.creatorId = (String) (map.get("_creator") != null ? map.get("_creator") : map.get("creatorId"));
-			entity.modifierId = (String) (map.get("_modifier") != null ? map.get("_modifier") : map.get("modifierId"));
-			entity.createdDate = map.get("createdDate") != null ? ((Double) map.get("createdDate")).longValue() : null;
-			entity.modifiedDate = map.get("modifiedDate") != null ? ((Double) map.get("modifiedDate")).longValue() : null;
-			entity.activityDate = map.get("activityDate") != null ? ((Double) map.get("activityDate")).longValue() : null;
+		if (entity.activityDate == null && entity.createdDate != null) {
+			entity.activityDate = entity.createdDate; // Service doesn't set activityDate until there is activity
+		}
 
-			if (entity.activityDate == null && entity.createdDate != null) {
-				entity.activityDate = entity.createdDate; // Service doesn't set activityDate until there is activity
-			}
+		entity.score = map.get("score") != null ? ((Double) map.get("score")).floatValue() : null;
+		entity.reason = (String) map.get("reason");
+		entity.locked = (Boolean) map.get("locked");
+		entity.enabled = (Boolean) map.get("enabled");
 
-			entity.score = map.get("score") != null ? ((Double) map.get("score")).floatValue() : null;
-			entity.reason = (String) map.get("reason");
-			entity.locked = (Boolean) map.get("locked");
-			entity.enabled = (Boolean) map.get("enabled");
-
-			if (map.get("photo") != null) {
-				String photoJson = Patchr.gson.toJson(map.get("photo"), SimpleMap.class);
-				entity.photoJson = photoJson;
-			}
-			if (map.get("location") != null) {
-				String locationJson = Patchr.gson.toJson(map.get("location"), SimpleMap.class);
-				entity.locationJson = locationJson;
-			}
-			if (map.get("patch") != null) {
-				entity.patch = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("patch"), true);
-			}
-			if (map.get("creator") != null) {
-				entity.creator = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("creator"), true);
-			}
-			if (map.get("owner") != null) {
-				entity.owner = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("owner"), true);
-			}
-			if (map.get("modifier") != null) {
-				entity.modifier = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("modifier"), true);
-			}
-			if (map.get("link") != null) {
+		if (map.get("photo") != null) {
+			entity.photoJson = Patchr.gson.toJson(map.get("photo"), SimpleMap.class);
+		}
+		if (map.get("location") != null) {
+			entity.locationJson = Patchr.gson.toJson(map.get("location"), SimpleMap.class);
+		}
+		if (map.get("patch") != null) {
+			entity.patch = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("patch"), true);
+		}
+		if (map.get("creator") != null) {
+			entity.creator = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("creator"), true);
+		}
+		if (map.get("owner") != null) {
+			entity.owner = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("owner"), true);
+		}
+		if (map.get("modifier") != null) {
+			entity.modifier = RealmEntity.setPropertiesFromMap(new RealmEntity(), (Map<String, Object>) map.get("modifier"), true);
+		}
+		if (map.get("link") != null) {
 				/*
 				 * This is the only place that uses a link. We use it to support watch link state and management.
 				 * Will get pulled in on a user for a list of users watching a patch and on patches when showing patches a
 				 * user is watching (let's us show that a watch request is pending/approved).
 				 */
-				String linkJson = Patchr.gson.toJson(map.get("link"), SimpleMap.class);
-				entity.linkJson = linkJson;
-			}
+			entity.linkJson = Patchr.gson.toJson(map.get("link"), SimpleMap.class);
+		}
 
-			entity.countLikes = 0;
-			entity.countMembers = 0;
-			entity.countPending = 0;
+		entity.countLikes = 0;
+		entity.countMembers = 0;
+		entity.countPending = 0;
 
-			if (map.get("linkCounts") instanceof List) {
-				List<Map<String, Object>> linkCounts = (List<Map<String, Object>>) map.get("linkCounts");
-				for (Map<String, Object> linkMap : linkCounts) {
-					LinkCount linkCount = LinkCount.setPropertiesFromMap(new LinkCount(), linkMap);
-					if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Like)) {
-						entity.countLikes = linkCount.count;
-					}
-					if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Watch) && linkCount.enabled) {
-						entity.countMembers = linkCount.count;
-					}
-					if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Watch) && !linkCount.enabled) {
-						entity.countPending = linkCount.count;
-					}
+		if (map.get("linkCounts") instanceof List) {
+			List<Map<String, Object>> linkCounts = (List<Map<String, Object>>) map.get("linkCounts");
+			for (Map<String, Object> linkMap : linkCounts) {
+				LinkCount linkCount = LinkCount.setPropertiesFromMap(new LinkCount(), linkMap);
+				if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Like)) {
+					entity.countLikes = linkCount.count;
+				}
+				if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Watch) && linkCount.enabled) {
+					entity.countMembers = linkCount.count;
+				}
+				if (linkCount.from != null && linkCount.from.equals(LinkDestination.Users) && linkCount.type.equals(LinkType.Watch) && !linkCount.enabled) {
+					entity.countPending = linkCount.count;
 				}
 			}
+		}
 
-			entity.userMemberStatus = MemberStatus.NonMember;
-			entity.userMemberMuted = false;
-			entity.userMemberId = null;
-			entity.userLikes = false;
-			entity.userLikesId = null;
+		entity.userMemberStatus = MemberStatus.NonMember;
+		entity.userMemberMuted = false;
+		entity.userMemberId = null;
+		entity.userLikes = false;
+		entity.userLikesId = null;
 
-			if (map.get("links") instanceof List) {  // Null is ok here
-				List<Map<String, Object>> linkMaps = (List<Map<String, Object>>) map.get("links");
-				for (Map<String, Object> linkMap : linkMaps) {
-					if (linkMap.get("fromSchema").equals(Constants.SCHEMA_ENTITY_USER) && linkMap.get("type").equals(LinkType.Watch)) {
-						entity.userMemberId = (String) linkMap.get("_id");
-						entity.userMemberStatus = MemberStatus.Pending;
-						if (linkMap.get("enabled") != null) {
-							if ((Boolean) linkMap.get("enabled")) {
-								entity.userMemberStatus = MemberStatus.Member;
-							}
-						}
-						if (linkMap.get("mute") != null) {
-							if ((Boolean) linkMap.get("mute")) {
-								entity.userMemberMuted = true;
-							}
+		if (map.get("links") instanceof List) {  // Null is ok here
+			List<Map<String, Object>> linkMaps = (List<Map<String, Object>>) map.get("links");
+			for (Map<String, Object> linkMap : linkMaps) {
+				if (linkMap.get("fromSchema").equals(Constants.SCHEMA_ENTITY_USER) && linkMap.get("type").equals(LinkType.Watch)) {
+					entity.userMemberId = (String) linkMap.get("_id");
+					entity.userMemberStatus = MemberStatus.Pending;
+					if (linkMap.get("enabled") != null) {
+						if ((Boolean) linkMap.get("enabled")) {
+							entity.userMemberStatus = MemberStatus.Member;
 						}
 					}
-					if (linkMap.get("fromSchema").equals(Constants.SCHEMA_ENTITY_USER) && linkMap.get("type").equals(LinkType.Like)) {
-						entity.userLikesId = (String) linkMap.get("_id");
-						entity.userLikes = true;
+					if (linkMap.get("mute") != null) {
+						if ((Boolean) linkMap.get("mute")) {
+							entity.userMemberMuted = true;
+						}
 					}
 				}
+				if (linkMap.get("fromSchema").equals(Constants.SCHEMA_ENTITY_USER) && linkMap.get("type").equals(LinkType.Like)) {
+					entity.userLikesId = (String) linkMap.get("_id");
+					entity.userLikes = true;
+				}
 			}
+		}
 
-			if (entity.schema == null) return entity;
+		if (entity.schema == null) return entity;
 
-			if (entity.schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+		switch (entity.schema) {
+			case Constants.SCHEMA_ENTITY_USER:
 				entity.area = (String) map.get("area");
 				entity.email = (String) map.get("email");
 				entity.role = (String) map.get("role");
@@ -259,8 +256,7 @@ public class RealmEntity extends RealmObject {
 				entity.authType = (String) map.get("authType");
 
 				if (map.get("phone") != null) {
-					String phoneJson = Patchr.gson.toJson(map.get("phone"), SimpleMap.class);
-					entity.phoneJson = phoneJson;
+					entity.phoneJson = Patchr.gson.toJson(map.get("phone"), SimpleMap.class);
 				}
 
 				entity.patchesMember = 0;
@@ -278,8 +274,8 @@ public class RealmEntity extends RealmObject {
 						}
 					}
 				}
-			}
-			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				break;
+			case Constants.SCHEMA_ENTITY_PATCH:
 				entity.visibility = (String) map.get("visibility");
 
 				entity.countMessages = 0;
@@ -305,8 +301,8 @@ public class RealmEntity extends RealmObject {
 						}
 					}
 				}
-			}
-			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				break;
+			case Constants.SCHEMA_ENTITY_MESSAGE:
 				if (map.get("linked") instanceof List) {  // Null is ok here
 					List<Map<String, Object>> linkMaps = (List<Map<String, Object>>) map.get("linked");
 					for (Map<String, Object> linkMap : linkMaps) {
@@ -318,7 +314,7 @@ public class RealmEntity extends RealmObject {
 						}
 						else if (linkMap.get("schema").equals(Constants.SCHEMA_ENTITY_USER)) {
 							if (entity.recipients == null) {
-								entity.recipients = new RealmList<RealmEntity>();
+								entity.recipients = new RealmList<>();
 							}
 							RealmEntity recipient = RealmEntity.setPropertiesFromMap(new RealmEntity(), linkMap, true);
 							if (recipient != null) {
@@ -327,8 +323,8 @@ public class RealmEntity extends RealmObject {
 						}
 					}
 				}
-			}
-			else if (entity.schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
+				break;
+			case Constants.SCHEMA_ENTITY_NOTIFICATION:
 				entity.targetId = (String) (map.get("targetId") != null ? map.get("targetId") : map.get("_target"));
 				entity.parentId = (String) (map.get("parentId") != null ? map.get("parentId") : map.get("_parent"));
 				entity.userId = (String) (map.get("userId") != null ? map.get("userId") : map.get("_user"));
@@ -340,10 +336,9 @@ public class RealmEntity extends RealmObject {
 				entity.summary = (String) map.get("summary");
 
 				if (map.get("photoBig") != null) {
-					String photoJson = Patchr.gson.toJson(map.get("photoBig"), SimpleMap.class);
-					entity.photoBigJson = photoJson;
+					entity.photoBigJson = Patchr.gson.toJson(map.get("photoBig"), SimpleMap.class);
 				}
-			}
+				break;
 		}
 		return entity;
 	}
@@ -493,102 +488,101 @@ public class RealmEntity extends RealmObject {
 
 	public static void extras(String schema, SimpleMap parameters) {
 
-		if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
+		switch (schema) {
+			case Constants.SCHEMA_ENTITY_USER: {
 
-			/* Link counts */
-			List<SimpleMap> linkCounts = Arrays.asList(
-				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Create).asMap(),
-				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Watch).setEnabled(true).asMap());
-			parameters.put("linkCount", linkCounts);
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
+				/* Link counts */
+				List<SimpleMap> linkCounts = Arrays.asList(
+					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Create).asMap(),
+					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Watch).setEnabled(true).asMap());
+				parameters.put("linkCount", linkCounts);
+				break;
+			}
+			case Constants.SCHEMA_ENTITY_MESSAGE: {
 
-			/* Links */
-			List<SimpleMap> links = Arrays.asList(
-				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).setFields("_id,type,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap());
-			parameters.put("links", links);
+				/* Links */
+				List<SimpleMap> links = Collections.singletonList(
+					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).setFields("_id,type,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap());
+				parameters.put("links", links);
 
-			/* Linked */
-			List<SimpleMap> linked = Arrays.asList(
-				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Content).setLimit(1).setFields("_id,name,photo,schema,type").asMap(),
-				new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_owner", "_id,name,photo,schema,type")).asMap(),
-				new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Share).setLimit(1).asMap(),
-				new LinkSpec().setTo(LinkDestination.Users).setType(LinkType.Share).setLimit(5).asMap());
-			parameters.put("linked", linked);
+				/* Linked */
+				List<SimpleMap> linked = Arrays.asList(
+					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Content).setLimit(1).setFields("_id,name,photo,schema,type").asMap(),
+					new LinkSpec().setTo(LinkDestination.Messages).setType(LinkType.Share).setLimit(1).setRefs(Maps.asMap("_owner", "_id,name,photo,schema,type")).asMap(),
+					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Share).setLimit(1).asMap(),
+					new LinkSpec().setTo(LinkDestination.Users).setType(LinkType.Share).setLimit(5).asMap());
+				parameters.put("linked", linked);
 
-			/* Link counts */
-			List<SimpleMap> linkCounts = Arrays.asList(
-				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).asMap());
-			parameters.put("linkCount", linkCounts);
+				/* Link counts */
+				List<SimpleMap> linkCounts = Collections.singletonList(
+					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).asMap());
+				parameters.put("linkCount", linkCounts);
 
-			/* Refs */
-			parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
+				/* Refs */
+				parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
+				break;
+			}
+			case Constants.SCHEMA_ENTITY_PATCH: {
 
-			/* Links */
-			List<Map<String, Object>> links = Arrays.asList(
-				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
-				new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_creator", UserManager.userId)).asMap());
-			parameters.put("links", links);
+				/* Links */
+				List<Map<String, Object>> links = Arrays.asList(
+					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setFields("_id,type,enabled,mute,schema").setFilter(Maps.asMap("_from", UserManager.userId)).asMap(),
+					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).setLimit(1).setFields("_id,type,schema").setFilter(Maps.asMap("_creator", UserManager.userId)).asMap());
+				parameters.put("links", links);
 
-			/* Link counts */
-			List<Map<String, Object>> linkCounts = Arrays.asList(
-				new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).asMap(),
-				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(true).asMap(),
-				new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(false).asMap());
-			parameters.put("linkCount", linkCounts);
+				/* Link counts */
+				List<Map<String, Object>> linkCounts = Arrays.asList(
+					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).asMap(),
+					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(true).asMap(),
+					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(false).asMap());
+				parameters.put("linkCount", linkCounts);
 
-			/* Refs */
-			parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
+				/* Refs */
+				parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
+				break;
+			}
 		}
 	}
 
 	public static String getSchemaForId(String id) {
 		String prefix = id.substring(0, 2);
-		if (prefix.equals("pa")) {
-			return Constants.SCHEMA_ENTITY_PATCH;
-		}
-		else if (prefix.equals("us")) {
-			return Constants.SCHEMA_ENTITY_USER;
-		}
-		else if (prefix.equals("me")) {
-			return Constants.SCHEMA_ENTITY_MESSAGE;
-		}
-		else if (prefix.equals("no")) {
-			return Constants.SCHEMA_ENTITY_NOTIFICATION;
+		switch (prefix) {
+			case "pa":
+				return Constants.SCHEMA_ENTITY_PATCH;
+			case "us":
+				return Constants.SCHEMA_ENTITY_USER;
+			case "me":
+				return Constants.SCHEMA_ENTITY_MESSAGE;
+			case "no":
+				return Constants.SCHEMA_ENTITY_NOTIFICATION;
 		}
 		return null;
 	}
 
 	public static String getCollectionForSchema(String schema) {
-		if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			return Constants.COLLECTION_ENTITY_PATCHES;
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			return Constants.COLLECTION_ENTITY_USERS;
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-			return Constants.COLLECTION_ENTITY_MESSAGE;
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-			return Constants.COLLECTION_ENTITY_NOTIFICATIONS;
+		switch (schema) {
+			case Constants.SCHEMA_ENTITY_PATCH:
+				return Constants.COLLECTION_ENTITY_PATCHES;
+			case Constants.SCHEMA_ENTITY_USER:
+				return Constants.COLLECTION_ENTITY_USERS;
+			case Constants.SCHEMA_ENTITY_MESSAGE:
+				return Constants.COLLECTION_ENTITY_MESSAGE;
+			case Constants.SCHEMA_ENTITY_NOTIFICATION:
+				return Constants.COLLECTION_ENTITY_NOTIFICATIONS;
 		}
 		return null;
 	}
 
 	public static String getSchemaIdForSchema(String schema) {
-		if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
-			return "pa";
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_USER)) {
-			return "us";
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_MESSAGE)) {
-			return "me";
-		}
-		else if (schema.equals(Constants.SCHEMA_ENTITY_NOTIFICATION)) {
-			return "no";
+		switch (schema) {
+			case Constants.SCHEMA_ENTITY_PATCH:
+				return "pa";
+			case Constants.SCHEMA_ENTITY_USER:
+				return "us";
+			case Constants.SCHEMA_ENTITY_MESSAGE:
+				return "me";
+			case Constants.SCHEMA_ENTITY_NOTIFICATION:
+				return "no";
 		}
 		return null;
 	}
@@ -599,7 +593,7 @@ public class RealmEntity extends RealmObject {
 			return Maps.asMap("activityDate", Maps.asMap("$gt", activityDate));
 		}
 		else {
-			List<Map<String, Object>> array = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> array = new ArrayList<>();
 			array.add(Maps.asMap("activityDate", Maps.asMap("$gt", activityDate)));
 			array.add(Maps.asMap("modifiedDate", Maps.asMap("$gt", modifiedDate)));
 			return Maps.asMap("$or", array);

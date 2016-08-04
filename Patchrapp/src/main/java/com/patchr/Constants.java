@@ -28,7 +28,6 @@ public class Constants {
 	public static final String EXTRA_QUERY_NAME            = "com.patchr.EXTRA_QUERY_NAME";
 	public static final String EXTRA_LOCATION              = "com.patchr.EXTRA_LOCATION";
 	public static final String EXTRA_PRIVACY               = "com.patchr.EXTRA_PRIVACY";
-	public static final String EXTRA_SEARCH_PHRASE         = "com.patchr.EXTRA_SEARCH_PHRASE";
 	public static final String EXTRA_SEARCH_SCOPE          = "com.patchr.EXTRA_SEARCH_SCOPE";
 	public static final String EXTRA_PHOTO                 = "com.patchr.EXTRA_PHOTO";
 	public static final String EXTRA_REFRESH_FROM_SERVICE  = "com.patchr.EXTRA_REFRESH_FORCE";
@@ -249,4 +248,6 @@ public class Constants {
 	public static final float   SERVICE_STATUS_CODE_FORBIDDEN_USER_PASSWORD_WEAK = 403.21f;
 	public static final float   SERVICE_STATUS_CODE_FORBIDDEN_VIA_API_ONLY       = 403.22f;
 	public static final float   SERVICE_STATUS_CODE_FORBIDDEN_LIMIT_EXCEEDED     = 403.3f;
+
+	public static       Integer SUGGEST_LIMIT                                    = 10;
 }

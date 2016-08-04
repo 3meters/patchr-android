@@ -10,7 +10,6 @@ public class GridAutofitLayoutManager extends GridLayoutManager {
 
 	private int columnWidth;
 	private        boolean columnWidthChanged   = true;
-	private static float   DEFAULT_COLUMN_WIDTH = 48;
 
 	public GridAutofitLayoutManager(Context context, int columnWidth) {
 		super(context, 1);
@@ -45,6 +44,7 @@ public class GridAutofitLayoutManager extends GridLayoutManager {
 			/* Set default columnWidth value (48dp here). It is better to move this constant
 			to static constant on top, but we need context to convert it to dp, so can't really
 	        do so. */
+			float DEFAULT_COLUMN_WIDTH = 48;
 			columnWidth = UI.getRawPixelsForDisplayPixels(DEFAULT_COLUMN_WIDTH);
 		}
 		return columnWidth;

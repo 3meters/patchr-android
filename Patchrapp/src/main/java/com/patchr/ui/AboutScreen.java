@@ -21,9 +21,8 @@ import java.util.Locale;
 
 public class AboutScreen extends BaseScreen {
 
-	private TextView version;
-	private String   versionName;
-	private TextView copyright;
+	private TextView versionView;
+	private TextView copyrightView;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,21 +47,21 @@ public class AboutScreen extends BaseScreen {
 		}
 	}
 
-	public void termsAction() {
+	private void termsAction() {
 		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(StringManager.getString(R.string.url_terms)));
 		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
-	public void privacyPolicyAction() {
+	private void privacyPolicyAction() {
 		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(StringManager.getString(R.string.url_privacy)));
 		startActivity(intent);
 		AnimationManager.doOverridePendingTransition(this, TransitionType.FORM_TO);
 	}
 
-	public void legalAction() {
+	private void legalAction() {
 		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setData(Uri.parse(StringManager.getString(R.string.url_legal)));
 		startActivity(intent);
@@ -76,24 +75,24 @@ public class AboutScreen extends BaseScreen {
 	@Override public void initialize(Bundle savedInstanceState) {
 		super.initialize(savedInstanceState);
 		this.actionBarTitle.setText(R.string.screen_title_about_form);
-		version = (TextView) findViewById(R.id.version);
-		copyright = (TextView) findViewById(R.id.copyright);
+		versionView = (TextView) findViewById(R.id.version);
+		copyrightView = (TextView) findViewById(R.id.copyright);
 	}
 
-	public void bind() {
+	private void bind() {
 
 		final String year = new SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().getTime());
 		final String company = StringManager.getString(R.string.name_company);
 		final String copyrightSymbol = StringManager.getString(R.string.symbol_copyright);
 
-		versionName = Patchr.getVersionName(this, MainScreen.class);
+		String versionName = Patchr.getVersionName(this, MainScreen.class);
 		final String version = StringManager.getString(R.string.label_about_version) + ": " + versionName
 			+ " (" + String.valueOf(Patchr.getVersionCode(this, MainScreen.class)) + ")";
 
 		final String copyright = copyrightSymbol + " " + year + " " + company;
 
-		this.version.setText(version);
-		this.copyright.setText(copyright);
+		this.versionView.setText(version);
+		this.copyrightView.setText(copyright);
 
 		if (Utils.devModeEnabled()) {
 			UI.setTextView(findViewById(R.id.install_id), Patchr.getInstance().getinstallId());

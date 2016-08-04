@@ -3,8 +3,6 @@ package com.patchr.utilities;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-;
-
 public class Type {
 
 	public static String emptyAsNull(String stringValue) {

@@ -252,12 +252,7 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 				activateContainer(containerHolder);
 
-				containerHolder.setContainerAvailableListener(new ContainerHolder.ContainerAvailableListener() {
-					@Override
-					public void onContainerAvailable(ContainerHolder containerHolder, String s) {
-						activateContainer(containerHolder);
-					}
-				});
+				containerHolder.setContainerAvailableListener((containerHolder1, s) -> activateContainer(containerHolder1));
 			}
 		}, 2, TimeUnit.SECONDS);
 

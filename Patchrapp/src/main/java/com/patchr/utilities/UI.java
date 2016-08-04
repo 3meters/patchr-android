@@ -107,14 +107,12 @@ public class UI {
 
 	public static int getRawPixelsForDisplayPixels(Float displayPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-		final int rawPixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, displayPixels, metrics);
-		return rawPixels;
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, displayPixels, metrics);
 	}
 
 	public static int getRawPixelsForScaledPixels(Float scaledPixels) {
 		final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-		final int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, scaledPixels, metrics);
-		return pixels;
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, scaledPixels, metrics);
 	}
 
 	public static int getDisplayPixelsForRawPixels(Float rawPixels) {
@@ -273,8 +271,7 @@ public class UI {
 	public static void toast(final String message, final int duration, final int gravity) {
 
 		Patchr.mainThread.post(() -> {
-			final CharSequence text = message;
-			final Toast toast = Toast.makeText(Patchr.applicationContext, text, duration);
+			final Toast toast = Toast.makeText(Patchr.applicationContext, message, duration);
 			toast.getView().setBackgroundResource(R.drawable.bg_toast);
 			TextView view = (TextView) toast.getView().findViewById(android.R.id.message);
 			view.setTextColor(Colors.getColor(R.color.black));

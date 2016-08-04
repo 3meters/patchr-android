@@ -67,7 +67,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
 import io.branch.referral.util.LinkProperties;
 
 @SuppressLint("Registered")
@@ -143,9 +142,7 @@ public class PatchScreen extends BaseListScreen {
 			View view = getLayoutInflater().inflate(R.layout.dialog_patch, null);
 			bottomSheetDialog.setContentView(view);
 			bottomSheetDialog.getWindow().setDimAmount(0.3f);
-			bottomSheetDialog.setOnDismissListener(dialogInterface -> {
-				bottomSheetDialog = null;
-			});
+			bottomSheetDialog.setOnDismissListener(dialogInterface -> bottomSheetDialog = null);
 			if (!MenuManager.canUserDelete(entity)) {
 				view.findViewById(R.id.delete_group).setVisibility(View.GONE);
 			}
@@ -405,9 +402,7 @@ public class PatchScreen extends BaseListScreen {
 		/* Bind action button */
 		if (this.entity != null) {
 			updateActiveView();
-			this.entity.addChangeListener(user -> {
-				updateActiveView();
-			});
+			this.entity.addChangeListener(user -> updateActiveView());
 		}
 	}
 
@@ -616,10 +611,9 @@ public class PatchScreen extends BaseListScreen {
 		final ViewAnimator animator = (ViewAnimator) ((PatchDetailView) header).bannerView.muteButton;
 		animator.setDisplayedChild(1);  // Turned off in draw
 
-		String entityId = entity.id;
 		String linkId = entity.userMemberId;
 
-		subscription = RestClient.getInstance().muteLinkById(entityId, linkId, mute)
+		subscription = RestClient.getInstance().muteLinkById(linkId, mute)
 			.subscribe(
 				response -> {
 					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
@@ -627,9 +621,7 @@ public class PatchScreen extends BaseListScreen {
 				},
 				error -> {
 					processing = false;
-					Patchr.mainThread.postDelayed(() -> {
-						animator.setDisplayedChild(0);
-					}, 1000);
+					Patchr.mainThread.postDelayed(() -> animator.setDisplayedChild(0), 1000);
 
 					Errors.handleError(this, error);
 				});
@@ -637,28 +629,21 @@ public class PatchScreen extends BaseListScreen {
 
 	protected void confirmJoin() {
 
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				final AlertDialog dialog = Dialogs.alertDialog(null
-					, null
-					, StringManager.getString(R.string.alert_autowatch_message)
-					, null
-					, Patchr.applicationContext
-					, R.string.alert_autowatch_positive
-					, R.string.alert_autowatch_negative
-					, null
-					, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == DialogInterface.BUTTON_POSITIVE) {
-								join(true /* activate */);
-							}
-						}
-					}, null);
-				dialog.setCanceledOnTouchOutside(false);
-			}
+		runOnUiThread(() -> {
+			final AlertDialog dialog = Dialogs.alertDialog(null
+				, null
+				, StringManager.getString(R.string.alert_autowatch_message)
+				, null
+				, Patchr.applicationContext
+				, R.string.alert_autowatch_positive
+				, R.string.alert_autowatch_negative
+				, null
+				, (dialog1, which) -> {
+					if (which == DialogInterface.BUTTON_POSITIVE) {
+						join(true /* activate */);
+					}
+				}, null);
+			dialog.setCanceledOnTouchOutside(false);
 		});
 	}
 
@@ -672,14 +657,10 @@ public class PatchScreen extends BaseListScreen {
 			, R.string.alert_unwatch_positive
 			, android.R.string.cancel
 			, null
-			, new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (which == DialogInterface.BUTTON_POSITIVE) {
-						justApproved = false;
-						join(false /* delete */);
-					}
+			, (dialog1, which) -> {
+				if (which == DialogInterface.BUTTON_POSITIVE) {
+					justApproved = false;
+					join(false /* delete */);
 				}
 			}, null);
 		dialog.setCanceledOnTouchOutside(false);
@@ -693,11 +674,9 @@ public class PatchScreen extends BaseListScreen {
 			.setChannel("patchr-android")
 			.setFeature(Branch.FEATURE_TAG_INVITE);
 
-		applink.generateShortUrl(PatchScreen.this, linkProperties, new Branch.BranchLinkCreateListener() {
-			@Override public void onLinkCreate(String uri, BranchError error) {
-				if (error == null) {
-					branchLink = uri;
-				}
+		applink.generateShortUrl(PatchScreen.this, linkProperties, (uri, error) -> {
+			if (error == null) {
+				branchLink = uri;
 			}
 		});
 	}
@@ -745,11 +724,9 @@ public class PatchScreen extends BaseListScreen {
 					member.setVisibility(View.GONE);
 					button2.setVisibility(View.GONE);
 					button1.setText("JOIN");
-					button1.setOnClickListener(new View.OnClickListener() {
-						@Override public void onClick(View view) {
-							bottomSheetLayout.dismissSheet();
-							joinAction();
-						}
+					button1.setOnClickListener(view1 -> {
+						bottomSheetLayout.dismissSheet();
+						joinAction();
 					});
 				}
 

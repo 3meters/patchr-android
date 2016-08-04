@@ -43,10 +43,10 @@ public class Location {
 			throw new IllegalArgumentException("Attempted to call distanceTo using location without lat/lng");
 		}
 
-		fromLocation.setLatitude(this.lat.doubleValue());
-		fromLocation.setLongitude(this.lng.doubleValue());
-		toLocation.setLatitude(location.lat.doubleValue());
-		toLocation.setLongitude(location.lng.doubleValue());
+		fromLocation.setLatitude(this.lat);
+		fromLocation.setLongitude(this.lng);
+		toLocation.setLatitude(location.lat);
+		toLocation.setLongitude(location.lng);
 
 		return fromLocation.distanceTo(toLocation);
 	}

@@ -96,8 +96,8 @@ public class UserDetailView extends BaseView {
 
 		/* Button state */
 
-		Integer watching = user.patchesMember.intValue();
-		Integer created = user.patchesOwned.intValue();
+		Integer watching = user.patchesMember;
+		Integer created = user.patchesOwned;
 
 		this.buttonMember.setText(StringManager.getString(R.string.label_user_watching)
 			+ ": " + ((watching > 0)

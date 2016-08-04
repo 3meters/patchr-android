@@ -3,7 +3,6 @@
 
 	android:id="@+id/recipient_name"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 
 	android:layout_width="wrap_content"

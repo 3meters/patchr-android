@@ -147,11 +147,9 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 			if (this.entity != null) {
 				supportInvalidateOptionsMenu();     // In case user authenticated
 				this.header.bind(this.entity);
-				this.changeListener = new RealmChangeListener() {
-					@Override public void onChange(Object element) {
-						header.draw();
-						supportInvalidateOptionsMenu();     // In case user authenticated
-					}
+				this.changeListener = element -> {
+					header.draw();
+					supportInvalidateOptionsMenu();     // In case user authenticated
 				};
 				this.entity.addChangeListener(this.changeListener);
 			}
@@ -168,7 +166,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 			listWidget.fetch(mode);
 		}
 		else {
-			Logger.v(this, "Fetching form entity: " + mode.name().toString());
+			Logger.v(this, "Fetching form entity: " + mode.name());
 			FetchStrategy strategy = (mode == FetchMode.MANUAL) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
 			AsyncTask.execute(() -> {
