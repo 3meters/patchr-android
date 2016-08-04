@@ -115,6 +115,14 @@ public class MainScreen extends BaseScreen {
 		 * OnResume gets called after OnCreate (always) and whenever the activity is being brought back to the
 		 * foreground. Not guaranteed but is usually called just before the activity receives focus.
 		 */
+		if (NetworkManager.getInstance().isConnected()) {
+			if (snackbar.isShownOrQueued()) {
+				snackbar.dismiss();
+			}
+		}
+		else if (!snackbar.isShownOrQueued()) {
+			displayConnectionIndicator();
+		}
 		bind();
 	}
 
@@ -275,8 +283,10 @@ public class MainScreen extends BaseScreen {
 	}
 
 	@Subscribe public void onNetworkStatusChange(final NetworkStatusEvent event) {
-		if (event.status == NetworkStatus.CONNECTED && snackbar.isShownOrQueued()) {
-			snackbar.dismiss();
+		if (event.status == NetworkStatus.CONNECTED) {
+			if (snackbar.isShownOrQueued()) {
+				snackbar.dismiss();
+			}
 		}
 		else if (!snackbar.isShownOrQueued()) {
 			displayConnectionIndicator();

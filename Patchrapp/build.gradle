@@ -6,7 +6,7 @@ apply plugin: 'realm-android'
 android {
 
 	compileSdkVersion 24
-	buildToolsVersion '23.0.2'
+	buildToolsVersion '24.0.0'
 
 	defaultConfig {
 		/*
@@ -20,6 +20,7 @@ android {
 		versionCode 129
 		versionName '1.3.5'
 
+		resConfigs "en"
 		multiDexEnabled true
 		manifestPlaceholders = [appPackageName: "${applicationId}"]
 	}
@@ -41,10 +42,15 @@ android {
 
 	signingConfigs {
 		release {
-			storeFile file('app.keystore')
-			keyAlias 'aircandi'
-			storePassword 'Doo.dah.1'
-			keyPassword 'Doo.dah.1'
+			try {
+				storeFile file('app.keystore')
+				keyAlias 'aircandi'
+				storePassword KEYSTORE_PASSWORD
+				keyPassword KEY_PASSWORD
+			}
+			catch (ex) {
+				throw new InvalidUserDataException("You should define KEYSTORE_PASSWORD and KEY_PASSWORD in gradle.properties.")
+			}
 		}
 	}
 
