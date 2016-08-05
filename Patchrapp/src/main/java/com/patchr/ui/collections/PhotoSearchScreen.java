@@ -268,19 +268,19 @@ public class PhotoSearchScreen extends BaseScreen {
 					for (ImageResult imageResult : response.data) {
 
 						Boolean usable = false;
-						if (imageResult.fileSize <= Constants.BING_IMAGE_BYTES_MAX
+						if (imageResult.contentSize <= Constants.BING_IMAGE_BYTES_MAX
 							&& imageResult.height <= Constants.BING_IMAGE_DIMENSION_MAX
 							&& imageResult.width <= Constants.BING_IMAGE_DIMENSION_MAX) {
 							usable = true;
 						}
 
 						if (usable) {
-							usable = (imageResult.thumbnail != null && imageResult.thumbnail.mediaUrl != null);
+							usable = (imageResult.thumbnailUrl != null);
 						}
 
 						if (usable) {
 							for (ImageResult image : images) {
-								if (image.thumbnail.mediaUrl.equals(imageResult.thumbnail.mediaUrl)) {
+								if (image.thumbnailUrl.equals(imageResult.thumbnailUrl)) {
 									usable = false;
 									break;
 								}
@@ -374,7 +374,7 @@ public class PhotoSearchScreen extends BaseScreen {
 		}
 
 		public void bind(ImageResult imageResult, final OnItemClickListener listener) {
-			imageWidget.setImageWithPhoto(imageResult.thumbnail.asPhoto(), null, null);
+			imageWidget.setImageWithPhoto(imageResult.thumbnailAsPhoto(), null, null);
 			imageWidget.setTag(imageResult);
 			imageWidget.setOnClickListener(listener::onItemClick);
 		}

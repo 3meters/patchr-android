@@ -11,10 +11,10 @@ import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 import rx.Observable;
 
-public interface BingApi {
+public interface CognitiveApi {
 
 	@GET("{path}")
-	Observable<Response<Map<String, Object>>> get(@Header("Authorization") String authorization
+	Observable<Response<Map<String, Object>>> get(@Header("Ocp-Apim-Subscription-Key") String authorization
 		, @Path(value = "path", encoded = true) String path
 		, @QueryMap SimpleMap parameters);
 }

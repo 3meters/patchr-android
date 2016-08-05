@@ -8,7 +8,7 @@ import java.util.Map;
 
 import retrofit2.Response;
 
-public class BingResponse {
+public class CognitiveResponse {
 
 	public List<ImageResult> data;
 	public Number            count;
@@ -16,7 +16,7 @@ public class BingResponse {
 	public Number httpCode = 200;
 	public String httpMessage;
 
-	public static BingResponse setPropertiesFromMap(BingResponse response, Response<Map<String, Object>> responseMap) {
+	public static CognitiveResponse setPropertiesFromMap(CognitiveResponse response, Response<Map<String, Object>> responseMap) {
 		/*
 		 * Properties involved with editing are copied from one entity to another.
 		 */
@@ -24,13 +24,12 @@ public class BingResponse {
 		response.httpCode = responseMap.code();
 		response.httpMessage = responseMap.message();
 
-		if (map.get("d") == null) {
+		if (map.get("value") == null) {
 			response.count = 0;
 			return response;
 		}
-		else if (map.get("d") instanceof Map) {
-			Map<String, Object> data_map = (Map<String, Object>) map.get("d");
-			List<Map<String, Object>> imageMaps = (List<Map<String, Object>>) data_map.get("results");
+		else {
+			List<Map<String, Object>> imageMaps = (List<Map<String, Object>>) map.get("value");
 			List<ImageResult> imageResults = new ArrayList<>();
 
 			if (imageMaps.size() == 0) {

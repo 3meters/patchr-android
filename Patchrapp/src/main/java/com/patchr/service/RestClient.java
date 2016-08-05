@@ -57,7 +57,7 @@ import rx.schedulers.Schedulers;
 public class RestClient {
 
 	public static  ProxibaseApi proxiApi;
-	private static BingApi      bingApi;
+	private static CognitiveApi cognitiveApi;
 	private static RestClient instance = new RestClient();
 	public Long activityDateInsertDeletePatch;
 
@@ -98,13 +98,13 @@ public class RestClient {
 			proxiApi = retrofitProxi.create(ProxibaseApi.class);
 
 			Retrofit retrofitBing = new Retrofit.Builder()
-				.baseUrl("https://api.datamarket.azure.com/Bing/Search/v1/")
+				.baseUrl("https://api.cognitive.microsoft.com/bing/v5.0/images/")
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
 				.build();
 
-			bingApi = retrofitBing.create(BingApi.class);
+			cognitiveApi = retrofitBing.create(CognitiveApi.class);
 		}
 		catch (IllegalArgumentException ignore) {
 			/* ignore */
@@ -526,29 +526,28 @@ public class RestClient {
 	* Bing
 	*--------------------------------------------------------------------------------------------*/
 
-	public Observable<BingResponse> loadSearchImages(String query, Integer limit, Integer offset) {
+	public Observable<CognitiveResponse> loadSearchImages(String query, Integer limit, Integer offset) {
 
 		SimpleMap parameters = new SimpleMap();
 
 		String queryEncoded = Uri.encode(query, Utils.ALLOWED_BING_QUERY_CHARS);
-		parameters.put("Query", "'" + queryEncoded + "'");
-		parameters.put("Market", "'en-US'");
-		parameters.put("Adult", "'Strict'");
-		parameters.put("ImageFilters", "'size:large'");
-		parameters.put("$top", limit + 1);
-		parameters.put("$skip", offset);
-		parameters.put("$format", "Json");
+		parameters.put("q", "'" + queryEncoded + "'");
+		parameters.put("mkt", "en-us");
+		parameters.put("safeSearch", "strict");
+		parameters.put("size", "large");
+		parameters.put("count", limit + 1);
+		parameters.put("offset", offset);
 
-		String password = ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_ACCESS_KEY);
-		String token = "Basic " + Base64.encodeToString((":" + password).getBytes(), Base64.NO_WRAP);
+		String key = ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_SUBSCRIPTION_KEY);
+		String token = Base64.encodeToString(key.getBytes(), Base64.NO_WRAP);
 
 		if (!NetworkManager.getInstance().isConnected()) {
 			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
 		else {
-			return bingApi.get(token, "Image", parameters)
+			return cognitiveApi.get(key, "search", parameters)
 				.map(responseMap -> {
-					BingResponse response = BingResponse.setPropertiesFromMap(new BingResponse(), responseMap);
+					CognitiveResponse response = CognitiveResponse.setPropertiesFromMap(new CognitiveResponse(), responseMap);
 					if (response.count.intValue() > limit) {
 						response.more = true;
 						response.data.remove(response.data.size() - 1);

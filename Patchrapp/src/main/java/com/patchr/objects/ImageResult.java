@@ -9,38 +9,43 @@ import java.util.Map;
  * Used for bing image searches.
  */
 public class ImageResult {
-	public String    title;
-	public String    mediaUrl;
-	public String    url;
-	public String    displayUrl;
-	public Long      width;
-	public Long      height;
-	public Long      fileSize;
-	public String    contentType;
-	public Thumbnail thumbnail;
+	public String name;
+	public String contentUrl;
+	public Long   contentSize;
+	public String encodingFormat;
+	public Long   width;
+	public Long   height;
+
+	public String thumbnailUrl;
+	public Long   thumbnailWidth;
+	public Long   thumbnailHeight;
 
 	/* client only */
 	public Photo photo;
 
 	public static ImageResult setPropertiesFromMap(ImageResult imageResult, Map map) {
 
-		imageResult.title = (String) map.get("Title");
-		imageResult.mediaUrl = (String) map.get("MediaUrl");
-		imageResult.url = (String) map.get("Url");
-		imageResult.displayUrl = (String) map.get("DisplayUrl");
-		imageResult.width = Long.parseLong((String) map.get("Width"));
-		imageResult.height = Long.parseLong((String) map.get("Height"));
-		imageResult.fileSize = Long.parseLong((String) map.get("FileSize"));
-		imageResult.contentType = (String) map.get("ContentType");
+		imageResult.name = (String) map.get("name");
+		imageResult.contentUrl = (String) map.get("contentUrl");
+		String contentSize = ((String) map.get("contentSize")).replaceAll("[^0-9]", "");
+		imageResult.contentSize = Long.parseLong(contentSize);
+		imageResult.encodingFormat = (String) map.get("encodingFormat");
+		imageResult.width = ((Double) map.get("width")).longValue();
+		imageResult.height = ((Double) map.get("height")).longValue();
 
-		if (map.get("Thumbnail") != null) {
-			imageResult.thumbnail = Thumbnail.setPropertiesFromMap(new Thumbnail(), (Map<String, Object>) map.get("Thumbnail"));
-		}
+		imageResult.thumbnailUrl = (String) map.get("thumbnailUrl");
+		Map<String, Object> thumbnailMap = (Map<String, Object>) map.get("thumbnail");
+		imageResult.thumbnailWidth = ((Double) thumbnailMap.get("width")).longValue();
+		imageResult.thumbnailHeight = ((Double) thumbnailMap.get("height")).longValue();
 
 		return imageResult;
 	}
 
 	public Photo asPhoto() {
-		return new Photo(mediaUrl, width.intValue(), height.intValue(), Photo.PhotoSource.generic);
+		return new Photo(contentUrl, width.intValue(), height.intValue(), Photo.PhotoSource.generic);
+	}
+
+	public Photo thumbnailAsPhoto() {
+		return new Photo(thumbnailUrl, thumbnailWidth.intValue(), thumbnailHeight.intValue(), Photo.PhotoSource.generic);
 	}
 }

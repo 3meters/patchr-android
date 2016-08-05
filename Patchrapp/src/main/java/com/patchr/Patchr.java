@@ -75,7 +75,7 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	/* Container values */
 	public static  String AWS_ACCESS_KEY             = "aws-access-key";
 	public static  String AWS_SECRET_KEY             = "aws-secret-key";
-	public static  String BING_ACCESS_KEY            = "bing-access-key";
+	public static  String BING_SUBSCRIPTION_KEY      = "bing-subscription-key";
 	public static  String USER_SECRET                = "user-secret";
 	private static String CREATIVE_SDK_CLIENT_SECRET = "creative-sdk-client-secret";
 
