@@ -318,13 +318,8 @@ public class ImageWidget extends FrameLayout {
 				.config(bitmapConfig);
 
 			if (transform != null) {
-				//				creator.fit();
 				creator.transform(transform);
 			}
-			//			else {
-			//				creator.centerCrop(); // Needed so resize() keeps aspect ratio
-			//				creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-			//			}
 
 			creator.networkPolicy(NetworkPolicy.OFFLINE);
 			creator.into(imageView, new Callback() {
@@ -343,12 +338,7 @@ public class ImageWidget extends FrameLayout {
 
 					if (transform != null) {
 						creator.transform(transform);
-						//						creator.fit();
 					}
-					//					else {
-					//						creator.centerCrop(); // Needed so resize() keeps aspect ratio
-					//						creator.resize(Constants.IMAGE_DIMENSION_MAX, Constants.IMAGE_DIMENSION_MAX);
-					//					}
 
 					creator.into(imageView, new Callback() {
 						@Override public void onSuccess() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -34,9 +35,9 @@ import com.patchr.ui.BaseScreen;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.EmptyController;
 import com.patchr.ui.components.EndlessRecyclerViewScrollListener;
-import com.patchr.ui.components.GridAutofitLayoutManager;
 import com.patchr.ui.components.OnItemClickListener;
 import com.patchr.ui.widgets.AirAutoCompleteTextView;
+import com.patchr.ui.widgets.AirAutofitRecyclerView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Errors;
@@ -53,17 +54,17 @@ import java.util.List;
  */
 public class PhotoSearchScreen extends BaseScreen {
 
-	private RecyclerView            recyclerView;
-	private ImageArrayAdapter       adapter;
-	private AirAutoCompleteTextView searchView;
-	private EmptyController         emptyController;
+	private AirAutofitRecyclerView   recyclerView;
+	private ImageArrayAdapter        adapter;
+	private AirAutoCompleteTextView  searchView;
+	private EmptyController          emptyController;
 
 	private List<ImageResult> images;
 	private int               skip;
 	private String            searchText;
 
-	private String               defaultSearchText;
-	private List<String>         previousSearches;
+	private String       defaultSearchText;
+	private List<String> previousSearches;
 
 	private static final int    PAGE_SIZE     = 49;
 	private static final int    LIST_MAX      = 300;
@@ -107,6 +108,12 @@ public class PhotoSearchScreen extends BaseScreen {
 		return true;
 	}
 
+	@Override public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		recyclerView.invalidate();
+		adapter.notifyDataSetChanged();
+	}
+
 	/*--------------------------------------------------------------------------------------------
 	 * Methods
 	 *--------------------------------------------------------------------------------------------*/
@@ -116,8 +123,8 @@ public class PhotoSearchScreen extends BaseScreen {
 
 		actionBarTitle.setText(R.string.screen_title_photo_picker);
 
-		recyclerView = (RecyclerView) findViewById(R.id.grid);
-		recyclerView.setLayoutManager(new GridAutofitLayoutManager(this, getResources().getDimensionPixelSize(R.dimen.grid_column_width_requested_medium)));
+		recyclerView = (AirAutofitRecyclerView) findViewById(R.id.grid);
+		recyclerView.setHasFixedSize(true);
 
 		adapter = new ImageArrayAdapter(view -> {
 

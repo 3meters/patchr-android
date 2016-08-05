@@ -3,7 +3,7 @@
 
 	android:id="@+id/coordinator"
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -22,8 +22,8 @@
 			android:layout_height="wrap_content"
 			android:minHeight="?attr/actionBarSize"
 			android:theme="@style/patchr_theme_action_bar"
-			custom:layout_scrollFlags="scroll|enterAlways"
-			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+			app:layout_scrollFlags="scroll|enterAlways"
+			app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
 			<TextView
 				android:id="@+id/toolbar_title"
@@ -40,7 +40,7 @@
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		custom:layout_behavior="@string/appbar_scrolling_view_behavior">
+		app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 		<LinearLayout
 			android:id="@+id/search_group"
@@ -68,11 +68,13 @@
 				android:singleLine="true" />
 		</LinearLayout>
 
-		<android.support.v7.widget.RecyclerView
+		<com.patchr.ui.widgets.AirAutofitRecyclerView
 			android:id="@+id/grid"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_below="@+id/search_group"
+			android:columnWidth="100dp"
+			android:clipToPadding="false"
 			android:layout_centerHorizontal="true" />
 
 		<com.patchr.ui.widgets.SquareButton
