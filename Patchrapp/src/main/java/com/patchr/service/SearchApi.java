@@ -11,7 +11,7 @@ import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 import rx.Observable;
 
-public interface CognitiveApi {
+public interface SearchApi {
 
 	@GET("{path}")
 	Observable<Response<Map<String, Object>>> get(@Header("Ocp-Apim-Subscription-Key") String authorization

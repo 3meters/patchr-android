@@ -54,19 +54,20 @@ import java.util.List;
  */
 public class PhotoSearchScreen extends BaseScreen {
 
-	private AirAutofitRecyclerView   recyclerView;
-	private ImageArrayAdapter        adapter;
-	private AirAutoCompleteTextView  searchView;
-	private EmptyController          emptyController;
+	private AirAutofitRecyclerView  recyclerView;
+	private ImageArrayAdapter       adapter;
+	private AirAutoCompleteTextView searchView;
+	private EmptyController         emptyController;
 
 	private List<ImageResult> images;
-	private int               skip;
+	private int               offset;
+	private int               offsetAddCount;
 	private String            searchText;
 
 	private String       defaultSearchText;
 	private List<String> previousSearches;
 
-	private static final int    PAGE_SIZE     = 49;
+	private static final int    PAGE_SIZE     = 150;
 	private static final int    LIST_MAX      = 300;
 	private static final String QUERY_PREFIX  = "";
 	private static final String QUERY_DEFAULT = "wallpaper unusual places";
@@ -233,7 +234,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			initAutoComplete();
 			bindAutoCompleteAdapter();
 
-			skip = 0;
+			offset = 0;
 			fetchImages(searchText);
 		}
 	}
@@ -268,7 +269,7 @@ public class PhotoSearchScreen extends BaseScreen {
 
 	private void fetchImages(final String queryText) {
 
-		AsyncTask.execute(() -> subscription = RestClient.getInstance().loadSearchImages(queryText, PAGE_SIZE, skip)
+		AsyncTask.execute(() -> subscription = RestClient.getInstance().loadSearchImages(queryText, PAGE_SIZE, offset)
 			.map(response -> {
 				List<ImageResult> imagesFiltered = new ArrayList<>();
 				if (response.data != null && response.data.size() > 0) {
@@ -283,15 +284,6 @@ public class PhotoSearchScreen extends BaseScreen {
 
 						if (usable) {
 							usable = (imageResult.thumbnailUrl != null);
-						}
-
-						if (usable) {
-							for (ImageResult image : images) {
-								if (image.thumbnailUrl.equals(imageResult.thumbnailUrl)) {
-									usable = false;
-									break;
-								}
-							}
 						}
 
 						if (usable) {
@@ -313,7 +305,8 @@ public class PhotoSearchScreen extends BaseScreen {
 						Integer positionStart = images.size();
 						images.addAll(moreImages);
 						adapter.notifyItemRangeChanged(positionStart, images.size() - 1);
-						Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(skip), String.valueOf(images.size())));
+						recyclerView.requestLayout();
+						Logger.d(this, String.format("Query Bing for more images: start = %1$s new total = %2$s", String.valueOf(offset), String.valueOf(images.size())));
 					}
 
 					if (images.size() == 0) {
@@ -321,18 +314,17 @@ public class PhotoSearchScreen extends BaseScreen {
 						emptyController.show(true);
 					}
 
-					if (response.more) {
-						skip = skip + PAGE_SIZE;
+					if (response.more && images.size() < LIST_MAX) {
+						offset = offset + PAGE_SIZE + response.offsetAddCount;
 						recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener((GridLayoutManager) recyclerView.getLayoutManager()) {
-							@Override
-							public void onLoadMore(int page, int totalItemsCount) {
-								if (!processing) {
-									processing = true;
-									recyclerView.removeOnScrollListener(this);
-									fetchImages(queryText);
-								}
+							@Override public void onLoadMore(int page, int totalItemsCount) {
+								recyclerView.removeOnScrollListener(this);
+								fetchImages(queryText);
 							}
 						});
+					}
+					else {
+						Logger.d(this, "No more search images available");
 					}
 				},
 				error -> {

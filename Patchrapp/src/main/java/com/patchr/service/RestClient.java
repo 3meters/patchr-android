@@ -2,7 +2,6 @@ package com.patchr.service;
 
 import android.net.Uri;
 import android.os.Build;
-import android.util.Base64;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
@@ -57,7 +56,7 @@ import rx.schedulers.Schedulers;
 public class RestClient {
 
 	public static  ProxibaseApi proxiApi;
-	private static CognitiveApi cognitiveApi;
+	private static SearchApi    searchApi;
 	private static RestClient instance = new RestClient();
 	public Long activityDateInsertDeletePatch;
 
@@ -104,7 +103,7 @@ public class RestClient {
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
 				.build();
 
-			cognitiveApi = retrofitBing.create(CognitiveApi.class);
+			searchApi = retrofitBing.create(SearchApi.class);
 		}
 		catch (IllegalArgumentException ignore) {
 			/* ignore */
@@ -526,7 +525,7 @@ public class RestClient {
 	* Bing
 	*--------------------------------------------------------------------------------------------*/
 
-	public Observable<CognitiveResponse> loadSearchImages(String query, Integer limit, Integer offset) {
+	public Observable<SearchResponse> loadSearchImages(String query, Integer count, Integer offset) {
 
 		SimpleMap parameters = new SimpleMap();
 
@@ -535,22 +534,24 @@ public class RestClient {
 		parameters.put("mkt", "en-us");
 		parameters.put("safeSearch", "strict");
 		parameters.put("size", "large");
-		parameters.put("count", limit + 1);
+		parameters.put("count", count + 1);
 		parameters.put("offset", offset);
 
 		String key = ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_SUBSCRIPTION_KEY);
-		String token = Base64.encodeToString(key.getBytes(), Base64.NO_WRAP);
 
 		if (!NetworkManager.getInstance().isConnected()) {
 			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
 		else {
-			return cognitiveApi.get(key, "search", parameters)
+			return searchApi.get(key, "search", parameters)
 				.map(responseMap -> {
-					CognitiveResponse response = CognitiveResponse.setPropertiesFromMap(new CognitiveResponse(), responseMap);
-					if (response.count.intValue() > limit) {
-						response.more = true;
-						response.data.remove(response.data.size() - 1);
+					SearchResponse response = SearchResponse.setPropertiesFromMap(new SearchResponse(), responseMap);
+					if (responseMap.body().get("nextOffsetAddCount") != null) {
+						response.offsetAddCount = ((Double) responseMap.body().get("nextOffsetAddCount")).intValue();
+					}
+					if (responseMap.body().get("totalEstimatedMatches") != null) {
+						int totalEstimatedMatches = ((Double) responseMap.body().get("totalEstimatedMatches")).intValue();
+						response.more = (count + offset + response.offsetAddCount < totalEstimatedMatches);
 					}
 					return response;
 				})
