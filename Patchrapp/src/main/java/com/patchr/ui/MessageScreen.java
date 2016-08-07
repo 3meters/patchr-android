@@ -115,7 +115,7 @@ public class MessageScreen extends BaseScreen {
 			bottomSheetDialog = new BottomSheetDialog(this);
 			View view = getLayoutInflater().inflate(R.layout.dialog_message, null);
 			bottomSheetDialog.setContentView(view);
-			bottomSheetDialog.getWindow().setDimAmount(0.3f);
+			bottomSheetDialog.getWindow().setDimAmount(0.5f);
 			bottomSheetDialog.setOnDismissListener(dialogInterface -> bottomSheetDialog = null);
 
 			if (!MenuManager.canUserDelete(entity)) {

@@ -1,21 +1,18 @@
 package com.patchr.ui.views;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ViewAnimator;
 
 import com.patchr.Constants;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.MemberStatus;
 import com.patchr.ui.widgets.ImageWidget;
-import com.patchr.utilities.Colors;
 import com.patchr.utilities.UI;
 
 import java.util.Locale;
@@ -28,14 +25,14 @@ public class PatchBannerView extends BaseView {
 	public    RealmEntity entity;
 	protected Integer     layoutResId;
 
-	protected ViewGroup    layout;
-	public    ImageWidget  photoView;
-	protected TextView     name;
-	protected TextView     type;
-	protected View         privacyGroup;
-	protected View         membersButton;
-	public    ViewAnimator muteButton;
-	protected View         moreButton;
+	protected ViewGroup   layout;
+	public    ImageWidget photoView;
+	protected TextView    nameView;
+	protected TextView    typeView;
+	protected View        privacyGroup;
+	protected View        membersButton;
+	public    ImageView   muteImageView;
+	protected View        moreButton;
 
 	public PatchBannerView(Context context) {
 		this(context, null, 0);
@@ -62,11 +59,11 @@ public class PatchBannerView extends BaseView {
 		this.layout = (ViewGroup) LayoutInflater.from(getContext()).inflate(this.layoutResId, this, true);
 
 		this.photoView = (ImageWidget) layout.findViewById(R.id.patch_photo);
-		this.name = (TextView) layout.findViewById(R.id.name);
-		this.type = (TextView) layout.findViewById(R.id.type);
+		this.nameView = (TextView) layout.findViewById(R.id.name);
+		this.typeView = (TextView) layout.findViewById(R.id.type);
 		this.privacyGroup = (View) layout.findViewById(R.id.privacy_group);
 		this.membersButton = (View) layout.findViewById(R.id.members_button);
-		this.muteButton = (ViewAnimator) layout.findViewById(R.id.mute_button);
+		this.muteImageView = (ImageView) layout.findViewById(R.id.mute_image);
 		this.moreButton = (View) layout.findViewById(R.id.next_page_button);
 	}
 
@@ -82,8 +79,8 @@ public class PatchBannerView extends BaseView {
 
 		this.photoView.setImageWithEntity(entity, null);
 
-		setOrGone(this.name, entity.name);
-		setOrGone(this.type, (entity.type + " patch").toUpperCase(Locale.US));
+		setOrGone(this.nameView, entity.name);
+		setOrGone(this.typeView, (entity.type + " patch").toUpperCase(Locale.US));
 
 		privacyGroup.setVisibility((entity.visibility != null
 			&& entity.visibility.equals(Constants.PRIVACY_PRIVATE)) ? VISIBLE : GONE);
@@ -104,26 +101,19 @@ public class PatchBannerView extends BaseView {
 		}
 
 		/* Mute button */
-		this.muteButton.setDisplayedChild(0);
 		if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
-			UI.setVisibility(this.muteButton, View.GONE);
+			UI.setVisibility(this.muteImageView, View.GONE);
 		}
 		else {
-			ImageView image = (ImageView) this.muteButton.findViewById(R.id.mute_image);
 			if (entity.userMemberMuted) {
 				/* Sound is off */
-				image.setImageResource(R.drawable.ic_img_mute_off_dark);
-				image.setColorFilter(null);
-				image.setAlpha(0.5f);
+				muteImageView.setImageResource(R.drawable.ic_img_mute_off_dark);
 			}
 			else {
 				/* Sound is on */
-				image.setImageResource(R.drawable.ic_img_mute_dark);
-				final int color = Colors.getColor(R.color.brand_primary);
-				image.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
-				image.setAlpha(1.0f);
+				muteImageView.setImageResource(R.drawable.ic_img_mute_dark);
 			}
-			UI.setVisibility(this.muteButton, View.VISIBLE);
+			UI.setVisibility(this.muteImageView, View.VISIBLE);
 		}
 	}
 

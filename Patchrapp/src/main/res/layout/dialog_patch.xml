@@ -5,13 +5,63 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@color/white"
+	android:background="@color/transparent"
 	android:gravity="center"
 	android:orientation="vertical"
+	android:paddingBottom="12dp"
 	app:layout_behavior="@string/bottom_sheet_behavior">
 
 	<FrameLayout
+		android:id="@+id/edit_patch_group"
+		android:layout_width="match_parent"
+		android:background="@color/white"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/edit_patch"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_edit_patch"
+			android:textAllCaps="true" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+	</FrameLayout>
+
+	<FrameLayout
+		android:id="@+id/mute_patch_group"
+		android:layout_width="match_parent"
+		android:background="@color/white"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/mute_patch"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_mute_patch"
+			android:textAllCaps="true" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+	</FrameLayout>
+
+	<FrameLayout
 		android:id="@+id/leave_patch_group"
+		android:background="@color/white"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
@@ -33,32 +83,10 @@
 			android:background="?attr/ruleColor" />
 	</FrameLayout>
 
-	<FrameLayout
-		android:id="@+id/delete_group"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
-
-		<Button
-			android:id="@+id/delete"
-			style="@style/button_link"
-			android:layout_width="match_parent"
-			android:layout_height="48dp"
-			android:fontFamily="sans-serif"
-			android:gravity="center"
-			android:onClick="onClick"
-			android:text="@string/menu_item_delete"
-			android:textAllCaps="true" />
-
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/rule_divider_height"
-			android:layout_gravity="bottom"
-			android:background="?attr/ruleColor" />
-	</FrameLayout>
-
 	<Button
 		android:id="@+id/report"
 		style="@style/button_link"
+		android:background="@color/white"
 		android:layout_width="match_parent"
 		android:layout_height="48dp"
 		android:fontFamily="sans-serif"

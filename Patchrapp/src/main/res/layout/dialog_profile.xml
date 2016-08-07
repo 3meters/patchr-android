@@ -7,6 +7,7 @@
 	android:layout_height="wrap_content"
 	android:background="@color/white"
 	android:gravity="center"
+	android:paddingBottom="12dp"
 	android:orientation="vertical"
 	app:layout_behavior="@string/bottom_sheet_behavior">
 

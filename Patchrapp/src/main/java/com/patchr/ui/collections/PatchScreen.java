@@ -16,9 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ViewAnimator;
 
 import com.facebook.CallbackManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
@@ -130,7 +130,6 @@ public class PatchScreen extends BaseListScreen {
 		getMenuInflater().inflate(R.menu.menu_overflow, menu);
 		getMenuInflater().inflate(R.menu.menu_invite, menu);
 		getMenuInflater().inflate(R.menu.menu_map, menu);
-		getMenuInflater().inflate(R.menu.menu_edit, menu);      // Owner
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -141,13 +140,18 @@ public class PatchScreen extends BaseListScreen {
 			bottomSheetDialog = new BottomSheetDialog(this);
 			View view = getLayoutInflater().inflate(R.layout.dialog_patch, null);
 			bottomSheetDialog.setContentView(view);
-			bottomSheetDialog.getWindow().setDimAmount(0.3f);
+			bottomSheetDialog.getWindow().setDimAmount(0.5f);
 			bottomSheetDialog.setOnDismissListener(dialogInterface -> bottomSheetDialog = null);
-			if (!MenuManager.canUserDelete(entity)) {
-				view.findViewById(R.id.delete_group).setVisibility(View.GONE);
+			if (!MenuManager.canUserEdit(entity)) {
+				view.findViewById(R.id.edit_patch_group).setVisibility(View.GONE);
 			}
 			if (!entity.userMemberStatus.equals(MemberStatus.Member)) {
 				view.findViewById(R.id.leave_patch_group).setVisibility(View.GONE);
+				view.findViewById(R.id.mute_patch_group).setVisibility(View.GONE);
+			}
+			else {
+				Button muteButton = (Button) view.findViewById(R.id.mute_patch);
+				muteButton.setText(entity.userMemberMuted ? R.string.menu_item_unmute_patch : R.string.menu_item_mute_patch);
 			}
 			bottomSheetDialog.show();
 		}
@@ -181,7 +185,8 @@ public class PatchScreen extends BaseListScreen {
 			}
 
 			/* Async */
-			if (id == R.id.mute_button) {
+			if (id == R.id.mute_patch) {
+				bottomSheetDialog.dismiss();
 				muteAction();
 			}
 			else if (id == R.id.join_button) {
@@ -197,9 +202,9 @@ public class PatchScreen extends BaseListScreen {
 					bottomSheetDialog.dismiss();
 					joinAction();
 				}
-				else if (id == R.id.delete) {
+				else if (id == R.id.edit_patch) {
 					bottomSheetDialog.dismiss();
-					deleteAction();
+					editAction();
 				}
 				else if (id == R.id.report) {
 					bottomSheetDialog.dismiss();
@@ -232,6 +237,9 @@ public class PatchScreen extends BaseListScreen {
 
 	@Override public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		Patchr.mainThread.postDelayed(() -> {
+			((PatchDetailView) header).draw();
+		}, 100);
 		if (bottomSheetLayout.isSheetShowing()) {
 			bottomSheetLayout.peekSheet();
 		}
@@ -608,9 +616,7 @@ public class PatchScreen extends BaseListScreen {
 
 	public void mute(final Boolean mute) {
 
-		final ViewAnimator animator = (ViewAnimator) ((PatchDetailView) header).bannerView.muteButton;
-		animator.setDisplayedChild(1);  // Turned off in draw
-
+		final ImageView muteImageView = (ImageView) ((PatchDetailView) header).bannerView.muteImageView;
 		String linkId = entity.userMemberId;
 
 		subscription = RestClient.getInstance().muteLinkById(linkId, mute)
@@ -621,8 +627,6 @@ public class PatchScreen extends BaseListScreen {
 				},
 				error -> {
 					processing = false;
-					Patchr.mainThread.postDelayed(() -> animator.setDisplayedChild(0), 1000);
-
 					Errors.handleError(this, error);
 				});
 	}

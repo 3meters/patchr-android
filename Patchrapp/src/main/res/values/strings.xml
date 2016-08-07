@@ -78,7 +78,9 @@
 	<string name="menu_item_accept">Accept</string>
 	<string name="menu_item_done">Done</string>
 	<string name="menu_item_save">"  Save  "</string>
-	<string name="menu_item_edit_patch">Edit</string>
+	<string name="menu_item_edit_patch">Edit patch</string>
+	<string name="menu_item_mute_patch">Mute patch</string>
+	<string name="menu_item_unmute_patch">Unmute patch</string>
 	<string name="menu_item_edit_message">Edit</string>
 	<string name="menu_item_view_as_map">View as map</string>
 	<string name="menu_item_view_as_list">View as list</string>
