@@ -25,12 +25,27 @@ public final class Errors {
 
 		String alertMessage = throwable.getMessage();
 		ErrorAction errAction = errorAction;
+		ErrorActionType errActionType = errorActionType;
 
 		if (throwable instanceof NoNetworkException) {
-			return;
+			errAction = ErrorAction.NONE;
+			errActionType = ErrorActionType.SILENT;
+		}
+		else if (throwable instanceof ClientVersionException) {
+			/* Post calls to browse are the primary check */
+			Patchr.applicationUpdateRequired = true;
+			errAction = ErrorAction.LOGOUT;
+			errActionType = ErrorActionType.SILENT;
+		}
+		else if (throwable instanceof ServiceException) {
+			float code = ((ServiceException) throwable).code.floatValue();
+			if (code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED
+				|| code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
+				errAction = ErrorAction.LOGOUT;
+			}
 		}
 
-		if (errorActionType == ErrorActionType.AUTO || errorActionType == ErrorActionType.TOAST) {
+		if (errActionType == ErrorActionType.TOAST) {
 			UI.toast(alertMessage);
 		}
 		else if (errorActionType == ErrorActionType.ALERT) {
@@ -40,19 +55,6 @@ public final class Errors {
 			else {
 				UI.toast(alertMessage);
 			}
-		}
-
-		if (throwable instanceof ServiceException) {
-			float code = ((ServiceException) throwable).code.floatValue();
-			if (code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_SESSION_EXPIRED
-				|| code == Constants.SERVICE_STATUS_CODE_UNAUTHORIZED_CREDENTIALS) {
-				errAction = ErrorAction.LOGOUT;
-			}
-		}
-		else if (throwable instanceof ClientVersionException) {
-			/* Post calls to browse are the primary check */
-			Patchr.applicationUpdateRequired = true;
-			errAction = ErrorAction.LOGOUT;
 		}
 
 		/* Perform any follow-up actions. */

@@ -98,7 +98,7 @@ public class RestClient {
 			proxiApi = retrofitProxi.create(ProxibaseApi.class);
 
 			Retrofit retrofitBing = new Retrofit.Builder()
-				.baseUrl(Constants.BING_PRODUCTION)
+				.baseUrl(Constants.BING_SERVICE_URI)
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))

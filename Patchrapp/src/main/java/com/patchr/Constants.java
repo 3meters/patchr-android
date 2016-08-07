@@ -15,7 +15,7 @@ public class Constants {
 
 	public static final String PROXI_SERVICE_URI = "https://api.aircandi.com/v1/";
 	//public static final String PROXI_SERVICE_URI = "http://api.ariseditions.com:8080/v1/";
-	public static final String BING_PRODUCTION = "https://api.cognitive.microsoft.com/bing/v5.0/images/";
+	public static final String BING_SERVICE_URI  = "https://api.cognitive.microsoft.com/bing/v5.0/images/";
 
 	public static final int      LOG_LEVEL   = BuildConfig.DEBUG ? Log.VERBOSE : Log.DEBUG;
 	public static final Executor EXECUTOR    = AsyncTask.SERIAL_EXECUTOR;

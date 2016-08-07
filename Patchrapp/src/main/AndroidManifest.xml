@@ -355,7 +355,7 @@
 		<activity
 			android:name=".ui.edit.LoginEdit"
 			android:configChanges="orientation|keyboardHidden|screenSize"
-			android:windowSoftInputMode="adjustResize" />
+			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<activity
 			android:name=".ui.edit.ResetEdit"
