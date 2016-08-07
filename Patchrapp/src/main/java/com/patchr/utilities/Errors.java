@@ -13,9 +13,6 @@ import com.patchr.exceptions.ServiceException;
 import com.patchr.objects.enums.ErrorAction;
 import com.patchr.objects.enums.ErrorActionType;
 
-//import org.apache.http.NoHttpResponseException;
-//import org.apache.http.client.ClientProtocolException;
-
 public final class Errors {
 
 	public static void handleError(final Context context, final Throwable throwable) {

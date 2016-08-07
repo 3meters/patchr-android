@@ -89,7 +89,7 @@ public class RestClient {
 				.create();
 
 			Retrofit retrofitProxi = new Retrofit.Builder()
-				.baseUrl("https://api.aircandi.com/v1/")
+				.baseUrl(Constants.PROXI_SERVICE_URI)
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
@@ -98,7 +98,7 @@ public class RestClient {
 			proxiApi = retrofitProxi.create(ProxibaseApi.class);
 
 			Retrofit retrofitBing = new Retrofit.Builder()
-				.baseUrl("https://api.cognitive.microsoft.com/bing/v5.0/images/")
+				.baseUrl(Constants.BING_PRODUCTION)
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))

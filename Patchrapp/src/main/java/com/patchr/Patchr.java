@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -67,7 +66,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	public static Handler   mainThread                = new Handler(Looper.getMainLooper());
 	public static Stopwatch stopwatch1                = new Stopwatch();
 	public static Stopwatch stopwatch2                = new Stopwatch();
-	public static Boolean   debuggable                = false;
 	public static Boolean   applicationUpdateRequired = false;
 
 	public static BasicAWSCredentials awsCredentials = null;
@@ -94,8 +92,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		 * Application starts for all basic cases but also when not running and
 		 * a broadcast receiver is activated.
 		 */
-		debuggable = (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE));
-
 		super.onCreate();
 		if (instance == null) {
 			instance = this;
