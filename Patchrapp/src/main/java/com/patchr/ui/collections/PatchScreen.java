@@ -616,7 +616,6 @@ public class PatchScreen extends BaseListScreen {
 
 	public void mute(final Boolean mute) {
 
-		final ImageView muteImageView = (ImageView) ((PatchDetailView) header).bannerView.muteImageView;
 		String linkId = entity.userMemberId;
 
 		subscription = RestClient.getInstance().muteLinkById(linkId, mute)
