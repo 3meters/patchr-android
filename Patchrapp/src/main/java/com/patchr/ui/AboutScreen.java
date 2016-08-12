@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.patchr.BuildConfig;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
@@ -85,10 +86,8 @@ public class AboutScreen extends BaseScreen {
 		final String company = StringManager.getString(R.string.name_company);
 		final String copyrightSymbol = StringManager.getString(R.string.symbol_copyright);
 
-		String versionName = Patchr.getVersionName(this, MainScreen.class);
-		final String version = StringManager.getString(R.string.label_about_version) + ": " + versionName
-			+ " (" + String.valueOf(Patchr.getVersionCode(this, MainScreen.class)) + ")";
-
+		String versionName = BuildConfig.VERSION_NAME;
+		final String version = String.format("Version: %1$s (%2$s)", versionName, String.valueOf(BuildConfig.VERSION_CODE));
 		final String copyright = copyrightSymbol + " " + year + " " + company;
 
 		this.versionView.setText(version);
@@ -96,8 +95,8 @@ public class AboutScreen extends BaseScreen {
 
 		if (Utils.devModeEnabled()) {
 			UI.setTextView(findViewById(R.id.install_id), Patchr.getInstance().getinstallId());
-			UI.setTextView(findViewById(R.id.install_type), "Id type: " + Patchr.getInstance().getInstallType());
-			UI.setTextView(findViewById(R.id.install_date), "Install date: " + DateTime.dateString(Patchr.getInstance().getInstallDate(), DateTime.DATE_FORMAT_DEFAULT));
+			UI.setTextView(findViewById(R.id.install_type), "Id type: " + Patchr.installType);
+			UI.setTextView(findViewById(R.id.install_date), "Install date: " + DateTime.dateString(Patchr.installDate, DateTime.DATE_FORMAT_DEFAULT));
 			UI.setVisibility(findViewById(R.id.holder_footer), View.VISIBLE);
 		}
 	}

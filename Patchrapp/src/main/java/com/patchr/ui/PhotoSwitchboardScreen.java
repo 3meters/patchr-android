@@ -32,7 +32,7 @@ import com.patchr.model.Photo;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.collections.PhotoSearchScreen;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 
 public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageChooserListener {
@@ -257,8 +257,8 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			}
 		}
 		catch (Exception e) {
-			Reporting.breadcrumb("Image chooser failed to handle photo from device");
-			Reporting.logException(e);
+			ReportingManager.breadcrumb("Image chooser failed to handle photo from device");
+			ReportingManager.logException(e);
 		}
 	}
 
@@ -280,10 +280,10 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 			}
 		}
 		catch (IllegalArgumentException e) {
-			Reporting.logException(new IllegalArgumentException("Image chooser failed to handle photo from camera", e));
+			ReportingManager.logException(new IllegalArgumentException("Image chooser failed to handle photo from camera", e));
 		}
 		catch (Exception e) {
-			Reporting.logException(new Exception("Image chooser failed to handle photo from camera", e));
+			ReportingManager.logException(new Exception("Image chooser failed to handle photo from camera", e));
 		}
 	}
 

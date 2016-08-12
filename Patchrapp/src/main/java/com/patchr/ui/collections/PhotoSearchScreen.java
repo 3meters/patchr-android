@@ -41,7 +41,7 @@ import com.patchr.ui.widgets.AirAutofitRecyclerView;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 
 import org.json.JSONException;
 
@@ -227,7 +227,7 @@ public class PhotoSearchScreen extends BaseScreen {
 				editor.apply();
 			}
 			catch (JSONException e) {
-				Reporting.logException(e);
+				ReportingManager.logException(e);
 			}
 
 			/* Make sure the latest search appears in auto complete */
@@ -256,7 +256,7 @@ public class PhotoSearchScreen extends BaseScreen {
 			}
 		}
 		catch (JSONException e) {
-			Reporting.logException(e);
+			ReportingManager.logException(e);
 		}
 	}
 

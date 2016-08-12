@@ -20,7 +20,7 @@ import com.patchr.ui.BaseScreen;
 import com.patchr.ui.widgets.AirProgressBar;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -137,7 +137,7 @@ public class BusyController {
 				 * Sometimes the activity has been destroyed out from under us
 				 * so we trap this and continue.
 				 */
-				Reporting.logException(e);
+				ReportingManager.logException(e);
 			}
 		};
 

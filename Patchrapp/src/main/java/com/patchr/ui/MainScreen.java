@@ -50,7 +50,7 @@ import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.ListWidget;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -379,7 +379,7 @@ public class MainScreen extends BaseScreen {
 						NotificationManager.getInstance().cancelAllNotifications();
 						notificationList.onResume();
 						updateNotificationIndicator(true);
-						Reporting.screen(AnalyticsCategory.VIEW, "NotificationsList");
+						ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "NotificationsList");
 					}
 				}
 
@@ -632,19 +632,19 @@ public class MainScreen extends BaseScreen {
 
 		switch (fragmentType) {
 			case Constants.FRAGMENT_TYPE_NEARBY:
-				Reporting.screen(AnalyticsCategory.VIEW, "NearbyPatchList");
+				ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "NearbyPatchList");
 				break;
 			case Constants.FRAGMENT_TYPE_MEMBER_OF:
-				Reporting.screen(AnalyticsCategory.VIEW, "MemberOfPatchList");
+				ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "MemberOfPatchList");
 				break;
 			case Constants.FRAGMENT_TYPE_OWNER_OF:
-				Reporting.screen(AnalyticsCategory.VIEW, "OwnerOfPatchList");
+				ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "OwnerOfPatchList");
 				break;
 			case Constants.FRAGMENT_TYPE_TREND_ACTIVE:
-				Reporting.screen(AnalyticsCategory.VIEW, "ExplorePatchList");
+				ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "ExplorePatchList");
 				break;
 			case Constants.FRAGMENT_TYPE_MAP:
-				Reporting.screen(AnalyticsCategory.VIEW, "PatchListMap");
+				ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "PatchListMap");
 				break;
 		}
 

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.patchr.Constants;
 import com.patchr.R;
-import com.patchr.utilities.Reporting;
 
 @SuppressWarnings("ucd")
 public class Logger {
@@ -141,7 +140,7 @@ public class Logger {
 			Log(LogLevel.DEBUG, taskContext, msgFormat);
 		}
 		if (breadcrumb) {
-			Reporting.breadcrumb(msgFormat);
+			ReportingManager.breadcrumb(msgFormat);
 		}
 	}
 

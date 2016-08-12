@@ -4,12 +4,12 @@ import android.graphics.Bitmap;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.patchr.Patchr;
 import com.patchr.events.ProcessingCanceledEvent;
 import com.patchr.events.ProcessingProgressEvent;
 import com.patchr.objects.enums.ResponseCode;
@@ -24,13 +24,15 @@ import java.util.concurrent.CancellationException;
 
 public class S3 {
 
+	public static BasicAWSCredentials awsCredentials = null;
+
 	@SuppressWarnings("deprecation")
-	private TransferManager mManager;
+	private TransferManager manager;
 	@SuppressWarnings("deprecation")
-	private Upload          mUpload;
+	private Upload          upload;
 
 	@SuppressWarnings("deprecation") private S3() {
-		mManager = new TransferManager(Patchr.awsCredentials);
+		manager = new TransferManager(awsCredentials);
 		try {
 			Dispatcher.getInstance().register(this);
 		}
@@ -59,17 +61,17 @@ public class S3 {
 			metadata.setContentType("image/jpeg");
 			outputStream.close();
 
-			mUpload = mManager.upload("aircandi-images", imageKey, inputStream, metadata);
+			upload = manager.upload("aircandi-images", imageKey, inputStream, metadata);
 
-			mUpload.addProgressListener((ProgressListener) progressEvent -> {
-				if (mUpload == null) return;
-				if (mUpload.getProgress().getPercentTransferred() <= 95) {
-					Dispatcher.getInstance().post(new ProcessingProgressEvent(mUpload.getProgress().getPercentTransferred()));
+			upload.addProgressListener((ProgressListener) progressEvent -> {
+				if (upload == null) return;
+				if (upload.getProgress().getPercentTransferred() <= 95) {
+					Dispatcher.getInstance().post(new ProcessingProgressEvent(upload.getProgress().getPercentTransferred()));
 				}
 			});
 
-			mUpload.waitForCompletion();
-			mManager.getAmazonS3Client().setObjectAcl("aircandi-images", imageKey, CannedAccessControlList.PublicRead);
+			upload.waitForCompletion();
+			manager.getAmazonS3Client().setObjectAcl("aircandi-images", imageKey, CannedAccessControlList.PublicRead);
 
 			return new ServiceResponse();
 		}
@@ -91,8 +93,8 @@ public class S3 {
 	}
 
 	@Subscribe public void onCancelEvent(ProcessingCanceledEvent event) {
-		if (mUpload != null) {
-			mUpload.abort();
+		if (upload != null) {
+			upload.abort();
 			Logger.v(this, "Image upload aborted");
 		}
 	}

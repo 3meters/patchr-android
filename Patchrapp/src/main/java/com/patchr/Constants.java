@@ -13,10 +13,6 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final String PROXI_SERVICE_URI = "https://api.aircandi.com/v1/";
-	//public static final String PROXI_SERVICE_URI = "http://api.ariseditions.com:8080/v1/";
-	public static final String BING_SERVICE_URI  = "https://api.cognitive.microsoft.com/bing/v5.0/images/";
-
 	public static final int      LOG_LEVEL   = BuildConfig.DEBUG ? Log.VERBOSE : Log.DEBUG;
 	public static final Executor EXECUTOR    = AsyncTask.SERIAL_EXECUTOR;
 
@@ -207,11 +203,6 @@ public class Constants {
 	public static final String INSTALL_TYPE_ANDROID_ID = "android_id";
 	public static final String INSTALL_TYPE_SERIAL     = "serial_num";
 
-	//	public static       boolean DEV_ENABLED             = Patchr.settings.getBoolean(Preference.ENABLE_DEV, false);
-	//	public static       boolean STAGING_ENABLED         = Patchr.settings.getBoolean(Preference.USE_STAGING_SERVICE, false);
-	public static boolean DEV_ENABLED     = false;
-	public static boolean STAGING_ENABLED = false;
-
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants
 	 *--------------------------------------------------------------------------------------------*/
@@ -220,7 +211,6 @@ public class Constants {
 	public static final int     TIMEOUT_SOCKET_READ                              = 10000;
 	public static final int     TIMEOUT_SOCKET_WRITE                             = 10000;
 	public static final int     TIMEOUT_SERVICE_SUGGEST                          = 2000;
-	public static final String  URI_WALLED_GARDEN                                = "http://clients3.google.com/generate_204";
 	/*
 	 * Used when trying to verify that a network connection is available. The retries
 	 * are used to allow for the case where the connecting process is underway.

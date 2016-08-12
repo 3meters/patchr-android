@@ -27,7 +27,7 @@ import com.patchr.model.Photo;
 import com.patchr.objects.enums.PhotoCategory;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
 
@@ -131,10 +131,10 @@ public class PhotoScreen extends BaseScreen {
 					bitmap = Picasso.with(Patchr.applicationContext).load(url).get();
 				}
 				catch (ConnectException e) {
-					Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+					ReportingManager.breadcrumb("Picasso failed to load bitmap: connect");
 				}
 				catch (IOException e) {
-					Reporting.breadcrumb("Picasso failed to load bitmap: io");
+					ReportingManager.breadcrumb("Picasso failed to load bitmap: io");
 				}
 
 				return bitmap;

@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.utilities.Booleans;
-import com.patchr.utilities.Reporting;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -130,7 +129,7 @@ public class MediaManager {
 			outputStream.close();
 		}
 		catch (Exception e) {
-			Reporting.logException(e);
+			ReportingManager.logException(e);
 		}
 		return file;
 	}
@@ -145,7 +144,7 @@ public class MediaManager {
 			return true;
 		}
 		catch (Exception e) {
-			Reporting.logException(e);
+			ReportingManager.logException(e);
 		}
 		return false;
 	}

@@ -3,19 +3,23 @@ package com.patchr.components;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
+import com.onesignal.OneSignal;
+import com.patchr.BuildConfig;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.EventCategory;
 import com.patchr.objects.enums.PhotoCategory;
+import com.patchr.service.RestClient;
 import com.patchr.ui.MainScreen;
-import com.patchr.utilities.Reporting;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -25,18 +29,51 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ucd")
-public class NotificationManager {
+public class NotificationManager implements OneSignal.IdsAvailableHandler {
 
-	public static android.app.NotificationManager mNotificationService;
+	public static  String                          pushUserId;
+	private static android.app.NotificationManager notificationService;
+	private static String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
 
-	private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-	private Uri mSoundUri;
-	private Integer                  mNewNotificationCount = 0;
-	private Map<String, RealmEntity> mNotifications        = new HashMap<>();
+	private static Uri soundUri;
+	private static int newNotificationCount;
+	private static Map<String, RealmEntity> notifications = new HashMap<>();
 
 	private NotificationManager() {
-		mNotificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-		mSoundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
+		notifications = new HashMap<>();
+		notificationService = (android.app.NotificationManager) Patchr.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		soundUri = Uri.parse("android.resource://" + Patchr.applicationContext.getPackageName() + "/" + R.raw.notification_activity);
+	}
+
+	@Override public void idsAvailable(String userId, String registrationId) {
+		Logger.d(this, String.format("OneSignal userId: %1$s", userId));
+		NotificationManager.pushUserId = userId;
+		/*
+		 * Ensure install is registered with service. Only done once unless something like a system update clears
+		 * the app preferences.
+		 */
+		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
+		String registeredPushUserId = Patchr.settings.getString(StringManager.getString(R.string.setting_install_registered_push_user_id), null);
+		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
+		Integer clientVersionCode = BuildConfig.VERSION_CODE;
+		String clientPushUserId = NotificationManager.pushUserId;
+
+		if (!registered
+			|| !registeredClientVersionCode.equals(clientVersionCode)
+			|| !clientPushUserId.equals(registeredPushUserId)) {
+			RestClient.getInstance().registerInstall()
+				.subscribe(
+					response -> {
+						SharedPreferences.Editor editor = Patchr.settings.edit();
+						editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
+						editor.putInt(StringManager.getString(R.string.setting_install_registered_version_code), BuildConfig.VERSION_CODE);
+						editor.putString(StringManager.getString(R.string.setting_install_registered_push_user_id), NotificationManager.pushUserId);
+						editor.apply();
+					},
+					error -> {
+						Errors.handleError(Patchr.applicationContext, error);
+					});
+		}
 	}
 
 	private static class NotificationManagerHolder {
@@ -87,12 +124,12 @@ public class NotificationManager {
 			.setContentTitle(StringManager.getString(R.string.name_app))
 			.setContentText(Utils.fromHtml(notification.summary))
 			.setDeleteIntent(deleteIntent)
-			.setNumber(mNewNotificationCount)
+			.setNumber(newNotificationCount)
 			.setSmallIcon(R.drawable.ic_stat_notification)
 			.setAutoCancel(true)
 			.setPriority(NotificationCompat.PRIORITY_HIGH)
 			.setVibrate(new long[]{0, 400, 400, 400})
-			.setSound(mSoundUri)
+			.setSound(soundUri)
 			.setOnlyAlertOnce(false)
 			.setContentIntent(pendingIntent)
 			.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE)
@@ -113,10 +150,10 @@ public class NotificationManager {
 				builder.setLargeIcon(bitmap);
 			}
 			catch (ConnectException e) {
-				Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+				ReportingManager.breadcrumb("Picasso failed to load bitmap: connect");
 			}
 			catch (IOException e) {
-				Reporting.breadcrumb("Picasso failed to load bitmap: io");
+				ReportingManager.breadcrumb("Picasso failed to load bitmap: io");
 			}
 		}
 
@@ -134,7 +171,7 @@ public class NotificationManager {
 		}
 		else {
 			String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-			mNotificationService.notify(tag, 0, builder.build());
+			notificationService.notify(tag, 0, builder.build());
 		}
 	}
 
@@ -156,13 +193,13 @@ public class NotificationManager {
 
 			builder.setStyle(style);
 			String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-			mNotificationService.notify(tag, 0, builder.build());
+			notificationService.notify(tag, 0, builder.build());
 		}
 		catch (ConnectException e) {
-			Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+			ReportingManager.breadcrumb("Picasso failed to load bitmap: connect");
 		}
 		catch (IOException e) {
-			Reporting.breadcrumb("Picasso failed to load bitmap: io");
+			ReportingManager.breadcrumb("Picasso failed to load bitmap: io");
 		}
 	}
 
@@ -176,15 +213,15 @@ public class NotificationManager {
 		builder.setStyle(style);
 
 		String tag = notification.getEventCategory().equals(EventCategory.LIKE) ? Tag.LIKE : Tag.NOTIFICATION;
-		mNotificationService.notify(tag, 0, builder.build());
+		notificationService.notify(tag, 0, builder.build());
 	}
 
 	public void cancelNotification(String tag) {
-		mNotificationService.cancel(tag, 0);
+		notificationService.cancel(tag, 0);
 	}
 
 	public void cancelAllNotifications() {
-		mNotificationService.cancelAll();
+		notificationService.cancelAll();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -196,15 +233,15 @@ public class NotificationManager {
 	 *--------------------------------------------------------------------------------------------*/
 
 	public Integer getNewNotificationCount() {
-		return mNewNotificationCount;
+		return newNotificationCount;
 	}
 
 	public void setNewNotificationCount(Integer newNotificationCount) {
-		mNewNotificationCount = newNotificationCount;
+		this.newNotificationCount = newNotificationCount;
 	}
 
 	public Map<String, RealmEntity> getNotifications() {
-		return mNotifications;
+		return notifications;
 	}
 
 	/*--------------------------------------------------------------------------------------------

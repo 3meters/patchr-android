@@ -13,6 +13,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
 import com.patchr.components.FacebookProvider;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -20,9 +21,7 @@ import com.patchr.objects.enums.MessageType;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
 import com.patchr.ui.edit.ShareEdit;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.segment.analytics.Properties;
 
 public class InviteSwitchboardScreen extends BaseScreen {
 
@@ -91,7 +90,7 @@ public class InviteSwitchboardScreen extends BaseScreen {
 		}
 		else if (id == R.id.more_button) {
 			BranchProvider provider = new BranchProvider();
-			Reporting.track(AnalyticsCategory.ACTION, "Started Patch Invitation", new Properties().putValue("network", "Android"));
+			ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation", "network", "Android");
 			provider.invite(title, entity, this);
 		}
 	}

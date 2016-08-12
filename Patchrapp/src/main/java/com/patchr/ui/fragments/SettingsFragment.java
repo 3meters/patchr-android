@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.machinarius.preferencefragment.PreferenceFragment;
+import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
@@ -152,7 +153,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		/* Listen for about click */
 		Preference pref = findPreference("Pref_About");
 		if (pref != null) {
-			pref.setTitle("Version: " + Patchr.getVersionName(getActivity(), SettingsFragment.class));
+			pref.setTitle("Version: " + BuildConfig.VERSION_NAME);
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");
 
 			pref.setOnPreferenceClickListener(preference -> {
@@ -207,12 +208,12 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		final Preference prefTagRefresh = findPreference(com.patchr.objects.enums.Preference.TAG_REFRESH);
 		if (prefTagRefresh != null) {
 			prefTagRefresh.setSummary("Last refresh: "
-				+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+				+ DateTime.dateString(ContainerManager.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 			prefTagRefresh.setOnPreferenceClickListener(preference -> {
 				prefTagRefresh.setSummary("Refreshing...");
-				ContainerManager.getContainerHolder().refresh();
+				ContainerManager.getInstance().refresh();
 				prefTagRefresh.setSummary("Last refresh: "
-					+ DateTime.dateString(ContainerManager.getContainerHolder().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
+					+ DateTime.dateString(ContainerManager.getInstance().getContainer().getLastRefreshTime(), DateTime.DATE_FORMAT_DEFAULT));
 				return true;
 			});
 		}

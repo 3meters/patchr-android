@@ -20,6 +20,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.MediaManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
@@ -40,9 +41,7 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.RecipientsCompletionView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -250,13 +249,13 @@ public class ShareEdit extends BaseEdit {
 											}
 										}
 										catch (ConnectException e) {
-											Reporting.breadcrumb("Picasso failed to load bitmap: connect");
+											ReportingManager.breadcrumb("Picasso failed to load bitmap: connect");
 										}
 										catch (FileNotFoundException e) {
-											Reporting.breadcrumb("Picasso failed to load bitmap: file not found");
+											ReportingManager.breadcrumb("Picasso failed to load bitmap: file not found");
 										}
 										catch (IOException e) {
-											Reporting.breadcrumb("Picasso failed to load bitmap: io");
+											ReportingManager.breadcrumb("Picasso failed to load bitmap: io");
 										}
 										return photo;
 									}
@@ -325,7 +324,7 @@ public class ShareEdit extends BaseEdit {
 								}
 							}
 							catch (IOException e) {
-								Reporting.breadcrumb("Picasso failed to load bitmap");
+								ReportingManager.breadcrumb("Picasso failed to load bitmap");
 							}
 							return photo;
 						}
@@ -437,10 +436,10 @@ public class ShareEdit extends BaseEdit {
 						busyController.hide(true);
 						if (inputShareType != null) {
 							if (inputShareType.equals(MessageType.Invite)) {
-								Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Patchr"));
+								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Patchr");
 							}
 							else if (inputShareType.equals(MessageType.Share)) {
-								Reporting.track(AnalyticsCategory.EDIT, "Shared Message", new Properties().putValue("network", "Patchr"));
+								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Shared Message", "network", "Patchr");
 							}
 						}
 						finish();

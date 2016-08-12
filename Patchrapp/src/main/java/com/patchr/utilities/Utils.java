@@ -206,7 +206,7 @@ public class Utils {
 	}
 
 	public static Boolean devModeEnabled() {
-		return (isDev() && Constants.DEV_ENABLED);
+		return (isDev() && Patchr.getInstance().prefEnableDev);
 	}
 
 	public static Boolean isDev() {

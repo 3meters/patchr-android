@@ -12,7 +12,7 @@ import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.service.RestClient;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 
 import static com.patchr.objects.enums.FetchMode.AUTO;
 
@@ -86,7 +86,7 @@ public class MemberListScreen extends BaseListScreen {
 				.subscribe(
 					response -> {
 						processing = false;
-						Reporting.track(AnalyticsCategory.EDIT, "Removed Member Request");
+						ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Removed Member Request");
 						realm.executeTransaction(realm -> entity.linkJson = null);
 						fetch(AUTO);
 					},

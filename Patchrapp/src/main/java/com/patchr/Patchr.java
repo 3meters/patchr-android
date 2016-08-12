@@ -2,47 +2,40 @@
 package com.patchr;
 
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 
 import com.adobe.creativesdk.foundation.AdobeCSDKFoundation;
 import com.adobe.creativesdk.foundation.auth.IAdobeAuthClientCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
-import com.bugsnag.android.Bugsnag;
 import com.facebook.FacebookSdk;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.tagmanager.Container;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 import com.google.gson.Gson;
 import com.kbeanie.imagechooser.api.BChooserPreferences;
-import com.parse.Parse;
-import com.parse.ParseInstallation;
+import com.onesignal.OneSignal;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.Foreground;
+import com.patchr.components.GoogleAnalyticsProvider;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.NotificationManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.Preference;
 import com.patchr.utilities.DateTime;
-import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-import com.segment.analytics.Analytics;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.UUID;
@@ -55,33 +48,22 @@ import io.realm.RealmConfiguration;
 public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 	private static Patchr instance;
-
-	public static Intent sendIntent;  // Used when we are started to handle a send intent
+	public static  Intent sendIntent;  // Used when we are started to handle a send intent
 
 	public static Context           applicationContext;
-	public static Gson              gson;
 	public static SharedPreferences settings;
 	public static JobManager        jobManager;
+	public static boolean           updateRequired;
 
-	public static Handler   mainThread                = new Handler(Looper.getMainLooper());
-	public static Stopwatch stopwatch1                = new Stopwatch();
-	public static Stopwatch stopwatch2                = new Stopwatch();
-	public static Boolean   applicationUpdateRequired = false;
+	public static Handler   mainThread = new Handler(Looper.getMainLooper());
+	public static Stopwatch stopwatch1 = new Stopwatch();
+	public static Stopwatch stopwatch2 = new Stopwatch();
+	public static Gson      gson       = new Gson();
 
-	public static BasicAWSCredentials awsCredentials = null;
-
-	/* Container values */
-	public static  String AWS_ACCESS_KEY             = "aws-access-key";
-	public static  String AWS_SECRET_KEY             = "aws-secret-key";
-	public static  String BING_SUBSCRIPTION_KEY      = "bing-subscription-key";
-	public static  String USER_SECRET                = "user-secret";
-	private static String CREATIVE_SDK_CLIENT_SECRET = "creative-sdk-client-secret";
-
-	public  Boolean prefEnableDev;
-	private String  advertisingId;
-	private String  uniqueId;
-	private Long    uniqueDate;
-	private String  uniqueType;
+	public        Boolean prefEnableDev;
+	public static String  installId;
+	public static Long    installDate;
+	public static String  installType;
 
 	public static Patchr getInstance() {
 		return instance;
@@ -109,12 +91,11 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 		Logger.d(this, "Starting app initialization");
 
-		/* Turn on crash reporting */
-		Bugsnag.init(this);
+		/* Turn on crash reporting and analytics */
+		ReportingManager.init(new GoogleAnalyticsProvider().init());
 
 		/* Must have this so activity rerouting works. */
 		settings = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-		gson = new Gson();
 
 		Foreground.init(this);
 
@@ -122,17 +103,10 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		NetworkManager.getInstance().initialize();
 
 		/* Inject configuration */
-		openContainer(StringManager.getString(R.string.tag_manager_container_id));
+		loadContainer(StringManager.getString(R.string.tag_manager_container_id));
 
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
-
-		/* Turn on parse */
-		Parse.initialize(this
-			, StringManager.getString(R.string.parse_app_id)        // application id
-			, StringManager.getString(R.string.parse_client_key));  // client key
-		Parse.setLogLevel(Constants.LOG_LEVEL);
-		ParseInstallation.getCurrentInstallation().saveInBackground();
 
 		AsyncTask.execute(() -> {
 
@@ -150,10 +124,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 			/* Make sure unique id is initialized */
 			initializeInstallInfo();
-
-			/* Turn on segement to gather user data */
-			Analytics analytics = new Analytics.Builder(this, "81Q9wmANTOA6PLVlipPvSRHw97SJBENF").build();
-			Analytics.setSingletonInstance(analytics);
 
 			/* Creative SDK needs the app context */
 			AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
@@ -196,13 +166,67 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			/* Must come after managers are initialized */
 			UserManager.shared().loginAuto();
 
+			/* Turn on Onesignal */
+			OneSignal.startInit(this).init();
+			OneSignal.idsAvailable(NotificationManager.getInstance());
+
 			Logger.d(this, "Finished app initialization");
 		});
+	}
+
+	private void initializeInstallInfo() {
+
+		installId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
+		installDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+		installType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
+
+		if (installId == null || installType == null) {
+
+			/* Generate and store a unique number for this device */
+			installId = UUID.randomUUID().toString();
+			installType = Constants.INSTALL_TYPE_RANDOM;
+			installDate = DateTime.nowDate().getTime();
+
+			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), installType);
+			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), installId);
+			settings.edit().putLong(StringManager.getString(R.string.setting_unique_id_date), installDate);
+			settings.edit().apply();
+		}
+	}
+
+	public void loadContainer(String containerId) {
+		/*
+		 * TagManager always starts by loading the defaults bundled with app. Next,
+		 * it looks for the latest version of the container on disk (which it saved when pulling
+		 * a fresh container version from the network). If none or stale, it tries to retrieve
+		 * the current version from the network.
+		 */
+		TagManager tagManager = TagManager.getInstance(this);
+		tagManager.setVerboseLoggingEnabled(BuildConfig.DEBUG);
+
+		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);
+		pending.setResultCallback(containerHolder -> {
+			/*
+			 * The onResult method will be called as soon as one of the following happens:
+			 *  1. a saved container is loaded
+			 *  2. if there is no saved container, a network container is loaded
+			 *  3. the 2-second timeout occurs
+			 */
+			if (!containerHolder.getStatus().isSuccess()) {
+				Logger.e(this, "Container refresh failed");
+				return;
+			}
+			ContainerManager.getInstance().setContainerHolder(containerHolder);
+		}, 2, TimeUnit.SECONDS);
 	}
 
 	public void snapshotPreferences() {
 		prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
 	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Properties
+	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public String getClientID() {
 		return StringManager.getString(R.string.creative_sdk_client_id);
@@ -212,126 +236,10 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		return StringManager.getString(R.string.creative_sdk_client_key);
 	}
 
-	public void openContainer(String containerId) {
-		/*
-		 * TagManager always starts by loading the defaults bundled with app. Next,
-		 * it looks for the latest version of the container on disk (which it saved when pulling
-		 * a fresh container version from the network). If none or stale, it tries to retrieve
-		 * the current version from the network.
-		 */
-		TagManager tagManager = TagManager.getInstance(this);
-		tagManager.setVerboseLoggingEnabled(false);
-
-		PendingResult<ContainerHolder> pending = tagManager.loadContainerPreferNonDefault(containerId, R.raw.gtm_default_container);
-		/*
-		 * The onResult method will be called as soon as one of the following happens:
-		 *  1. a saved container is loaded
-		 *  2. if there is no saved container, a network container is loaded
-		 *  3. the 2-second timeout occurs
-		 */
-		pending.setResultCallback(new ResultCallback<ContainerHolder>() {
-
-			@Override public void onResult(@NonNull ContainerHolder containerHolder) {
-
-				if (!containerHolder.getStatus().isSuccess()) {
-					// Called when a refresh failed for the given refresh type.
-					Logger.v(this, "Container refresh failed");
-					return;
-				}
-
-				/* Called when a successful refresh occurred for the given refresh type. */
-				Logger.v(this, "Container refresh success");
-
-				if (Utils.devModeEnabled()) {
-					UI.toast("Container refreshed");
-				}
-
-				activateContainer(containerHolder);
-
-				containerHolder.setContainerAvailableListener((containerHolder1, s) -> activateContainer(containerHolder1));
-			}
-		}, 2, TimeUnit.SECONDS);
-
-		Logger.v(this, "Container set using default");
-	}
-
-	private void activateContainer(ContainerHolder containerHolder) {
-
-		ContainerManager.setContainerHolder(containerHolder);
-		Container container = containerHolder.getContainer();
-
-		if (!container.isDefault()) {
-
-			String accessKey = container.getString(AWS_ACCESS_KEY);
-			String secretKey = container.getString(AWS_SECRET_KEY);
-			awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-		}
-	}
-
-	public synchronized String getInstallType() {
-		return uniqueType;
-	}
-
-	public synchronized Long getInstallDate() {
-		return uniqueDate;
-	}
-
 	public synchronized String getinstallId() {
-		if (uniqueId == null) {
+		if (installId == null) {
 			initializeInstallInfo();
 		}
-		return uniqueId;
+		return installId;
 	}
-
-	private void initializeInstallInfo() {
-
-		uniqueId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-		uniqueDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-		uniqueType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
-
-		if (uniqueId == null || uniqueType == null) {
-
-			/* Generate and store a unique number for this device */
-			uniqueId = UUID.randomUUID().toString();
-			uniqueType = Constants.INSTALL_TYPE_RANDOM;
-			uniqueDate = DateTime.nowDate().getTime();
-
-			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), uniqueType);
-			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), uniqueId);
-			settings.edit().putLong(StringManager.getString(R.string.setting_unique_id_date), uniqueDate);
-			settings.edit().apply();
-		}
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Statics
-	 *--------------------------------------------------------------------------------------------*/
-
-	public static String getVersionName(Context context, Class cls) {
-		try {
-			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = applicationContext.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
-			return pinfo.versionName;
-		}
-		catch (android.content.pm.PackageManager.NameNotFoundException e) {
-			Logger.e(applicationContext, e.getMessage());
-		}
-		throw new IllegalArgumentException("Failed to get version name");
-	}
-
-	public static Integer getVersionCode(Context context, Class cls) {
-		try {
-			final ComponentName comp = new ComponentName(context, cls);
-			final PackageInfo pinfo = applicationContext.getPackageManager().getPackageInfo(comp.getPackageName(), 0);
-			return pinfo.versionCode;
-		}
-		catch (android.content.pm.PackageManager.NameNotFoundException e) {
-			Logger.e(applicationContext, e.getMessage());
-		}
-		throw new IllegalArgumentException("Failed to get version code");
-	}
-
-	/*--------------------------------------------------------------------------------------------
-	 * Properties
-	 *--------------------------------------------------------------------------------------------*/
 }

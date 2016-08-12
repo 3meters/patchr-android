@@ -6,7 +6,6 @@ import android.os.Build;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.parse.ParseInstallation;
 import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -15,6 +14,8 @@ import com.patchr.components.ContainerManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.NotificationManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.UserManager;
 import com.patchr.exceptions.ClientVersionException;
 import com.patchr.exceptions.NoNetworkException;
@@ -27,7 +28,6 @@ import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.FetchStrategy;
 import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.Suggest;
-import com.patchr.ui.MainScreen;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Maps;
 import com.patchr.utilities.Utils;
@@ -88,7 +88,7 @@ public class RestClient {
 				.create();
 
 			Retrofit retrofitProxi = new Retrofit.Builder()
-				.baseUrl(Constants.PROXI_SERVICE_URI)
+				.baseUrl(BuildConfig.PROXI_SERVICE_URI)
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
@@ -97,7 +97,7 @@ public class RestClient {
 			proxiApi = retrofitProxi.create(ProxibaseApi.class);
 
 			Retrofit retrofitBing = new Retrofit.Builder()
-				.baseUrl(Constants.BING_SERVICE_URI)
+				.baseUrl(BuildConfig.SEARCH_SERVICE_URI)
 				.client(client)
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
@@ -537,7 +537,7 @@ public class RestClient {
 		parameters.put("count", count + 1);
 		parameters.put("offset", offset);
 
-		String key = ContainerManager.getContainerHolder().getContainer().getString(Patchr.BING_SUBSCRIPTION_KEY);
+		String key = ContainerManager.getInstance().getContainer().getString(ContainerManager.BING_SUBSCRIPTION_KEY);
 
 		if (!NetworkManager.getInstance().isConnected()) {
 			return Observable.error(new NoNetworkException("Not connected to network"));
@@ -568,7 +568,7 @@ public class RestClient {
 
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("data", data);
-		parameters.put("secret", ContainerManager.getContainerHolder().getContainer().getString(Patchr.USER_SECRET));
+		parameters.put("secret", ContainerManager.getInstance().getContainer().getString(ContainerManager.USER_SECRET));
 		parameters.put("installId", Patchr.getInstance().getinstallId());
 
 		return postEntity("user/create", parameters);
@@ -588,6 +588,7 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("email", email);
 		parameters.put("password", password);
+		parameters.put("installId", Patchr.getInstance().getinstallId());
 
 		return post("auth/signin", parameters, null, null, false)
 			.flatMap(response -> {
@@ -599,6 +600,7 @@ public class RestClient {
 				RealmEntity user = response.data.get(0);
 				Session session = response.session;
 				UserManager.shared().setCurrentUser(user, session);
+				ReportingManager.getInstance().userLoggedIn();
 			});
 	}
 
@@ -669,27 +671,32 @@ public class RestClient {
 	}
 
 	public Observable<ProxibaseResponse> registerInstall() {
-
+		/*
+		 * We only register installs once we have a push user id.
+		 */
 		if (!NetworkManager.getInstance().isConnected()) {
 			return Observable.error(new NoNetworkException("Not connected to network"));
 		}
 		else {
 			SimpleMap install = new SimpleMap();
 			install.put("installId", Patchr.getInstance().getinstallId());
-			install.put("parseInstallId", ParseInstallation.getCurrentInstallation().getInstallationId());
-			install.put("clientVersionName", Patchr.getVersionName(Patchr.applicationContext, MainScreen.class));
-			install.put("clientVersionCode", Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
+			install.put("pushUserId", NotificationManager.pushUserId);
+			install.put("clientVersionName", BuildConfig.VERSION_NAME);
+			install.put("clientVersionCode", BuildConfig.VERSION_CODE);
 			install.put("clientPackageName", Patchr.applicationContext.getPackageName());
 			install.put("deviceName", AndroidManager.getInstance().getDeviceName());
 			install.put("deviceType", "android");
 			install.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
 
-			if (install.get("parseInstallId") == null) {
-				throw new IllegalStateException("parseInstallId cannot be null");
+			if (install.get("pushUserId") == null) {
+				throw new IllegalStateException("oneSignalInstallId cannot be null");
 			}
 
 			SimpleMap parameters = new SimpleMap();
 			parameters.put("install", install);
+			if (UserManager.shared().authenticated()) {
+				addSessionParameters(parameters);
+			}
 
 			return post("do/registerInstall", parameters, null, null, false);
 		}
@@ -866,7 +873,7 @@ public class RestClient {
 	private boolean updateRequired(ProxibaseResponse response) {
 		String packageName = Patchr.applicationContext.getPackageName();
 		if (response.clientMinVersions != null && response.clientMinVersions.containsKey(packageName)) {
-			Integer clientVersion = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
+			Integer clientVersion = BuildConfig.VERSION_CODE;
 			Integer clientVersionMin = ((Double) response.clientMinVersions.get(packageName)).intValue();
 			if (clientVersionMin > clientVersion) {
 				return true;

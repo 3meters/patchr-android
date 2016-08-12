@@ -1,23 +1,40 @@
-package com.patchr.utilities;
+package com.patchr.components;
 
 import android.location.Location;
 import android.net.wifi.WifiManager;
 
 import com.bugsnag.android.Bugsnag;
 import com.patchr.Patchr;
-import com.patchr.components.BranchProvider;
-import com.patchr.components.LocationManager;
-import com.patchr.components.NetworkManager;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.WifiApState;
-import com.segment.analytics.Analytics;
-import com.segment.analytics.Properties;
-import com.segment.analytics.Traits;
+import com.patchr.utilities.DateTime;
+import com.patchr.utilities.Utils;
 
 import java.util.Locale;
 
-public class Reporting {
+public class ReportingManager {
+
+	private static ReportingManager  instance;
+	private static AnalyticsProvider analyticsProvider;
+
+	private ReportingManager() {}
+
+	public static ReportingManager init(AnalyticsProvider provider) {
+		if (instance == null) {
+			analyticsProvider = provider;
+			instance = new ReportingManager();
+			Bugsnag.init(Patchr.applicationContext);
+		}
+		return instance;
+	}
+
+	public static ReportingManager getInstance() {
+		if (instance == null) {
+			throw new IllegalStateException("ReportingManager is not initialised - first invocation must use parameterised init");
+		}
+		return instance;
+	}
 
 	public static void updateCrashKeys() {
 
@@ -83,23 +100,6 @@ public class Reporting {
 		Bugsnag.addToTab("memory", "memory_free_mb", Utils.freeMemoryMB());
 	}
 
-	public static void updateUser(RealmEntity user) {
-		if (user != null) {
-			String userName = user.name != null ? user.name : "Provisional";
-			String userAuth = user.email != null ? user.email : user.getPhone() != null ? user.getPhone().displayNumber() : "null";
-			BranchProvider.setIdentity(user.id);
-			Bugsnag.setUser(user.id, userName, userAuth);
-			Analytics.with(Patchr.applicationContext).alias(user.id);
-			Analytics.with(Patchr.applicationContext).identify(user.id, new Traits().putName(userName).putEmail(userAuth), null);
-		}
-		else {
-			BranchProvider.logout();
-			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
-			Analytics.with(Patchr.applicationContext).flush();  // Send queued events before clearing user id
-			Analytics.with(Patchr.applicationContext).reset();  // Clear user id currently used by segmentio
-		}
-	}
-
 	public static void logException(Exception exception) {
 		Bugsnag.notify(exception);
 	}
@@ -108,34 +108,40 @@ public class Reporting {
 		Bugsnag.leaveBreadcrumb(message);
 	}
 
-	public static void track(String category, String event) {
-		Analytics.with(Patchr.applicationContext).track(event, new Properties()
-				.putValue("category", category));
+	public void updateUser(RealmEntity user) {
+
+		if (user != null) {
+			String userId = user.id;
+			String userName = user.name != null ? user.name : "Provisional";
+			String userAuth = user.email != null ? user.email : user.getPhone() != null ? user.getPhone().displayNumber() : "null";
+			BranchProvider.setIdentity(userId);
+			Bugsnag.setUser(user.id, userName, userAuth);
+			analyticsProvider.updateUser(userId, userName, userAuth);
+		}
+		else {
+			BranchProvider.logout();
+			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
+			analyticsProvider.updateUser(null, null, null);
+		}
 	}
 
-	public static void track(String category, String event, Properties properties) {
-		properties.putValue("category", category);
-		Analytics.with(Patchr.applicationContext).track(event, properties);
+	public void userLoggedIn() {
+		analyticsProvider.track(AnalyticsCategory.ACTION, "User logged in");
 	}
 
-	public static void track(String category, String event, String target, long value) {
-		Analytics.with(Patchr.applicationContext).track(event, new Properties()
-				.putValue("category", category)
-				.putValue("target", target)
-				.putValue("value", value));
+	public void userLoggedOut() {
+		analyticsProvider.track(AnalyticsCategory.ACTION, "User logged out");
 	}
 
-	public static void track(String category, String event, boolean nonInteratation) {
-		Analytics.with(Patchr.applicationContext).track(event, new Properties()
-				.putValue("category", category)
-				.putValue("nonInteraction", nonInteratation));
+	public void track(String category, String event) {
+		analyticsProvider.track(category, event);
 	}
 
-	public static void screen(String name) {
-		Reporting.screen(AnalyticsCategory.VIEW, name);
+	public void track(String category, String event, String key, Object value) {
+		analyticsProvider.track(category, event, key, value);
 	}
 
-	public static void screen(String category, String name) {
-		Analytics.with(Patchr.applicationContext).screen(category, name);
+	public void screen(String category, String name) {
+		analyticsProvider.screen(category, name);
 	}
 }

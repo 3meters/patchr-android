@@ -45,7 +45,7 @@ import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -104,7 +104,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 
 		String screenName = getScreenName();
 		if (screenName != null) {
-			Reporting.screen(AnalyticsCategory.VIEW, screenName);
+			ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, screenName);
 		}
 	}
 
@@ -347,7 +347,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 					if (schema.equals(Constants.SCHEMA_ENTITY_PATCH)) {
 						RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
 					}
-					Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
 					Logger.i(this, "Deleted entity: " + entityId);
 					UI.toast(StringManager.getString(R.string.alert_deleted));
 					setResult(Constants.RESULT_ENTITY_DELETED);
@@ -369,7 +369,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 				response -> {
 					processing = false;
 					busyController.hide(true);
-					Reporting.track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Removed " + Utils.capitalize(entity.schema));
 					Logger.i(this, "Removed entity: " + entity.id);
 					UI.toast(StringManager.getString(R.string.alert_removed));
 					setResult(Constants.RESULT_ENTITY_DELETED);

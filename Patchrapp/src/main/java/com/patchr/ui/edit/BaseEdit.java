@@ -19,6 +19,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MediaManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.S3;
 import com.patchr.components.StringManager;
 import com.patchr.model.Photo;
@@ -33,11 +34,9 @@ import com.patchr.ui.BaseScreen;
 import com.patchr.ui.PhotoSwitchboardScreen;
 import com.patchr.ui.widgets.PhotoEditWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-import com.segment.analytics.Properties;
 
 public abstract class BaseEdit extends BaseScreen {
 
@@ -76,7 +75,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
 						final Photo photo = Patchr.gson.fromJson(jsonPhoto, Photo.class);
-						Reporting.track(AnalyticsCategory.ACTION, "Set Photo", new Properties().putValue("target", Utils.capitalize(entitySchema)));
+						ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Set Photo", "target", Utils.capitalize(entitySchema));
 						onPhotoSelected(photo);
 					}
 				}
@@ -86,7 +85,7 @@ public abstract class BaseEdit extends BaseScreen {
 				if (intent != null && intent.getExtras() != null) {
 					Boolean changed = intent.getExtras().getBoolean(AdobeImageIntent.EXTRA_OUT_BITMAP_CHANGED, false);
 					if (changed) {
-						Reporting.track(AnalyticsCategory.ACTION, "Edited Photo");
+						ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Edited Photo");
 					}
 					//final Uri photoUri = Uri.parse("file://" + intent.getParcelableExtra(AdobeImageIntent.EXTRA_OUTPUT_URI));
 					final Uri photoUri = intent.getParcelableExtra(AdobeImageIntent.EXTRA_OUTPUT_URI);

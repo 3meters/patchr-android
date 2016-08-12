@@ -27,7 +27,7 @@ import com.patchr.service.PostEntityJob;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -236,7 +236,7 @@ public class MessageEdit extends BaseEdit {
 			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path, parentId));
 		}
 
-		Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+		ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
 		Logger.i(this, "Deleted entity: " + entityId);
 		UI.toast(StringManager.getString(R.string.alert_deleted));
 		setResult(Constants.RESULT_ENTITY_DELETED);

@@ -15,7 +15,7 @@ import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 
 @SuppressWarnings("ucd")
@@ -82,7 +82,7 @@ public class PasswordEdit extends BaseEdit {
 					response -> {
 						processing = false;
 						busyController.hide(true);
-						Reporting.track(AnalyticsCategory.EDIT, "Changed Password");
+						ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Changed Password");
 						Logger.i(this, String.format("User changed password: %1$s (%2$s)", UserManager.currentUser.name, UserManager.currentUser.id));
 						UI.toast(StringManager.getString(R.string.alert_password_changed));
 						finish();

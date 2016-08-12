@@ -25,7 +25,7 @@ import com.patchr.ui.components.BusyController;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -294,7 +294,7 @@ public class ResetEdit extends BaseEdit {
 						busyController.hide(true);
 
 						if (response.isSuccessful()) {
-							Reporting.track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
+							ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Reset Password and Logged In");
 							Logger.i(this, "Password reset and user signed in: " + UserManager.currentUser.name);
 							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + UserManager.currentUser.name);
 							UI.routeHome(this);

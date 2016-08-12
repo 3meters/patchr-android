@@ -9,7 +9,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.objects.SimpleMap;
 import com.patchr.objects.enums.PhotoCategory;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 import com.squareup.picasso.Picasso;
@@ -117,7 +117,7 @@ public class Photo {
 		catch (IOException ignore) {
 			/* This is where we are ignoring exceptions like our reset problem with picasso. This
 			 * can happen pulling an image from the network or from a local file. */
-			Reporting.breadcrumb("Picasso failed to load bitmap");
+			ReportingManager.breadcrumb("Picasso failed to load bitmap");
 		}
 
 		return bitmap;

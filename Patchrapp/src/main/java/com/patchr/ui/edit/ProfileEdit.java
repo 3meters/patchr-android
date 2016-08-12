@@ -36,7 +36,7 @@ import com.patchr.ui.components.BusyController;
 import com.patchr.ui.components.SimpleTextWatcher;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.Type;
 import com.patchr.utilities.UI;
 
@@ -237,7 +237,7 @@ public class ProfileEdit extends BaseEdit {
 							final Session session = response.session;
 							UserManager.shared().setCurrentUser(user, session);
 
-							Reporting.track(AnalyticsCategory.EDIT, "Created User and Logged In");
+							ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Created User and Logged In");
 							Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
 							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + user.name);
 
@@ -285,7 +285,7 @@ public class ProfileEdit extends BaseEdit {
 				response -> {
 					processing = false;
 					busyController.hide(true);
-					Reporting.track(AnalyticsCategory.EDIT, "Deleted User");
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Deleted User");
 					Logger.i(this, "Deleted user: " + entityId);
 					UserManager.shared().setCurrentUser(null, null);
 

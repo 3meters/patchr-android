@@ -33,7 +33,7 @@ public final class Errors {
 		}
 		else if (throwable instanceof ClientVersionException) {
 			/* Post calls to browse are the primary check */
-			Patchr.applicationUpdateRequired = true;
+			Patchr.updateRequired = true;
 			errAction = ErrorAction.LOGOUT;
 			errActionType = ErrorActionType.SILENT;
 		}

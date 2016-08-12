@@ -21,17 +21,16 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.NotificationManager;
-import com.patchr.components.StringManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.UserManager;
+import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.Preference;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.TransitionType;
-import com.patchr.service.RestClient;
 import com.patchr.ui.components.BusyController;
 import com.patchr.ui.edit.LoginEdit;
 import com.patchr.ui.edit.ResetEdit;
 import com.patchr.utilities.Dialogs;
-import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import java.util.Map;
@@ -58,6 +57,7 @@ public class LobbyScreen extends AppCompatActivity {
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		getWindow().setBackgroundDrawable(null);
 		setContentView(R.layout.screen_lobby);
+		ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "LobbyScreen");
 		initialize();
 	}
 
@@ -117,7 +117,7 @@ public class LobbyScreen extends AppCompatActivity {
 
 	public void onClick(View view) {
 
-		if (Patchr.applicationUpdateRequired) {
+		if (Patchr.updateRequired) {
 			updateRequired();
 			return;
 		}
@@ -154,27 +154,6 @@ public class LobbyScreen extends AppCompatActivity {
 			}
 			catch (Exception ignored){}
 		}).start();
-		/*
-		 * Ensure install is registered with service. Only done once unless something like a system update clears
-		 * the app preferences.
-		 */
-		Boolean registered = Patchr.settings.getBoolean(StringManager.getString(R.string.setting_install_registered), false);
-		Integer registeredClientVersionCode = Patchr.settings.getInt(StringManager.getString(R.string.setting_install_registered_version_code), 0);
-		Integer clientVersionCode = Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class);
-
-		if (!registered || !registeredClientVersionCode.equals(clientVersionCode)) {
-			RestClient.getInstance().registerInstall()
-				.subscribe(
-					response -> {
-						SharedPreferences.Editor editor = Patchr.settings.edit();
-						editor.putBoolean(StringManager.getString(R.string.setting_install_registered), true);
-						editor.putInt(StringManager.getString(R.string.setting_install_registered_version_code), Patchr.getVersionCode(Patchr.applicationContext, MainScreen.class));
-						editor.apply();
-					},
-					error -> {
-						Errors.handleError(this, error);
-					});
-		}
 	}
 
 	protected void handleBranch() {
@@ -271,7 +250,7 @@ public class LobbyScreen extends AppCompatActivity {
 			/* Restart notification tracking */
 			NotificationManager.getInstance().setNewNotificationCount(0);
 
-			if (Patchr.applicationUpdateRequired) {
+			if (Patchr.updateRequired) {
 				updateRequired();
 				return;
 			}

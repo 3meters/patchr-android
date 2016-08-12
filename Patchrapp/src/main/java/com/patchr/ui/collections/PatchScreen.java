@@ -32,6 +32,7 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.NotificationReceivedEvent;
@@ -57,9 +58,7 @@ import com.patchr.ui.edit.ShareEdit;
 import com.patchr.ui.views.PatchDetailView;
 import com.patchr.utilities.Dialogs;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
-import com.segment.analytics.Properties;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -266,7 +265,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 			else if (requestCode == Constants.ACTIVITY_SHARE) {
-				Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Android"));
+				ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Android");
 				UI.toast("Patch invites sent");
 			}
 
@@ -547,7 +546,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 				else if (item.getItemId() == R.id.invite_using_other) {
 					BranchProvider provider = new BranchProvider();
-					Reporting.track(AnalyticsCategory.ACTION, "Started Patch Invitation", new Properties().putValue("network", "Android"));
+					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation", "network", "Android");
 					provider.invite(title, entity, PatchScreen.this);
 				}
 			});
@@ -567,7 +566,7 @@ public class PatchScreen extends BaseListScreen {
 			subscription = RestClient.getInstance().deleteLinkById(entity.userMemberId)
 				.subscribe(
 					response -> {
-						Reporting.track(AnalyticsCategory.EDIT, "Left patch");
+						ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Left patch");
 						realm.executeTransaction(realm -> {
 							entity.userMemberId = null;
 							if (entity.userMemberStatus.equals(MemberStatus.Member)) {
@@ -595,12 +594,12 @@ public class PatchScreen extends BaseListScreen {
 								if (link.enabled) {
 									entity.userMemberStatus = MemberStatus.Member;
 									entity.countMembers++;
-									Reporting.track(AnalyticsCategory.EDIT, "Joined patch");
+									ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Joined patch");
 									UI.toast("You are now a member of this patch");
 								}
 								else {
 									entity.userMemberStatus = MemberStatus.Pending;
-									Reporting.track(AnalyticsCategory.EDIT, "Joined patch");
+									ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Joined patch");
 								}
 							});
 						}
@@ -621,7 +620,7 @@ public class PatchScreen extends BaseListScreen {
 		subscription = RestClient.getInstance().muteLinkById(linkId, mute)
 			.subscribe(
 				response -> {
-					Reporting.track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, mute ? "Muted Patch" : "Unmuted Patch");
 					fetch(FetchMode.MANUAL, true);  // Need to refetch the patch, header only
 				},
 				error -> {

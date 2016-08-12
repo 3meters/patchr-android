@@ -23,7 +23,7 @@ import com.patchr.objects.enums.UserRole;
 import com.patchr.service.RestClient;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
+import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 
 import io.realm.Realm;
@@ -176,7 +176,7 @@ public class UserView extends BaseView implements View.OnClickListener {
 				response -> {
 					processing = false;
 					if (!((Activity) getContext()).isFinishing()) {
-						Reporting.track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
+						ReportingManager.getInstance().track(AnalyticsCategory.ACTION, enabled ? "Approved Member" : "Unapproved Member");
 						MediaManager.playSound(MediaManager.SOUND_DEBUG_POP, 1.0f, 1);
 					}
 				},

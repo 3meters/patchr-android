@@ -20,7 +20,6 @@ import com.patchr.events.LocationStatusEvent;
 import com.patchr.model.Location;
 import com.patchr.objects.enums.LocationStatus;
 import com.patchr.objects.enums.Preference;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -107,7 +106,7 @@ public class LocationManager implements
 				}
 				catch (IntentSender.SendIntentException e) {
 					/* There was an error with the resolution intent. Try again. */
-					Reporting.logException(e);
+					ReportingManager.logException(e);
 					mGoogleApiClient.connect();
 				}
 			}
@@ -172,7 +171,7 @@ public class LocationManager implements
 		mRequestingLocationUpdates = true;
 		mFirstAccept = firstAccept;
 		mFirstAccepted = false;
-		Reporting.updateCrashKeys();
+		ReportingManager.updateCrashKeys();
 
 		/* Location request */
 

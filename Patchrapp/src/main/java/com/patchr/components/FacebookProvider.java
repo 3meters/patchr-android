@@ -13,10 +13,8 @@ import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.objects.enums.PhotoCategory;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-import com.segment.analytics.Properties;
 
 public class FacebookProvider {
 	public void invite(final String title, RealmEntity entity, Activity activity, CallbackManager callbackManager) {
@@ -56,7 +54,7 @@ public class FacebookProvider {
 
 				@Override
 				public void onSuccess(AppInviteDialog.Result result) {
-					Reporting.track(AnalyticsCategory.EDIT, "Sent Patch Invitation", new Properties().putValue("network", "Facebook"));
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Facebook");
 					UI.toast("Facebook invites sent");
 				}
 

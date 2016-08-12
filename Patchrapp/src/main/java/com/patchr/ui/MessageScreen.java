@@ -25,6 +25,7 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
 import com.patchr.components.MenuManager;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
@@ -49,10 +50,8 @@ import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.utilities.Colors;
 import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Errors;
-import com.patchr.utilities.Reporting;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
-import com.segment.analytics.Properties;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -312,7 +311,7 @@ public class MessageScreen extends BaseScreen {
 			Patchr.jobManager.addJobInBackground(new DeleteEntityJob(path, parentId));
 		}
 
-		Reporting.track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
+		ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Deleted " + Utils.capitalize(schema));
 		Logger.i(this, "Deleted entity: " + entityId);
 		UI.toast(StringManager.getString(R.string.alert_deleted));
 		setResult(Constants.RESULT_ENTITY_DELETED);
@@ -629,7 +628,7 @@ public class MessageScreen extends BaseScreen {
 					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 				}
 				else if (item.getItemId() == R.id.share_using_other) {
-					Reporting.track(AnalyticsCategory.ACTION, "Started Message Share", new Properties().putValue("network", "Android"));
+					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Message Share", "network", "Android");
 					showBuiltInSharePicker(title);
 				}
 			});

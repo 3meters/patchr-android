@@ -14,7 +14,6 @@ import android.telephony.TelephonyManager;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.objects.enums.WifiApState;
-import com.patchr.utilities.Reporting;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -135,7 +134,7 @@ public class NetworkManager {
 						isTethered = (Boolean) method.invoke(wifiManager);
 					}
 					catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-						Reporting.logException(e);
+						ReportingManager.logException(e);
 					}
 				}
 			}

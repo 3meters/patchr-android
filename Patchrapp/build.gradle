@@ -22,7 +22,14 @@ android {
 
 		resConfigs "en"
 		multiDexEnabled true
-		manifestPlaceholders = [appPackageName: "${applicationId}"]
+		manifestPlaceholders = [
+				appPackageName: "${applicationId}",
+				manifestApplicationId: "${applicationId}",
+				onesignal_app_id: "f43fe789-3392-4f2b-bf52-950d0c78fffe",
+				onesignal_google_project_number: "657673071389"
+		]
+		buildConfigField 'String', 'PROXI_SERVICE_URI', '"https://api.aircandi.com/v1/"'
+		buildConfigField 'String', 'SEARCH_SERVICE_URI', '"https://api.cognitive.microsoft.com/bing/v5.0/images/"'
 	}
 
 	compileOptions {
@@ -33,6 +40,9 @@ android {
 	sourceSets {
 		main {
 			res.srcDirs = ['src/main/res']
+			java {
+				exclude '**/SegmentProvider.java'
+			}
 		}
 	}
 
@@ -71,6 +81,7 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+			buildConfigField 'String', 'PROXI_SERVICE_URI', '"http://api.ariseditions.com:8080/v1/"'
 		}
 
 		/*
@@ -127,12 +138,12 @@ dependencies {
 	/* Map clustering */
 	/* Used for guest guard dialog */
 	retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
+	//noinspection NewerVersionAvailable
 	compile 'com.amazonaws:aws-android-sdk-s3:2.3.0'
 	compile 'com.facebook.android:facebook-android-sdk:4.14.1'
 	compile 'com.facebook.android:account-kit-sdk:4.14.0'
 	compile 'com.parse:parse-android:1.13.1'
 	compile 'com.parse.bolts:bolts-applinks:1.4.0'
-	compile 'com.segment.analytics.android:analytics:4.1.5'
 	compile 'io.branch.sdk.android:library:2.0.2'
 	compile 'com.bugsnag:bugsnag-android:3.5.0'
 	compile 'com.google.android.gms:play-services-base:9.4.0'
@@ -154,7 +165,6 @@ dependencies {
 	compile 'com.uphyca:stetho_realm:0.9.0'
 	compile 'org.greenrobot:eventbus:3.0.0'
 	compile 'com.android.support:multidex:1.0.1'
-	//noinspection NewerVersionAvailable
 	compile 'com.birbit:android-priority-jobqueue:2.0.0-beta3'
 	compile 'com.android.support:support-v4:24.1.1'
 	compile 'com.android.support:appcompat-v7:24.1.1'
@@ -173,7 +183,7 @@ dependencies {
 	compile 'com.github.arimorty:floatingsearchview:2.0.2'
 	compile 'com.makeramen:roundedimageview:2.2.1'
 	compile 'com.localytics.android:library:3.8.0'
-	compile 'com.google.android.gms:play-services-auth:9.4.0'
+	compile 'com.onesignal:OneSignal:3.+@aar'
 }
 
 apply plugin: 'com.google.gms.google-services'

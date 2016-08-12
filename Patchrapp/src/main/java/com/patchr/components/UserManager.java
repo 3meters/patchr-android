@@ -6,10 +6,8 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.Session;
-import com.patchr.objects.enums.AnalyticsCategory;
 import com.patchr.service.ProxibaseResponse;
 import com.patchr.service.RestClient;
-import com.patchr.utilities.Reporting;
 
 import rx.Observable;
 
@@ -76,14 +74,14 @@ public class UserManager {
 		RestClient.getInstance().logout(userId, sessionKey).subscribe(
 			response -> {
 				Logger.i(this, "Logout from service successful");
+				ReportingManager.getInstance().userLoggedOut();
 			},
 			error -> {
 				Logger.w(this, error.getLocalizedMessage());
 			});
 
-		Logger.i(this, "User logged out: " + UserManager.currentUser.id);
+		Logger.d(this, "User logging out: " + UserManager.currentUser.id);
 		setCurrentUser(null, null);
-		Reporting.track(AnalyticsCategory.ACTION, "Logged out");
 	}
 
 	public void handlePasswordChange(ProxibaseResponse response) {
@@ -111,7 +109,7 @@ public class UserManager {
 		String jsonUser = Patchr.gson.toJson(user);
 		String jsonSession = Patchr.gson.toJson(session);
 
-		Reporting.updateUser(user);  // Handles all frameworks
+		ReportingManager.getInstance().updateUser(user);  // Handles all frameworks
 
 		SharedPreferences.Editor editor = Patchr.settings.edit();
 		editor.putString(StringManager.getString(R.string.setting_user), jsonUser);
@@ -132,7 +130,7 @@ public class UserManager {
 		/* Cancel any current notifications in the status bar */
 		NotificationManager.getInstance().cancelAllNotifications();
 
-		Reporting.updateUser(null); // Handles all frameworks
+		ReportingManager.getInstance().updateUser(null); // Handles all frameworks
 
 		/* Clear user settings */
 		SharedPreferences.Editor editor = Patchr.settings.edit();
