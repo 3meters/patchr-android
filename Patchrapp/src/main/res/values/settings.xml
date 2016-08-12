@@ -10,6 +10,7 @@
 
 	<string name="setting_install_registered">[@string/id_package]_setting_install_registered</string>
 	<string name="setting_install_registered_version_code">[@string/id_package]_setting_install_registered_version_code</string>
+	<string name="setting_install_registered_push_user_id">[@string/id_package]_setting_install_registered_push_user_id</string>
 
 	<string name="setting_last_auth_type">[@string/id_package]_setting_last_auth_type</string>
 	<string name="setting_last_auth_identifier">[@string/id_package]_setting_last_auth_identifier</string>
