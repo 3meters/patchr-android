@@ -17,8 +17,8 @@ android {
 
 		minSdkVersion 16        // ICS 4.1 and up: Jelly Bean
 		targetSdkVersion 24     // Marshmallow
-		versionCode 131
-		versionName '1.3.7'
+		versionCode 132
+		versionName '1.4.0'
 
 		resConfigs "en"
 		multiDexEnabled true
