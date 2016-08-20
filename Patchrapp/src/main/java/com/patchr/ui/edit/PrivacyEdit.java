@@ -1,0 +1,117 @@
+package com.patchr.ui.edit;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+
+import com.patchr.Constants;
+import com.patchr.R;
+import com.patchr.components.AnimationManager;
+import com.patchr.objects.enums.TransitionType;
+
+@SuppressLint("Registered")
+public class PrivacyEdit extends BaseEdit {
+
+	private String      originalPrivacy;
+	private RadioGroup  privacyButtonGroup;
+	private RadioButton publicButton;
+	private RadioButton privateButton;
+	private String      privacy;
+
+	@Override protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		bind();
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Events
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_submit, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.submit) {
+			submitAction();
+		}
+		else {
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	public void onRadioButtonClicked(View view) {
+
+		boolean checked = ((RadioButton) view).isChecked();
+		switch (view.getId()) {
+			case R.id.button_public:
+				if (checked) {
+					privacy = Constants.PRIVACY_PUBLIC;
+					privateButton.setChecked(false);
+				}
+				break;
+			case R.id.button_private:
+				if (checked) {
+					privacy = Constants.PRIVACY_PRIVATE;
+					publicButton.setChecked(false);
+				}
+				break;
+		}
+	}
+
+	/*--------------------------------------------------------------------------------------------
+	 * Methods
+	 *--------------------------------------------------------------------------------------------*/
+
+	@Override public void unpackIntent() {
+		super.unpackIntent();
+
+		final Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			originalPrivacy = extras.getString(Constants.EXTRA_PRIVACY);
+		}
+	}
+
+	@Override public void initialize(Bundle savedInstanceState) {
+		super.initialize(savedInstanceState);
+
+		publicButton = (RadioButton) findViewById(R.id.button_public);
+		privateButton = (RadioButton) findViewById(R.id.button_private);
+		privacyButtonGroup = (RadioGroup) findViewById(R.id.buttons_privacy);
+	}
+
+	@Override protected int getLayoutId() {
+		return R.layout.edit_privacy;
+	}
+
+	@Override public void submitAction() {
+		save();
+	}
+
+	@Override protected int getTransitionBack(int transitionType) {
+		return super.getTransitionBack(TransitionType.BUILDER_BACK);
+	}
+
+	public void bind() {
+		privacyButtonGroup.check(originalPrivacy.equals(Constants.PRIVACY_PUBLIC)
+		                         ? R.id.button_public
+		                         : R.id.button_private);
+	}
+
+	private void save() {
+		final Intent intent = new Intent();
+		intent.putExtra(Constants.EXTRA_PRIVACY, privacy);
+		setResult(Activity.RESULT_OK, intent);
+		finish();
+		AnimationManager.doOverridePendingTransition(this, TransitionType.BUILDER_BACK);
+	}
+}

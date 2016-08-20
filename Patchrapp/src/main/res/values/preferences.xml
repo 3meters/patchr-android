@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- /// Preferences user /// -->
+
+	<!-- Keys -->
+
+	<string name="pref_sound_effects">com.patchr.pref_sound_effects</string>
+	<string name="pref_push_notification_type">com.patchr.pref_push_notification_type</string>
+	<string name="pref_push_notification_vibrate">com.patchr.pref_push_notification_vibrate</string>
+	<string name="pref_push_notification_sound">com.patchr.pref_push_notification_sound</string>
+
+	<!-- Defaults -->
+
+	<string name="pref_push_notification_type_default">all</string>
+	<bool name="pref_push_notifications_sound_default">true</bool>
+	<bool name="pref_push_notifications_vibrate_default">true</bool>
+	<bool name="pref_sound_effects_default">true</bool>
+
+	<!-- UI -->
+
+	<string name="pref_category_title_general">GENERAL</string>
+	<string name="pref_category_title_notifications">NOTIFICATIONS</string>
+	<string name="pref_category_title_about">ABOUT</string>
+	<string name="pref_category_title_account">ACCOUNT</string>
+
+	<string name="pref_sound_effects_title">Sounds</string>
+	<string name="pref_sound_effects_summary">Play sound effects.</string>
+
+	<string name="pref_push_notifications_type_title">Send me push notifications for</string>
+	<string name="pref_push_notifications_sound_title">Sound</string>
+	<string name="pref_push_notifications_vibrate_title">Vibrate</string>
+
+	<string name="pref_feedback_title">Send feedback</string>
+	<string name="pref_about_title">About</string>
+
+	<string name="pref_logout_title">Log out</string>
+	<string name="pref_logout_summary">Log out of [@string/name_app]</string>
+
+	<!-- /// Preferences developer /// -->
+
+	<!-- UI -->
+
+	<string name="pref_category_title_development">DEVELOPMENT</string>
+
+</resources>

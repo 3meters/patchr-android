@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<RelativeLayout
+		android:id="@+id/photo_group"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal">
+
+		<com.patchr.ui.widgets.ImageWidget
+			android:id="@+id/photo"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			app:radius="8"
+			app:aspectRatio="@dimen/aspect_ratio_patch_image"
+			app:category="standard" />
+
+		<ImageButton
+			android:id="@+id/photo_set_button"
+			style="@style/button_flat"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_centerInParent="true"
+			android:background="@drawable/bg_round"
+			android:onClick="onClick"
+			android:src="@drawable/ic_action_camera_dark"
+			android:textAppearance="?android:attr/textAppearance"
+			android:tint="@color/brand_primary"/>
+
+		<ImageButton
+			android:id="@+id/photo_edit_button"
+			style="@style/button_flat"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
+			android:layout_alignBottom="@+id/photo"
+			android:layout_alignRight="@+id/photo"
+			android:layout_margin="8dp"
+			android:background="@drawable/bg_round"
+			android:clickable="true"
+			android:onClick="onClick"
+			android:src="@drawable/ic_action_edit_dark"
+			android:textAppearance="?android:attr/textAppearance"
+			android:textColor="?attr/textColorCandiView"
+			android:tint="@color/brand_primary"/>
+
+		<ImageButton
+			android:id="@+id/photo_delete_button"
+			style="@style/button_flat"
+			android:layout_width="36dp"
+			android:layout_height="36dp"
+			android:layout_alignBottom="@+id/photo"
+			android:layout_alignLeft="@+id/photo"
+			android:layout_margin="8dp"
+			android:layout_marginBottom="8dp"
+			android:background="@drawable/bg_round"
+			android:clickable="true"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:src="@drawable/ic_action_cancel_dark"
+			android:textAppearance="?android:attr/textAppearance"
+			android:textColor="?attr/textColorCandiView"
+			android:tint="@color/brand_primary" />
+
+	</RelativeLayout>
+
+</merge>
+

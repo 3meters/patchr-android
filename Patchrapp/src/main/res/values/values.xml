@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	/* Strings that the user will see in the UI (You can use any string you like) */
+	<string-array name="com_adobe_image_editor_crop_labels">
+		<item>Square</item>
+		<item>3:2</item>
+		<item>2:4</item>
+		<item>Narrow</item>
+	</string-array>
+
+	/* Ratio values used by the Crop tool (You can set these to any ratios you like) */
+	<string-array name="com_adobe_image_editor_crop_values">
+		<item>1:1</item>
+		<item>3:2</item>
+		<item>2:4</item>
+		<item>6:2</item>
+	</string-array>
+
+	/* The array item that is auto-selected on load */
+	<integer name="com_adobe_image_editor_crop_selected">0</integer>
+
+</resources>

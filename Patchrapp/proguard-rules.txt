@@ -1,0 +1,202 @@
+# To enable ProGuard in your project, edit project.properties
+# to define the proguard.config property as described in that file.
+#
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in ${sdk.dir}/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the ProGuard
+# include property in project.properties.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# Add any project specific keep options here:
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+#/*-------------------------------------------------------------------------------------------------
+# Proguard settings
+#/*-------------------------------------------------------------------------------------------------
+
+# Defaults inherited from proguard-android.txt
+#
+# -dontusemixedcaseclassnames
+# -dontskipnonpubliclibraryclasses
+# -verbose
+# -dontoptimize
+# -dontpreverify
+
+-dontobfuscate
+
+#/*-------------------------------------------------------------------------------------------------
+# Android specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn sun.misc.Unsafe
+-keepattributes *Annotation*
+-keepattributes SourceFile
+-keepattributes Signature
+-keepattributes LineNumberTable
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+-keepattributes Exceptions
+
+#/*-------------------------------------------------------------------------------------------------
+# Patchr specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class com.patchr.events.**			{ *; }
+-dontnote com.patchr.**
+
+#/*-------------------------------------------------------------------------------------------------
+# AWS specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+# Next lines added for aws 2.0.5 per recommended aws support for proguard
+
+-keep class org.apache.commons.logging.**               { *; }
+-keep class com.amazonaws.org.apache.commons.logging.** { *; }
+-keep class com.amazonaws.services.sqs.QueueUrlHandler  { *; }
+-keep class com.amazonaws.javax.xml.transform.sax.*     { public *; }
+-keep class com.amazonaws.javax.xml.stream.**           { *; }
+-keep class com.amazonaws.services.**.model.*Exception* { *; }
+-keep class com.amazonaws.internal.** 					        { *; }
+-keep class org.codehaus.**                             { *; }
+-keep class org.joda.convert.*                          { *; }
+-keep class com.amazonaws.org.joda.convert.*            { *; }
+
+-keepnames class com.fasterxml.jackson.**               { *; }
+-keepnames class com.amazonaws.**                       { *; }
+
+-dontwarn com.amazonaws.auth.policy.conditions.S3ConditionFactory
+-dontwarn org.joda.time.**
+-dontwarn com.fasterxml.jackson.databind.**
+-dontwarn javax.xml.stream.events.**
+-dontwarn org.codehaus.jackson.**
+-dontwarn com.amazonaws.org.apache.commons.logging.**
+-dontwarn org.apache.commons.logging.impl.**
+-dontwarn org.apache.http.conn.scheme.**
+-dontwarn org.apache.http.annotation.**
+-dontwarn org.ietf.jgss.**
+-dontwarn org.w3c.dom.bootstrap.**
+
+-dontwarn com.fasterxml.jackson.core.**
+-dontwarn org.joda.convert.**
+
+#SDK split into multiple jars so certain classes may be referenced but not used
+-dontwarn com.amazonaws.services.s3.**
+-dontwarn com.amazonaws.services.sqs.**
+-dontnote com.amazonaws.services.sqs.QueueUrlHandler
+
+#/*-------------------------------------------------------------------------------------------------
+# Support library settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class android.support.v7.widget.SearchView { *; }
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.** { *; }
+
+-dontwarn android.support.**
+-dontnote android.support.**
+
+#/*-------------------------------------------------------------------------------------------------
+# Creative SDK specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn com.adobe.creativesdk.aviary.**
+
+#/*-------------------------------------------------------------------------------------------------
+# ImageChooser specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn com.kbeanie.imagechooser.**
+
+#/*-------------------------------------------------------------------------------------------------
+# EventBus specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keepclassmembers class ** {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+
+#/*-------------------------------------------------------------------------------------------------
+# Picasso specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn okhttp3.**
+-dontwarn com.squareup.okhttp.**
+
+#/*-------------------------------------------------------------------------------------------------
+# Okio specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn okio.**
+
+#/*-------------------------------------------------------------------------------------------------
+# Retrofit specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+
+#/*-------------------------------------------------------------------------------------------------
+# Stetho specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class com.facebook.stetho.** {*;}
+-keep class com.uphyca.** {*;}
+
+#/*-------------------------------------------------------------------------------------------------
+# Branch specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keep class com.google.android.gms.ads.identifier.** { *; }
+
+#/*-------------------------------------------------------------------------------------------------
+# Parse specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+#-keepnames class com.parse.** { *; }    # for easier debugging
+#-keep class com.parse.** { *; }
+-dontwarn android.net.SSLCertificateSocketFactory
+-dontwarn android.app.Notification
+
+#/*-------------------------------------------------------------------------------------------------
+# Google play services api specific settings
+#
+# ProGuard directives are included in the Play services client libraries to preserve the required
+# classes. The Android Plugin for Gradle automatically appends ProGuard configuration files in
+# an AAR (Android ARchive) package and appends that package to your ProGuard configuration.
+#/*-------------------------------------------------------------------------------------------------
+
+#/*-------------------------------------------------------------------------------------------------
+# Google specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-dontnote **ILicensingService
+
+#/*-------------------------------------------------------------------------------------------------
+# Java specific settings
+#/*-------------------------------------------------------------------------------------------------
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    !private <fields>;
+    !private <methods>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+# Keep names - Native method names. Keep all native class/method names.
+-keepclasseswithmembers, allowshrinking class *,*,* {
+    native <methods>;
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<group
+		android:id="@+id/group_patches"
+		android:checkableBehavior="single">
+
+		<item
+			android:id="@+id/item_nearby"
+			android:checked="true"
+			android:icon="?attr/iconDrawerNearby"
+			android:title="@string/label_drawer_item_nearby" />
+
+		<item
+			android:id="@+id/item_member"
+			android:checked="false"
+			android:icon="?attr/iconDrawerWatch"
+			android:title="@string/label_drawer_item_watch" />
+
+		<item
+			android:id="@+id/item_own"
+			android:checked="false"
+			android:icon="?attr/iconDrawerCreate"
+			android:title="@string/label_drawer_item_create" />
+
+		<item
+			android:id="@+id/item_explore"
+			android:checked="false"
+			android:icon="?attr/iconDrawerExplore"
+			android:title="@string/label_drawer_item_trend_active" />
+
+	</group>
+
+	<group
+		android:id="@+id/group_settings"
+		android:checkableBehavior="single">
+
+		<item
+			android:id="@+id/item_settings"
+			android:checkable="false"
+			android:checked="false"
+			android:icon="?attr/iconDrawerSettings"
+			android:title="@string/label_drawer_item_more_settings" />
+
+	</group>
+</menu>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+	<!-- Names -->
+
+	<string name="name_app" tools:ignore="UnusedResources">Patchr</string>
+	<string name="name_app_lowercase" tools:ignore="UnusedResources">patchr</string>
+	<string name="name_company" tools:ignore="UnusedResources">3meters LLC.</string>
+	<string name="id_package" tools:ignore="UnusedResources">com.patchr.android</string>
+	<string name="id_referrer" tools:ignore="UnusedResources">com.patchr.android</string>
+	<string name="uri_play_store" tools:ignore="UnusedResources">http://bit.ly/1wnySLm</string>
+
+	<!--
+		We get complete substitution with the following exceptions
+		- strings for menu titles.
+		- strings for activity titles in manifest.
+		- strings in array resources.
+		- strings embedded in ActivityDecorator.
+		- strings for preferences in xml
+	 -->
+
+	<string name="container_singular" tools:ignore="UnusedResources">Patch</string>
+	<string name="container_plural" tools:ignore="UnusedResources">Patches</string>
+	<string name="container_singular_lowercase" tools:ignore="UnusedResources">patch</string>
+	<string name="container_plural_lowercase" tools:ignore="UnusedResources">patches</string>
+
+	<!-- Late binding: Aircandi applications always subclass GcmIntentService -->
+	<string name="class_gcm_intent_service" tools:ignore="UnusedResources">com.patchr.components.GcmIntentService</string>
+
+	<!-- Identifiers -->
+
+	<string name="parse_app_id">EonZJ4FXEADijslgqXCkg37sOGpB7AB9lDYxoHtz</string>
+	<string name="parse_client_key">5QRFlRQ3j7gkxyJ2cBYbHTK98WRQhoHCnHdpEKSD</string>
+	<string name="gcm_sender_id">657673071389</string>
+	<string name="facebook_app_id">894654857249670</string>
+	<string name="facebook_account_kit_client_token">e60846a0dabd41d45ac3aad840c595ab</string>
+	<string name="facebook_account_kit_login_protocol_scheme">ak894654857249670</string>
+	<string name="tag_manager_container_id">GTM-MV8KBB</string>
+	<string name="bugsnag_api_key">0534f3bc03870084ba38d79ed1d5abea</string>
+	<string name="branch_sdk_key">key_live_aabKfhL9u6piQ93E2lzVslklzraKnSc3</string>
+	<string name="google_maps_api_key">AIzaSyCF9Nlm-CGETdgwP1ktNyAoKVgcUGuMzTA</string>
+
+	<string name="creative_sdk_client_id">6f4074ec11634bd78eb00909102844ec</string>
+	<string name="creative_sdk_client_key">7af6a808-0568-477e-88c2-63fa6e8ef617</string>
+
+	<!-- Splash -->
+
+	<string name="lobby_button_login">Log in</string>
+	<string name="lobby_button_login_accountkit">Start</string>
+	<string name="lobby_button_guest">skip</string>
+	<string name="lobby_button_signup">Sign up</string>
+	<string name="lobby_button_login_email">Log in with email</string>
+	<string name="lobby_button_login_phone">Log in with phone number</string>
+	<string name="label_lobby_accountkit">Log in or create an account</string>
+	<string name="lobby_button_passwordless">Not you? Get started</string>
+
+	<!-- Attribution -->
+
+	<string name="label_place_provider_google" tools:ignore="UnusedResources">Powered by Google</string>
+
+	<!-- Feedback -->
+
+	<string name="feedback_message">How can we make [@string/name_app] better for you?</string>
+
+	<!-- Content links -->
+
+	<string name="url_terms">http://patchr.com/terms</string>
+	<string name="url_privacy">http://patchr.com/privacy</string>
+	<string name="url_legal">http://patchr.com/android</string>
+
+	<string name="s3_bucket_images">aircandi-images</string>
+	<string name="url_media_images">http://aircandi-images.s3.amazonaws.com/</string>
+
+	<string name="uri_app_update">market://details?id=[@string/id_package]&amp;referrer=utm_source%3D[@string/id_referrer]</string>
+	<string name="uri_app_update_web">http://play.google.com/store/apps/details?id=[@string/id_package]&amp;referrer=utm_source%3D[@string/id_referrer]</string>
+	<string name="uri_aviary_install">market://details?id=com.aviary.android.feather&amp;referrer=utm_source%3D[@string/id_referrer]</string>
+
+</resources>

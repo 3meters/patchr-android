@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+
+	android:id="@+id/coordinator"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<android.support.design.widget.AppBarLayout
+		android:id="@+id/appbar_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/transparent">
+
+		<android.support.v7.widget.Toolbar
+
+			android:id="@+id/actionbar_toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="?attr/actionBarSize"
+			android:theme="@style/patchr_theme_action_bar"
+			app:layout_scrollFlags="scroll|enterAlways"
+			app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+			<TextView
+				android:id="@+id/toolbar_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="left"
+				android:textSize="18sp"
+				tools:text="Title" />
+
+		</android.support.v7.widget.Toolbar>
+
+	</android.support.design.widget.AppBarLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+		<LinearLayout
+			android:id="@+id/search_group"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:background="@color/background_form"
+			android:orientation="horizontal"
+			android:padding="5dp">
+
+			<com.patchr.ui.widgets.AirAutoCompleteTextView
+				android:id="@+id/search_text"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/form_field_height"
+				android:layout_weight="1"
+				android:completionThreshold="1"
+				android:drawableLeft="?attr/iconSearch"
+				android:drawablePadding="10dp"
+				android:drawableRight="?attr/iconClear"
+				android:fontFamily="sans-serif-light"
+				android:gravity="center|left"
+				android:hint="@string/hint_picture_search"
+				android:imeOptions="actionSearch"
+				android:inputType="textAutoCorrect"
+				android:singleLine="true" />
+		</LinearLayout>
+
+		<com.patchr.ui.widgets.AirAutofitRecyclerView
+			android:id="@+id/grid"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_below="@+id/search_group"
+			android:columnWidth="100dp"
+			android:clipToPadding="false"
+			android:layout_centerHorizontal="true" />
+
+		<com.patchr.ui.widgets.SquareButton
+			android:id="@+id/form_message"
+			style="@style/empty_message"
+			android:layout_width="@dimen/button_round_width"
+			android:layout_height="@dimen/button_round_height"
+			android:layout_centerInParent="true"
+			android:visibility="gone"
+			tools:text="@string/empty_nearby"
+			tools:visibility="visible" />
+
+		<com.patchr.ui.widgets.AirProgressBar
+			android:id="@+id/list_progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:layout_centerInParent="true"
+			android:padding="8dp"
+			android:visibility="gone"
+			tools:visibility="visible" />
+
+	</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

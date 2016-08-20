@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<RelativeLayout
+		android:id="@+id/card"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/backgroundCardField"
+		android:descendantFocusability="blocksDescendants"
+		android:focusable="false"
+		android:focusableInTouchMode="false">
+
+		<android.support.v7.widget.CardView
+			android:id="@+id/card_view"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="4dp"
+			app:cardBackgroundColor="?attr/backgroundCard"
+			app:cardCornerRadius="3dp"
+			app:cardElevation="2dp"
+			app:cardUseCompatPadding="true"
+			app:contentPadding="8dp">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:baselineAligned="false"
+				android:orientation="horizontal">
+
+				<com.patchr.ui.widgets.ImageWidget
+					android:id="@+id/user_photo"
+					android:layout_width="@dimen/image_medium"
+					android:layout_height="@dimen/image_medium"
+					app:category="profile"
+					app:shape="round"
+					app:showBusy="false" />
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:layout_marginLeft="8dp"
+					android:layout_weight="1"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:fontFamily="sans-serif-light"
+						android:singleLine="true"
+						android:textColor="@color/brand_accent_darker"
+						android:textSize="24sp"
+						tools:text="Aliza Wenk" />
+
+					<TextView
+						android:id="@+id/auth_identifier_label"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="4dp"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:text="@string/label_auth_identifier"
+						android:textAllCaps="true"
+						android:textColor="?attr/textColor"
+						android:textSize="10sp"
+						android:visibility="gone"
+						tools:ignore="SmallSp"
+						tools:text="logged in using:"
+						tools:visibility="visible" />
+
+					<TextView
+						android:id="@+id/auth_identifier"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textColor="?attr/textColor"
+						android:textSize="16sp"
+						android:visibility="gone"
+						tools:text="aliza@3meters.com"
+						tools:visibility="visible" />
+
+					<TextView
+						android:id="@+id/area"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="4dp"
+						android:ellipsize="end"
+						android:singleLine="true"
+						android:textColor="?attr/textColorSecondary"
+						android:textSize="14sp"
+						tools:text="Seattle, WA" />
+
+				</LinearLayout>
+
+			</LinearLayout>
+		</android.support.v7.widget.CardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/card_view"
+			android:background="@color/white"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@+id/member_of_button"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableLeft="?attr/iconDrawerWatch"
+				android:drawablePadding="8dp"
+				android:ellipsize="end"
+				android:gravity="center_vertical"
+				android:maxLines="1"
+				android:onClick="onClick"
+				android:paddingBottom="2dp"
+				android:paddingLeft="8dp"
+				android:paddingRight="8dp"
+				android:paddingTop="2dp"
+				android:tag="watch"
+				android:textColor="@color/selector_link_text"
+				android:textSize="20sp"
+				tools:text="Member: 27" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/rule_divider_height"
+				android:background="?attr/ruleColor" />
+
+			<TextView
+				android:id="@+id/owner_of_button"
+				style="@style/selectable_item"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableLeft="?attr/iconDrawerCreate"
+				android:drawablePadding="8dp"
+				android:ellipsize="end"
+				android:gravity="center_vertical"
+				android:maxLines="1"
+				android:onClick="onClick"
+				android:paddingBottom="2dp"
+				android:paddingLeft="8dp"
+				android:paddingRight="8dp"
+				android:paddingTop="2dp"
+				android:tag="create"
+				android:textColor="@color/selector_link_text"
+				android:textSize="20sp"
+				tools:text="Owner: 16" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/rule_divider_height"
+				android:background="?attr/ruleColor" />
+
+		</LinearLayout>
+
+		<android.support.design.widget.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@+id/card_view"
+			android:layout_alignParentEnd="true"
+			android:layout_marginBottom="-40dp"
+			android:layout_marginRight="16dp"
+			android:clickable="true"
+			android:onClick="onClick"
+			android:scaleType="center"
+			android:src="@drawable/ic_edit_dark"
+			android:visibility="gone"
+			app:borderWidth="0dp"
+			app:elevation="4dp"
+			app:fab_size="normal"
+			app:useCompatPadding="true"
+			tools:visibility="visible" />
+
+	</RelativeLayout>
+
+</merge>
+

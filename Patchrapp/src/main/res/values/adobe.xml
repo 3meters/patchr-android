@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="AdobeImageBaseTheme" parent="Theme.AppCompat.NoActionBar">
+		<item name="colorPrimary">@color/gray_10_pcnt</item>
+		<item name="colorPrimaryDark">@color/gray_10_pcnt</item>
+		<item name="colorAccent">@color/com_adobe_image_color_blue</item>
+		<item name="com_adobe_font_bold">adobe/image/fonts/Roboto-Bold.ttf</item>
+		<item name="com_adobe_font_regular">adobe/image/fonts/Roboto-Regular.ttf</item>
+		<item name="com_adobe_font_light">adobe/image/fonts/Roboto-Light.ttf</item>
+		<item name="toolbarStyle">@style/AdobeImageWidget.ToolBar</item>
+		<item name="toolbarNavigationButtonStyle">@style/AdobeImageWidget.Toolbar.Button.Navigation</item>
+		<item name="actionOverflowButtonStyle">@style/AdobeImageWidget.ActionButton.Overflow</item>
+		<item name="actionModeStyle">@style/AdobeImageWidget.ActionMode</item>
+		<item name="actionModeCloseButtonStyle">@style/AdobeImageWidget.ActionButton.CloseMode</item>
+		<item name="com_adobe_image_textColorBlue">@color/com_adobe_image_text_color_blue</item>
+		<item name="com_adobe_image_colorPrimaryDark2">@color/com_adobe_image_color_dark_gray3</item>
+		<item name="com_adobe_image_colorAccentDisabled">@color/com_adobe_image_color_blue_disabled</item>
+		<item name="com_adobe_image_flatTransparentBackgroundSelector">@drawable/com_adobe_image_flat_button_blue_transparent_selector</item>
+		<item name="com_adobe_image_listSelectorDark">@drawable/com_adobe_image_item_background_dark</item>
+		<item name="com_adobe_image_cardBackground">@drawable/com_adobe_image_card_background_light_selector</item>
+		<item name="com_adobe_image_buyButtonStyle">@style/AdobeImageWidget.BuyButton.Light</item>
+		<item name="com_adobe_image_buyButtonTransparentStyle">@style/AdobeImageWidget.BuyButton.Transparent</item>
+		<item name="com_adobe_image_colorControlHighLightDark">@color/com_adobe_image_color_light_gray7</item>
+		<item name="com_adobe_image_colorControlHighLight">@color/com_adobe_image_color_light_gray1</item>
+		<item name="com_adobe_image_colorControlNormal">@color/com_adobe_image_color_light_gray_semi_transparent1</item>
+		<item name="com_adobe_image_contentControlNormal">@color/com_adobe_image_color_light_gray_semi_transparent2</item>
+		<item name="com_adobe_image_storePreviewTextColor">?android:attr/textColorPrimaryInverse</item>
+		<item name="com_adobe_image_textColorPrimaryDark">?android:attr/textColorPrimaryInverse</item>
+		<item name="com_adobe_image_textColorPrimaryLight">?android:attr/textColorPrimary</item>
+		<item name="com_adobe_image_toolbar_progress_size">@dimen/com_adobe_image_action_bar_progress_height</item>
+		<item name="actionBarSize">@dimen/com_adobe_image_action_bar_default_height</item>
+	</style>
+
+	<style name="AdobeImageBaseTheme.Editor" parent="AdobeImageBaseTheme">
+		<item name="android:windowContentOverlay">@null</item>
+
+		<item name="toolbarStyle">@style/AdobeImageWidget.ToolBar.WithElevation</item>
+		<item name="colorPrimaryDark">@color/com_adobe_image_color_dark_gray3</item>
+		<item name="android:windowBackground">@color/background_window</item>
+		<item name="com_adobe_image_editor_gallery_backgroundLight">@color/com_adobe_image_color_light_gray4</item>
+
+		<item name="com_adobe_image_editor_bottombar_panel_toggle_rectangle_button">@style/AdobeImageWidget.BottomBarFlatToggleButton</item>
+		<item name="com_adobe_image_editor_bottombar_meme_clear_button">@style/AdobeImageWidget.MemeClearButtonStyle</item>
+		<item name="com_adobe_image_editor_bottombar_meme_button">@style/AdobeImageWidget.Meme</item>
+		<item name="com_adobe_image_editor_bottombar_circle_button_nontoggle">@style/AdobeImageWidget.CircleImageButton.NonToggle</item>
+		<item name="com_adobe_image_editor_bottombar_circle_text">@style/AdobeImageWidget.CircleButtonText</item>
+		<item name="com_adobe_image_editor_bottombar_circle_button">@style/AdobeImageWidget.CircleImageButton</item>
+		<item name="com_adobe_image_editor_bottombar_disabled_color">@color/com_adobe_image_color_dark_gray1_disabled</item>
+		<item name="com_adobe_image_editor_bottombar_gallery_item_style">@style/AdobeImageWidget.GalleryItemStyle</item>
+
+		<item name="com_adobe_image_editor_crop_highlight_style">@style/AdobeImageWidget.CropHighlightView</item>
+		<item name="com_adobe_image_editor_sticker_highlight_style">@style/AdobeImageWidget.StickerHighlightView</item>
+		<item name="com_adobe_image_editor_vignette_content_style">@style/AdobeImageWidget.VignetteStyle</item>
+		<item name="com_adobe_image_editor_focus_content_style">@style/AdobeImageWidget.TiltShiftView</item>
+		<item name="com_adobe_image_editor_orientation_content_style">@style/AdobeImageWidget.OrientationImageView</item>
+		<item name="com_adobe_image_editor_text_highlight_style">@style/AdobeImageWidget.TextHighlightView</item>
+		<item name="com_adobe_image_editor_blemish_overlay_style">@style/AdobeImageWidget.TutorialOverlayBase.Blemish</item>
+		<item name="com_adobe_image_editor_undo_redo_overlay_style">@style/AdobeImageWidget.TutorialOverlayBase.UndoRedo</item>
+		<item name="com_adobe_image_editor_frames_overlay_style">@style/AdobeImageWidget.TutorialOverlayBase.Frames</item>
+		<item name="com_adobe_image_editor_overlay_overlay_style">@style/AdobeImageWidget.TutorialOverlayBase.Overlay</item>
+		<item name="com_adobe_image_editor_bottombar_content_header_color">@color/com_adobe_image_color_light_gray5</item>
+		<item name="com_adobe_image_flatTransparentBackgroundSelector">
+			@drawable/com_adobe_image_flat_button_blue_transparent_invert_selector
+		</item>
+		<item name="com_adobe_image_bottombarColorPrimary">@color/gray_20_pcnt</item>
+		<item name="com_adobe_image_bottombarColorSecondary">@color/gray_20_pcnt</item>
+	</style>
+
+	<style name="AdobeImageWidget.TextAppearance.Caption" parent="TextAppearance.AppCompat.Caption">
+		<item name="android:textColor">@color/black</item>
+	</style>
+</resources>

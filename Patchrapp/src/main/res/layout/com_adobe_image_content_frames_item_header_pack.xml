@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/com_adobe_image_editor_content_item_header_width"
+    android:layout_height="match_parent"
+    android:background="?attr/com_adobe_image_editor_bottombar_content_header_color"
+    android:clickable="false"
+    android:focusable="false"
+    android:focusableInTouchMode="false">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="2dip"
+        android:layout_marginRight="2dip" />
+
+</FrameLayout>

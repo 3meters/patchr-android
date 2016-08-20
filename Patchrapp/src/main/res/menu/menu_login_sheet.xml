@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item
+		android:id="@+id/login_using_phone"
+		android:icon="?attr/iconMessage"
+		android:title="@string/menu_item_login_using_phone" />
+	<item
+		android:id="@+id/login_using_email"
+		android:icon="?attr/iconEmail"
+		android:title="@string/menu_item_login_using_email" />
+	<item
+		android:id="@+id/login_using_password"
+		android:icon="?attr/iconPassword"
+		android:title="@string/menu_item_login_using_password" />
+</menu>

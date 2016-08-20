@@ -10,7 +10,8 @@ is a deferred deep link and that a click should be synthesized.
 Clicking branch link in any link supporting app on the device
 
 Data uri in the intent:
-https://bnc.lt/cdud/RFOdE5yr1q?branch_used=true
+Old: https://bnc.lt/cdud/RFOdE5yr1q?branch_used=true
+New: https://bvvb.app.link/RFOdE5yr1q?branch_used=true
 
 Pass this to branch and get back:
 

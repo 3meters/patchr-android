@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:custom="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/background_form"
+	android:orientation="vertical">
+
+	<android.support.design.widget.AppBarLayout
+		android:id="@+id/appbar_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/transparent">
+
+		<android.support.v7.widget.Toolbar
+
+			android:id="@+id/actionbar_toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="?attr/actionBarSize"
+			android:theme="@style/patchr_theme_action_bar"
+			custom:layout_scrollFlags="scroll|enterAlways"
+			custom:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+			<TextView
+				android:id="@+id/toolbar_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="left"
+				android:textSize="18sp"
+				tools:text="Title" />
+
+		</android.support.v7.widget.Toolbar>
+
+	</android.support.design.widget.AppBarLayout>
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<LinearLayout
+			android:layout_width="288dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:orientation="vertical">
+
+			<!-- Title and Content -->
+
+			<TextView
+				android:id="@+id/title"
+				style="@style/text_appearance_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginBottom="16dp"
+				android:layout_marginTop="24dp"
+				android:gravity="center_horizontal"
+				android:text="@string/form_title_login_edit" />
+
+			<com.patchr.ui.widgets.ClearableEditText
+				android:id="@+id/email"
+				style="@style/form_edit"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/form_field_height"
+				android:drawableRight="?attr/iconClear"
+				android:hint="@string/label_email"
+				android:inputType="textEmailAddress" />
+
+			<com.patchr.ui.widgets.PasswordEditText
+				android:id="@+id/password"
+				style="@style/form_edit"
+				android:layout_width="match_parent"
+				android:layout_height="48dp"
+				android:hint="@string/label_password"
+				android:imeOptions="actionGo"
+				android:inputType="textPassword" />
+
+			<Button
+				android:id="@+id/signup_button"
+				style="@style/button_featured"
+				android:layout_width="match_parent"
+				android:theme="@style/button_primary_overlay"
+				android:layout_height="56dp"
+				android:onClick="onClick"
+				android:text="@string/button_login" />
+
+			<Button
+				android:id="@+id/forgot_password_button"
+				style="@style/button_flat"
+				android:layout_width="match_parent"
+				android:layout_marginTop="8dp"
+				android:layout_height="48dp"
+				android:onClick="onClick"
+				android:text="@string/button_forgot_password" />
+
+		</LinearLayout>
+	</ScrollView>
+
+</LinearLayout>

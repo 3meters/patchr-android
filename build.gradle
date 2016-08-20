@@ -1,153 +1,32 @@
 buildscript {
 	repositories {
 		jcenter()
+		mavenCentral()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo' }
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.0.0-rc1'
-		classpath 'com.google.gms:google-services:2.0.0-beta6'
+		classpath 'com.android.tools.build:gradle:2.1.3'
+		classpath 'com.google.gms:google-services:3.0.0'
+		//noinspection NewerVersionAvailable
+		classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
+		classpath "io.realm:realm-gradle-plugin:1.2.0"
+		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 	}
 }
 
 allprojects {
 	repositories {
 		jcenter()
-		maven { url "https://repo.commonsware.com.s3.amazonaws.com" }
+		mavenCentral()
+		maven { url 'https://repo.commonsware.com.s3.amazonaws.com' }
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://repo.adobe.com/nexus/content/repositories/releases/' }
+		maven { url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo' }
+		maven { url 'http://maven.localytics.com/public' }
 	}
 }
 
-apply plugin: 'com.android.application'
-
-android {
-	compileSdkVersion 23
-	buildToolsVersion '23.0.2'
-
-	defaultConfig {
-		/*
-         * Official package name used by the Google Play store.
-         * WARNING: Changing this will create a new app with no history.
-         */
-		applicationId 'com.patchr.android'
-		minSdkVersion 15        // ICS 4.0.3 and up
-		targetSdkVersion 23     // Marshmallow
-		versionCode 112
-		versionName '1.1.9'
-	}
-
-	lintOptions {
-		checkReleaseBuilds false
-	}
-
-	signingConfigs {
-		release {
-			storeFile file('app.keystore')
-			keyAlias 'aircandi'
-			storePassword 'Doo.dah.1'
-			keyPassword 'Doo.dah.1'
-		}
-	}
-
-	productFlavors {
-		dev {
-			/*
-			 * dev utilizes minSDKVersion = 21 to allow the Android gradle plugin to pre-dex
-			 * each module and produce an APK that can be tested on Android Lollipop without
-			 * time consuming dex merging processes.
-			 */
-			minSdkVersion 15
-		}
-		prod {
-			/* The actual minSdkVersion for the application. */
-			minSdkVersion 15
-		}
-	}
-
-	buildTypes {
-
-		debug {
-			debuggable true
-			multiDexEnabled false
-		}
-
-		/*
-         * shrinkResources will remove unused resources from build. A resource will
-         * be considered used if we have it associated with a theme attr even if that
-         * attr is not being used.
-         */
-		release {
-			multiDexEnabled true
-			minifyEnabled true
-			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-			signingConfig signingConfigs.release
-			zipAlignEnabled true
-			debuggable false
-			applicationVariants.all { variant ->
-				variant.outputs.each { output ->
-					def file = output.outputFile
-					def fileName = file.name.replace(".apk", "-" + defaultConfig.versionName + ".apk")
-					output.outputFile = new File(file.parent, fileName)
-				}
-			}
-		}
-	}
-
-	packagingOptions {
-		exclude 'AndroidManifest.xml'
-		exclude 'META-INF/DEPENDENCIES'
-		exclude 'META-INF/notice.txt'
-		exclude 'META-INF/license.txt'
-		exclude 'META-INF/LICENSE.txt'
-		exclude 'META-INF/NOTICE.txt'
-		exclude 'META-INF/MANIFEST.MF'
-		exclude '!META-INF/MANIFEST.MF'
-		exclude 'META-INF/services/javax.annotation.processing.Processor'
-	}
-
-	dexOptions {
-		jumboMode true
-		incremental true
-		preDexLibraries false
-		javaMaxHeapSize "4g"
-	}
+task clean(type: Delete) {
+	delete rootProject.buildDir
 }
-
-dependencies {
-
-	/* External services and components */
-
-	compile 'com.amazonaws:aws-android-sdk-core:2.1.9'
-	compile 'com.amazonaws:aws-android-sdk-s3:2.1.9'
-	compile 'com.facebook.android:facebook-android-sdk:4.10.0'
-	compile 'com.parse:parse-android:1.13.0'
-	compile 'io.branch.sdk.android:library:1.11.0'
-	compile 'com.google.android.gms:play-services-base:8.4.0'
-	compile 'com.google.android.gms:play-services-location:8.4.0'
-	compile 'com.google.android.gms:play-services-maps:8.4.0'
-	compile 'com.google.android.gms:play-services-analytics:8.4.0'
-	compile 'com.google.android.gms:play-services-gcm:8.4.0'
-	compile 'com.google.maps.android:android-maps-utils:0.3.4'
-	compile 'com.squareup.okhttp:okhttp:2.3.0'
-	compile 'com.squareup.okio:okio:1.3.0'
-	compile 'net.minidev:json-smart:1.2'
-	compile 'com.parse.bolts:bolts-tasks:1.4.0'
-	compile 'com.parse.bolts:bolts-applinks:1.4.0'
-	compile 'com.android.support:support-v4:23.2.1'
-	compile 'com.android.support:appcompat-v7:23.2.1'
-	compile 'com.android.support:cardview-v7:23.2.1'
-	compile 'com.android.support:multidex:1.0.1'
-	compile 'com.android.support:design:23.2.1'
-	compile 'com.android.support:recyclerview-v7:23.2.1'
-	compile 'com.squareup.picasso:picasso:2.5.2'
-	compile 'com.commit451:PhotoView:1.2.4'
-	compile 'com.commonsware.cwac:endless:1.2.3'
-	compile 'com.kbeanie:image-chooser-library:1.6.0@aar'
-	compile 'com.github.machinarius:preferencefragment:0.1.2'
-	compile 'com.flipboard:bottomsheet-core:1.5.0'
-	compile 'com.flipboard:bottomsheet-commons:1.5.0'
-	compile 'com.orhanobut:dialogplus:1.11@aar'     // Used for guest guard dialog
-	compile 'org.greenrobot:eventbus:3.0.0'
-	compile 'com.splitwise:tokenautocomplete:2.0.7@aar'
-	compile 'com.bugsnag:bugsnag-android:3.4.0'
-}
-
-apply plugin: 'com.google.gms.google-services'

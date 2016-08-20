@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:drawable="@drawable/patchr_splash" />
+
+	<!--
+	<item
+		android:width="72dp"
+		android:height="72dp"
+		android:drawable="@drawable/ic_img_patch_dark"
+		android:gravity="center" />-->
+
+</layer-list>

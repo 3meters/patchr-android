@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/background_screen"
+	android:orientation="vertical">
+
+	<com.patchr.ui.widgets.AirRelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center_horizontal"
+		android:layout_marginTop="?attr/actionBarSize"
+		android:background="@color/white">
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/results_list"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_centerHorizontal="true"
+			android:animationCache="false"
+			android:cacheColorHint="@color/transparent"
+			android:divider="@null"
+			android:footerDividersEnabled="false"
+			android:headerDividersEnabled="false"
+			android:listSelector="@color/transparent"
+			android:scrollingCache="false" />
+
+		<com.patchr.ui.widgets.AirProgressBar
+			android:id="@+id/list_progress"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="@dimen/progress_width"
+			android:layout_height="@dimen/progress_height"
+			android:layout_centerInParent="true"
+			android:padding="8dp"
+			android:visibility="gone"
+			tools:visibility="visible" />
+
+	</com.patchr.ui.widgets.AirRelativeLayout>
+
+	<FrameLayout
+		android:id="@+id/toolbar_container"
+		android:layout_width="match_parent"
+		android:background="@color/white"
+		android:layout_height="wrap_content">
+
+		<com.arlib.floatingsearchview.FloatingSearchView
+			android:id="@+id/search_view"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize"
+			android:theme="@style/patchr_theme_search_bar"
+			app:floatingSearch_searchBarMarginLeft="4dp"
+			app:floatingSearch_searchBarMarginRight="4dp"
+			app:floatingSearch_searchBarMarginTop="4dp"
+			app:floatingSearch_showSearchKey="false"
+			app:floatingSearch_dimBackground="false"
+			app:floatingSearch_suggestionsListAnimDuration="250" />
+
+	</FrameLayout>
+
+</FrameLayout>

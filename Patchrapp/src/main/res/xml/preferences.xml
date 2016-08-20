@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="Pref_Main_Screen">
+
+	<PreferenceCategory
+		android:key="Pref_Notification_Category"
+		android:title="@string/pref_category_title_notifications">
+
+		<ListPreference
+			android:defaultValue="@string/pref_push_notification_type_default"
+			android:entries="@array/push_notification_type_names"
+			android:entryValues="@array/push_notification_type_values"
+			android:key="@string/pref_push_notification_type"
+			android:title="@string/pref_push_notifications_type_title" />
+
+		<SwitchPreference
+			android:defaultValue="@bool/pref_push_notifications_sound_default"
+			android:key="@string/pref_push_notification_sound"
+			android:title="@string/pref_push_notifications_sound_title" />
+
+		<SwitchPreference
+			android:defaultValue="@bool/pref_push_notifications_vibrate_default"
+			android:key="@string/pref_push_notification_vibrate"
+			android:title="@string/pref_push_notifications_vibrate_title" />
+
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="Pref_General_Category"
+		android:title="@string/pref_category_title_general">
+
+		<SwitchPreference
+			android:key="@string/pref_sound_effects"
+			android:summary="@string/pref_sound_effects_summary"
+			android:defaultValue="@bool/pref_sound_effects_default"
+			android:title="@string/pref_sound_effects_title" />
+
+		<Preference
+			android:key="Pref_Feedback"
+			android:title="@string/pref_feedback_title" />
+
+		<Preference
+			android:key="Pref_About"
+			android:title="@string/pref_about_title" />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="Pref_Account_Category"
+		android:title="@string/pref_category_title_account">
+
+		<Preference
+			android:key="Pref_Login_Logout"
+			android:summary="@string/pref_logout_title"
+			android:title="@string/pref_logout_summary" />
+	</PreferenceCategory>
+</PreferenceScreen>

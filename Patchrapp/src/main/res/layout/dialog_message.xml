@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:id="@+id/bottom_sheet"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@color/white"
+	android:gravity="center"
+	android:orientation="vertical"
+	app:layout_behavior="@string/bottom_sheet_behavior">
+
+	<FrameLayout
+		android:id="@+id/remove_group"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/remove"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/sheet_button_height"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_remove"
+			android:textAllCaps="true" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+
+	</FrameLayout>
+
+	<FrameLayout
+		android:id="@+id/delete_group"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:id="@+id/delete"
+			style="@style/button_link"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/sheet_button_height"
+			android:fontFamily="sans-serif"
+			android:gravity="center"
+			android:onClick="onClick"
+			android:text="@string/menu_item_delete"
+			android:textAllCaps="true" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/rule_divider_height"
+			android:layout_gravity="bottom"
+			android:background="?attr/ruleColor" />
+	</FrameLayout>
+
+	<Button
+		android:id="@+id/report"
+		style="@style/button_link"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/sheet_button_height"
+		android:fontFamily="sans-serif"
+		android:gravity="center"
+		android:onClick="onClick"
+		android:text="@string/menu_item_report"
+		android:textAllCaps="true" />
+</LinearLayout>
+
