@@ -323,7 +323,9 @@ public class MessageScreen extends BaseScreen {
 
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 		if (entity != null) {
-			parentId = entity.patch.shortcutForId;
+			if (entity.patch != null) {
+				parentId = entity.patch.shortcutForId;
+			}
 			draw();
 			supportInvalidateOptionsMenu();     // In case user authenticated
 			this.entity.addChangeListener(element -> {
@@ -336,7 +338,7 @@ public class MessageScreen extends BaseScreen {
 	public void fetch(final FetchMode mode) {
 
 		Logger.v(this, "Fetching entity: " + mode.name());
-		final FetchStrategy strategy = (mode != FetchMode.AUTO || !executed) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
+		final FetchStrategy strategy = (mode != FetchMode.AUTO || entity == null) ? FetchStrategy.IgnoreCache : FetchStrategy.UseCacheAndVerify;
 
 		subscription = RestClient.getInstance().fetchEntity(this.entityId, strategy)
 			.subscribe(

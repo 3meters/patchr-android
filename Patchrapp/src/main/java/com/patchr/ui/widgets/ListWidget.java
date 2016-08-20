@@ -20,6 +20,7 @@ import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
 import com.patchr.components.StringManager;
 import com.patchr.events.NotificationReceivedEvent;
+import com.patchr.events.RefreshEvent;
 import com.patchr.model.Query;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
@@ -106,6 +107,7 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	 *--------------------------------------------------------------------------------------------*/
 
 	@Override public void onRefresh() {
+		Dispatcher.getInstance().post(new RefreshEvent(FetchMode.MANUAL));
 		fetch(FetchMode.MANUAL);
 	}
 
@@ -203,6 +205,8 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 			query = RestClient.getQuery(queryName, contextEntityId);
 			entities = query.entities
 				.sort(querySpec.sortField, querySpec.sortAscending ? Sort.ASCENDING : Sort.DESCENDING);
+
+			executed = entities.size() > 0;
 
 			entities.addChangeListener(results -> {
 				if (entities.size() == 0) {

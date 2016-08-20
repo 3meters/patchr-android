@@ -50,6 +50,8 @@
 	<dimen name="button_stroke_width">0.5dp</dimen>
 	<dimen name="button_corner_radius">4dp</dimen>
 
+	<dimen name="sheet_button_height">56dp</dimen>
+
 	<!-- Forms -->
 
 	<dimen name="form_field_height">48dp</dimen>

@@ -322,7 +322,9 @@ public abstract class BaseScreen extends AppCompatActivity {
 			, null
 			, (dlg, which) -> {
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-					remove(toId);
+					if (toId != null) {
+						remove(toId);
+					}
 				}
 				else {
 					processing = false;

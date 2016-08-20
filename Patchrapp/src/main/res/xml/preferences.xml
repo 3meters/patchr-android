@@ -34,6 +34,7 @@
 		<SwitchPreference
 			android:key="@string/pref_sound_effects"
 			android:summary="@string/pref_sound_effects_summary"
+			android:defaultValue="@bool/pref_sound_effects_default"
 			android:title="@string/pref_sound_effects_title" />
 
 		<Preference

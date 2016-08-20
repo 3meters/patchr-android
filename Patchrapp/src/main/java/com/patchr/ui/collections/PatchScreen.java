@@ -28,7 +28,6 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.BranchProvider;
-import com.patchr.components.Dispatcher;
 import com.patchr.components.FacebookProvider;
 import com.patchr.components.MediaManager;
 import com.patchr.components.MenuManager;
@@ -84,11 +83,6 @@ public class PatchScreen extends BaseListScreen {
 	protected boolean         autoJoin;
 	protected boolean         justApproved;               // Set in onMessage via notification
 
-	@Override protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Dispatcher.getInstance().register(this);
-	}
-
 	@Override public void onResume() {
 		super.onResume();
 
@@ -115,10 +109,6 @@ public class PatchScreen extends BaseListScreen {
 		}
 	}
 
-	@Override protected void onDestroy() {
-		super.onDestroy();
-		Dispatcher.getInstance().unregister(this);
-	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events

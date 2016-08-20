@@ -8,7 +8,9 @@ import android.view.View;
 
 import com.patchr.Constants;
 import com.patchr.R;
+import com.patchr.components.Dispatcher;
 import com.patchr.components.Logger;
+import com.patchr.events.RefreshEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.QuerySpec;
@@ -21,6 +23,8 @@ import com.patchr.ui.widgets.ListWidget;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import io.realm.RealmChangeListener;
 
@@ -53,6 +57,7 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 		if (this.appBarLayout != null) {
 			this.appBarLayout.addOnOffsetChangedListener(this);
 		}
+		Dispatcher.getInstance().register(this);
 	}
 
 	@Override protected void onPause() {
@@ -64,12 +69,17 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 
 	@Override protected void onStop() {
 		super.onStop();
+		Dispatcher.getInstance().unregister(this);
 		listWidget.onStop();
 	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
+
+	@Subscribe public void onRefresh(final RefreshEvent event) {
+		fetch(event.mode, true);
+	}
 
 	/*--------------------------------------------------------------------------------------------
 	 * Events

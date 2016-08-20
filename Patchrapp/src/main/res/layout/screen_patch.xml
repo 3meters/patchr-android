@@ -56,25 +56,6 @@
 
 		</RelativeLayout>
 
-		<LinearLayout
-			android:id="@+id/bottom_sheet"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:background="@color/white"
-			android:gravity="center"
-			android:orientation="vertical"
-			app:layout_behavior="@string/bottom_sheet_behavior">
-
-			<android.support.v7.widget.RecyclerView
-				android:id="@+id/recyclerView"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginBottom="16dp"
-				android:layout_marginTop="16dp"
-				android:background="#fff" />
-
-		</LinearLayout>
-
 		<android.support.design.widget.FloatingActionButton
 			android:id="@+id/fab"
 			android:layout_width="wrap_content"
