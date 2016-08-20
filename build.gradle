@@ -10,7 +10,7 @@ buildscript {
 		classpath 'com.google.gms:google-services:3.0.0'
 		//noinspection NewerVersionAvailable
 		classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
-		classpath "io.realm:realm-gradle-plugin:1.1.0"
+		classpath "io.realm:realm-gradle-plugin:1.2.0"
 		classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 	}
 }
