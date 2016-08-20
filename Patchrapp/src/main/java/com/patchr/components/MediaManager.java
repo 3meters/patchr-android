@@ -38,7 +38,7 @@ public class MediaManager {
 
 		audioManager = (AudioManager) Patchr.applicationContext.getSystemService(Context.AUDIO_SERVICE);
 
-		SOUND_ACTIVITY_NEW = soundPool.load(Patchr.applicationContext, R.raw.notification_activity, 1);
+		SOUND_ACTIVITY_NEW = soundPool.load(Patchr.applicationContext, R.raw.onesignal_default_sound, 1);
 		SOUND_PLACES_FOUND = soundPool.load(Patchr.applicationContext, R.raw.notification_candi_discovered_soft, 1);
 		SOUND_DEBUG_POP = soundPool.load(Patchr.applicationContext, R.raw.notification_pop, 1);
 		SOUND_ACTIVITY_CHANGE = soundPool.load(Patchr.applicationContext, R.raw.notification_carme, 1);

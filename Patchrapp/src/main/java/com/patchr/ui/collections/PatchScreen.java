@@ -281,9 +281,9 @@ public class PatchScreen extends BaseListScreen {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNotificationReceived(final NotificationReceivedEvent event) {
 		/* Refresh the list because something happened with the list parent. */
-		if ((event.notification.parentId != null && event.notification.parentId.equals(this.entity.id))
-			|| (event.notification.targetId != null && event.notification.targetId.equals(this.entity.id))) {
-			if (event.notification.event.equals("approve_watch_entity")) {
+		if ((event.parentId != null && event.parentId.equals(this.entity.id))
+			|| (event.targetId != null && event.targetId.equals(this.entity.id))) {
+			if (event.eventType.equals("approve_watch_entity")) {
 				justApproved = true;
 			}
 			fetch(FetchMode.AUTO);

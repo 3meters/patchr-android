@@ -2,6 +2,7 @@ package com.patchr.components;
 
 import android.content.SharedPreferences;
 
+import com.onesignal.OneSignal;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.model.RealmEntity;
@@ -128,7 +129,7 @@ public class UserManager {
 		userRole = null;
 
 		/* Cancel any current notifications in the status bar */
-		NotificationManager.getInstance().cancelAllNotifications();
+		OneSignal.clearOneSignalNotifications();
 
 		ReportingManager.getInstance().updateUser(null); // Handles all frameworks
 

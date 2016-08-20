@@ -323,6 +323,7 @@ public class MessageScreen extends BaseScreen {
 
 		this.entity = realm.where(RealmEntity.class).equalTo("id", this.entityId).findFirst();
 		if (entity != null) {
+			parentId = entity.patch.shortcutForId;
 			draw();
 			supportInvalidateOptionsMenu();     // In case user authenticated
 			this.entity.addChangeListener(element -> {

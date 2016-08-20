@@ -408,7 +408,7 @@ public abstract class BaseScreen extends AppCompatActivity {
 						view.setLayoutParams(params);
 					}
 
-					if (Constants.SUPPORTS_JELLY_BEAN) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 						header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 					}
 					else {

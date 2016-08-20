@@ -5,8 +5,8 @@
 	xmlns:custom="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:background="@color/background_form"
 	android:layout_height="match_parent"
+	android:background="@color/background_form"
 	android:orientation="vertical">
 
 	<android.support.design.widget.AppBarLayout
@@ -152,22 +152,6 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/dummy_install_id"
-							android:textAppearance="?android:attr/textAppearanceSmall"
-							android:textColor="?attr/textColorSecondary" />
-					</TableRow>
-
-					<View
-						android:layout_width="match_parent"
-						android:layout_height="@dimen/rule_divider_height"
-						android:background="?attr/ruleColor" />
-
-					<TableRow>
-
-						<TextView
-							android:id="@+id/install_type"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:text="@string/dummy_install_type"
 							android:textAppearance="?android:attr/textAppearanceSmall"
 							android:textColor="?attr/textColorSecondary" />
 					</TableRow>

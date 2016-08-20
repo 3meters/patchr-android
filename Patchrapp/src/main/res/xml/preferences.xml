@@ -5,63 +5,44 @@
 	android:key="Pref_Main_Screen">
 
 	<PreferenceCategory
-		android:key="Pref_General_Category"
-		android:title="@string/pref_category_title_general">
+		android:key="Pref_Notification_Category"
+		android:title="@string/pref_category_title_notifications">
 
-		<PreferenceScreen
-			android:key="Pref_Notifications_Screen"
-			android:title="Notifications">
+		<ListPreference
+			android:defaultValue="@string/pref_push_notification_type_default"
+			android:entries="@array/push_notification_type_names"
+			android:entryValues="@array/push_notification_type_values"
+			android:key="@string/pref_push_notification_type"
+			android:title="@string/pref_push_notifications_type_title" />
 
-			<CheckBoxPreference
-				android:id="@+id/Pref_Notifications_Nearby"
-				android:defaultValue="@bool/pref_notifications_nearby_default"
-				android:key="@string/pref_patches_nearby"
-				android:summary="@string/pref_notifications_nearby_summary"
-				android:title="@string/pref_notifications_nearby_title" />
+		<SwitchPreference
+			android:defaultValue="@bool/pref_push_notifications_sound_default"
+			android:key="@string/pref_push_notification_sound"
+			android:title="@string/pref_push_notifications_sound_title" />
 
-			<CheckBoxPreference
-				android:id="@+id/Pref_Notifications_Watch"
-				android:defaultValue="@bool/pref_notifications_watch_default"
-				android:key="@string/pref_messages_watch"
-				android:summary="@string/pref_notifications_watch_summary"
-				android:title="@string/pref_notifications_watch_title" />
-
-			<CheckBoxPreference
-				android:id="@+id/Pref_Notifications_Like"
-				android:defaultValue="@bool/pref_notifications_like_default"
-				android:key="@string/pref_likes"
-				android:summary="@string/pref_notifications_like_summary"
-				android:title="@string/pref_notifications_like_title" />
-
-			<CheckBoxPreference
-				android:id="@+id/Pref_Notifications_Share"
-				android:defaultValue="@bool/pref_notifications_share_default"
-				android:key="@string/pref_messages_share"
-				android:summary="@string/pref_notifications_share_summary"
-				android:title="@string/pref_notifications_share_title" />
-
-			<CheckBoxPreference
-				android:id="@+id/Pref_Sound_Effects"
-				android:defaultValue="@bool/pref_sound_effects_default"
-				android:key="@string/pref_sound_effects"
-				android:summary="@string/pref_sound_effects_summary"
-				android:title="@string/pref_sound_effects_title" />
-
-		</PreferenceScreen>
-
-		<Preference
-			android:key="Pref_Feedback"
-			android:title="Feedback" />
+		<SwitchPreference
+			android:defaultValue="@bool/pref_push_notifications_vibrate_default"
+			android:key="@string/pref_push_notification_vibrate"
+			android:title="@string/pref_push_notifications_vibrate_title" />
 
 	</PreferenceCategory>
 
 	<PreferenceCategory
-		android:key="Pref_About_Category"
-		android:title="@string/pref_category_title_about">
+		android:key="Pref_General_Category"
+		android:title="@string/pref_category_title_general">
+
+		<SwitchPreference
+			android:key="@string/pref_sound_effects"
+			android:summary="@string/pref_sound_effects_summary"
+			android:title="@string/pref_sound_effects_title" />
+
+		<Preference
+			android:key="Pref_Feedback"
+			android:title="@string/pref_feedback_title" />
 
 		<Preference
 			android:key="Pref_About"
-			android:title="About" />
+			android:title="@string/pref_about_title" />
 	</PreferenceCategory>
 
 	<PreferenceCategory
@@ -69,8 +50,8 @@
 		android:title="@string/pref_category_title_account">
 
 		<Preference
-			android:key="Pref_Signin_Signout"
-			android:summary="@string/pref_signout_title"
-			android:title="@string/pref_signout_summary" />
+			android:key="Pref_Login_Logout"
+			android:summary="@string/pref_logout_title"
+			android:title="@string/pref_logout_summary" />
 	</PreferenceCategory>
 </PreferenceScreen>

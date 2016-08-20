@@ -2,7 +2,6 @@
 package com.patchr;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -13,8 +12,8 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("ucd")
 public class Constants {
 
-	public static final int      LOG_LEVEL   = BuildConfig.DEBUG ? Log.VERBOSE : Log.DEBUG;
-	public static final Executor EXECUTOR    = AsyncTask.SERIAL_EXECUTOR;
+	public static final int      LOG_LEVEL = BuildConfig.DEBUG ? Log.VERBOSE : Log.DEBUG;
+	public static final Executor EXECUTOR  = AsyncTask.SERIAL_EXECUTOR;
 
 	/* Activity parameters */
 	public static final String EXTRA_ENTITY_PARENT_ID   = "com.patchr.EXTRA_PARENT_ENTITY_ID";
@@ -192,17 +191,6 @@ public class Constants {
 	public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION  = 100;
 	public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 200;
 
-	public static final boolean SUPPORTS_ICE_CREAM_SANDWICH = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-	public static final boolean SUPPORTS_JELLY_BEAN         = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN;
-	public static final boolean SUPPORTS_JELLY_BEAN_MR1     = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1;
-	public static final boolean SUPPORTS_KIT_KAT            = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-	public static final boolean SUPPORTS_LOLLIPOP           = android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-
-	/* Install id */
-	public static final String INSTALL_TYPE_RANDOM     = "random_uuid";
-	public static final String INSTALL_TYPE_ANDROID_ID = "android_id";
-	public static final String INSTALL_TYPE_SERIAL     = "serial_num";
-
 	/*--------------------------------------------------------------------------------------------
 	 * Service constants
 	 *--------------------------------------------------------------------------------------------*/
@@ -242,5 +230,5 @@ public class Constants {
 	public static final float   SERVICE_STATUS_CODE_FORBIDDEN_VIA_API_ONLY       = 403.22f;
 	public static final float   SERVICE_STATUS_CODE_FORBIDDEN_LIMIT_EXCEEDED     = 403.3f;
 
-	public static       Integer SUGGEST_LIMIT                                    = 10;
+	public static Integer SUGGEST_LIMIT = 10;
 }

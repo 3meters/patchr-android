@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.machinarius.preferencefragment.PreferenceFragment;
+import com.onesignal.OneSignal;
 import com.patchr.BuildConfig;
 import com.patchr.Constants;
 import com.patchr.Patchr;
@@ -114,22 +115,6 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 			ListPreference listPref = (ListPreference) pref;
 			pref.setSummary(listPref.getEntry());
 		}
-		else if (pref instanceof EditTextPreference) {
-			if (((EditTextPreference) pref).getEditText().getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-				EditTextPreference etPref = (EditTextPreference) pref;
-				String maskedPw = "";
-				if (etPref.getText() != null) {
-					for (int j = 0; j < etPref.getText().length(); j++) {
-						maskedPw = maskedPw + "*";
-					}
-					pref.setSummary(maskedPw);
-				}
-			}
-			else {
-				EditTextPreference etPref = (EditTextPreference) pref;
-				pref.setSummary(etPref.getText());
-			}
-		}
 	}
 
 	@Override
@@ -150,8 +135,35 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 
 	private void initialize() {
 
+		/* Listen for notifications type */
+		Preference pref = findPreference(StringManager.getString(R.string.pref_push_notification_type));
+		if (pref != null) {
+			pref.setOnPreferenceChangeListener((preference, newValue) -> {
+				OneSignal.setSubscription(!newValue.equals("none"));
+				return true;
+			});
+		}
+
+		/* Listen for notification sound */
+		pref = findPreference(StringManager.getString(R.string.pref_push_notification_sound));
+		if (pref != null) {
+			pref.setOnPreferenceChangeListener((preference, newValue) -> {
+				OneSignal.enableSound((boolean) newValue);
+				return true;
+			});
+		}
+
+		/* Listen for notification sound */
+		pref = findPreference(StringManager.getString(R.string.pref_push_notification_vibrate));
+		if (pref != null) {
+			pref.setOnPreferenceChangeListener((preference, newValue) -> {
+				OneSignal.enableVibrate((boolean) newValue);
+				return true;
+			});
+		}
+
 		/* Listen for about click */
-		Preference pref = findPreference("Pref_About");
+		pref = findPreference("Pref_About");
 		if (pref != null) {
 			pref.setTitle("Version: " + BuildConfig.VERSION_NAME);
 			pref.setSummary("Terms of Service, Privacy Policy, Licenses");
@@ -165,10 +177,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		}
 
 		/* Listen for signin/out click */
-		pref = findPreference("Pref_Signin_Signout");
+		pref = findPreference("Pref_Login_Logout");
 		if (pref != null) {
-			pref.setTitle(StringManager.getString(R.string.pref_signout_title));
-			pref.setSummary(StringManager.getString(R.string.pref_signout_summary));
+			pref.setTitle(StringManager.getString(R.string.pref_logout_title));
+			pref.setSummary(StringManager.getString(R.string.pref_logout_summary));
 
 			pref.setOnPreferenceClickListener(preference -> {
 				UserManager.shared().logout();

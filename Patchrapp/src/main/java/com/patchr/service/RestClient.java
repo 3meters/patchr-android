@@ -569,7 +569,7 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("data", data);
 		parameters.put("secret", ContainerManager.getInstance().getContainer().getString(ContainerManager.USER_SECRET));
-		parameters.put("installId", Patchr.getInstance().getinstallId());
+		parameters.put("installId", NotificationManager.installId); // Needed because of auto user login
 
 		return postEntity("user/create", parameters);
 	}
@@ -588,7 +588,7 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("email", email);
 		parameters.put("password", password);
-		parameters.put("installId", Patchr.getInstance().getinstallId());
+		parameters.put("installId", NotificationManager.installId);
 
 		return post("auth/signin", parameters, null, null, false)
 			.flatMap(response -> {
@@ -609,7 +609,7 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("authorization_code", token);
 		parameters.put("getEntities", true);
-		parameters.put("install", Patchr.getInstance().getinstallId());
+		parameters.put("install", NotificationManager.installId);
 		RealmEntity.extras(Constants.SCHEMA_ENTITY_USER, parameters);
 
 		return post("auth/ak", parameters, null, null, true)
@@ -634,7 +634,7 @@ public class RestClient {
 		parameters.put("userId", userId);
 		parameters.put("oldPassword", passwordOld);
 		parameters.put("newPassword", passwordNew);
-		parameters.put("installId", Patchr.getInstance().getinstallId());
+		parameters.put("installId", NotificationManager.installId); // Needed because of auto user login with new pw
 		addSessionParameters(parameters);
 
 		return post("user/pw/change", parameters, null, null, false).doOnNext(response -> UserManager.shared().handlePasswordChange(response));
@@ -644,7 +644,6 @@ public class RestClient {
 
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("email", email);
-		parameters.put("installId", Patchr.getInstance().getinstallId());
 		addSessionParameters(parameters);
 
 		return post("user/pw/reqreset", parameters, null, null, false);
@@ -655,7 +654,7 @@ public class RestClient {
 		SimpleMap parameters = new SimpleMap();
 		parameters.put("token", token);
 		parameters.put("password", password);
-		parameters.put("installId", Patchr.getInstance().getinstallId());
+		parameters.put("installId", NotificationManager.installId); // Needed because of auto user login
 
 		return post("user/pw/reset", parameters, null, null, false)
 			.flatMap(response -> {
@@ -670,6 +669,17 @@ public class RestClient {
 			});
 	}
 
+	public Observable<ProxibaseResponse> preflight() {
+
+		SimpleMap parameters = new SimpleMap();
+		if (UserManager.shared().authenticated()) {
+			parameters.put("user", UserManager.userId);
+			parameters.put("session", UserManager.sessionKey);
+		}
+
+		return get("client", parameters, false);
+	}
+
 	public Observable<ProxibaseResponse> registerInstall() {
 		/*
 		 * We only register installs once we have a push user id.
@@ -679,8 +689,8 @@ public class RestClient {
 		}
 		else {
 			SimpleMap install = new SimpleMap();
-			install.put("installId", Patchr.getInstance().getinstallId());
-			install.put("pushUserId", NotificationManager.pushUserId);
+			install.put("installId", NotificationManager.installId);
+			install.put("pushInstallId", NotificationManager.installId);
 			install.put("clientVersionName", BuildConfig.VERSION_NAME);
 			install.put("clientVersionCode", BuildConfig.VERSION_CODE);
 			install.put("clientPackageName", Patchr.applicationContext.getPackageName());
@@ -688,8 +698,8 @@ public class RestClient {
 			install.put("deviceType", "android");
 			install.put("deviceVersionName", Build.VERSION.RELEASE); // Android version number. E.g., "1.0" or "3.4b5"
 
-			if (install.get("pushUserId") == null) {
-				throw new IllegalStateException("oneSignalInstallId cannot be null");
+			if (install.get("pushInstallId") == null) {
+				throw new IllegalStateException("pushInstallId cannot be null");
 			}
 
 			SimpleMap parameters = new SimpleMap();
@@ -700,16 +710,6 @@ public class RestClient {
 
 			return post("do/registerInstall", parameters, null, null, false);
 		}
-	}
-
-	public Observable<ProxibaseResponse> updateProximity(@NotNull final Location location) {
-
-		SimpleMap parameters = new SimpleMap();
-		parameters.put("installId", Patchr.getInstance().getinstallId());
-		addLocationParameter(parameters, location);
-		addSessionParameters(parameters);
-
-		return post("do/updateProximity", parameters, null, null, false);
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -753,6 +753,9 @@ public class RestClient {
 						throwServiceException(responseMap.errorBody());
 					}
 					ProxibaseResponse response = ProxibaseResponse.setPropertiesFromMap(new ProxibaseResponse(), responseMap);
+					if (updateRequired(response)) {
+						throw new ClientVersionException();
+					}
 					if (updateRealm && !response.noop) {
 						updateRealm(response, null, null);
 					}

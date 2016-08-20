@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -163,7 +164,7 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 			if (alertButton != null) {
 
 				View rule = listWidget.header.findViewById(R.id.action_rule);
-				if (rule != null && Constants.SUPPORTS_KIT_KAT) {
+				if (rule != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 					rule.setVisibility(View.GONE);
 				}
 

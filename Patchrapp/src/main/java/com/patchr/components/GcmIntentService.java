@@ -59,10 +59,6 @@ public class GcmIntentService extends GcmListenerService {
 					RestClient.getInstance().activityDateInsertDeletePatch = DateTime.nowDate().getTime();
 				}
 
-				/* Track */
-				NotificationManager.getInstance().getNotifications().put(notification.id, notification);
-				NotificationManager.getInstance().setNewNotificationCount(NotificationManager.getInstance().getNewNotificationCount() + 1);
-
 				/*
 				 * BACKGROUND, NEARBY, OR TARGET NOT VISIBLE
 				 */
@@ -93,7 +89,7 @@ public class GcmIntentService extends GcmListenerService {
 						/*
 					     * Send notification - includes sound notification
 					     */
-						NotificationManager.getInstance().statusNotification(notification, Patchr.applicationContext);
+						//NotificationManager.getInstance().processNotification(notification, Patchr.applicationContext);
 					}
 				}
 
@@ -113,9 +109,6 @@ public class GcmIntentService extends GcmListenerService {
 						}
 					}
 				}
-
-				/* Trigger event so subscribers can decide if they care about the notification */
-				NotificationManager.getInstance().broadcastNotification(notification);
 			}
 		}
 	}

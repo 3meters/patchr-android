@@ -17,7 +17,7 @@ public class LinkSpec {
 	public LinkSpec            linked;
 	public Map<String, Object> linkedFilter;
 	public LinkSpec            links;
-	public LinkSpec            linkCount;
+	public LinkSpec            linkCounts;
 	public Map<String, Object> refs;
 
 	public LinkSpec() {}
@@ -60,8 +60,8 @@ public class LinkSpec {
 		if (links != null) {
 			map.put("links", links);
 		}
-		if (linkCount != null) {
-			map.put("linkCount", linkCount);
+		if (linkCounts != null) {
+			map.put("linkCounts", linkCounts);
 		}
 		if (refs != null) {
 			map.put("refs", refs);
@@ -177,12 +177,12 @@ public class LinkSpec {
 		return this;
 	}
 
-	public LinkSpec getLinkCount() {
-		return linkCount;
+	public LinkSpec getLinkCounts() {
+		return linkCounts;
 	}
 
-	public LinkSpec setLinkCount(LinkSpec linkCount) {
-		this.linkCount = linkCount;
+	public LinkSpec setLinkCounts(LinkSpec linkCounts) {
+		this.linkCounts = linkCounts;
 		return this;
 	}
 

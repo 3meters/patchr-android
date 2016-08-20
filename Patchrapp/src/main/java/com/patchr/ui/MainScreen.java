@@ -20,20 +20,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.onesignal.OneSignal;
 import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
-import com.patchr.components.Logger;
 import com.patchr.components.NetworkManager;
-import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
+import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.LocationStatusEvent;
 import com.patchr.events.NetworkStatusEvent;
-import com.patchr.events.NotificationReceivedEvent;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -50,7 +49,6 @@ import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.ListWidget;
-import com.patchr.components.ReportingManager;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -278,10 +276,6 @@ public class MainScreen extends BaseScreen {
 	 * Notifications
 	 *--------------------------------------------------------------------------------------------*/
 
-	@Subscribe public void onNotificationReceived(final NotificationReceivedEvent event) {
-		updateNotificationIndicator(false);
-	}
-
 	@Subscribe public void onNetworkStatusChange(final NetworkStatusEvent event) {
 		if (event.status == NetworkStatus.CONNECTED) {
 			if (snackbar.isShownOrQueued()) {
@@ -365,20 +359,14 @@ public class MainScreen extends BaseScreen {
 							onClick(pendingClickView);
 						}
 					}
-					else if (drawerView.getId() == R.id.right_drawer && drawerRight != null) {
-						NotificationManager.getInstance().setNewNotificationCount(0);
-						updateNotificationIndicator(false);
-					}
 				}
 
 				@Override public void onDrawerOpened(View drawerView) {
 					super.onDrawerOpened(drawerView);
 
 					if (drawerView.getId() == R.id.right_drawer && drawerRight != null) {
-						NotificationManager.getInstance().setNewNotificationCount(0);
-						NotificationManager.getInstance().cancelAllNotifications();
+						OneSignal.clearOneSignalNotifications();
 						notificationList.onResume();
-						updateNotificationIndicator(true);
 						ReportingManager.getInstance().screen(AnalyticsCategory.VIEW, "NotificationsList");
 					}
 				}
@@ -514,25 +502,6 @@ public class MainScreen extends BaseScreen {
 		if (!NetworkManager.getInstance().isConnected()) {
 			displayConnectionIndicator();
 		}
-	}
-
-	public void updateNotificationIndicator(final Boolean ifDrawerVisible) {
-
-		Logger.v(this, "updateNotificationIndicator for menus");
-		runOnUiThread(() -> {
-			Boolean showingNotifications = (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END));
-			Integer newNotificationCount = NotificationManager.getInstance().getNewNotificationCount();
-
-			if ((ifDrawerVisible || !showingNotifications) && notificationsBadgeGroup != null) {
-				if (newNotificationCount > 0) {
-					notificationsBadgeCount.setText(String.valueOf(newNotificationCount));
-					notificationsBadgeGroup.setVisibility(View.VISIBLE);
-				}
-				else {
-					notificationsBadgeGroup.setVisibility(View.GONE);
-				}
-			}
-		});
 	}
 
 	/*--------------------------------------------------------------------------------------------

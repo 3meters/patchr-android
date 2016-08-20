@@ -1,11 +1,13 @@
 package com.patchr.events;
 
-import com.patchr.model.RealmEntity;
-
 public class NotificationReceivedEvent {
-	public final RealmEntity notification;
+	public final String targetId;
+	public final String parentId;
+	public final String eventType;
 
-	public NotificationReceivedEvent(RealmEntity notification) {
-		this.notification = notification;
+	public NotificationReceivedEvent(String targetId, String parentId, String eventType) {
+		this.targetId = targetId;
+		this.parentId = parentId;
+		this.eventType = eventType;
 	}
 }

@@ -44,7 +44,7 @@ public class ReportingManager {
 		Bugsnag.addToTab("network", "wifi_tethered", NetworkManager.getInstance().isWifiTethered());
 
 		/* Identifies device/install combo */
-		Bugsnag.addToTab("device", "patchr_install_id", Patchr.getInstance().getinstallId());
+		Bugsnag.addToTab("device", "patchr_install_id", NotificationManager.installId);
 
 		/* Location info */
 		Location location = LocationManager.getInstance().getAndroidLocationLocked();
@@ -120,7 +120,7 @@ public class ReportingManager {
 		}
 		else {
 			BranchProvider.logout();
-			Bugsnag.setUser(Patchr.getInstance().getinstallId(), null, "Anonymous");
+			Bugsnag.setUser(NotificationManager.installId, null, "Anonymous");
 			analyticsProvider.updateUser(null, null, null);
 		}
 	}

@@ -24,6 +24,7 @@ public class ProxibaseResponse {
 	public ProxibaseError      error;
 	public Session             session;
 	public Map<String, Object> clientMinVersions;
+	public Map<String, Object> map;
 
 	public Number httpCode = 200;
 	public String httpMessage;
@@ -40,6 +41,7 @@ public class ProxibaseResponse {
 		response.more = (Boolean) map.get("more");
 		response.info = (String) map.get("info");
 		response.time = (Number) map.get("time");
+		response.map = map;
 		response.noop = false;
 
 		Boolean canEdit = (Boolean) map.get("canEdit");

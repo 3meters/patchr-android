@@ -20,7 +20,6 @@ import com.patchr.components.AndroidManager;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
-import com.patchr.components.NotificationManager;
 import com.patchr.components.ReportingManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -246,9 +245,6 @@ public class LobbyScreen extends AppCompatActivity {
 			/* Always clear the location */
 			LocationManager.getInstance().stop();
 			LocationManager.getInstance().setAndroidLocationLocked(null);
-
-			/* Restart notification tracking */
-			NotificationManager.getInstance().setNewNotificationCount(0);
 
 			if (Patchr.updateRequired) {
 				updateRequired();

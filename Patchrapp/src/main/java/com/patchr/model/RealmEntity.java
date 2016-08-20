@@ -495,7 +495,7 @@ public class RealmEntity extends RealmObject {
 				List<SimpleMap> linkCounts = Arrays.asList(
 					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Create).asMap(),
 					new LinkSpec().setTo(LinkDestination.Patches).setType(LinkType.Watch).setEnabled(true).asMap());
-				parameters.put("linkCount", linkCounts);
+				parameters.put("linkCounts", linkCounts);
 				break;
 			}
 			case Constants.SCHEMA_ENTITY_MESSAGE: {
@@ -516,7 +516,7 @@ public class RealmEntity extends RealmObject {
 				/* Link counts */
 				List<SimpleMap> linkCounts = Collections.singletonList(
 					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Like).asMap());
-				parameters.put("linkCount", linkCounts);
+				parameters.put("linkCounts", linkCounts);
 
 				/* Refs */
 				parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));
@@ -535,7 +535,7 @@ public class RealmEntity extends RealmObject {
 					new LinkSpec().setFrom(LinkDestination.Messages).setType(LinkType.Content).asMap(),
 					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(true).asMap(),
 					new LinkSpec().setFrom(LinkDestination.Users).setType(LinkType.Watch).setEnabled(false).asMap());
-				parameters.put("linkCount", linkCounts);
+				parameters.put("linkCounts", linkCounts);
 
 				/* Refs */
 				parameters.put("refs", Maps.asMap("_owner", "_id,name,photo,schema,type"));

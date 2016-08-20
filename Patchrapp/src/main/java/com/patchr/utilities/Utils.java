@@ -18,6 +18,7 @@ import com.patchr.Constants;
 import com.patchr.Patchr;
 import com.patchr.components.LocationManager;
 import com.patchr.components.Logger;
+import com.patchr.components.NotificationManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.RealmEntity;
 
@@ -68,7 +69,7 @@ public class Utils {
 
 	public static String createImageKey() {
 		final String stringDate = DateTime.nowString(DateTime.DATE_NOW_FORMAT_FILENAME);
-		final String root = UserManager.userId != null ? UserManager.userId : Patchr.getInstance().getinstallId();
+		final String root = UserManager.userId != null ? UserManager.userId : NotificationManager.installId;
 		return String.format("%1$s_%2$s.jpg", root, stringDate);
 	}
 

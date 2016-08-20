@@ -34,11 +34,9 @@ import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.Preference;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Utils;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import io.branch.referral.Branch;
@@ -61,9 +59,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	public static Gson      gson       = new Gson();
 
 	public        Boolean prefEnableDev;
-	public static String  installId;
-	public static Long    installDate;
-	public static String  installType;
 
 	public static Patchr getInstance() {
 		return instance;
@@ -78,8 +73,11 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		if (instance == null) {
 			instance = this;
 			applicationContext = getApplicationContext();
-			Logger.i(this, "Application created");
-			instance.initializeInstance();
+			String processName = Utils.getProcessName();
+			Logger.i(this, String.format("Application created, process name: %1$s", processName));
+			if (!"com.patchr.android:cds".equals(processName)) {
+				instance.initializeInstance();
+			}
 		}
 	}
 
@@ -122,9 +120,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			PreferenceManager.setDefaultValues(this, R.xml.preferences_dev, true);
 			PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 
-			/* Make sure unique id is initialized */
-			initializeInstallInfo();
-
 			/* Creative SDK needs the app context */
 			AdobeCSDKFoundation.initializeCSDKFoundation(getApplicationContext());
 
@@ -132,7 +127,7 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			FacebookSdk.sdkInitialize(this);
 
 			/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
-			snapshotPreferences();
+			prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
 
 			/* Establish device memory class */
 			Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
@@ -166,32 +161,15 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			/* Must come after managers are initialized */
 			UserManager.shared().loginAuto();
 
-			/* Turn on Onesignal */
-			OneSignal.startInit(this).init();
+			/* Turn on Onesignal after we have auto login */
+			OneSignal.startInit(this)
+				.setNotificationOpenedHandler(NotificationManager.getInstance())
+				.inFocusDisplaying(OneSignal.OSInFocusDisplayOption.None)
+				.init();
 			OneSignal.idsAvailable(NotificationManager.getInstance());
 
 			Logger.d(this, "Finished app initialization");
 		});
-	}
-
-	private void initializeInstallInfo() {
-
-		installId = settings.getString(StringManager.getString(R.string.setting_unique_id), null);
-		installDate = settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
-		installType = settings.getString(StringManager.getString(R.string.setting_unique_id_type), null);
-
-		if (installId == null || installType == null) {
-
-			/* Generate and store a unique number for this device */
-			installId = UUID.randomUUID().toString();
-			installType = Constants.INSTALL_TYPE_RANDOM;
-			installDate = DateTime.nowDate().getTime();
-
-			settings.edit().putString(StringManager.getString(R.string.setting_unique_id_type), installType);
-			settings.edit().putString(StringManager.getString(R.string.setting_unique_id), installId);
-			settings.edit().putLong(StringManager.getString(R.string.setting_unique_id_date), installDate);
-			settings.edit().apply();
-		}
 	}
 
 	public void loadContainer(String containerId) {
@@ -220,10 +198,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		}, 2, TimeUnit.SECONDS);
 	}
 
-	public void snapshotPreferences() {
-		prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
-	}
-
 	/*--------------------------------------------------------------------------------------------
 	 * Properties
 	 *--------------------------------------------------------------------------------------------*/
@@ -236,10 +210,4 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		return StringManager.getString(R.string.creative_sdk_client_key);
 	}
 
-	public synchronized String getinstallId() {
-		if (installId == null) {
-			initializeInstallInfo();
-		}
-		return installId;
-	}
 }
