@@ -22,6 +22,7 @@ import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Logger;
+import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.model.Photo;
@@ -236,7 +237,7 @@ public class ProfileEdit extends BaseEdit {
 							final RealmEntity user = response.user;
 							final Session session = response.session;
 							UserManager.shared().setCurrentUser(user, session);
-
+							NotificationManager.getInstance().activateUser();
 							ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Created User and Logged In");
 							Logger.i(ProfileEdit.this, "Inserted new user: " + entity.name + " (" + entity.id + ")");
 							UI.toast(StringManager.getString(R.string.alert_logged_in) + " " + user.name);
