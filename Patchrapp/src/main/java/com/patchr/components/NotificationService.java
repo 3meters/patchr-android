@@ -13,6 +13,7 @@ import com.patchr.utilities.Booleans;
 import org.json.JSONObject;
 
 public class NotificationService extends NotificationExtenderService {
+
 	@Override
 	protected boolean onNotificationProcessing(OSNotificationReceivedResult notification) {
 
@@ -20,14 +21,16 @@ public class NotificationService extends NotificationExtenderService {
 		String pushNotificationType = Patchr.settings.getString(StringManager.getString(R.string.pref_push_notification_type)
 			, StringManager.getString(R.string.pref_push_notification_type_default));
 
+		boolean silent = false;
+
 		if ("none".equals(pushNotificationType)) {
-			return true;
+			silent = true;
 		}
 		else if ("messages_only".equals(pushNotificationType)) {
 			if (data != null) {
 				String eventType = data.optString("event");
 				if (!"insert_entity_message_content".equals(eventType)) {
-					return true;
+					silent = true;
 				}
 			}
 		}
@@ -39,7 +42,7 @@ public class NotificationService extends NotificationExtenderService {
 				String eventType = data.optString("event");
 				int priority = data.optInt("priority", 1);
 
-				if (priority == 1) {
+				if (!silent && priority == 1) {
 					/* Chirp */
 					if (Patchr.settings.getBoolean(StringManager.getString(R.string.pref_push_notification_sound)
 						, Booleans.getBoolean(R.bool.pref_push_notifications_sound_default))) {
@@ -58,6 +61,6 @@ public class NotificationService extends NotificationExtenderService {
 				Dispatcher.getInstance().post(new NotificationReceivedEvent(targetId, parentId, eventType));
 			}
 		}
-		return notification.isAppInFocus;    // true stops notification from displaying (alert or system notification)
+		return (notification.isAppInFocus || silent);    // true stops notification from displaying (alert or system notification)
 	}
 }
