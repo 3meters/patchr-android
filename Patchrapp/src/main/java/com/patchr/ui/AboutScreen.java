@@ -12,7 +12,6 @@ import com.patchr.components.AnimationManager;
 import com.patchr.components.NotificationManager;
 import com.patchr.components.StringManager;
 import com.patchr.objects.enums.TransitionType;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.UI;
 import com.patchr.utilities.Utils;
 
@@ -95,7 +94,6 @@ public class AboutScreen extends BaseScreen {
 
 		if (Utils.devModeEnabled()) {
 			UI.setTextView(findViewById(R.id.install_id), NotificationManager.installId);
-			UI.setTextView(findViewById(R.id.install_date), "Install date: " + DateTime.dateString(NotificationManager.installDate, DateTime.DATE_FORMAT_DEFAULT));
 			UI.setVisibility(findViewById(R.id.holder_footer), View.VISIBLE);
 		}
 	}

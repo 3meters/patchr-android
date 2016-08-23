@@ -1,16 +1,14 @@
 package com.patchr.components;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import com.onesignal.OSNotificationOpenResult;
 import com.onesignal.OneSignal;
 import com.patchr.Patchr;
-import com.patchr.R;
 import com.patchr.service.RestClient;
-import com.patchr.utilities.DateTime;
 import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
+import com.patchr.utilities.Utils;
 
 import org.json.JSONObject;
 
@@ -18,7 +16,6 @@ import org.json.JSONObject;
 public class NotificationManager implements OneSignal.IdsAvailableHandler, OneSignal.NotificationOpenedHandler {
 
 	public static String installId;
-	public static Long   installDate;
 
 	private static NotificationManager instance = new NotificationManager();
 
@@ -27,7 +24,10 @@ public class NotificationManager implements OneSignal.IdsAvailableHandler, OneSi
 	}
 
 	private NotificationManager() {
-		installDate = Patchr.settings.getLong(StringManager.getString(R.string.setting_unique_id_date), 0);
+		OneSignal.startInit(Patchr.applicationContext)
+			.setNotificationOpenedHandler(this)
+			.inFocusDisplaying(OneSignal.OSInFocusDisplayOption.None)
+			.init();
 	}
 
 	/*--------------------------------------------------------------------------------------------
@@ -55,22 +55,23 @@ public class NotificationManager implements OneSignal.IdsAvailableHandler, OneSi
 		Logger.d(this, String.format("OneSignal installId: %1$s", installId));
 		NotificationManager.installId = installId;
 
-		if (installDate == 0) {
-			installDate = DateTime.nowDate().getTime();
-			SharedPreferences.Editor editor = Patchr.settings.edit();
-			editor.putLong(StringManager.getString(R.string.setting_unique_id_date), installDate);
-			editor.apply();
-		}
-
-		RestClient.getInstance().preflight()
-			.flatMap(response -> {
-				return RestClient.getInstance().registerInstall();
-			})
+		RestClient.getInstance().registerInstall()
 			.subscribe(
 				response -> {
+					Logger.i(this, String.format("Install registered or updated: %1$s", installId));
 				},
 				error -> {
+					Logger.w(this, "Error during registerInstall");
 					Errors.handleError(Patchr.applicationContext, error);
 				});
+	}
+
+	public void activateUser() {
+		/*
+		 * Deactivation is handled by service logout which handles clearing user from install.
+		 */
+		Utils.guard(UserManager.userId != null, "Activating user for notifications requires a current user.");
+		OneSignal.syncHashedEmail(UserManager.userId);
+		OneSignal.idsAvailable(this);
 	}
 }

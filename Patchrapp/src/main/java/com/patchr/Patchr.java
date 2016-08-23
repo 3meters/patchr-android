@@ -21,7 +21,6 @@ import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 import com.google.gson.Gson;
 import com.kbeanie.imagechooser.api.BChooserPreferences;
-import com.onesignal.OneSignal;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.Foreground;
 import com.patchr.components.GoogleAnalyticsProvider;
@@ -34,6 +33,8 @@ import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.objects.enums.Preference;
+import com.patchr.service.RestClient;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.Utils;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
@@ -58,7 +59,7 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	public static Stopwatch stopwatch2 = new Stopwatch();
 	public static Gson      gson       = new Gson();
 
-	public        Boolean prefEnableDev;
+	public Boolean prefEnableDev;
 
 	public static Patchr getInstance() {
 		return instance;
@@ -162,11 +163,16 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			UserManager.shared().loginAuto();
 
 			/* Turn on Onesignal after we have auto login */
-			OneSignal.startInit(this)
-				.setNotificationOpenedHandler(NotificationManager.getInstance())
-				.inFocusDisplaying(OneSignal.OSInFocusDisplayOption.None)
-				.init();
-			OneSignal.idsAvailable(NotificationManager.getInstance());
+			if (UserManager.shared().authenticated()) {
+				RestClient.getInstance().preflight()
+					.subscribe(
+						response -> {
+							NotificationManager.getInstance().activateUser();
+						},
+						error -> {
+							Errors.handleError(Patchr.applicationContext, error);
+						});
+			}
 
 			Logger.d(this, "Finished app initialization");
 		});
@@ -209,5 +215,4 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	@Override public String getClientSecret() {
 		return StringManager.getString(R.string.creative_sdk_client_key);
 	}
-
 }

@@ -600,6 +600,7 @@ public class RestClient {
 				RealmEntity user = response.data.get(0);
 				Session session = response.session;
 				UserManager.shared().setCurrentUser(user, session);
+				NotificationManager.getInstance().activateUser();
 				ReportingManager.getInstance().userLoggedIn();
 			});
 	}

@@ -139,7 +139,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 		Preference pref = findPreference(StringManager.getString(R.string.pref_push_notification_type));
 		if (pref != null) {
 			pref.setOnPreferenceChangeListener((preference, newValue) -> {
-				OneSignal.setSubscription(!newValue.equals("none"));
+				/* Nothing to do for now */
 				return true;
 			});
 		}
