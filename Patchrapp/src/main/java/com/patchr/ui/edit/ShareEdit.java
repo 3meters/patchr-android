@@ -436,10 +436,10 @@ public class ShareEdit extends BaseEdit {
 						busyController.hide(true);
 						if (inputShareType != null) {
 							if (inputShareType.equals(MessageType.Invite)) {
-								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Patchr");
+								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation Using Patchr");
 							}
 							else if (inputShareType.equals(MessageType.Share)) {
-								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Shared Message", "network", "Patchr");
+								ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Shared Message Using Patchr");
 							}
 						}
 						finish();

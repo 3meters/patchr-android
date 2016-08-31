@@ -137,10 +137,6 @@ public class ReportingManager {
 		analyticsProvider.track(category, event);
 	}
 
-	public void track(String category, String event, String key, Object value) {
-		analyticsProvider.track(category, event, key, value);
-	}
-
 	public void screen(String category, String name) {
 		analyticsProvider.screen(category, name);
 	}

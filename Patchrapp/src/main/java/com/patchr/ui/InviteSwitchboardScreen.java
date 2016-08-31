@@ -90,7 +90,7 @@ public class InviteSwitchboardScreen extends BaseScreen {
 		}
 		else if (id == R.id.more_button) {
 			BranchProvider provider = new BranchProvider();
-			ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation", "network", "Android");
+			ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation Using Android");
 			provider.invite(title, entity, this);
 		}
 	}

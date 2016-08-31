@@ -75,7 +75,7 @@ public abstract class BaseEdit extends BaseScreen {
 					final String jsonPhoto = extras.getString(Constants.EXTRA_PHOTO);
 					if (jsonPhoto != null) {
 						final Photo photo = Patchr.gson.fromJson(jsonPhoto, Photo.class);
-						ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Set Photo", "target", Utils.capitalize(entitySchema));
+						ReportingManager.getInstance().track(AnalyticsCategory.ACTION, String.format("Set Photo For %1$s", Utils.capitalize(entitySchema)));
 						onPhotoSelected(photo);
 					}
 				}
