@@ -34,7 +34,9 @@ public class S3 {
 	@SuppressWarnings("deprecation") private S3() {
 		manager = new TransferManager(awsCredentials);
 		try {
-			Dispatcher.getInstance().register(this);
+			if (!Dispatcher.getInstance().isRegistered(this)) {
+				Dispatcher.getInstance().register(this);
+			}
 		}
 		catch (IllegalArgumentException ignore) { /* ignore */ }
 	}

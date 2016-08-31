@@ -57,7 +57,9 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 		if (this.appBarLayout != null) {
 			this.appBarLayout.addOnOffsetChangedListener(this);
 		}
-		Dispatcher.getInstance().register(this);
+		if (!Dispatcher.getInstance().isRegistered(this)) {
+			Dispatcher.getInstance().register(this);
+		}
 	}
 
 	@Override protected void onPause() {
@@ -69,8 +71,8 @@ public class BaseListScreen extends BaseScreen implements AppBarLayout.OnOffsetC
 
 	@Override protected void onStop() {
 		super.onStop();
-		Dispatcher.getInstance().unregister(this);
 		listWidget.onStop();
+		Dispatcher.getInstance().unregister(this);
 	}
 
 	/*--------------------------------------------------------------------------------------------

@@ -52,7 +52,9 @@ public class NearbyListFragment extends EntityListFragment implements SwipeRefre
 
 	@Override public void onStart() {
 		bindActionButton(); // User might have logged in/out while gone
-		Dispatcher.getInstance().register(this);
+		if (!Dispatcher.getInstance().isRegistered(this)) {
+			Dispatcher.getInstance().register(this);
+		}
 		super.onStart();
 	}
 
