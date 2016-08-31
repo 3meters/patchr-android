@@ -27,12 +27,14 @@ import com.patchr.R;
 import com.patchr.components.AnimationManager;
 import com.patchr.components.Dispatcher;
 import com.patchr.components.NetworkManager;
+import com.patchr.components.NotificationManager;
 import com.patchr.components.PermissionUtil;
 import com.patchr.components.ReportingManager;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
 import com.patchr.events.LocationStatusEvent;
 import com.patchr.events.NetworkStatusEvent;
+import com.patchr.exceptions.NoNetworkException;
 import com.patchr.model.Photo;
 import com.patchr.model.RealmEntity;
 import com.patchr.objects.enums.AnalyticsCategory;
@@ -42,6 +44,7 @@ import com.patchr.objects.enums.QueryName;
 import com.patchr.objects.enums.State;
 import com.patchr.objects.enums.Suggest;
 import com.patchr.objects.enums.TransitionType;
+import com.patchr.service.RestClient;
 import com.patchr.ui.collections.SearchScreen;
 import com.patchr.ui.edit.PatchEdit;
 import com.patchr.ui.fragments.EntityListFragment;
@@ -49,6 +52,7 @@ import com.patchr.ui.fragments.MapListFragment;
 import com.patchr.ui.fragments.NearbyListFragment;
 import com.patchr.ui.widgets.ImageWidget;
 import com.patchr.ui.widgets.ListWidget;
+import com.patchr.utilities.Errors;
 import com.patchr.utilities.UI;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -102,7 +106,9 @@ public class MainScreen extends BaseScreen {
 
 	@Override protected void onStart() {
 		super.onStart();
-		Dispatcher.getInstance().register(this);
+		if (!Dispatcher.getInstance().isRegistered(this)) {
+			Dispatcher.getInstance().register(this);
+		}
 	}
 
 	@Override protected void onResume() {
@@ -280,6 +286,21 @@ public class MainScreen extends BaseScreen {
 		if (event.status == NetworkStatus.CONNECTED) {
 			if (snackbar.isShownOrQueued()) {
 				snackbar.dismiss();
+			}
+
+			if (!Patchr.preflightExecuted) {
+				Patchr.preflightExecuted = true;
+				RestClient.getInstance().preflight()
+					.subscribe(
+						response -> {
+							NotificationManager.getInstance().activateUser();
+						},
+						error -> {
+							if (error instanceof NoNetworkException) {
+								Patchr.preflightExecuted = false;
+							}
+							Errors.handleError(Patchr.applicationContext, error);
+						});
 			}
 		}
 		else if (!snackbar.isShownOrQueued()) {
