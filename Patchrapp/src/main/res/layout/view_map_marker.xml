@@ -24,7 +24,7 @@
 		android:background="@drawable/bg_round_primary" />
 
 	<TextView
-		android:id="@+id/text"
+		android:id="@+id/amu_text"
 		android:layout_width="32dp"
 		android:layout_height="32dp"
 		android:layout_alignBottom="@+id/bulb"

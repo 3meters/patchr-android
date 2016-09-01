@@ -72,13 +72,13 @@ public class MapListFragment extends SupportMapFragment implements ClusterManage
 
 			map = googleMap;
 
-			clusterManager = new ClusterManager<>(getActivity(), map);
+			clusterManager = new ClusterManager<EntityItem>(getActivity(), map);
 			clusterRenderer = new EntityRenderer(getActivity());
 			clusterRenderer.setMinClusterSize(10);
 			clusterManager.setRenderer(clusterRenderer);
 
 			//noinspection deprecation
-			map.setOnCameraChangeListener(clusterManager);
+			map.setOnCameraIdleListener(clusterManager);
 			map.setOnMarkerClickListener(clusterManager);
 			map.setOnInfoWindowClickListener(clusterManager);
 
