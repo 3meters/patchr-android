@@ -264,20 +264,12 @@ public class PhotoSwitchboardScreen extends AppCompatActivity implements ImageCh
 
 	protected void photoFromCamera() {
 		try {
-			String directory = MediaManager.getPhotoDirectory();
-			if (directory != null) {
-				//noinspection deprecation
-				imageChooserManager = new ImageChooserManager(this
-					, ChooserType.REQUEST_CAPTURE_PICTURE
-					, directory
-					, false);
+			imageChooserManager = new ImageChooserManager(this
+				, ChooserType.REQUEST_CAPTURE_PICTURE
+				, false);
 
-				imageChooserManager.setImageChooserListener(this);
-				imageChooserManager.choose();
-			}
-			else {
-				UI.toast(StringManager.getString(R.string.error_storage_unmounted));
-			}
+			imageChooserManager.setImageChooserListener(this);
+			imageChooserManager.choose();
 		}
 		catch (IllegalArgumentException e) {
 			ReportingManager.logException(new IllegalArgumentException("Image chooser failed to handle photo from camera", e));

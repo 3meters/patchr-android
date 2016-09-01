@@ -54,7 +54,7 @@ public class FacebookProvider {
 
 				@Override
 				public void onSuccess(AppInviteDialog.Result result) {
-					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Facebook");
+					ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation Using Facebook");
 					UI.toast("Facebook invites sent");
 				}
 

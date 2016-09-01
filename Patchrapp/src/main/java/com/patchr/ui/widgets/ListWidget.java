@@ -117,7 +117,9 @@ public class ListWidget extends FrameLayout implements SwipeRefreshLayout.OnRefr
 	}
 
 	public void onStart() {
-		Dispatcher.getInstance().register(this);
+		if (!Dispatcher.getInstance().isRegistered(this)) {
+			Dispatcher.getInstance().register(this);
+		}
 	}
 
 	public void onResume() {

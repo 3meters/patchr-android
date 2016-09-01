@@ -20,7 +20,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 import com.google.gson.Gson;
-import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.Foreground;
 import com.patchr.components.GoogleAnalyticsProvider;
@@ -32,6 +31,7 @@ import com.patchr.components.ReportingManager;
 import com.patchr.components.Stopwatch;
 import com.patchr.components.StringManager;
 import com.patchr.components.UserManager;
+import com.patchr.exceptions.NoNetworkException;
 import com.patchr.objects.enums.Preference;
 import com.patchr.service.RestClient;
 import com.patchr.utilities.Errors;
@@ -53,6 +53,7 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 	public static SharedPreferences settings;
 	public static JobManager        jobManager;
 	public static boolean           updateRequired;
+	public static boolean           preflightExecuted;
 
 	public static Handler   mainThread = new Handler(Looper.getMainLooper());
 	public static Stopwatch stopwatch1 = new Stopwatch();
@@ -107,6 +108,28 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 		/* Turn on branch */
 		Branch.getAutoInstance(this);
 
+		/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
+		prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
+
+		/* Must come after managers are initialized */
+		UserManager.shared().loginAuto();
+
+		/* Turn on Onesignal after we have auto login */
+		if (UserManager.shared().authenticated()) {
+			preflightExecuted = true;
+			RestClient.getInstance().preflight()
+				.subscribe(
+					response -> {
+						NotificationManager.getInstance().activateUser();
+					},
+					error -> {
+						if (error instanceof NoNetworkException) {
+							preflightExecuted = false;
+						}
+						Errors.handleError(Patchr.applicationContext, error);
+					});
+		}
+
 		AsyncTask.execute(() -> {
 
 			/* Configure realm */
@@ -127,15 +150,8 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 			/* Turn on facebook */
 			FacebookSdk.sdkInitialize(this);
 
-			/* Set prefs so we can tell when a change happens that we need to respond to. Theme is set in setTheme(). */
-			prefEnableDev = settings.getBoolean(Preference.ENABLE_DEV, false);
-
 			/* Establish device memory class */
 			Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
-
-			/* Set the folder used by image chooser for all files */
-			BChooserPreferences preferences = new BChooserPreferences(this);
-			preferences.setFolderName("Pictures/Patchr");
 
 			/* Stetho */
 			if (BuildConfig.DEBUG) {
@@ -158,21 +174,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 			/* Warmup media manager */
 			MediaManager.warmup();
-
-			/* Must come after managers are initialized */
-			UserManager.shared().loginAuto();
-
-			/* Turn on Onesignal after we have auto login */
-			if (UserManager.shared().authenticated()) {
-				RestClient.getInstance().preflight()
-					.subscribe(
-						response -> {
-							NotificationManager.getInstance().activateUser();
-						},
-						error -> {
-							Errors.handleError(Patchr.applicationContext, error);
-						});
-			}
 
 			Logger.d(this, "Finished app initialization");
 		});

@@ -51,7 +51,9 @@ public class BusyController {
 	}
 
 	public void onResume() {
-		Dispatcher.getInstance().register(this);
+		if (!Dispatcher.getInstance().isRegistered(this)) {
+			Dispatcher.getInstance().register(this);
+		}
 	}
 
 	public void onPause() {

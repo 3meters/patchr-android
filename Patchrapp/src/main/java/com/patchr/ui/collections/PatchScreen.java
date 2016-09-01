@@ -109,7 +109,6 @@ public class PatchScreen extends BaseListScreen {
 		}
 	}
 
-
 	/*--------------------------------------------------------------------------------------------
 	 * Events
 	 *--------------------------------------------------------------------------------------------*/
@@ -255,7 +254,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 			}
 			else if (requestCode == Constants.ACTIVITY_SHARE) {
-				ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation", "network", "Android");
+				ReportingManager.getInstance().track(AnalyticsCategory.EDIT, "Sent Patch Invitation Using Android");
 				UI.toast("Patch invites sent");
 			}
 
@@ -536,7 +535,7 @@ public class PatchScreen extends BaseListScreen {
 				}
 				else if (item.getItemId() == R.id.invite_using_other) {
 					BranchProvider provider = new BranchProvider();
-					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation", "network", "Android");
+					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Patch Invitation Using Android");
 					provider.invite(title, entity, PatchScreen.this);
 				}
 			});

@@ -631,7 +631,7 @@ public class MessageScreen extends BaseScreen {
 					AnimationManager.doOverridePendingTransition(activity, TransitionType.FORM_TO);
 				}
 				else if (item.getItemId() == R.id.share_using_other) {
-					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Message Share", "network", "Android");
+					ReportingManager.getInstance().track(AnalyticsCategory.ACTION, "Started Message Share Using Android");
 					showBuiltInSharePicker(title);
 				}
 			});
