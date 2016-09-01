@@ -41,9 +41,6 @@ public class NotificationManager implements OneSignal.IdsAvailableHandler, OneSi
 		JSONObject data = result.notification.payload.additionalData;
 		if (data != null) {
 			String targetId = data.optString("targetId");
-			String parentId = data.optString("parentId");
-			String eventType = data.optString("event");
-
 			Intent intent = UI.browseEntity(targetId, Patchr.applicationContext, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
 			Patchr.applicationContext.startActivity(intent);
