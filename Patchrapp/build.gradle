@@ -16,7 +16,7 @@ android {
 		applicationId 'com.patchr.android'
 
 		minSdkVersion 16        // ICS 4.1 and up: Jelly Bean
-		targetSdkVersion 24     // Marshmallow
+		targetSdkVersion 23     // Marshmallow
 		versionCode 133
 		versionName '1.4.1'
 
