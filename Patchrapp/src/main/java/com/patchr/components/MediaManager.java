@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.patchr.Patchr;
 import com.patchr.R;
 import com.patchr.utilities.Booleans;
@@ -42,6 +43,10 @@ public class MediaManager {
 		SOUND_PLACES_FOUND = soundPool.load(Patchr.applicationContext, R.raw.notification_candi_discovered_soft, 1);
 		SOUND_DEBUG_POP = soundPool.load(Patchr.applicationContext, R.raw.notification_pop, 1);
 		SOUND_ACTIVITY_CHANGE = soundPool.load(Patchr.applicationContext, R.raw.notification_carme, 1);
+
+		/* Set the folder used by image chooser for all files */
+		BChooserPreferences preferences = new BChooserPreferences(Patchr.applicationContext);
+		preferences.setFolderName("Pictures/Patchr");
 	}
 
 	public static void playSound(Integer soundResId, Float multiplier, Integer loops) {

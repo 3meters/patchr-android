@@ -20,7 +20,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.tagmanager.ContainerHolder;
 import com.google.android.gms.tagmanager.TagManager;
 import com.google.gson.Gson;
-import com.kbeanie.imagechooser.api.BChooserPreferences;
 import com.patchr.components.ContainerManager;
 import com.patchr.components.Foreground;
 import com.patchr.components.GoogleAnalyticsProvider;
@@ -153,10 +152,6 @@ public class Patchr extends Application implements IAdobeAuthClientCredentials {
 
 			/* Establish device memory class */
 			Logger.i(this, "Device memory class: " + String.valueOf(Utils.maxMemoryMB()));
-
-			/* Set the folder used by image chooser for all files */
-			BChooserPreferences preferences = new BChooserPreferences(this);
-			preferences.setFolderName("Pictures/Patchr");
 
 			/* Stetho */
 			if (BuildConfig.DEBUG) {
